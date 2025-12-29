@@ -11,6 +11,12 @@ The FLS mapping files in `iceoryx2-fls-mapping/` document how iceoryx2 uses vari
 - Legality rule compliance documentation
 - Safety-critical pattern analysis
 
+## Current Status
+
+**All chapters updated to v0.8.0** - Completed 2025-12-30
+
+Next update required when iceoryx2 v0.9.0 or later is released.
+
 ## Repository Structure
 
 ```
@@ -121,12 +127,22 @@ rg -c '\bextern\s+"C"\s+fn\b' --type rust  # extern C functions
 rg -c '#\[no_mangle\]' --type rust      # no_mangle attribute
 ```
 
+**Chapter 15 - Ownership:**
+```bash
+rg -c 'impl\s+Drop\s+for' --type rust   # Drop implementations
+rg -c 'derive.*Copy' --type rust        # Copy derives
+rg -c 'ManuallyDrop' --type rust        # ManuallyDrop usage
+rg -c 'PhantomData' --type rust         # PhantomData markers
+rg -c 'mem::forget' --type rust         # mem::forget usage
+```
+
 **Chapter 17 - Concurrency:**
 ```bash
 rg -c '\bAtomic' --type rust            # Atomic types
 rg -c '\bOrdering::' --type rust        # Memory ordering
-rg -c '\bSend\b' --type rust            # Send trait
-rg -c '\bSync\b' --type rust            # Sync trait
+rg -c 'unsafe\s+impl\s+Send' --type rust # unsafe impl Send
+rg -c 'unsafe\s+impl\s+Sync' --type rust # unsafe impl Sync
+rg -c '\bSpinLock\b' --type rust        # SpinLock usage
 ```
 
 **Chapter 19 - Unsafety:**
@@ -135,6 +151,15 @@ rg -c '\bunsafe\s*\{' --type rust       # unsafe blocks
 rg -c '\bunsafe\s+fn\b' --type rust     # unsafe functions
 rg -c '\bunsafe\s+impl\b' --type rust   # unsafe impl
 rg -c '\bunsafe\s+trait\b' --type rust  # unsafe trait
+rg -c '\bunion\b' --type rust           # union types
+```
+
+**Chapter 20 - Macros:**
+```bash
+rg -c 'macro_rules!' --type rust        # declarative macros
+rg -c '#\[proc_macro' --type rust       # procedural macros
+rg -c '#\[macro_export' --type rust     # exported macros
+rg -c '\$crate::' --type rust           # $crate usage
 ```
 
 **Chapter 21 - FFI:**
@@ -146,15 +171,23 @@ rg -c '#\[repr\(C\)\]' --type rust      # repr(C)
 rg -c '\bunion\b' --type rust           # union types
 ```
 
+**Chapter 22 - Inline Assembly:**
+```bash
+rg -c '\basm!\b' --type rust            # asm! macro
+rg -c 'global_asm!' --type rust         # global_asm! macro
+rg -c '\bfence\(' --type rust           # memory fences
+rg -c 'compiler_fence\(' --type rust    # compiler fences
+```
+
 #### 3.4 Update JSON Structure
 
 Each JSON file should include:
 
 ```json
 {
-  "fls_chapter": "N. Chapter Name",
-  "fls_reference": "https://...",
-  "codebase": "iceoryx2",
+  "chapter": N,
+  "title": "Chapter Name",
+  "fls_url": "https://...",
   "version": "0.8.0",
   "analysis_date": "YYYY-MM-DD",
   "version_changes": {
@@ -166,6 +199,8 @@ Each JSON file should include:
       "Change 2 with percentage if applicable"
     ]
   },
+  "summary": "Updated summary reflecting new version",
+  "statistics": { ... },
   // ... rest of chapter-specific content
 }
 ```
@@ -229,7 +264,9 @@ Update line numbers as needed.
 | match expressions | 712 | 1,663 | +134% |
 | ManuallyDrop | 0 | 541 | new |
 
-## Chapters Completed (as of 2025-12-30)
+## Chapter Update Tracking
+
+### v0.8.0 Update (Completed 2025-12-30)
 
 - [x] Chapter 02 - Lexical Elements
 - [x] Chapter 03 - Items
@@ -252,9 +289,7 @@ Update line numbers as needed.
 - [x] Chapter 21 - FFI
 - [x] Chapter 22 - Inline Assembly
 
-**ALL CHAPTERS COMPLETE** - v0.8.0 update finished 2025-12-30
-
-## Key Changes Summary (v0.7.0 → v0.8.0)
+### Key Changes by Chapter (v0.7.0 → v0.8.0)
 
 | Chapter | Key Changes |
 |---------|-------------|
@@ -266,6 +301,19 @@ Update line numbers as needed.
 | **20 - Macros** | 28 macros (+75%), 6 proc-macros (+200%), 3 proc-macro crates |
 | **22 - Inline Asm** | Still 0 asm!, 1 global_asm! in bare-metal example only |
 
+## Next Version Update Checklist
+
+When a new iceoryx2 version is released:
+
+1. [ ] Clone new version: `python tools/clone_iceoryx2.py v{NEW_VERSION}`
+2. [ ] Review release notes for major changes
+3. [ ] Identify high-priority chapters (typically FFI, Unsafety, Concurrency)
+4. [ ] Update each chapter JSON with new statistics
+5. [ ] Update file paths if directory structure changed
+6. [ ] Verify code samples still exist and update line numbers
+7. [ ] Update this AGENTS.md with new version tracking
+8. [ ] Update "Current Status" section at top of this file
+
 ## Tips
 
 1. **Use parallel rg commands**: Run multiple statistics gathering commands in parallel for efficiency
@@ -273,6 +321,8 @@ Update line numbers as needed.
 3. **Verify samples exist**: Before updating, verify code samples still exist at specified locations
 4. **Note new patterns**: Document any new language patterns introduced (e.g., let-else, union types)
 5. **Document NOT USED**: Explicitly document language features that are intentionally not used (e.g., async/await)
+6. **Prioritize high-impact chapters**: FFI, Unsafety, and Concurrency typically have the most changes
+7. **Update version_changes section**: Always include from_version, to_version, summary, and key_changes
 
 ## References
 
