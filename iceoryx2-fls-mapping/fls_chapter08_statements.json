@@ -1,0 +1,238 @@
+{
+  "fls_chapter": "8. Statements",
+  "fls_reference": "https://spec.ferrocene.dev/statements.html",
+  "codebase": "iceoryx2",
+  "analysis_date": "2025-12-18",
+  "overview": {
+    "description": "FLS Chapter 8 defines statements - the executable units within block expressions. Statements include let statements for introducing bindings, expression statements for side effects, item statements for local declarations, macro statements, and empty statements.",
+    "key_concepts": [
+      "Let statements (binding introduction)",
+      "Expression statements (side effects, result ignored)",
+      "Item statements (local items within functions)",
+      "Macro statements (terminated macro invocations)",
+      "Empty statements (;)"
+    ],
+    "syntax": "Statement ::= ExpressionStatement | Item | LetStatement | TerminatedMacroInvocation | ;"
+  },
+  "statement_counts": {
+    "let_statements_total": 9703,
+    "let_mut_statements": 1683,
+    "let_with_type_ascription": 103,
+    "let_with_tuple_destructuring": 150,
+    "expression_statements_method_calls": 10906,
+    "expression_statements_function_calls": 570,
+    "expression_statements_assignment": 170,
+    "expression_statements_compound_assignment": 226,
+    "if_expression_statements": 1348,
+    "match_expression_statements": 472,
+    "for_loop_statements": 1183,
+    "while_loop_statements": 69,
+    "loop_statements": 100,
+    "macro_statements_assert_that": 4571,
+    "macro_statements_fatal_panic": 192,
+    "macro_statements_fail": 887,
+    "macro_statements_test_requires": 84,
+    "macro_statements_assert": 78,
+    "macro_statements_panic": 234,
+    "macro_statements_println_eprintln": 304
+  },
+  "sections": {
+    "8.0_statements_overview": {
+      "fls_section": "8. Statements",
+      "description": "Statements are the executable components of block expressions.",
+      "legality_rules": {
+        "8:1": "An expression statement is an expression whose result is ignored",
+        "8:2": "An item statement is a statement that is expressed as an item",
+        "8:3": "An empty statement is a statement expressed as character 0x3B (semicolon)",
+        "8:4": "A macro statement is a statement expressed as a terminated macro invocation"
+      },
+      "dynamic_semantics": {
+        "8:5": "Execution is the process by which a statement achieves its runtime effects",
+        "8:6": "The execution of an empty statement has no effect"
+      },
+      "statement_types": {
+        "expression_statement": "Expression whose result is ignored",
+        "item_statement": "Item declared within a block (local scope)",
+        "let_statement": "Introduces new bindings from patterns",
+        "macro_statement": "Terminated macro invocation",
+        "empty_statement": "Single semicolon with no effect"
+      }
+    },
+    "8.1_let_statements": {
+      "fls_section": "8.1 Let Statements",
+      "syntax": {
+        "LetStatement": "OuterAttributeOrDoc* let PatternWithoutAlternation TypeAscription? LetInitializer? ;",
+        "LetInitializer": "= Expression (else BlockExpression)?"
+      },
+      "description": "A let statement introduces new bindings produced by its pattern that are optionally initialized to a value.",
+      "legality_rules": {
+        "8.1:1": "A let statement introduces new bindings produced by its pattern-without-alternation",
+        "8.1:2": "A let initializer provides the value using an expression, or alternatively executes a block expression",
+        "8.1:3": "If a let statement lacks a block expression, then the pattern shall be an irrefutable pattern",
+        "8.1:4": "If a let statement has a block expression, then Expression shall not be LazyBooleanExpression or end with }",
+        "8.1:12": "The type of the block expression of a let statement shall be the never type"
+      },
+      "findings": {
+        "total": 9703,
+        "mutable": 1683,
+        "with_type_ascription": 103,
+        "with_tuple_destructuring": 150,
+        "let_else_pattern": "NOT FOUND (refutable pattern with else block)",
+        "note": "iceoryx2 prefers if let / match over let-else for refutable patterns"
+      },
+      "samples": {
+        "simple_let": [
+          {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "66", "code": "let sut = test.create_pool_allocator(BUCKET_SIZE, BUCKET_ALIGNMENT);"},
+          {"path": "iceoryx2-bb-elementary-traits-0.7.0/src/allocator.rs", "lines": "56", "code": "let memory = self.allocate(layout)?;"}
+        ],
+        "let_mut": [
+          {"path": "iceoryx2-bb-posix-0.7.0/tests/unix_datagram_socket_tests.rs", "lines": "36", "code": "let mut file = FileName::new(b\"unix_datagram_socket_tests\").unwrap();"},
+          {"path": "iceoryx2-bb-posix-0.7.0/tests/unix_datagram_socket_tests.rs", "lines": "110", "code": "let mut receive_data: Vec<u8> = vec![0; 6];"}
+        ],
+        "let_with_type_ascription": [
+          {"path": "iceoryx2-bb-posix-0.7.0/tests/unix_datagram_socket_tests.rs", "lines": "107", "code": "let send_data: Vec<u8> = vec![1u8, 3u8, 3u8, 7u8, 13u8, 37u8];"},
+          {"path": "iceoryx2-bb-posix-0.7.0/src/thread.rs", "lines": "413", "code": "let t: ThreadStartupArgs<TT, FF> ="}
+        ],
+        "let_with_tuple_destructuring": [
+          {"path": "iceoryx2-bb-log-0.7.0/src/logger/file.rs", "lines": "89", "code": "let (sender, receiver) = channel();"},
+          {"path": "iceoryx2-bb-posix-0.7.0/tests/socket_pair_tests.rs", "lines": "28", "code": "let (sut_lhs, sut_rhs) = StreamingSocket::create_pair().unwrap();"}
+        ],
+        "let_without_initializer": [
+          {"path": "iceoryx2-bb-posix-0.7.0/tests/udp_socket_tests.rs", "lines": "84", "code": "let port;"},
+          {"path": "iceoryx2-bb-posix-0.7.0/src/shared_memory.rs", "lines": "269", "code": "let shm_created;"},
+          {"path": "iceoryx2-bb-posix-0.7.0/src/semaphore.rs", "lines": "483", "code": "let msg;"}
+        ],
+        "let_mut_without_initializer": [
+          {"path": "iceoryx2-bb-elementary-0.7.0/src/math.rs", "lines": "41", "code": "let mut remainder;"},
+          {"path": "iceoryx2-bb-memory-0.7.0/src/bump_allocator.rs", "lines": "75", "code": "let mut aligned_position;"}
+        ],
+        "let_with_underscore_pattern": [
+          {"path": "iceoryx2-bb-posix-0.7.0/tests/unique_system_id_tests.rs", "lines": "42", "code": "let _watchdog = Watchdog::new();"},
+          {"path": "iceoryx2-bb-posix-0.7.0/tests/signal_tests.rs", "lines": "70", "code": "let _guard ="}
+        ]
+      }
+    },
+    "8.2_expression_statements": {
+      "fls_section": "8.2 Expression Statements",
+      "syntax": {
+        "ExpressionStatement": "ExpressionWithBlock ;? | ExpressionWithoutBlock ;"
+      },
+      "description": "An expression statement is an expression whose result is ignored.",
+      "legality_rules": {
+        "8.2:1": "An expression statement is an expression whose result is ignored",
+        "8.2:2": "Expected type of expression statement without semicolon is the unit type"
+      },
+      "dynamic_semantics": {
+        "8.2:3": "The operand is evaluated",
+        "8.2:4-5": "The value of the operand is dropped"
+      },
+      "findings": {
+        "expression_without_block": {
+          "description": "Requires terminating semicolon",
+          "method_calls": 10906,
+          "function_calls": 570,
+          "assignments": 170,
+          "compound_assignments": 226
+        },
+        "expression_with_block": {
+          "description": "Semicolon optional (if, match, loop, for, while)",
+          "if_statements": 1348,
+          "match_statements": 472,
+          "for_loops": 1183,
+          "while_loops": 69,
+          "loop_statements": 100
+        }
+      },
+      "samples": {
+        "method_call_statements": [
+          {"path": "iceoryx2-bb-posix-0.7.0/tests/unix_datagram_socket_tests.rs", "lines": "80", "code": "self.files.push(file_name);"},
+          {"path": "iceoryx2-bb-posix-0.7.0/tests/unix_datagram_socket_tests.rs", "lines": "279", "code": "file_send_content.clear();"}
+        ],
+        "assignment_statements": [
+          {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "30", "code": "test.raw_memory[i] = 255;"}
+        ],
+        "expression_with_block_no_semicolon": [
+          {"description": "if/for/while/match expressions can omit semicolon when result is unit type"}
+        ]
+      }
+    },
+    "item_statements": {
+      "fls_reference": "8:2",
+      "description": "An item statement is a statement expressed as an item, scoped to the containing block.",
+      "findings": {
+        "inner_const": "Used extensively in test functions for test-local constants",
+        "inner_fn": "Less common, mostly in macro-generated code"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-elementary-0.7.0/tests/bump_allocator_tests.rs", "lines": "23-24", "code": "const MEM_SIZE: usize = 91;\nconst MEM_ALIGN: usize = 1;"},
+        {"path": "iceoryx2-bb-elementary-0.7.0/tests/math_tests.rs", "lines": "53-56", "code": "const MIN_VALUE: usize = 13;\nconst MAX_VALUE: usize = 42;\nconst CHECK_1: usize = max(MIN_VALUE, MIN_VALUE);"}
+      ]
+    },
+    "macro_statements": {
+      "fls_reference": "8:4",
+      "description": "A macro statement is a statement expressed as a terminated macro invocation.",
+      "findings": {
+        "assert_that": 4571,
+        "fatal_panic": 192,
+        "fail": 887,
+        "test_requires": 84,
+        "assert_family": 78,
+        "panic": 234,
+        "print_family": 304,
+        "total_macro_statements": "~6350"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-elementary-0.7.0/tests/scope_guard_tests.rs", "lines": "34", "code": "assert_that!(guard, is_ok);"},
+        {"path": "iceoryx2-bb-elementary-0.7.0/tests/scope_guard_tests.rs", "lines": "36", "code": "assert_that!(startup_callback.load(Ordering::Relaxed), eq 456);"}
+      ]
+    },
+    "empty_statements": {
+      "fls_reference": "8:3",
+      "description": "An empty statement is a statement expressed as character 0x3B (semicolon).",
+      "dynamic_semantics": "The execution of an empty statement has no effect.",
+      "findings": {
+        "status": "Rare - typically only appears in specific syntactic contexts"
+      }
+    }
+  },
+  "type_inference": {
+    "description": "Let statement type determination per FLS 8.1:5-8.1:11",
+    "rules": {
+      "no_type_no_init": "Expected type is inferred type (8.1:6)",
+      "no_type_with_init": "Expected type is type of let initializer (8.1:7)",
+      "with_type_ascription": "Expected type is type specified by type ascription (8.1:8)"
+    },
+    "findings": {
+      "explicit_types": 103,
+      "inferred_types": "~9600 (vast majority)",
+      "pattern": "iceoryx2 relies heavily on type inference, explicit annotations mainly for clarity"
+    }
+  },
+  "patterns_not_used": {
+    "let_else": {
+      "description": "let Pattern = Expr else { diverging_block } - refutable patterns with else",
+      "fls_reference": "8.1:3-4, 8.1:12",
+      "status": "NOT FOUND",
+      "reason": "iceoryx2 uses if let / match expressions for refutable pattern handling"
+    }
+  },
+  "cross_chapter_integration": {
+    "chapter_5_patterns": "Let statements use patterns for destructuring (tuple, struct patterns)",
+    "chapter_6_expressions": "Expression statements evaluate expressions and drop results",
+    "chapter_7_values": "Let statements introduce variables (values on stack)",
+    "chapter_15_ownership": "Let statements create drop scopes for bindings"
+  },
+  "safety_patterns": {
+    "uninitialized_variables": {
+      "description": "Variables declared without initializers must be initialized before use",
+      "fls_reference": "8.1:15 - binding is uninitialized if no let initializer",
+      "samples": [
+        {"path": "iceoryx2-bb-posix-0.7.0/tests/udp_socket_tests.rs", "lines": "84", "code": "let port; // Must be assigned before use"}
+      ]
+    },
+    "drop_on_statement": {
+      "description": "Expression statement values are dropped after evaluation",
+      "fls_reference": "8.2:5 - value of operand is dropped"
+    }
+  }
+}

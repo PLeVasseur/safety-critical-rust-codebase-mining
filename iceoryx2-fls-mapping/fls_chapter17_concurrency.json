@@ -1,0 +1,374 @@
+{
+  "chapter": 17,
+  "title": "Concurrency",
+  "fls_url": "https://rust-lang.github.io/fls/concurrency.html",
+  "summary": "FLS Chapter 17 covers Send/Sync traits for thread safety, atomic types for shared-memory communication, and async computation. iceoryx2 demonstrates extensive concurrency support with 107 unsafe impl Send, 51 unsafe impl Sync, 466 IoxAtomic usages, 824 memory ordering operations, custom lock-free data structures (SPSC/SPMC/MPMC queues), and four service threading models (ipc, ipc_threadsafe, local, local_threadsafe). No async/await is used - synchronous IPC is the design choice.",
+
+  "statistics": {
+    "unsafe_impl_send": 107,
+    "unsafe_impl_sync": 51,
+    "send_bounds": 147,
+    "sync_bounds": 23,
+    "send_plus_sync_bounds": 127,
+    "iox_atomic_usage": 466,
+    "memory_ordering_total": 824,
+    "ordering_relaxed": 719,
+    "ordering_acquire": 37,
+    "ordering_release": 19,
+    "ordering_acqrel": 9,
+    "ordering_seqcst": 32,
+    "barrier_usage": 215,
+    "semaphore_usage": 230,
+    "mutex_usage": 66,
+    "rwlock_usage": 58,
+    "thread_spawn": 5,
+    "async_fn": 0,
+    "await_usage": 0
+  },
+
+  "sections": {
+    "17.1": "Send and Sync",
+    "17.2": "Atomics",
+    "17.3": "Asynchronous Computation"
+  },
+
+  "send_and_sync": {
+    "section": "17.1",
+    "rules": {
+      "17.1:1": {
+        "rule": "Rust provides core::marker::Send and core::marker::Sync traits for preventing data races.",
+        "status": "extensively_demonstrated"
+      },
+      "17.1:2_17.1:3": {
+        "rule": "A send type implements Send; abstract data types auto-implement if all fields are send.",
+        "unsafe_impl_count": 107
+      },
+      "17.1:4": {
+        "rule": "Send type values are safe to transfer across thread boundaries.",
+        "status": "demonstrated"
+      },
+      "17.1:5_17.1:6": {
+        "rule": "A sync type implements Sync; abstract data types auto-implement if all fields are sync.",
+        "unsafe_impl_count": 51
+      },
+      "17.1:7": {
+        "rule": "Sync type values can be shared across threads without data races.",
+        "status": "demonstrated"
+      }
+    },
+    "custom_traits": {
+      "zero_copy_send": {
+        "file": "iceoryx2-bb-elementary-traits-0.7.0/src/zero_copy_send.rs",
+        "description": "Marker trait for types safe to send across process boundaries in shared memory",
+        "safety_requirements": [
+          "Types must be self-contained (no pointers to external resources)",
+          "No references or pointer members",
+          "Must have #[repr(C)] for uniform memory representation"
+        ],
+        "implemented_for": [
+          "Primitive types (usize, u8-u128, i8-i128, f32, f64, char, bool)",
+          "IoxAtomic types",
+          "Arrays and slices of ZeroCopySend types",
+          "Option<T> and Result<T, E> where T, E: ZeroCopySend",
+          "UnsafeCell<T>, MaybeUninit<T>",
+          "Tuples up to 3 elements"
+        ]
+      }
+    },
+    "send_implementations": {
+      "posix_primitives": [
+        "Mutex<T>",
+        "MutexHandle<T>",
+        "MutexGuard<T>",
+        "ReadWriteMutex<T>",
+        "MutexReadGuard<T>",
+        "MutexWriteGuard<T>",
+        "Semaphore",
+        "NamedSemaphore",
+        "UnnamedSemaphore",
+        "Barrier",
+        "FileLock<T>",
+        "SignalHandler"
+      ],
+      "lock_free": [
+        "BitSet",
+        "Container<T>",
+        "UniqueIndexSet",
+        "IndexQueue",
+        "SafelyOverflowingIndexQueue",
+        "Queue<T>",
+        "UnrestrictedAtomic<T>"
+      ],
+      "ipc_types": [
+        "Node<Service>",
+        "SharedNode<Service>",
+        "Notifier<Service>",
+        "Listener<Service>",
+        "PortFactory<Service>",
+        "RegisteredServices"
+      ],
+      "containers": [
+        "FixedSizeByteString<N>",
+        "MetaQueue<T>",
+        "MetaVec<T>",
+        "FixedSizeQueue<T>",
+        "FixedSizeVec<T>",
+        "RelocatableSlotMap<T>"
+      ]
+    },
+    "sync_implementations": {
+      "posix_primitives": [
+        "Mutex<T>",
+        "MutexHandle<T>",
+        "ReadWriteMutex<T>",
+        "Semaphore",
+        "NamedSemaphore",
+        "UnnamedSemaphore",
+        "Barrier"
+      ],
+      "lock_free": [
+        "BitSet",
+        "Container<T>",
+        "UniqueIndexSet",
+        "IndexQueue",
+        "Queue<T>",
+        "UnrestrictedAtomic<T>"
+      ],
+      "ipc_types": [
+        "SharedNode<Service>",
+        "Notifier<Service>",
+        "Listener<Service>",
+        "PortFactory<Service>",
+        "RegisteredServices"
+      ]
+    }
+  },
+
+  "atomics": {
+    "section": "17.2",
+    "rules": {
+      "17.2:1": {
+        "rule": "Atomic types are defined in core::sync::atomic and provide shared-memory communication.",
+        "status": "extensively_demonstrated",
+        "usage_count": 466
+      }
+    },
+    "iox_atomic_types": {
+      "description": "Platform abstraction layer wrapping core::sync::atomic types",
+      "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs",
+      "types": {
+        "IoxAtomicBool": "core::sync::atomic::AtomicBool",
+        "IoxAtomicUsize": "core::sync::atomic::AtomicUsize",
+        "IoxAtomicIsize": "core::sync::atomic::AtomicIsize",
+        "IoxAtomicU8": "core::sync::atomic::AtomicU8",
+        "IoxAtomicU16": "core::sync::atomic::AtomicU16",
+        "IoxAtomicU32": "core::sync::atomic::AtomicU32",
+        "IoxAtomicU64": "core::sync::atomic::AtomicU64",
+        "IoxAtomicI8": "core::sync::atomic::AtomicI8",
+        "IoxAtomicI16": "core::sync::atomic::AtomicI16",
+        "IoxAtomicI32": "core::sync::atomic::AtomicI32",
+        "IoxAtomicI64": "core::sync::atomic::AtomicI64"
+      },
+      "rationale": "Type aliases allow clippy rules and future platform-specific implementations"
+    },
+    "memory_ordering": {
+      "total_usage": 824,
+      "breakdown": {
+        "Relaxed": {
+          "count": 719,
+          "percentage": "87%",
+          "usage": "Most atomic operations where ordering isn't critical"
+        },
+        "Acquire": {
+          "count": 37,
+          "percentage": "4.5%",
+          "usage": "Loading data after synchronization point"
+        },
+        "Release": {
+          "count": 19,
+          "percentage": "2.3%",
+          "usage": "Storing data before synchronization point"
+        },
+        "AcqRel": {
+          "count": 9,
+          "percentage": "1.1%",
+          "usage": "Combined acquire-release for read-modify-write"
+        },
+        "SeqCst": {
+          "count": 32,
+          "percentage": "3.9%",
+          "usage": "Strictest ordering for critical synchronization"
+        }
+      }
+    },
+    "atomic_usage_samples": [
+      {
+        "type": "IoxAtomicU64",
+        "file": "iceoryx2-bb-elementary-0.7.0/src/unique_id.rs",
+        "code": "static COUNTER: IoxAtomicU64 = IoxAtomicU64::new(0);",
+        "purpose": "Unique ID generation counter"
+      },
+      {
+        "type": "IoxAtomicBool",
+        "file": "iceoryx2-bb-elementary-0.7.0/src/lazy_singleton.rs",
+        "code": "is_initialized: IoxAtomicBool",
+        "purpose": "Double-checked locking for lazy initialization"
+      },
+      {
+        "type": "IoxAtomicUsize",
+        "file": "iceoryx2-bb-elementary-0.7.0/src/bump_allocator.rs",
+        "code": "pos: IoxAtomicUsize",
+        "purpose": "Lock-free bump allocator position"
+      }
+    ]
+  },
+
+  "asynchronous_computation": {
+    "section": "17.3",
+    "rules": {
+      "17.3:1": {
+        "rule": "Rust provides async computation through core::task and Future trait.",
+        "status": "not_used"
+      },
+      "17.3:2": {
+        "rule": "A future represents a value that may not have finished computing.",
+        "status": "not_used"
+      }
+    },
+    "design_rationale": {
+      "no_async": true,
+      "reason": "iceoryx2 uses synchronous IPC with polling/waiting patterns",
+      "alternatives_used": [
+        "WaitSet for multiplexed waiting",
+        "Deadline queues for timed operations",
+        "Polling-based message reception"
+      ]
+    }
+  },
+
+  "lock_free_data_structures": {
+    "location": "iceoryx2-bb-lock-free-0.7.0/src/",
+    "categories": {
+      "spsc": {
+        "description": "Single-Producer Single-Consumer",
+        "structures": [
+          "IndexQueue - Lock-free index queue",
+          "SafelyOverflowingIndexQueue - Index queue allowing overflow",
+          "Queue<T, CAPACITY> - Fixed-size value queue"
+        ]
+      },
+      "spmc": {
+        "description": "Single-Producer Multi-Consumer",
+        "structures": [
+          "UnrestrictedAtomic<T> - Atomic value with producer/consumer split"
+        ]
+      },
+      "mpmc": {
+        "description": "Multi-Producer Multi-Consumer",
+        "structures": [
+          "BitSet - Lock-free bit set",
+          "Container<T> - Lock-free container with handles",
+          "UniqueIndexSet - Set providing unique indices"
+        ]
+      }
+    },
+    "implementation_pattern": "All use IoxAtomic types with appropriate memory ordering"
+  },
+
+  "service_threading_models": {
+    "description": "Four service variants with different threading and IPC characteristics",
+    "variants": [
+      {
+        "name": "ipc::Service",
+        "file": "iceoryx2-0.7.0/src/service/ipc.rs",
+        "scope": "Inter-process",
+        "thread_safety": "Single-threaded per port",
+        "arc_policy": "SingleThreaded<T>",
+        "use_case": "Most efficient when ports are not shared across threads"
+      },
+      {
+        "name": "ipc_threadsafe::Service",
+        "file": "iceoryx2-0.7.0/src/service/ipc_threadsafe.rs",
+        "scope": "Inter-process",
+        "thread_safety": "Thread-safe ports",
+        "arc_policy": "MutexProtected<T>",
+        "use_case": "When ports need to be shared across threads"
+      },
+      {
+        "name": "local::Service",
+        "file": "iceoryx2-0.7.0/src/service/local.rs",
+        "scope": "Single process",
+        "thread_safety": "Single-threaded per port",
+        "arc_policy": "SingleThreaded<T>",
+        "use_case": "Intra-process communication, single-threaded"
+      },
+      {
+        "name": "local_threadsafe::Service",
+        "file": "iceoryx2-0.7.0/src/service/local_threadsafe.rs",
+        "scope": "Single process",
+        "thread_safety": "Thread-safe ports",
+        "arc_policy": "MutexProtected<T>",
+        "use_case": "Intra-process communication, multi-threaded"
+      }
+    ]
+  },
+
+  "synchronization_primitives": {
+    "posix_wrappers": {
+      "location": "iceoryx2-bb-posix-0.7.0/src/",
+      "primitives": {
+        "mutex.rs": {
+          "types": ["Mutex", "MutexHandle", "MutexGuard"],
+          "description": "POSIX mutex with RAII guard"
+        },
+        "read_write_mutex.rs": {
+          "types": ["ReadWriteMutex", "MutexReadGuard", "MutexWriteGuard"],
+          "description": "Reader-writer lock"
+        },
+        "semaphore.rs": {
+          "types": ["NamedSemaphore", "UnnamedSemaphore", "UnnamedSemaphoreHandle"],
+          "description": "POSIX semaphores"
+        },
+        "barrier.rs": {
+          "types": ["Barrier", "BarrierHandle"],
+          "description": "Thread barrier synchronization"
+        },
+        "file_lock.rs": {
+          "types": ["FileLock", "FileLockReadGuard", "FileLockWriteGuard"],
+          "description": "File-based locking"
+        }
+      }
+    }
+  },
+
+  "design_patterns": {
+    "iox_atomic_abstraction": {
+      "description": "Type aliases for atomics enabling platform abstraction",
+      "benefit": "Allows clippy rules and future platform customization"
+    },
+    "lock_free_ipc": {
+      "description": "Lock-free data structures for high-performance IPC",
+      "structures": "SPSC/SPMC/MPMC queues using atomics"
+    },
+    "service_threading_choice": {
+      "description": "Four service variants allow users to choose performance vs flexibility",
+      "single_threaded": "SingleThreaded policy - no locking overhead",
+      "thread_safe": "MutexProtected policy - safe cross-thread sharing"
+    },
+    "zero_copy_send": {
+      "description": "Custom trait for IPC-safe types across process boundaries",
+      "stricter_than_send": "Forbids pointers, references, handles"
+    },
+    "relaxed_ordering_preference": {
+      "description": "87% of atomic ops use Relaxed ordering",
+      "rationale": "Performance optimization where strict ordering isn't required"
+    }
+  },
+
+  "cross_chapter_references": {
+    "chapter_4": "Types and Traits - Send, Sync auto-trait behavior",
+    "chapter_11": "Implementations - unsafe impl for Send/Sync",
+    "chapter_15": "Ownership - Arc for shared ownership across threads",
+    "chapter_19": "Unsafety - unsafe impl required for manual Send/Sync"
+  }
+}

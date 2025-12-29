@@ -1,0 +1,508 @@
+{
+  "chapter": 12,
+  "title": "Generics",
+  "fls_url": "https://rust-lang.github.io/fls/generics.html",
+  "summary": "FLS Chapter 12 defines generics as placeholders for constants, lifetimes, or types that are supplied statically by generic arguments. iceoryx2 makes extensive use of all three kinds of generic parameters: const generics for capacity/size parameters (157 instances), type parameters for abstraction over payload types and service backends (391 instances), and lifetime parameters for RAII guards (171 instances). The codebase demonstrates sophisticated generic patterns including where clauses (88), multiple bounds, and PhantomData for unused type parameters.",
+
+  "statistics": {
+    "generic_type_parameters": 391,
+    "const_generic_parameters": 157,
+    "lifetime_parameters": 171,
+    "generic_structs": 152,
+    "generic_enums": 7,
+    "generic_functions": 1142,
+    "generic_traits": 28,
+    "where_clauses": 88,
+    "turbofish_usages": 2977,
+    "phantom_data_usages": 15,
+    "question_sized_bounds": 10
+  },
+
+  "sections": {
+    "12.1": "Generic Parameters",
+    "12.2": "Where Clauses",
+    "12.3": "Generic Arguments",
+    "12.4": "Generic Conformance"
+  },
+
+  "syntax": {
+    "GenericParameterList": "< (GenericParameter (, GenericParameter)* ,?)? >",
+    "GenericParameter": "OuterAttributeOrDoc* (ConstantParameter | LifetimeParameter | TypeParameter)",
+    "ConstantParameter": "const Name TypeAscription (= ConstantParameterInitializer)?",
+    "LifetimeParameter": "Lifetime (: LifetimeIndicationList)?",
+    "TypeParameter": "Name (: TypeBoundList?)? (= TypeParameterInitializer)?",
+    "WhereClause": "where WhereClausePredicateList",
+    "GenericArgumentList": "< ( GenericArgument (, GenericArgument)* ,? )? >"
+  },
+
+  "legality_rules": {
+    "12.1:1": {
+      "rule": "A generic parameter is a placeholder for a constant, a lifetime, or a type, whose constant, lifetime, or type is supplied statically by a generic argument.",
+      "status": "demonstrated",
+      "notes": "All three kinds used extensively in iceoryx2."
+    },
+    "12.1:2": {
+      "rule": "All LifetimeParameters in a GenericParameterList shall precede all ConstantParameters and TypeParameters.",
+      "status": "compliant",
+      "samples": [
+        {
+          "file": "iceoryx2-bb-system-types-0.7.0/src/file_name.rs",
+          "line": 145,
+          "code": "impl<'de, const CAPACITY: usize> serde::Deserialize<'de>",
+          "notes": "'de lifetime precedes const CAPACITY"
+        },
+        {
+          "file": "iceoryx2-bb-posix-0.7.0/src/thread.rs",
+          "line": 277,
+          "code": "pub fn spawn<'thread, T, F>(self, f: F)",
+          "notes": "'thread lifetime precedes T, F type params"
+        }
+      ]
+    },
+    "12.1:3": {
+      "rule": "A generic enum is an enum with generic parameters.",
+      "status": "demonstrated",
+      "count": 7,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-posix-0.7.0/src/adaptive_wait.rs",
+          "line": 77,
+          "code": "pub enum AdaptiveTimedWaitWhileError<T: Debug>"
+        },
+        {
+          "file": "iceoryx2-0.7.0/src/node/mod.rs",
+          "line": 369,
+          "code": "pub enum NodeState<Service: service::Service>"
+        }
+      ]
+    },
+    "12.1:4": {
+      "rule": "A generic function is a function with generic parameters.",
+      "status": "demonstrated",
+      "count": 1142,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-log-0.7.0/src/lib.rs",
+          "line": 242,
+          "code": "pub fn set_logger<T: Log + 'static>(value: &'static T) -> bool"
+        },
+        {
+          "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs",
+          "line": 218,
+          "code": "fn fetch_op<F: FnOnce() -> T>(&self, op: F, _order: Ordering) -> T"
+        }
+      ]
+    },
+    "12.1:5": {
+      "rule": "A generic implementation is an implementation with generic parameters.",
+      "status": "demonstrated",
+      "count": 197,
+      "samples": [
+        {
+          "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs",
+          "line": 147,
+          "code": "impl<T: internal::AtomicInteger> Debug for IoxAtomic<T>"
+        }
+      ]
+    },
+    "12.1:6": {
+      "rule": "A generic struct is a struct with generic parameters.",
+      "status": "demonstrated",
+      "count": 152,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-system-types-0.7.0/src/file_name.rs",
+          "line": 81,
+          "code": "pub struct RestrictedFileName<const CAPACITY: usize>"
+        },
+        {
+          "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs",
+          "line": 139,
+          "code": "pub struct IoxAtomic<T: internal::AtomicInteger>"
+        },
+        {
+          "file": "iceoryx2-bb-posix-0.7.0/src/mutex.rs",
+          "line": 500,
+          "code": "pub struct Mutex<'this, 'handle: 'this, T: Sized + Debug>"
+        }
+      ]
+    },
+    "12.1:7": {
+      "rule": "A generic trait is a trait with generic parameters.",
+      "status": "demonstrated",
+      "count": 28,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-posix-0.7.0/src/ipc_capable.rs",
+          "line": 160,
+          "code": "pub trait IpcCapable<'a, T: Handle>"
+        },
+        {
+          "file": "iceoryx2-cal-0.7.0/src/dynamic_storage/mod.rs",
+          "line": 154,
+          "code": "pub trait DynamicStorage<T: Send + Sync>"
+        },
+        {
+          "file": "iceoryx2-cal-0.7.0/src/communication_channel/mod.rs",
+          "line": 185,
+          "code": "pub trait CommunicationChannel<T>"
+        }
+      ]
+    },
+    "12.1:8": {
+      "rule": "A generic type alias is a type alias with generic parameters.",
+      "status": "not_found",
+      "notes": "No generic type aliases found in iceoryx2; type aliases use concrete types."
+    },
+    "12.1:9": {
+      "rule": "A generic union is a union with generic parameters.",
+      "status": "not_found",
+      "notes": "No generic unions found in iceoryx2."
+    },
+    "12.1:10": {
+      "rule": "A constant parameter is a generic parameter for a constant.",
+      "status": "demonstrated",
+      "count": 157,
+      "primary_type": "usize",
+      "samples": [
+        {
+          "file": "iceoryx2-bb-system-types-0.7.0/src/file_name.rs",
+          "line": 81,
+          "code": "pub struct RestrictedFileName<const CAPACITY: usize>"
+        },
+        {
+          "file": "iceoryx2-bb-elementary-0.7.0/src/static_assert.rs",
+          "line": 57,
+          "code": "struct AssertEq<const L: usize, const R: usize>"
+        },
+        {
+          "file": "iceoryx2-pal-concurrency-sync-0.7.0/tests/condition_variable_tests.rs",
+          "line": 26,
+          "code": "struct ThreadInWait<const NUMBER_OF_THREADS: usize>"
+        }
+      ]
+    },
+    "12.1:11_to_12.1:12": {
+      "rule": "A constant parameter initializer provides default value and shall be a constant expression.",
+      "status": "not_used",
+      "notes": "No const parameter defaults found in iceoryx2."
+    },
+    "12.1:14": {
+      "rule": "A lifetime parameter is a generic parameter for a lifetime.",
+      "status": "demonstrated",
+      "count": 171,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-posix-0.7.0/src/file_descriptor_set.rs",
+          "line": 87,
+          "code": "pub struct FileDescriptorSetGuard<'set, 'fd>"
+        },
+        {
+          "file": "iceoryx2-bb-posix-0.7.0/src/mutex.rs",
+          "line": 500,
+          "code": "pub struct Mutex<'this, 'handle: 'this, T: Sized + Debug>",
+          "notes": "Multiple lifetimes with bounds"
+        },
+        {
+          "file": "iceoryx2-bb-posix-0.7.0/src/barrier.rs",
+          "line": 197,
+          "code": "pub struct Barrier<'a>"
+        }
+      ]
+    },
+    "12.1:15": {
+      "rule": "A lifetime parameter shall not be used within a constant context, except for 'static lifetime.",
+      "status": "compliant",
+      "notes": "No violations found."
+    },
+    "12.1:16": {
+      "rule": "A type parameter is a generic parameter for a type.",
+      "status": "demonstrated",
+      "count": 391
+    },
+    "12.1:17_to_12.1:18": {
+      "rule": "A type parameter initializer provides default value and shall satisfy trait bounds.",
+      "status": "not_used",
+      "notes": "No type parameter defaults found in iceoryx2."
+    },
+    "12.1:19_to_12.1:21": {
+      "rule": "Generic enums/structs/unions shall use all type and lifetime parameters in at least one variant/field.",
+      "status": "compliant",
+      "notes": "PhantomData used where parameters need to be present but not directly used (15 instances)."
+    },
+    "12.1:22_to_12.1:27": {
+      "rule": "Generic parameters must constrain implementations; lifetime params in associated types must constrain.",
+      "status": "compliant",
+      "notes": "All generic parameters appear in implementing type or implemented trait."
+    },
+    "12.1:28": {
+      "rule": "The type of a constant parameter shall be a scalar type.",
+      "status": "compliant",
+      "notes": "All const parameters are usize, which is a scalar type."
+    },
+    "12.1:29_to_12.1:34": {
+      "rule": "Constant parameter usage contexts: signatures, associated constants, associated types, function bodies.",
+      "status": "demonstrated",
+      "samples": [
+        {
+          "description": "In type signature",
+          "code": "pub struct RestrictedFileName<const CAPACITY: usize>"
+        },
+        {
+          "description": "In array type",
+          "code": "[u8; CAPACITY]"
+        }
+      ]
+    },
+    "12.1:35_to_12.1:38": {
+      "rule": "Inferred constant uses _ in place of value; cannot be in item signatures or wrapped in braces.",
+      "status": "not_analyzed",
+      "notes": "Inferred constants (_) not commonly used in iceoryx2."
+    },
+    "12.1:39": {
+      "rule": "A type parameter has an implicit Sized bound, unless an opt-out trait bound (?Sized) is present.",
+      "status": "demonstrated",
+      "question_sized_count": 10,
+      "samples": [
+        {
+          "file": "iceoryx2-0.7.0/src/sample.rs",
+          "line": 51,
+          "code": "Payload: Debug + ?Sized + ZeroCopySend"
+        },
+        {
+          "file": "iceoryx2-0.7.0/src/response.rs",
+          "line": 61,
+          "code": "ResponsePayload: Debug + ZeroCopySend + ?Sized"
+        }
+      ]
+    },
+    "12.1:40_to_12.1:45": {
+      "rule": "Type parameters have implicit lifetime bounds based on usage in reference types and generic arguments.",
+      "status": "demonstrated",
+      "samples": [
+        {
+          "file": "iceoryx2-bb-posix-0.7.0/src/thread.rs",
+          "line": 279,
+          "code": "T: Debug + Send + 'thread",
+          "notes": "Explicit lifetime bound on type parameter"
+        },
+        {
+          "file": "iceoryx2-bb-posix-0.7.0/src/thread.rs",
+          "line": 646,
+          "code": "struct ThreadStartupArgs<'thread, T: Send + Debug + 'thread, F: FnOnce() -> T + Send + 'thread>"
+        }
+      ]
+    },
+    "12.1:46_to_12.1:47": {
+      "rule": "A generic parameter with bound <X: Bound> is equivalent to where X: Bound.",
+      "status": "acknowledged",
+      "notes": "Both inline bounds and where clauses used throughout iceoryx2."
+    }
+  },
+
+  "where_clauses": {
+    "section": "12.2",
+    "count": 88,
+    "rules": {
+      "12.2:1": {
+        "rule": "A where clause specifies bounds on lifetime parameters and types that must hold for the construct to be valid.",
+        "status": "demonstrated"
+      },
+      "12.2:2_to_12.2:4": {
+        "rule": "Where clause predicates are either lifetime bound predicates or type bound predicates.",
+        "status": "demonstrated",
+        "samples": [
+          {
+            "file": "iceoryx2-bb-posix-0.7.0/src/thread.rs",
+            "lines": "278-280",
+            "code": "where\n    T: Debug + Send + 'thread,\n    F: FnOnce() -> T + Send + 'thread,"
+          },
+          {
+            "file": "iceoryx2-0.7.0/src/port/notifier.rs",
+            "lines": "257-259",
+            "code": "where\n    Service::ArcThreadSafetyPolicy<ListenerConnections<Service>>: Send + Sync"
+          }
+        ]
+      },
+      "12.2:5": {
+        "rule": "A construct is valid when all where clause predicates hold true for supplied generic arguments.",
+        "status": "compliant"
+      },
+      "12.2:6_to_12.2:7": {
+        "rule": "A trivial predicate does not use generic parameters; it is a static error if it does not hold.",
+        "status": "compliant",
+        "notes": "No trivial predicates found."
+      }
+    }
+  },
+
+  "generic_arguments": {
+    "section": "12.3",
+    "turbofish_count": 2977,
+    "rules": {
+      "12.3:1": {
+        "rule": "A generic argument supplies a static input for an associated trait type or generic parameter.",
+        "status": "demonstrated"
+      },
+      "12.3:2_to_12.3:3": {
+        "rule": "LifetimeArguments shall precede other arguments; BindingArguments shall follow.",
+        "status": "compliant"
+      },
+      "12.3:4_to_12.3:5": {
+        "rule": "A binding argument supplies the type of an associated trait type; binding bound argument imposes additional bounds.",
+        "status": "demonstrated",
+        "samples": [
+          {
+            "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs",
+            "line": 84,
+            "code": "BitAnd<Output = Self>"
+          },
+          {
+            "file": "iceoryx2-cal-0.7.0/src/arc_sync_policy/mod.rs",
+            "line": 72,
+            "code": "Deref<Target = T>"
+          }
+        ]
+      },
+      "12.3:7_to_12.3:10": {
+        "rule": "Constant/lifetime/type arguments supply values for respective parameters.",
+        "status": "demonstrated",
+        "samples": [
+          {
+            "description": "Type argument",
+            "code": "Vec::<u8>::new()"
+          },
+          {
+            "description": "Const argument",
+            "code": "RestrictedFileName::<CAPACITY>::new()"
+          },
+          {
+            "description": "Lifetime argument",
+            "code": "func::<'static, T>()"
+          }
+        ]
+      },
+      "12.3:11": {
+        "rule": "Generic arguments are subject to generic conformance.",
+        "status": "compliant"
+      }
+    }
+  },
+
+  "generic_conformance": {
+    "section": "12.4",
+    "description": "Rules for compatibility between generic parameters and arguments",
+    "rules": {
+      "12.4:1": {
+        "rule": "Generic conformance measures compatibility between generic parameters and arguments.",
+        "status": "compliant"
+      },
+      "12.4:2_to_12.4:5": {
+        "rule": "Binding/constant/lifetime/type arguments must be conformant with their parameters.",
+        "status": "compliant"
+      },
+      "12.4:6_to_12.4:10": {
+        "rule": "Generic arguments are conformant when all conform, remaining have initializers or are inferred, and ordering is correct.",
+        "status": "compliant"
+      },
+      "12.4:11": {
+        "rule": "Generic arguments shall be conformant.",
+        "status": "compliant"
+      },
+      "12.4:12_to_12.4:15": {
+        "rule": "Constant parameter value determination: from argument, from initializer, or static error.",
+        "status": "compliant"
+      }
+    }
+  },
+
+  "const_generics_patterns": {
+    "description": "Patterns of const generic usage in iceoryx2",
+    "capacity_parameters": {
+      "description": "const CAPACITY: usize for fixed-size buffers",
+      "example": "RestrictedFileName<const CAPACITY: usize>",
+      "count": "~100"
+    },
+    "static_assertions": {
+      "description": "const L, R: usize for compile-time assertions",
+      "example": "struct AssertEq<const L: usize, const R: usize>",
+      "files": ["iceoryx2-bb-elementary-0.7.0/src/static_assert.rs"]
+    },
+    "thread_count": {
+      "description": "const NUMBER_OF_THREADS: usize for test fixtures",
+      "example": "struct ThreadInWait<const NUMBER_OF_THREADS: usize>"
+    }
+  },
+
+  "lifetime_patterns": {
+    "guard_lifetimes": {
+      "description": "Lifetimes for RAII guards ensuring they don't outlive their owners",
+      "samples": [
+        "FileDescriptorSetGuard<'set, 'fd>",
+        "MutexGuard<'handle, T>",
+        "DeadlineQueueGuard<'deadline_queue>"
+      ]
+    },
+    "nested_lifetimes": {
+      "description": "Lifetime bounds expressing relationships",
+      "sample": {
+        "file": "iceoryx2-bb-posix-0.7.0/src/mutex.rs",
+        "line": 500,
+        "code": "pub struct Mutex<'this, 'handle: 'this, T: Sized + Debug>",
+        "notes": "'handle: 'this means 'handle outlives 'this"
+      }
+    },
+    "thread_lifetime": {
+      "description": "Named lifetime for thread-spawned closures",
+      "sample": "fn spawn<'thread, T, F>(...) where T: 'thread, F: 'thread"
+    }
+  },
+
+  "phantom_data_usage": {
+    "description": "PhantomData for unused type/lifetime parameters",
+    "count": 15,
+    "rationale": "Satisfies FLS 12.1:19-21 requirement that all parameters be used",
+    "samples": [
+      {
+        "file": "iceoryx2-bb-elementary-0.7.0/src/relocatable_ptr.rs",
+        "line": 92,
+        "code": "_phantom: PhantomData<T>",
+        "notes": "Type parameter T not directly stored but needed for type safety"
+      },
+      {
+        "file": "iceoryx2-bb-posix-0.7.0/src/thread.rs",
+        "line": 649,
+        "code": "_data: PhantomData<&'thread ()>",
+        "notes": "Lifetime parameter needed for thread safety"
+      }
+    ]
+  },
+
+  "design_patterns": {
+    "const_generics_for_no_alloc": {
+      "description": "Const generics enable fixed-size containers without heap allocation",
+      "rationale": "Real-time systems need predictable memory usage"
+    },
+    "trait_bounds_for_safety": {
+      "description": "Bounds like Send + Sync ensure thread safety",
+      "example": "T: Send + Sync + Debug + 'static"
+    },
+    "question_sized_for_dsts": {
+      "description": "?Sized allows dynamically-sized payloads",
+      "example": "Payload: Debug + ?Sized + ZeroCopySend"
+    },
+    "lifetime_bounds_for_raii": {
+      "description": "Lifetime parameters ensure guards don't outlive resources",
+      "example": "MutexGuard<'handle, T>"
+    }
+  },
+
+  "cross_chapter_references": {
+    "chapter_3": "Generic items (structs, enums, functions, traits)",
+    "chapter_4": "Type parameters create types; trait bounds",
+    "chapter_9": "Generic functions",
+    "chapter_10": "Generic associated items and GATs",
+    "chapter_11": "Generic implementations",
+    "chapter_15": "Lifetime parameters for ownership/borrowing"
+  }
+}

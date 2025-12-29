@@ -1,0 +1,556 @@
+{
+  "chapter": 14,
+  "title": "Entities and Resolution",
+  "fls_url": "https://rust-lang.github.io/fls/entities-and-resolution.html",
+  "summary": "FLS Chapter 14 defines entities, visibility, paths, scopes, namespaces, preludes, use imports, shadowing, and resolution. iceoryx2 demonstrates comprehensive use of these concepts with 4,889 public items, 671 pub(crate) items, 2,874 use imports, 3,525 crate:: paths, 331 qualified paths, and 1,579 Self references. The codebase uses visibility modifiers strategically for API design and internal implementation hiding.",
+
+  "statistics": {
+    "public_items_approx": 4889,
+    "pub_crate_items": 671,
+    "pub_super_items": 49,
+    "use_imports": 2874,
+    "glob_imports": 987,
+    "nesting_imports": 726,
+    "re_exports": 232,
+    "crate_paths": 3525,
+    "super_paths": 180,
+    "self_paths": 10,
+    "global_paths": 43,
+    "qualified_paths": 331,
+    "self_type_references": 1579,
+    "module_declarations": 497,
+    "function_definitions": 3389,
+    "method_calls_approx": 18998,
+    "closure_expressions": 977,
+    "match_arms": 2539,
+    "loop_expressions": 3790,
+    "if_let_expressions": 200
+  },
+
+  "sections": {
+    "14.1": "Entities",
+    "14.2": "Visibility",
+    "14.3": "Paths",
+    "14.4": "Scopes",
+    "14.5": "Namespaces",
+    "14.6": "Preludes",
+    "14.7": "Use Imports",
+    "14.8": "Shadowing",
+    "14.9": "Resolution"
+  },
+
+  "entities": {
+    "section": "14.1",
+    "rules": {
+      "14.1:1_to_14.1:3": {
+        "rule": "An entity is a construct that can be referred to. A name is an identifier that refers to an entity. A declaration introduces a name for an entity.",
+        "status": "demonstrated"
+      },
+      "14.1:4_to_14.1:21": {
+        "rule": "Explicitly declared entities include: associated items, bindings, constants, declarative macros, enum types, enum variants, fields, functions, generic parameters, implementations, labels, modules, statics, struct types, traits, type aliases, union types.",
+        "status": "demonstrated",
+        "samples": {
+          "modules": 497,
+          "functions": 3389,
+          "structs_enums_traits": "See Chapter 4",
+          "implementations": "See Chapter 11"
+        }
+      }
+    }
+  },
+
+  "visibility": {
+    "section": "14.2",
+    "rules": {
+      "14.2:1": {
+        "rule": "Visibility is a property of fields and items that determines which modules can refer to the name.",
+        "status": "demonstrated"
+      },
+      "14.2:2_14.2:10": {
+        "rule": "Public visibility allows name reference from arbitrary modules; simple public modifier (pub) grants public visibility.",
+        "count": 4889,
+        "samples": [
+          {
+            "file": "iceoryx2-bb-system-types-0.7.0/src/ipv4_address.rs",
+            "line": 20,
+            "code": "pub struct Ipv4Address(u32);"
+          },
+          {
+            "file": "iceoryx2-0.7.0/src/lib.rs",
+            "line": 518,
+            "code": "pub mod config;"
+          }
+        ]
+      },
+      "14.2:3_14.2:12": {
+        "rule": "Private visibility allows name reference only by current module and descendants; items without visibility modifier have private visibility.",
+        "notes": "Demonstrated by internal implementation details"
+      },
+      "14.2:5": {
+        "rule": "Crate public modifier pub(crate) grants public visibility within current crate only.",
+        "count": 671,
+        "samples": [
+          {
+            "file": "iceoryx2-bb-system-types-0.7.0/src/file_name.rs",
+            "line": 122,
+            "code": "pub(crate) mod visitor_type {"
+          },
+          {
+            "file": "iceoryx2-0.7.0/src/request_mut.rs",
+            "line": 68,
+            "code": "pub(crate) ptr: RawSampleMut<..."
+          }
+        ]
+      },
+      "14.2:11": {
+        "rule": "Super public modifier pub(super) grants public visibility within parent module only.",
+        "count": 49,
+        "samples": [
+          {
+            "file": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/bit_set.rs",
+            "line": 167,
+            "code": "pub(super) const fn array_capacity(capacity: usize) -> usize {"
+          },
+          {
+            "file": "iceoryx2-bb-lock-free-0.7.0/src/spsc/index_queue.rs",
+            "line": 112,
+            "code": "pub(super) has_producer: IoxAtomicBool,"
+          }
+        ]
+      },
+      "14.2:6_14.2:7": {
+        "rule": "Self public modifier pub(self) and simple path public modifier pub(in path) grant restricted visibility.",
+        "pub_self_count": 0,
+        "pub_in_path_count": 0,
+        "notes": "Not used in iceoryx2"
+      },
+      "14.2:13": {
+        "rule": "Associated item of a trait has the same visibility as the trait.",
+        "status": "demonstrated",
+        "notes": "All trait methods inherit trait visibility"
+      },
+      "14.2:14": {
+        "rule": "Enum variant and its fields have the same visibility as the containing enum type.",
+        "status": "demonstrated"
+      }
+    }
+  },
+
+  "paths": {
+    "section": "14.3",
+    "rules": {
+      "14.3:1_to_14.3:3": {
+        "rule": "A path is a sequence of path segments separated by :: that resolves to an entity. Paths are subject to path resolution.",
+        "status": "demonstrated"
+      },
+      "14.3:4": {
+        "rule": "Keywords crate, $crate, self, Self shall be the first path segment.",
+        "status": "compliant"
+      },
+      "14.3:6": {
+        "rule": "Keyword super shall be the first path segment or follow another super.",
+        "status": "compliant",
+        "super_path_count": 180
+      },
+      "14.3:7": {
+        "rule": "A global path starts with namespace qualifier ::.",
+        "count": 43,
+        "samples": [
+          {
+            "description": "Global paths to core/std",
+            "notes": "::std::, ::core::, ::alloc:: used for unambiguous references"
+          }
+        ]
+      },
+      "14.3:8": {
+        "rule": "A simple path has path segments of identifiers or certain keywords.",
+        "status": "demonstrated"
+      }
+    },
+    "path_types": {
+      "crate_paths": {
+        "count": 3525,
+        "description": "Paths starting with crate:: for absolute references within current crate",
+        "sample": "crate::service::ServiceState"
+      },
+      "super_paths": {
+        "count": 180,
+        "description": "Paths using super:: to reference parent module",
+        "samples": [
+          {
+            "file": "iceoryx2-0.7.0/src/port/listener.rs",
+            "line": 80,
+            "code": "use super::event_id::EventId;"
+          },
+          {
+            "file": "iceoryx2-0.7.0/src/port/server.rs",
+            "line": 110,
+            "code": "use super::details::data_segment::DataSegment;"
+          }
+        ]
+      },
+      "self_paths": {
+        "count": 10,
+        "description": "Paths using self:: for current module references",
+        "samples": [
+          {
+            "file": "iceoryx2-0.7.0/src/service/static_config/mod.rs",
+            "line": 41,
+            "code": "use self::messaging_pattern::MessagingPattern;"
+          }
+        ]
+      },
+      "qualified_paths": {
+        "count": 331,
+        "description": "Qualified paths <Type as Trait>::Item",
+        "rule_ref": "14.3:21-26",
+        "samples": [
+          {
+            "file": "iceoryx2-0.7.0/tests/waitset_tests.rs",
+            "line": 96,
+            "code": "<S::Event as Event>::Listener: SynchronousMultiplexing"
+          }
+        ]
+      }
+    }
+  },
+
+  "scopes": {
+    "section": "14.4",
+    "rules": {
+      "14.4:1": {
+        "rule": "A scope is a region of program text where an entity can be referred to.",
+        "status": "demonstrated"
+      }
+    },
+    "scope_types": {
+      "binding_scopes": {
+        "section": "14.4.1",
+        "description": "Scopes for bindings introduced by let statements, function parameters, closures",
+        "let_statements_approx": 3000,
+        "closure_expressions": 977
+      },
+      "generic_parameter_scopes": {
+        "section": "14.4.2",
+        "description": "Scopes for generic parameters in functions, structs, traits, impls",
+        "notes": "See Chapter 12 for generic parameter analysis"
+      },
+      "item_scopes": {
+        "section": "14.4.3",
+        "description": "Scopes for items within modules",
+        "module_declarations": 497
+      },
+      "label_scopes": {
+        "section": "14.4.4",
+        "description": "Scopes for labels in loop expressions",
+        "labeled_loops": 0,
+        "notes": "iceoryx2 does not use labeled loops"
+      },
+      "self_scopes": {
+        "section": "14.4.5",
+        "description": "Scopes for Self type within implementations and trait definitions",
+        "self_references": 1579,
+        "samples": [
+          {
+            "file": "iceoryx2-bb-system-types-0.7.0/src/file_path.rs",
+            "line": 99,
+            "code": "pub fn from_path_and_file(path: &Path, file: &FileName) -> Result<Self, SemanticStringError> {"
+          },
+          {
+            "file": "iceoryx2-bb-system-types-0.7.0/src/ipv4_address.rs",
+            "line": 27,
+            "code": "pub const fn new(a: u8, b: u8, c: u8, d: u8) -> Self {"
+          }
+        ]
+      },
+      "textual_macro_scopes": {
+        "section": "14.4.6",
+        "description": "Scopes for declarative macros",
+        "notes": "See Chapter 20 for macro analysis"
+      }
+    },
+    "scoping_constructs": {
+      "rule_ref": "14.4.7:2",
+      "constructs_present": [
+        "Block expressions",
+        "Closure expressions",
+        "Declarative macros",
+        "Enum type declarations",
+        "Function declarations",
+        "If let expressions",
+        "Implementation declarations",
+        "Let statements",
+        "Loop expressions",
+        "Match arms",
+        "Module declarations",
+        "Struct type declarations",
+        "Trait declarations"
+      ],
+      "counts": {
+        "function_scopes": 3389,
+        "closure_scopes": 977,
+        "match_arm_scopes": 2539,
+        "loop_scopes": 3790,
+        "if_let_scopes": 200
+      }
+    }
+  },
+
+  "namespaces": {
+    "section": "14.5",
+    "rules": {
+      "14.5:1_14.5:2": {
+        "rule": "A namespace is a logical grouping of names. Names are segregated into one of five namespaces.",
+        "status": "demonstrated"
+      }
+    },
+    "namespace_types": {
+      "label_namespace": {
+        "rule_ref": "14.5:3",
+        "description": "Contains labels",
+        "notes": "Not used in iceoryx2 (no labeled loops)"
+      },
+      "lifetime_namespace": {
+        "rule_ref": "14.5:4",
+        "description": "Contains names of lifetime parameters",
+        "notes": "See Chapter 12 - 171 lifetime parameters"
+      },
+      "macro_namespace": {
+        "rule_ref": "14.5:5-10",
+        "description": "Contains names of attribute macros, built-in attributes, declarative macros, derive macros, function-like macros",
+        "notes": "See Chapter 13 and 20"
+      },
+      "type_namespace": {
+        "rule_ref": "14.5:11-24",
+        "description": "Contains associated types, bool, enum types, enum variants, modules, numeric types, Self, struct types, textual types, traits, type aliases, type parameters, union types",
+        "notes": "All type definitions in iceoryx2"
+      },
+      "value_namespace": {
+        "rule_ref": "14.5:25-35",
+        "description": "Contains associated constants, associated functions, bindings, constants, constant parameters, enum variant constructors, functions, Self constructors, statics, struct constructors",
+        "notes": "All value definitions in iceoryx2"
+      }
+    }
+  },
+
+  "preludes": {
+    "section": "14.6",
+    "rules": {
+      "14.6:1": {
+        "rule": "A prelude is a collection of entities automatically brought in scope of every module.",
+        "status": "demonstrated"
+      },
+      "14.6:2": {
+        "rule": "The core prelude brings in scope entities from core::prelude::rust_2021.",
+        "status": "demonstrated",
+        "notes": "Standard Rust prelude entities available"
+      },
+      "14.6:3": {
+        "rule": "An external prelude brings in scope entities of crates imported using external crate imports.",
+        "status": "demonstrated"
+      },
+      "14.6:4_to_14.6:9": {
+        "rule": "The language prelude brings in scope bool, built-in attributes, f32/f64, integer types, char/str.",
+        "status": "demonstrated"
+      }
+    },
+    "custom_prelude": {
+      "file": "iceoryx2-0.7.0/src/prelude.rs",
+      "description": "iceoryx2 provides its own prelude module for convenient imports",
+      "exports": [
+        "Config",
+        "NodeName, Node, NodeBuilder, NodeState",
+        "EventId, UnableToDeliverStrategy",
+        "MessagingPattern",
+        "AttributeSet, AttributeSpecifier, AttributeVerifier",
+        "ipc, ipc_threadsafe, local, local_threadsafe",
+        "PortFactory, ServiceName, Service, ServiceDetails",
+        "SignalHandlingMode",
+        "WaitSet, WaitSetAttachmentId, WaitSetBuilder, WaitSetGuard",
+        "SemanticString, SemanticStringError",
+        "PlacementDefault, ZeroCopySend",
+        "Alignment, CallbackProgression",
+        "set_log_level, LogLevel",
+        "FileDescriptor, FileDescriptorBased, SynchronousMultiplexing",
+        "ProcessId",
+        "FileName, FilePath, Path",
+        "AllocationStrategy"
+      ]
+    }
+  },
+
+  "use_imports": {
+    "section": "14.7",
+    "rules": {
+      "14.7:1": {
+        "rule": "A use import brings entities in scope within the block expression or module.",
+        "status": "demonstrated",
+        "count": 2874
+      },
+      "14.7:9": {
+        "rule": "A simple import brings all entities it refers to into scope.",
+        "status": "demonstrated"
+      },
+      "14.7:10_to_14.7:14": {
+        "rule": "A glob import brings all entities exported by the module or enum into scope.",
+        "count": 987,
+        "samples": [
+          {
+            "file": "iceoryx2-bb-system-types-0.7.0/tests/file_path_tests.rs",
+            "line": 13,
+            "code": "use iceoryx2_bb_container::semantic_string::*;"
+          },
+          {
+            "file": "tests",
+            "description": "use super::*; common in test modules"
+          }
+        ]
+      },
+      "14.7:21": {
+        "rule": "Entity imported by simple import subject to renaming is brought into scope under the renaming name.",
+        "count": 0,
+        "notes": "Renaming imports (as) not used in iceoryx2"
+      },
+      "14.7:23": {
+        "rule": "A nesting import provides a common simple path prefix for nested use imports.",
+        "count": 726,
+        "samples": [
+          {
+            "file": "iceoryx2-bb-system-types-0.7.0/src/base64url.rs",
+            "line": 15,
+            "code": "use core::hash::{Hash, Hasher};"
+          },
+          {
+            "file": "iceoryx2-bb-system-types-0.7.0/tests/ipv4_address_tests.rs",
+            "line": 13,
+            "code": "use iceoryx2_bb_system_types::ipv4_address::{Ipv4Address, BROADCAST, LOCALHOST, UNSPECIFIED};"
+          }
+        ]
+      }
+    },
+    "re_exports": {
+      "description": "pub use statements for re-exporting items",
+      "count": 232,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-system-types-0.7.0/src/file_name.rs",
+          "line": 30,
+          "code": "pub use iceoryx2_bb_container::semantic_string::SemanticString;"
+        },
+        {
+          "file": "iceoryx2-pal-configuration-0.7.0/src/lib.rs",
+          "line": 65,
+          "code": "pub use settings::*;"
+        }
+      ]
+    },
+    "self_imports": {
+      "description": "use X::{self, ...} patterns",
+      "count": 10,
+      "samples": [
+        {
+          "file": "iceoryx2-0.7.0/src/port/writer.rs",
+          "line": 47,
+          "code": "use crate::service::{self, ServiceState};"
+        }
+      ]
+    }
+  },
+
+  "shadowing": {
+    "section": "14.8",
+    "rules": {
+      "14.8:1": {
+        "rule": "Shadowing is when another name with same characters is introduced in same scope within same namespace.",
+        "status": "acknowledged"
+      },
+      "14.8:2_to_14.8:5": {
+        "rule": "No name shall be shadowed except for prelude names, macro names in textual macro scope, and variable names.",
+        "status": "compliant"
+      },
+      "14.8:6_to_14.8:11": {
+        "rule": "Prelude names shadow in order: language prelude, standard library prelude, macro_use prelude, tool prelude, external prelude.",
+        "status": "compliant"
+      }
+    }
+  },
+
+  "resolution": {
+    "section": "14.9",
+    "rules": {
+      "14.9:1": {
+        "rule": "Resolution is the process of finding unique interpretation for field access, method call, call expression, or path.",
+        "status": "demonstrated"
+      }
+    },
+    "resolution_types": {
+      "field_resolution": {
+        "section": "14.9.1",
+        "description": "Resolution of field access expressions",
+        "notes": "Field access on structs throughout codebase"
+      },
+      "method_resolution": {
+        "section": "14.9.2",
+        "description": "Resolution of method call expressions",
+        "method_calls_approx": 18998,
+        "notes": "Extensive method chaining patterns"
+      },
+      "call_resolution": {
+        "section": "14.9.3",
+        "description": "Resolution of call expressions",
+        "notes": "Function and constructor calls"
+      },
+      "path_resolution": {
+        "section": "14.9.4",
+        "description": "Resolution of paths by resolving path segments in sequence",
+        "path_types_resolved": [
+          "Simple paths in use imports",
+          "Path expressions in value context",
+          "Type paths in type context",
+          "Qualified paths with <Type as Trait>"
+        ]
+      }
+    }
+  },
+
+  "design_patterns": {
+    "visibility_layering": {
+      "description": "Strategic use of visibility modifiers for API design",
+      "pattern": "pub for API, pub(crate) for internal, private for implementation",
+      "public_count": 4889,
+      "pub_crate_count": 671,
+      "pub_super_count": 49
+    },
+    "prelude_module": {
+      "description": "Custom prelude module for convenient user imports",
+      "file": "iceoryx2-0.7.0/src/prelude.rs",
+      "benefit": "Users can use iceoryx2::prelude::* for common types"
+    },
+    "module_organization": {
+      "description": "Hierarchical module structure with clear visibility boundaries",
+      "module_count": 497,
+      "pattern": "Internal details in submodules, public API at module root"
+    },
+    "re_export_patterns": {
+      "description": "Re-exporting types from dependencies for API convenience",
+      "count": 232,
+      "example": "pub use iceoryx2_bb_container::semantic_string::SemanticString;"
+    },
+    "qualified_type_disambiguation": {
+      "description": "Using <Type as Trait> for explicit trait method resolution",
+      "count": 331,
+      "rationale": "Disambiguates when multiple traits provide same method"
+    }
+  },
+
+  "cross_chapter_references": {
+    "chapter_3": "Items - entity declarations",
+    "chapter_4": "Types and Traits - type namespace entities",
+    "chapter_6": "Expressions - path expressions, method calls, field access",
+    "chapter_10": "Associated Items - associated item resolution",
+    "chapter_11": "Implementations - inherent and trait implementation resolution",
+    "chapter_12": "Generics - generic parameter scopes",
+    "chapter_13": "Attributes - attribute resolution in macro namespace",
+    "chapter_20": "Macros - macro namespace and textual macro scope"
+  }
+}

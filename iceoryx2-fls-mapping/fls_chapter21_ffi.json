@@ -1,0 +1,321 @@
+{
+  "chapter": 21,
+  "title": "FFI",
+  "fls_url": "https://rust-lang.github.io/fls/ffi.html",
+  "summary": "FLS Chapter 21 covers Foreign Function Interface including ABI, external blocks, external functions, and external statics. iceoryx2 demonstrates extensive FFI usage through its Platform Abstraction Layer (iceoryx2-pal-posix) which provides POSIX-compatible APIs across Linux, macOS, FreeBSD, Windows, and QNX. Uses bindgen for automatic FFI binding generation from C headers, with 9 extern C blocks, 301+ external function declarations, and 160 #[repr(C)] types for C-compatible data layout.",
+
+  "statistics": {
+    "extern_c_usage": 26,
+    "extern_system_usage": 2,
+    "extern_blocks": 9,
+    "external_function_declarations": 301,
+    "posix_function_wrappers": 151,
+    "repr_c_types": 160,
+    "link_attribute": 1,
+    "link_name_attribute": 4,
+    "no_mangle_attribute": 0,
+    "export_name_attribute": 0,
+    "c_types_usage": 281,
+    "callback_functions": 17,
+    "platforms_supported": 5,
+    "platform_modules": 27
+  },
+
+  "sections": {
+    "21.1": "ABI",
+    "21.2": "External Blocks",
+    "21.3": "External Functions",
+    "21.4": "External Statics"
+  },
+
+  "rules_mapping": {
+    "21:1": {
+      "rule": "FFI employs ABI, attributes, external blocks, external functions, linkage, and type layout.",
+      "status": "extensively_demonstrated",
+      "implementation": "Full POSIX abstraction layer with bindgen-generated bindings"
+    },
+    "21:2-7": {
+      "rule": "FFI-affecting attributes: export_name, link, link_section, no_mangle, used.",
+      "link_attribute": 1,
+      "link_name_attribute": 4,
+      "no_mangle": 0,
+      "note": "Minimal use of export attributes - primarily consuming C APIs, not exporting"
+    },
+    "21.1:1-10": {
+      "rule": "ABI specifies how data crosses language boundaries.",
+      "abis_used": {
+        "extern_C": 26,
+        "extern_system": 2
+      },
+      "note": "extern C for POSIX APIs, extern system for Windows callbacks"
+    },
+    "21.2:1-5": {
+      "rule": "External block provides declarations of external functions and statics.",
+      "external_blocks": 9,
+      "locations": [
+        "linux/pthread.rs",
+        "linux/select.rs",
+        "macos/pthread.rs",
+        "macos/errno.rs",
+        "macos/dirent.rs",
+        "freebsd/pthread.rs",
+        "freebsd/select.rs",
+        "freebsd/errno.rs",
+        "qnx/select.rs"
+      ]
+    },
+    "21.3:1-8": {
+      "rule": "External function is unchecked import of foreign function.",
+      "external_functions": 301,
+      "inherits_abi": "From enclosing extern block (extern C)",
+      "no_function_body": true,
+      "variadic_functions": 0
+    },
+    "21.4:1-5": {
+      "rule": "External static is import of foreign variable.",
+      "note": "No direct external statics imported - functions used instead (e.g., __error() for errno)"
+    }
+  },
+
+  "abi_usage": {
+    "section": "21.1",
+    "extern_c": {
+      "count": 26,
+      "purposes": [
+        "External blocks for POSIX function declarations",
+        "Callback functions for threads",
+        "Signal handlers",
+        "Function pointer types for thread start routines"
+      ],
+      "sample": {
+        "file": "iceoryx2-bb-posix-0.7.0/src/thread.rs",
+        "code": "extern \"C\" fn start_routine<'thread, FF, TT>(args: *mut posix::void) -> *mut posix::void"
+      }
+    },
+    "extern_system": {
+      "count": 2,
+      "purpose": "Windows-specific callbacks using Windows calling convention",
+      "samples": [
+        "unsafe extern \"system\" fn thread_callback(args: *mut void) -> u32",
+        "unsafe extern \"system\" fn ctrl_handler(value: u32) -> i32"
+      ]
+    }
+  },
+
+  "external_blocks": {
+    "section": "21.2",
+    "count": 9,
+    "by_platform": {
+      "linux": ["pthread.rs", "select.rs"],
+      "macos": ["pthread.rs", "errno.rs", "dirent.rs"],
+      "freebsd": ["pthread.rs", "select.rs", "errno.rs"],
+      "qnx": ["select.rs"]
+    },
+    "sample": {
+      "file": "iceoryx2-pal-posix-0.7.0/src/linux/pthread.rs",
+      "code": [
+        "extern \"C\" {",
+        "    pub(super) fn pthread_attr_setaffinity_np(",
+        "        attr: *mut pthread_attr_t,",
+        "        cpusetsize: size_t,",
+        "        cpuset: *const native_cpu_set_t,",
+        "    ) -> int;",
+        "    pub(super) fn pthread_setname_np(thread: pthread_t, name: *const c_char) -> int;",
+        "    pub(super) fn pthread_getname_np(thread: pthread_t, name: *mut c_char, len: size_t) -> int;",
+        "    pub(super) fn pthread_kill(thread: pthread_t, sig: int) -> int;",
+        "}"
+      ]
+    },
+    "macos_cpp_linking": {
+      "file": "iceoryx2-pal-posix-0.7.0/src/macos/pthread.rs",
+      "description": "Links to libc++ for atomic wait/notify functions",
+      "code": [
+        "#[link(name = \"c++\")]",
+        "extern \"C\" {",
+        "    #[link_name = \"_ZNSt3__123__libcpp_atomic_monitorEPVKv\"]",
+        "    fn __libcpp_atomic_monitor(ptr: *const void) -> i64;",
+        "}"
+      ]
+    }
+  },
+
+  "external_functions": {
+    "section": "21.3",
+    "total_declarations": 301,
+    "posix_wrappers": 151,
+    "categories": {
+      "threading": ["pthread_create", "pthread_join", "pthread_attr_*", "pthread_mutex_*"],
+      "memory": ["mmap", "munmap", "shm_open", "shm_unlink"],
+      "synchronization": ["sem_open", "sem_close", "sem_post", "sem_wait"],
+      "file_io": ["open", "close", "read", "write", "stat"],
+      "socket": ["socket", "bind", "connect", "send", "recv"],
+      "process": ["getpid", "getuid", "kill"],
+      "time": ["clock_gettime", "nanosleep"]
+    }
+  },
+
+  "repr_c_types": {
+    "count": 160,
+    "by_crate": {
+      "iceoryx2": 58,
+      "iceoryx2-bb-derive-macros": 28,
+      "iceoryx2-pal-posix": 20,
+      "iceoryx2-bb-container": 14,
+      "iceoryx2-bb-lock-free": 13,
+      "iceoryx2-cal": 11,
+      "iceoryx2-bb-posix": 6,
+      "iceoryx2-bb-system-types": 3,
+      "iceoryx2-bb-elementary": 3,
+      "iceoryx2-bb-elementary-traits": 2,
+      "iceoryx2-pal-concurrency-sync": 1,
+      "iceoryx2-bb-memory": 1
+    },
+    "purpose": "Ensures C-compatible memory layout for shared memory and FFI types"
+  },
+
+  "callback_functions": {
+    "count": 17,
+    "patterns": [
+      {
+        "type": "Thread start routine",
+        "signature": "unsafe extern \"C\" fn(*mut void) -> *mut void",
+        "usage": "pthread_create thread entry point"
+      },
+      {
+        "type": "Signal handler",
+        "signature": "extern \"C\" fn(int)",
+        "usage": "Signal handling callbacks"
+      },
+      {
+        "type": "Windows thread callback",
+        "signature": "unsafe extern \"system\" fn(*mut void) -> u32",
+        "usage": "Windows thread entry point"
+      },
+      {
+        "type": "Windows control handler",
+        "signature": "unsafe extern \"system\" fn(u32) -> i32",
+        "usage": "Console control event handler"
+      }
+    ]
+  },
+
+  "platform_abstraction_layer": {
+    "crate": "iceoryx2-pal-posix",
+    "approach": "Unified POSIX API across platforms",
+    "platforms": {
+      "linux": {
+        "path": "src/linux/",
+        "modules": 20,
+        "notes": "Native Linux syscalls and glibc"
+      },
+      "macos": {
+        "path": "src/macos/",
+        "notes": "Darwin-specific APIs, libc++ linking for atomics"
+      },
+      "freebsd": {
+        "path": "src/freebsd/",
+        "notes": "FreeBSD-specific APIs and sysctl"
+      },
+      "windows": {
+        "path": "src/windows/",
+        "modules": 27,
+        "notes": "Win32 API wrappers with POSIX-like interface"
+      },
+      "qnx": {
+        "path": "src/qnx/",
+        "notes": "QNX Neutrino RTOS support"
+      },
+      "libc_fallback": {
+        "path": "src/libc/",
+        "notes": "libc crate fallback for unsupported platforms"
+      }
+    },
+    "binding_generation": {
+      "tool": "bindgen",
+      "header": "src/c/posix.h",
+      "output": "posix_generated.rs",
+      "build_script": "build.rs"
+    }
+  },
+
+  "posix_header": {
+    "file": "iceoryx2-pal-posix-0.7.0/src/c/posix.h",
+    "includes": {
+      "common": [
+        "errno.h", "fcntl.h", "signal.h", "stdio.h", "stdlib.h",
+        "string.h", "sys/stat.h", "sys/types.h", "time.h"
+      ],
+      "unix_only": [
+        "arpa/inet.h", "dirent.h", "grp.h", "netinet/in.h", "pthread.h",
+        "pwd.h", "sched.h", "semaphore.h", "sys/mman.h", "sys/resource.h",
+        "sys/select.h", "sys/socket.h", "sys/un.h", "unistd.h"
+      ],
+      "platform_specific": {
+        "freebsd": ["libutil.h", "sys/param.h", "sys/sysctl.h", "sys/ucred.h", "sys/user.h"],
+        "macos": ["libproc.h", "mach-o/dyld.h"],
+        "qnx": ["sys/neutrino.h", "sys/syspage.h"]
+      }
+    }
+  },
+
+  "type_aliases": {
+    "file": "iceoryx2-pal-posix-0.7.0/src/libc/types.rs",
+    "mappings": [
+      "pub type ulong = libc::c_ulong",
+      "pub type DIR = libc::DIR",
+      "pub type clockid_t = libc::clockid_t",
+      "pub type mode_t = libc::mode_t",
+      "pub type pid_t = libc::pid_t",
+      "pub type size_t = libc::size_t",
+      "pub type time_t = libc::time_t",
+      "pub type uid_t = libc::uid_t"
+    ],
+    "purpose": "Type compatibility between platforms"
+  },
+
+  "design_patterns": {
+    "bindgen_generation": {
+      "description": "Automatic FFI binding generation from C headers",
+      "benefit": "Type-safe bindings without manual declarations",
+      "fallback": "libc crate for platforms without custom bindings"
+    },
+    "platform_modules": {
+      "description": "#[path] and #[cfg(target_os)] for platform selection",
+      "benefit": "Single API surface, platform-specific implementations"
+    },
+    "posix_wrappers": {
+      "description": "Thin unsafe wrappers around POSIX functions",
+      "benefit": "Consistent error handling and type safety"
+    },
+    "callback_trampolines": {
+      "description": "Generic Rust functions with extern C ABI for callbacks",
+      "benefit": "Pass Rust closures to C APIs via trampolines"
+    },
+    "repr_c_for_shm": {
+      "description": "#[repr(C)] on all shared memory types",
+      "benefit": "Guaranteed stable layout for IPC"
+    },
+    "errno_abstraction": {
+      "description": "Platform-specific errno access functions",
+      "sample": "__error() on macOS, __errno_location() on Linux"
+    }
+  },
+
+  "windows_ffi": {
+    "approach": "POSIX emulation over Win32 API",
+    "modules": 27,
+    "key_files": [
+      "win32_call.rs - Error code translation",
+      "socket.rs - Winsock initialization",
+      "pthread.rs - Thread emulation",
+      "signal.rs - Signal emulation via console handlers"
+    ],
+    "error_mapping": "WIN32_ERROR to Errno translation"
+  },
+
+  "cross_chapter_references": {
+    "chapter_13": "Attributes - #[link], #[link_name], #[repr(C)]",
+    "chapter_18": "Program Structure - Platform-specific conditional compilation",
+    "chapter_19": "Unsafety - All FFI calls require unsafe"
+  }
+}

@@ -1,0 +1,464 @@
+{
+  "chapter": 9,
+  "title": "Functions",
+  "fls_url": "https://rust-lang.github.io/fls/functions.html",
+  "summary": "FLS Chapter 9 defines functions as values of function types that model behavior. Each function declares a unique function item type. The chapter covers function qualifiers (const, async, unsafe), function parameters (including self parameter for methods), return types, function bodies, and function signatures. iceoryx2 demonstrates heavy use of unsafe functions for systems programming, const functions for compile-time evaluation, and methods with various self parameter forms.",
+
+  "statistics": {
+    "total_fn_declarations": 4909,
+    "public_functions": 1230,
+    "pub_crate_functions": 246,
+    "private_functions": 3389,
+    "const_fn": 101,
+    "unsafe_fn": 1302,
+    "async_fn": 0,
+    "extern_fn": 17,
+    "methods_with_self": 2351,
+    "methods_ref_self": 1553,
+    "methods_mut_self": 359,
+    "methods_by_value_self": 141,
+    "associated_functions_no_self": 3137,
+    "functions_returning_result": 626,
+    "functions_returning_option": 145,
+    "functions_returning_self": 679,
+    "functions_returning_bool": 307,
+    "functions_implicit_unit_return": 1791,
+    "explicit_return_types": 3841,
+    "generic_functions": 1002,
+    "functions_with_lifetime_params": 10,
+    "where_clauses": 94,
+    "trait_function_declarations_no_body": 43,
+    "impl_blocks": 1353,
+    "trait_implementations": 522,
+    "external_blocks": 9,
+    "test_functions": 1463,
+    "inline_attribute": 23,
+    "must_use_attribute": 8
+  },
+
+  "syntax": {
+    "FunctionDeclaration": "FunctionQualifierList fn Name GenericParameterList? ( FunctionParameterList? ) ReturnType? WhereClause? (FunctionBody | ;)",
+    "FunctionQualifierList": "const? async? ItemSafety? AbiSpecification?",
+    "FunctionParameterList": "(FunctionParameter (, FunctionParameter)* ,?) | (SelfParameter (, FunctionParameter)* ,?)",
+    "FunctionParameter": "OuterAttributeOrDoc* (FunctionParameterPattern | FunctionParameterVariadicPart | TypeSpecification)",
+    "FunctionParameterPattern": "PatternWithoutAlternation (TypeAscription | (: FunctionParameterVariadicPart))",
+    "FunctionParameterVariadicPart": "...",
+    "ReturnType": "-> TypeSpecification",
+    "FunctionBody": "BlockExpression",
+    "SelfParameter": "OuterAttributeOrDoc* (ShorthandSelf | TypedSelf)",
+    "ShorthandSelf": "(& LifetimeIndication?)? mut? self",
+    "TypedSelf": "mut? self TypeAscription"
+  },
+
+  "legality_rules": {
+    "9:1": {
+      "rule": "A function is a value of a function type that models a behavior.",
+      "status": "demonstrated",
+      "count": 4909,
+      "notes": "All 4,909 function declarations in iceoryx2 are values modeling specific behaviors - allocators, IPC primitives, synchronization, etc."
+    },
+    "9:2": {
+      "rule": "A function declares a unique function item type for itself.",
+      "status": "demonstrated",
+      "notes": "Each function has its own unique type. Function pointers used for callbacks demonstrate type coercion from function item types.",
+      "samples": [
+        {
+          "file": "iceoryx2-pal-posix-0.7.0/src/linux/pthread.rs",
+          "line": 100,
+          "code": "start_routine: unsafe extern \"C\" fn(*mut void) -> *mut void,"
+        }
+      ]
+    },
+    "9:3": {
+      "rule": "A function qualifier is a construct that determines the role of a function.",
+      "status": "demonstrated",
+      "notes": "iceoryx2 uses const (101), unsafe (1302), and extern qualifiers. No async functions due to real-time systems design."
+    },
+    "9:4": {
+      "rule": "A function shall not be subject to both keyword async and keyword const.",
+      "status": "compliant",
+      "count": 0,
+      "notes": "No violations found - no async const fn or const async fn combinations exist."
+    },
+    "9:5": {
+      "rule": "A function parameter is a construct that yields a set of bindings that bind matched input values to names at the site of a call expression or a method call expression.",
+      "status": "demonstrated",
+      "notes": "All function parameters create bindings. Various parameter patterns used throughout.",
+      "samples": [
+        {
+          "file": "iceoryx2-bb-memory-0.7.0/src/one_chunk_allocator.rs",
+          "line": 62,
+          "code": "pub fn new(ptr: NonNull<u8>, size: usize) -> OneChunkAllocator {"
+        }
+      ]
+    },
+    "9:6": {
+      "rule": "A self parameter is a function parameter expressed by keyword self.",
+      "status": "demonstrated",
+      "count": 2053,
+      "notes": "2,053 methods use self parameters in various forms (&self, &mut self, self by value)."
+    },
+    "9:7": {
+      "rule": "A function shall not specify a self parameter unless it is an associated function.",
+      "status": "compliant",
+      "notes": "All self parameters appear within impl blocks as associated functions/methods."
+    },
+    "9:8_to_9:13": {
+      "rule": "The type of a function parameter is determined based on self parameter form.",
+      "status": "demonstrated",
+      "samples": [
+        {
+          "description": "&self (type is &Self)",
+          "file": "iceoryx2-bb-memory-0.7.0/src/one_chunk_allocator.rs",
+          "line": 70,
+          "code": "pub fn has_chunk_available(&self) -> bool {"
+        },
+        {
+          "description": "&mut self (type is &mut Self)",
+          "file": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs",
+          "line": 39,
+          "code": "fn get_mut_memory(&mut self) -> *mut u8 {"
+        },
+        {
+          "description": "self by value (type is Self)",
+          "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs",
+          "line": 89,
+          "code": "fn overflowing_add(self, rhs: Self) -> (Self, bool);"
+        }
+      ]
+    },
+    "9:14": {
+      "rule": "The pattern of a function parameter shall be an irrefutable pattern.",
+      "status": "compliant",
+      "notes": "All function parameters use irrefutable patterns - primarily identifier patterns. No refutable patterns (like Some(x)) in function signatures."
+    },
+    "9:15": {
+      "rule": "The expected type of the pattern of a function parameter is the type of the function parameter.",
+      "status": "demonstrated",
+      "notes": "Type ascription on parameters determines expected type for pattern matching."
+    },
+    "9:16": {
+      "rule": "The bindings of all patterns of all function parameters of a function shall not shadow another.",
+      "status": "compliant",
+      "notes": "No duplicate parameter names within same function signature. Compiler enforces this."
+    },
+    "9:17_to_9:31": {
+      "rule": "A variadic function is an external function that specifies FunctionParameterVariadicPart as the last function parameter.",
+      "status": "not_used",
+      "count": 0,
+      "notes": "iceoryx2 does not define variadic functions. External C functions called do not use variadic parameters in the Rust bindings."
+    },
+    "9:32_to_9:35": {
+      "rule": "A return type is the type of the result a function returns. If not specified, defaults to unit type.",
+      "status": "demonstrated",
+      "explicit_return_types": 3841,
+      "implicit_unit_returns": 1791,
+      "samples": [
+        {
+          "description": "Explicit return type",
+          "file": "iceoryx2-bb-memory-0.7.0/src/one_chunk_allocator.rs",
+          "line": 70,
+          "code": "pub fn has_chunk_available(&self) -> bool {"
+        },
+        {
+          "description": "Implicit unit return",
+          "file": "iceoryx2-bb-memory-0.7.0/src/one_chunk_allocator.rs",
+          "line": 81,
+          "code": "fn release_chunk(&self) {"
+        }
+      ]
+    },
+    "9:36": {
+      "rule": "A function body is the block expression of a function.",
+      "status": "demonstrated",
+      "functions_with_bodies": 5411,
+      "notes": "All non-trait, non-external functions have block expression bodies."
+    },
+    "9:37": {
+      "rule": "A function shall have a function body unless it is an associated trait function or an external function.",
+      "status": "demonstrated",
+      "trait_functions_without_body": 43,
+      "samples": [
+        {
+          "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs",
+          "line": 89,
+          "code": "fn overflowing_add(self, rhs: Self) -> (Self, bool);"
+        },
+        {
+          "file": "iceoryx2-pal-posix-0.7.0/src/linux/select.rs",
+          "line": 74,
+          "code": "pub(super) fn iceoryx2_fd_clr(fd: int, set: *mut fd_set);"
+        }
+      ]
+    },
+    "9:38": {
+      "rule": "A function body denotes a control flow boundary.",
+      "status": "demonstrated",
+      "notes": "Function bodies establish control flow boundaries - return expressions, ? operator, and control flow all respect function body boundaries."
+    },
+    "9:39": {
+      "rule": "A function body of an async function denotes an async control flow boundary.",
+      "status": "not_applicable",
+      "count": 0,
+      "notes": "iceoryx2 has no async functions - real-time IPC systems avoid async/await patterns."
+    },
+    "9:40": {
+      "rule": "A function signature is a unique identification of a function that encompasses of its function qualifiers, name, generic parameters, function parameters, return type, and where clause.",
+      "status": "demonstrated",
+      "where_clauses": 94,
+      "generic_functions": 1002,
+      "samples": [
+        {
+          "description": "Complete signature with where clause",
+          "file": "iceoryx2-bb-system-types-0.7.0/src/file_name.rs",
+          "line": 133,
+          "code": "fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>\n    where\n        E: serde::de::Error,"
+        },
+        {
+          "description": "Generic function signature",
+          "file": "iceoryx2-0.7.0/src/waitset.rs",
+          "line": 642,
+          "code": "pub fn attach_notification<'waitset, 'attachment, T: SynchronousMultiplexing + Debug>("
+        }
+      ]
+    },
+    "9:41": {
+      "rule": "A constant function is a function subject to keyword const.",
+      "status": "demonstrated",
+      "count": 101,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-memory-0.7.0/src/heap_allocator.rs",
+          "line": 33,
+          "code": "pub const fn new() -> HeapAllocator {"
+        },
+        {
+          "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs",
+          "line": 160,
+          "code": "pub const fn new(v: T) -> Self {"
+        },
+        {
+          "file": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs",
+          "line": 254,
+          "code": "pub const fn const_memory_size(capacity: usize) -> usize {"
+        }
+      ]
+    },
+    "9:42": {
+      "rule": "The function body of a constant function shall be a constant expression.",
+      "status": "compliant",
+      "notes": "All const fn bodies contain only const-compatible expressions - no heap allocation, no I/O, etc."
+    },
+    "9:43": {
+      "rule": "A constant function shall be callable from a constant context.",
+      "status": "demonstrated",
+      "notes": "const fn functions used in const contexts like array sizes and const initializers.",
+      "samples": [
+        {
+          "file": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs",
+          "line": 254,
+          "code": "pub const fn const_memory_size(capacity: usize) -> usize {",
+          "usage": "Used to compute sizes at compile time for const generics"
+        }
+      ]
+    },
+    "9:44_9:45": {
+      "rule": "An async function is a function subject to keyword async, equivalent to returning impl Future.",
+      "status": "not_used",
+      "count": 0,
+      "notes": "iceoryx2 deliberately avoids async/await for deterministic real-time behavior. Zero async functions in codebase."
+    },
+    "9:46": {
+      "rule": "An unsafe function is a function subject to an ItemSafety with keyword unsafe.",
+      "status": "demonstrated",
+      "count": 1302,
+      "notes": "High unsafe function count reflects systems programming nature - raw pointer manipulation, FFI, memory allocation.",
+      "samples": [
+        {
+          "file": "iceoryx2-bb-memory-0.7.0/src/one_chunk_allocator.rs",
+          "line": 118,
+          "code": "unsafe fn deallocate(&self, ptr: NonNull<u8>, _layout: Layout) {"
+        },
+        {
+          "file": "iceoryx2-bb-memory-0.7.0/src/pool_allocator.rs",
+          "line": 120,
+          "code": "pub unsafe fn new_uninit(bucket_layout: Layout, ptr: NonNull<u8>, size: usize) -> Self {"
+        }
+      ]
+    },
+    "9:47": {
+      "rule": "A function shall only be subject to an ItemSafety with keyword safe if it is an external function in an unsafe external block.",
+      "status": "not_used",
+      "notes": "No safe keyword used in function declarations. All external functions are implicitly unsafe."
+    },
+    "9:48": {
+      "rule": "The invocation of an unsafe function shall require unsafe context.",
+      "status": "demonstrated",
+      "notes": "All unsafe function calls wrapped in unsafe blocks throughout codebase.",
+      "samples": [
+        {
+          "file": "iceoryx2-bb-memory-0.7.0/src/pool_allocator.rs",
+          "pattern": "unsafe { self.deallocate_bucket(ptr) }"
+        }
+      ]
+    }
+  },
+
+  "external_functions": {
+    "description": "External functions declared via extern blocks for FFI with C libraries",
+    "count": 9,
+    "blocks": [
+      {
+        "file": "iceoryx2-pal-posix-0.7.0/src/linux/select.rs",
+        "line": 68,
+        "functions": ["iceoryx2_cmsg_space", "iceoryx2_cmsg_firsthdr", "iceoryx2_cmsg_nxthdr", "iceoryx2_cmsg_len", "iceoryx2_cmsg_data", "iceoryx2_fd_clr", "iceoryx2_fd_isset", "iceoryx2_fd_set", "iceoryx2_fd_zero"]
+      },
+      {
+        "file": "iceoryx2-pal-posix-0.7.0/src/linux/pthread.rs",
+        "line": 255,
+        "functions": ["pthread_attr_setaffinity_np", "pthread_setname_np", "pthread_getname_np", "pthread_kill", "pthread_setaffinity_np", "pthread_getaffinity_np"]
+      },
+      {
+        "file": "iceoryx2-pal-posix-0.7.0/src/macos/dirent.rs",
+        "line": 49,
+        "functions": ["dirfd"]
+      },
+      {
+        "file": "iceoryx2-pal-posix-0.7.0/src/macos/errno.rs",
+        "line": 182,
+        "functions": ["__error", "strerror_r"]
+      },
+      {
+        "file": "iceoryx2-pal-posix-0.7.0/src/macos/pthread.rs",
+        "line": 150,
+        "functions": ["__libcpp_atomic_monitor", "__libcpp_atomic_wait", "__cxx_atomic_notify_one", "__cxx_atomic_notify_all"]
+      }
+    ]
+  },
+
+  "function_pointer_types": {
+    "description": "Function pointer types used for callbacks and FFI",
+    "samples": [
+      {
+        "file": "iceoryx2-pal-posix-0.7.0/src/linux/signal.rs",
+        "line": 30,
+        "code": "core::option::Option<unsafe extern \"C\" fn(i32)>"
+      },
+      {
+        "file": "iceoryx2-pal-posix-0.7.0/src/linux/pthread.rs",
+        "line": 100,
+        "code": "start_routine: unsafe extern \"C\" fn(*mut void) -> *mut void"
+      },
+      {
+        "file": "iceoryx2-pal-posix-0.7.0/src/macos/pthread.rs",
+        "line": 297,
+        "code": "unsafe extern \"C\" fn thread_callback(args: *mut void) -> *mut void {"
+      }
+    ]
+  },
+
+  "closure_parameters": {
+    "description": "Functions accepting closures as parameters via Fn/FnMut/FnOnce traits",
+    "samples": [
+      {
+        "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/mutex.rs",
+        "line": 36,
+        "code": "pub fn lock<Wait: Fn(&IoxAtomicU32, &u32) -> WaitAction>(&self, wait: Wait) -> WaitResult {"
+      },
+      {
+        "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs",
+        "line": 218,
+        "code": "fn fetch_op<F: FnOnce() -> T>(&self, op: F, _order: Ordering) -> T {"
+      },
+      {
+        "file": "iceoryx2-bb-posix-0.7.0/src/signal.rs",
+        "line": 340,
+        "code": "pub fn register<F: Fn(FetchableSignal)>("
+      }
+    ]
+  },
+
+  "generic_functions_with_lifetimes": {
+    "description": "Functions with explicit lifetime parameters",
+    "count": 10,
+    "samples": [
+      {
+        "file": "iceoryx2-0.7.0/src/waitset.rs",
+        "line": 642,
+        "code": "pub fn attach_notification<'waitset, 'attachment, T: SynchronousMultiplexing + Debug>("
+      },
+      {
+        "file": "iceoryx2-bb-posix-0.7.0/src/thread.rs",
+        "line": 277,
+        "code": "pub fn spawn<'thread, T, F>(self, f: F) -> Result<Thread, ThreadSpawnError>"
+      },
+      {
+        "file": "iceoryx2-bb-posix-0.7.0/src/file_descriptor_set.rs",
+        "line": 158,
+        "code": "pub fn add<'set, 'fd, F: SynchronousMultiplexing>("
+      }
+    ]
+  },
+
+  "function_attributes": {
+    "inline": {
+      "count": 23,
+      "description": "Functions marked for inlining optimization",
+      "samples": [
+        {
+          "file": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs",
+          "line": 246,
+          "code": "#[inline(always)]"
+        },
+        {
+          "file": "iceoryx2-0.7.0/src/raw_sample.rs",
+          "line": 32,
+          "code": "#[inline]"
+        }
+      ]
+    },
+    "must_use": {
+      "count": 8,
+      "description": "Functions whose return values must be used"
+    },
+    "test": {
+      "count": 1463,
+      "description": "Test functions marked with #[test] attribute"
+    }
+  },
+
+  "design_patterns": {
+    "no_async": {
+      "description": "Zero async functions - deliberate design for real-time IPC systems",
+      "rationale": "async/await introduces non-deterministic scheduling, incompatible with real-time requirements"
+    },
+    "high_unsafe_count": {
+      "description": "1,302 unsafe functions (26.5% of all functions)",
+      "rationale": "Systems-level IPC requires direct memory manipulation, FFI, and low-level primitives"
+    },
+    "const_constructors": {
+      "description": "const fn new() pattern for compile-time initialization",
+      "samples": ["HeapAllocator::new()", "Mutex::new()", "IoxAtomic::new()", "RwLock::new()"]
+    },
+    "result_returns": {
+      "description": "626 functions return Result - fallible operations with explicit error handling",
+      "percentage": "12.7% of functions"
+    },
+    "builder_pattern": {
+      "description": "Methods returning Self (679 instances) for fluent builder APIs"
+    }
+  },
+
+  "cross_chapter_references": {
+    "chapter_3": "Functions are items (Item declarations)",
+    "chapter_4": "Function types, function pointer types, closure types",
+    "chapter_5": "Function parameters use irrefutable patterns",
+    "chapter_6": "Function bodies are block expressions; call expressions invoke functions",
+    "chapter_7": "Functions operate on values; const fn evaluated at compile time",
+    "chapter_10": "Associated functions and methods in impl blocks",
+    "chapter_12": "Generic parameters and where clauses on functions",
+    "chapter_15": "Function parameters have drop scopes; ownership transfer on by-value self",
+    "chapter_19": "Unsafe functions and unsafe context requirements",
+    "chapter_21": "External functions for FFI"
+  }
+}

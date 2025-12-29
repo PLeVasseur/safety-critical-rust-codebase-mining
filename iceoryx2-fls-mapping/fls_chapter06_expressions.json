@@ -1,0 +1,563 @@
+{
+  "fls_chapter": "6. Expressions",
+  "fls_reference": "https://rust-lang.github.io/fls/expressions.html",
+  "codebase": "iceoryx2",
+  "analysis_date": "2025-12-18",
+  "overview": {
+    "description": "FLS Chapter 6 defines expressions - constructs that produce values and may have side effects. Expressions are categorized as expression-with-block or expression-without-block.",
+    "expression_syntax": "Expression ::= ExpressionWithBlock | ExpressionWithoutBlock"
+  },
+  "expression_counts": {
+    "unsafe_blocks": 1702,
+    "if_expressions": 1475,
+    "match_expressions": 712,
+    "for_loops": 1155,
+    "while_loops": 242,
+    "loop_expressions": 111,
+    "closures": 636,
+    "method_calls": 19003,
+    "error_propagation": 2065
+  },
+  "sections": {
+    "6.1_expression_classification": {
+      "fls_section": "6.1 Expression Classification",
+      "description": "Expressions classified by assignee, constant, diverging, place, and value categories.",
+      "subsections": {
+        "6.1.1_assignee_expressions": {
+          "description": "Expressions that appear as left operand of assignment.",
+          "findings": {
+            "usage": "Place expressions, array/tuple expressions used as assignees"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "29", "code": "test.raw_memory[i] = 255;"}
+          ]
+        },
+        "6.1.2_constant_expressions": {
+          "description": "Expressions evaluated statically at compile time.",
+          "findings": {
+            "usage": "const declarations, array sizes, enum discriminants"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "63-64", "code": "const BUCKET_SIZE: usize = 128;\nconst BUCKET_ALIGNMENT: usize = 1;"}
+          ]
+        },
+        "6.1.3_diverging_expressions": {
+          "description": "Expressions causing program flow to diverge (break, return, panic).",
+          "findings": {
+            "break": "Used in loops to exit early",
+            "return": "Used for early function exit",
+            "panic": "Used via unwrap(), expect(), panic! macro"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/src/bump_allocator.rs", "lines": "98", "code": "Ok(_) => break,"},
+            {"path": "iceoryx2-bb-posix-0.7.0/src/process_state.rs", "lines": "348", "code": "return Ok(());"}
+          ]
+        },
+        "6.1.4_place_expressions": {
+          "description": "Expressions representing memory locations.",
+          "findings": {
+            "dereferences": "Used extensively with raw pointers",
+            "field_access": "Common for struct member access",
+            "index_expressions": "Array and slice indexing"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "40", "code": "self.raw_memory.as_mut_ptr()"}
+          ]
+        },
+        "6.1.5_value_expressions": {
+          "description": "Expressions representing values (all non-place expressions).",
+          "findings": {
+            "usage": "Literals, arithmetic results, function returns"
+          },
+          "samples": []
+        }
+      }
+    },
+    "6.2_literal_expressions": {
+      "fls_section": "6.2 Literal Expressions",
+      "description": "Expressions denoting literals (numeric, string, bool, char).",
+      "findings": {
+        "numeric_literals": "Extensive use of integer literals (usize, u32, u64, i32)",
+        "string_literals": "Used in error messages and debug output",
+        "bool_literals": "true/false in conditions and flags",
+        "byte_literals": "b'\\t', b'\\n' for character handling"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "29", "code": "test.raw_memory[i] = 255;"},
+        {"path": "iceoryx2-bb-container-0.7.0/src/byte_string.rs", "lines": "274", "code": "b'\\t' => vec![b'\\\\', b't'].into_iter(),"}
+      ]
+    },
+    "6.3_path_expressions": {
+      "fls_section": "6.3 Path Expressions",
+      "description": "Expressions denoting paths to items (constants, functions, statics, variables).",
+      "findings": {
+        "qualified_paths": "Type::method() style calls",
+        "associated_functions": "Self::new(), Type::default()",
+        "module_paths": "core::cmp::max, std::sync::atomic::Ordering"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "48", "code": "core::cmp::max(size, align)"},
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "52", "code": "FixedSizePoolAllocator::<512>::new("}
+      ]
+    },
+    "6.4_block_expressions": {
+      "fls_section": "6.4 Block Expressions",
+      "description": "Expressions that sequence statements and expressions within braces.",
+      "findings": {
+        "statement_blocks": "Function bodies, if/match arms",
+        "tail_expressions": "Last expression in block determines block value"
+      },
+      "subsections": {
+        "6.4.1_async_blocks": {
+          "description": "Blocks specified with async keyword.",
+          "findings": {},
+          "samples": [],
+          "status": "NOT USED"
+        },
+        "6.4.2_const_blocks": {
+          "description": "Blocks evaluated statically (const {}).",
+          "findings": {
+            "usage": "Limited use for compile-time initialization"
+          },
+          "samples": [
+            {"path": "iceoryx2-pal-posix-0.7.0/src/windows/errno.rs", "lines": "142", "code": "pub static GLOBAL_ERRNO_VALUE: Cell<u32> = const { Cell::new(Errno::ESUCCES as _) };"}
+          ]
+        },
+        "6.4.3_named_blocks": {
+          "description": "Blocks with labels for break targeting.",
+          "findings": {},
+          "samples": [],
+          "status": "NOT USED"
+        },
+        "6.4.4_unsafe_blocks": {
+          "description": "Blocks allowing unsafe operations.",
+          "findings": {
+            "count": 1702,
+            "usage": "FFI calls, raw pointer operations, memory manipulation"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "53", "code": "unsafe { Layout::from_size_align_unchecked(size, align) }"},
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "94", "code": "assert_that!((unsafe { memory.as_ref() }.as_ptr()) as usize, eq addr);"}
+          ]
+        }
+      }
+    },
+    "6.5_operator_expressions": {
+      "fls_section": "6.5 Operator Expressions",
+      "description": "Expressions involving operators.",
+      "subsections": {
+        "6.5.1_borrow_expression": {
+          "description": "Expressions creating references (&, &mut).",
+          "findings": {
+            "immutable_borrow": "& used for shared references",
+            "mutable_borrow": "&mut used for exclusive references"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "39", "code": "fn get_mut_memory(&mut self) -> *mut u8 {"},
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "508", "code": "assert_that!(unsafe { sut.init(&bump_allocator) }, is_ok);"}
+          ]
+        },
+        "6.5.2_dereference_expression": {
+          "description": "Expressions dereferencing pointers (*).",
+          "findings": {
+            "raw_pointer_deref": "Requires unsafe context",
+            "reference_deref": "Automatic through Deref trait"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "150", "code": "NonNull::new(123 as *mut u8).unwrap()"}
+          ]
+        },
+        "6.5.3_error_propagation_expression": {
+          "description": "Expressions using ? operator for error propagation.",
+          "findings": {
+            "count": 2065,
+            "usage": "Extensive use with Result types for error handling"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/heap_allocator_tests.rs", "lines": "172", "code": "let memory = sut.allocate(layout)?;"},
+            {"path": "iceoryx2-bb-posix-0.7.0/tests/file_tests.rs", "lines": "293", "code": "assert_that!(File::does_exist(&test.file)?, eq true);"}
+          ]
+        },
+        "6.5.4_negation_expression": {
+          "description": "Expressions using negation operators (!, -).",
+          "findings": {
+            "bitwise_negation": "! for bool and integer negation",
+            "sign_negation": "- for numeric negation"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-posix-0.7.0/tests/file_tests.rs", "lines": "312", "code": "assert_that!(!File::does_exist(&test.file)?, eq true);"}
+          ]
+        },
+        "6.5.5_arithmetic_expressions": {
+          "description": "Expressions using arithmetic operators (+, -, *, /, %).",
+          "findings": {
+            "addition": "+ for numeric addition",
+            "subtraction": "- for numeric subtraction",
+            "multiplication": "* for numeric multiplication",
+            "division": "/ for numeric division",
+            "remainder": "% for modulo operations"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "48", "code": "(TestFixture::memory_size() / core::cmp::max(size, align)) as u32 - 1"},
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "93", "code": "let addr = start_addr + i as usize * BUCKET_SIZE;"}
+          ]
+        },
+        "6.5.6_bit_expressions": {
+          "description": "Expressions using bit operators (&, |, ^, <<, >>).",
+          "findings": {
+            "bit_and": "& for masking operations",
+            "bit_or": "| for flag combination (Permission flags)",
+            "bit_xor": "^ for XOR operations",
+            "shift_left": "<< for bit shifting",
+            "shift_right": ">> for bit shifting"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-posix-0.7.0/tests/permission_tests.rs", "lines": "19-21", "code": "| Permission::OTHERS_WRITE\n| Permission::GROUP_EXEC\n| Permission::GROUP_READ;"},
+            {"path": "iceoryx2-bb-posix-0.7.0/tests/file_descriptor_tests.rs", "lines": "141", "code": "test(Permission::OWNER_READ | Permission::OWNER_WRITE);"}
+          ]
+        },
+        "6.5.7_comparison_expressions": {
+          "description": "Expressions using comparison operators (==, !=, <, >, <=, >=).",
+          "findings": {
+            "equals": "== for equality testing",
+            "not_equals": "!= for inequality testing",
+            "less_than": "< for ordering",
+            "greater_than": "> for ordering",
+            "less_or_equal": "<= for ordering",
+            "greater_or_equal": ">= for ordering"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/src/one_chunk_allocator.rs", "lines": "99", "code": "if !self.has_chunk_available() {"},
+            {"path": "iceoryx2-bb-memory-0.7.0/src/one_chunk_allocator.rs", "lines": "105", "code": "if available_size <= layout.size() {"}
+          ]
+        },
+        "6.5.8_lazy_boolean_expressions": {
+          "description": "Expressions using short-circuit boolean operators (&&, ||).",
+          "findings": {
+            "lazy_and": "&& for short-circuit AND",
+            "lazy_or": "|| for short-circuit OR"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/src/pool_allocator.rs", "lines": "174-175", "code": "|| position > self.start + self.size\n|| (position - self.start) % self.bucket_size != 0),"},
+            {"path": "iceoryx2-bb-posix-0.7.0/tests/metadata_tests.rs", "lines": "52", "code": "test_requires!(POSIX_SUPPORT_USERS_AND_GROUPS && POSIX_SUPPORT_PERMISSIONS);"}
+          ]
+        },
+        "6.5.9_raw_borrow_expression": {
+          "description": "Expressions creating raw pointers without borrow (&raw const/mut).",
+          "findings": {},
+          "samples": [],
+          "status": "NOT USED"
+        },
+        "6.5.10_type_cast_expression": {
+          "description": "Expressions using as for type casting.",
+          "findings": {
+            "usage": "Extensive for numeric conversions and pointer casts"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "48", "code": "... as u32 - 1"},
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "87", "code": "let start_addr = align(test.get_memory() as usize, BUCKET_ALIGNMENT);"},
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "150", "code": "NonNull::new(123 as *mut u8).unwrap()"}
+          ]
+        },
+        "6.5.11_assignment_expression": {
+          "description": "Expressions assigning values (=).",
+          "findings": {
+            "usage": "Variable assignment, field assignment, index assignment"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "29", "code": "test.raw_memory[i] = 255;"},
+            {"path": "iceoryx2-bb-memory-0.7.0/src/bump_allocator.rs", "lines": "86", "code": "aligned_position = align(self.start + current_position, layout.align()) - self.start;"}
+          ]
+        },
+        "6.5.12_compound_assignment_expression": {
+          "description": "Expressions using compound assignment (+=, -=, etc.).",
+          "findings": {
+            "add_assign": "+= for increment",
+            "or_assign": "|= for flag combination"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/bump_allocator_tests.rs", "lines": "119", "code": "space_used += 331;"},
+            {"path": "iceoryx2-bb-posix-0.7.0/tests/permission_tests.rs", "lines": "22", "code": "v1 |= Permission::SET_GID;"}
+          ]
+        }
+      }
+    },
+    "6.6_call_expression": {
+      "fls_section": "6.6 Call Expression",
+      "description": "Expressions invoking functions or closures.",
+      "findings": {
+        "function_calls": "Direct function invocation",
+        "method_calls": "19003 method call expressions",
+        "unwrap_calls": "Extensive use of .unwrap() and .expect()"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "54", "code": "NonNull::new(self.get_mut_memory()).unwrap()"},
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "91", "code": ".expect(\"\");"}
+      ]
+    },
+    "6.7_method_call_expression": {
+      "fls_section": "6.7 Method Call Expression",
+      "description": "Expressions calling methods on receivers.",
+      "findings": {
+        "count": 19003,
+        "usage": "Primary expression form - method chaining extensively used"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "68", "code": "sut.bucket_size()"},
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "40", "code": "self.raw_memory.as_mut_ptr()"}
+      ]
+    },
+    "6.8_field_access_expression": {
+      "fls_section": "6.8 Field Access Expression",
+      "description": "Expressions accessing struct fields.",
+      "findings": {
+        "usage": "Direct field access on structs"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "29", "code": "test.raw_memory[i] = 255;"}
+      ]
+    },
+    "6.9_closure_expression": {
+      "fls_section": "6.9 Closure Expression",
+      "description": "Expressions creating anonymous functions.",
+      "findings": {
+        "count": 636,
+        "usage": "Callbacks, iterators, thread spawning"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-posix-0.7.0/tests/unix_datagram_socket_tests.rs", "lines": "168-169", "code": "thread::scope(|s| {\n    let t = s.spawn(|| {"},
+        {"path": "iceoryx2-bb-posix-0.7.0/tests/signal_tests.rs", "lines": "56", "code": "|| { COUNTER.load(Ordering::SeqCst) },"},
+        {"path": "iceoryx2-bb-memory-0.7.0/src/pool_allocator.rs", "lines": "340", "code": "next_free_index: core::array::from_fn(|i| UnsafeCell::new(i as u32 + 1)),"}
+      ]
+    },
+    "6.10_loop_expression": {
+      "fls_section": "6.10 Loop Expression",
+      "description": "Expressions for iteration (for, while, loop).",
+      "subsections": {
+        "6.10.1_for_loop": {
+          "description": "Iteration over iterators.",
+          "findings": {
+            "count": 1155,
+            "usage": "Primary iteration construct"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "28", "code": "for i in 0..TestFixture::memory_size() {"},
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "88", "code": "for i in 0..sut.number_of_buckets() {"}
+          ]
+        },
+        "6.10.2_infinite_loop": {
+          "description": "Unconditional loop expression.",
+          "findings": {
+            "count": 111,
+            "usage": "Retry loops, event loops, CAS loops"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/src/bump_allocator.rs", "lines": "85", "code": "loop {"},
+            {"path": "iceoryx2-bb-posix-0.7.0/tests/mutex_tests.rs", "lines": "404", "code": "loop {"}
+          ]
+        },
+        "6.10.3_while_loop": {
+          "description": "Conditional loop expression.",
+          "findings": {
+            "count": 242,
+            "usage": "Condition-based iteration"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-memory-0.7.0/tests/bump_allocator_tests.rs", "lines": "110", "code": "while space_used < TestFixture::memory_size() {"},
+            {"path": "iceoryx2-bb-posix-0.7.0/tests/thread_tests.rs", "lines": "389", "code": "while start.elapsed() < SLEEP_DURATION {"}
+          ]
+        },
+        "6.10.4_while_let_loop": {
+          "description": "Pattern-matching loop expression.",
+          "findings": {
+            "usage": "Processing Option/Result streams"
+          },
+          "samples": [
+            {"path": "iceoryx2-0.7.0/tests/service_request_response_thread_safety_tests.rs", "lines": "111", "code": "while let Ok(Some(request)) = server.receive() {"}
+          ]
+        },
+        "6.10.5_loop_labels": {
+          "description": "Labels for loop control.",
+          "findings": {},
+          "samples": [],
+          "status": "LIMITED USE"
+        }
+      }
+    },
+    "6.11_range_expression": {
+      "fls_section": "6.11 Range Expression",
+      "description": "Expressions creating ranges (.., ..=, x..y).",
+      "findings": {
+        "half_open_range": "x..y for exclusive end",
+        "inclusive_range": "x..=y for inclusive end",
+        "usage": "Loop bounds, slice indexing, pattern matching"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "28", "code": "for i in 0..TestFixture::memory_size() {"},
+        {"path": "iceoryx2-bb-posix-0.7.0/src/unix_datagram_socket.rs", "lines": "961", "code": "1..=isize::MAX => {"},
+        {"path": "iceoryx2-bb-container-0.7.0/src/byte_string.rs", "lines": "277", "code": "b'\\x20'..=b'\\x7e' => vec![*c].into_iter(),"}
+      ]
+    },
+    "6.12_if_expression": {
+      "fls_section": "6.12 If Expression",
+      "description": "Conditional expressions.",
+      "findings": {
+        "count": 1475,
+        "usage": "Primary conditional construct"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-memory-0.7.0/src/bump_allocator.rs", "lines": "77", "code": "if layout.size() == 0 {"},
+        {"path": "iceoryx2-bb-memory-0.7.0/src/one_chunk_allocator.rs", "lines": "99", "code": "if !self.has_chunk_available() {"}
+      ]
+    },
+    "6.13_if_let_expression": {
+      "fls_section": "6.13 If Let Expression",
+      "description": "Conditional with pattern matching.",
+      "findings": {
+        "usage": "Option/Result handling without full match"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-lock-free-0.7.0/tests/spsc_index_queue_tests.rs", "lines": "151", "code": "if let Some(v) = sut_consumer.pop() {"}
+      ]
+    },
+    "6.14_match_expression": {
+      "fls_section": "6.14 Match Expression",
+      "description": "Exhaustive pattern matching.",
+      "findings": {
+        "count": 712,
+        "usage": "Enum variant matching, error handling, state machines"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-lock-free-0.7.0/tests/mpmc_container_tests.rs", "lines": "416", "code": "match unsafe { sut.add(value.into()) } {"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs", "lines": "89", "code": "match value {"}
+      ]
+    },
+    "6.15_return_expression": {
+      "fls_section": "6.15 Return Expression",
+      "description": "Expressions returning from functions.",
+      "findings": {
+        "usage": "Early returns, explicit returns"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-posix-0.7.0/tests/directory_tests.rs", "lines": "267", "code": "return true;"},
+        {"path": "iceoryx2-bb-posix-0.7.0/src/process_state.rs", "lines": "348", "code": "return Ok(());"}
+      ]
+    },
+    "6.16_await_expression": {
+      "fls_section": "6.16 Await Expression",
+      "description": "Expressions awaiting futures.",
+      "findings": {},
+      "samples": [],
+      "status": "NOT USED"
+    },
+    "6.17_break_expression": {
+      "fls_section": "6.17 Break Expression",
+      "description": "Expressions breaking from loops.",
+      "findings": {
+        "usage": "Loop exit, early termination"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-memory-0.7.0/src/bump_allocator.rs", "lines": "98", "code": "Ok(_) => break,"},
+        {"path": "iceoryx2-bb-posix-0.7.0/tests/mutex_tests.rs", "lines": "411", "code": "break;"}
+      ]
+    },
+    "6.18_continue_expression": {
+      "fls_section": "6.18 Continue Expression",
+      "description": "Expressions continuing to next loop iteration.",
+      "findings": {
+        "usage": "Skip current iteration"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-posix-0.7.0/src/directory.rs", "lines": "421", "code": "continue;"},
+        {"path": "iceoryx2-bb-posix-0.7.0/src/socket_ancillary.rs", "lines": "348", "code": "continue;"}
+      ]
+    },
+    "6.19_array_expression": {
+      "fls_section": "6.19 Array Expression",
+      "description": "Expressions creating arrays.",
+      "findings": {
+        "array_literals": "[0; SIZE] repetition syntax",
+        "element_lists": "[a, b, c] explicit elements"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "19", "code": "raw_memory: [u8; TestFixture::memory_size()],"},
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "25", "code": "raw_memory: [0; TestFixture::memory_size()],"}
+      ]
+    },
+    "6.20_index_expression": {
+      "fls_section": "6.20 Index Expression",
+      "description": "Expressions accessing array/slice elements.",
+      "findings": {
+        "usage": "Array indexing, slice access"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "29", "code": "test.raw_memory[i] = 255;"},
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/heap_allocator_tests.rs", "lines": "31", "code": "unsafe { memory.as_mut()[i] = 255 };"}
+      ]
+    },
+    "6.21_tuple_expression": {
+      "fls_section": "6.21 Tuple Expression",
+      "description": "Expressions creating tuples.",
+      "findings": {
+        "usage": "Multiple return values, temporary grouping"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-lock-free-0.7.0/tests/mpmc_container_tests.rs", "lines": "79", "code": "let mut contained_values: Vec<(u32, usize)> = vec![];"}
+      ]
+    },
+    "6.22_struct_expression": {
+      "fls_section": "6.22 Struct Expression",
+      "description": "Expressions creating struct values.",
+      "findings": {
+        "usage": "Struct instantiation, Self {} pattern"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-memory-0.7.0/src/bump_allocator.rs", "lines": "47-48", "code": "pub fn new(ptr: NonNull<u8>, size: usize) -> Self {\n    Self {"}
+      ]
+    },
+    "6.23_parenthesized_expression": {
+      "fls_section": "6.23 Parenthesized Expression",
+      "description": "Expressions grouped with parentheses.",
+      "findings": {
+        "usage": "Operator precedence control, clarity"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs", "lines": "48", "code": "(TestFixture::memory_size() / core::cmp::max(size, align)) as u32 - 1"}
+      ]
+    },
+    "6.24_underscore_expression": {
+      "fls_section": "6.24 Underscore Expression",
+      "description": "Placeholder expression for type inference.",
+      "findings": {},
+      "samples": [],
+      "status": "LIMITED USE"
+    }
+  },
+  "expressions_not_used": {
+    "async_blocks": "async {} - No async code in iceoryx2",
+    "await_expressions": ".await - No async code in iceoryx2",
+    "raw_borrow_expressions": "&raw const/mut - Not used",
+    "named_block_expressions": "'label: {} - Not used"
+  },
+  "safety_critical_summary": {
+    "unsafe_block_usage": {
+      "count": 1702,
+      "contexts": [
+        "Raw pointer dereferencing",
+        "FFI function calls",
+        "Memory layout operations",
+        "Atomic operations",
+        "Static mut access"
+      ]
+    },
+    "error_handling": {
+      "error_propagation": "2065 uses of ? operator",
+      "unwrap_expect": "Extensive use for critical assertions",
+      "match_expressions": "712 exhaustive pattern matches"
+    },
+    "type_safety": {
+      "type_casts": "Extensive 'as' casts for numeric conversions",
+      "pointer_casts": "Raw pointer type conversions in unsafe blocks"
+    }
+  }
+}

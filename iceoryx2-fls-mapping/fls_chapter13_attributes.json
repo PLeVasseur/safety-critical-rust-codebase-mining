@@ -1,0 +1,556 @@
+{
+  "chapter": 13,
+  "title": "Attributes",
+  "fls_url": "https://rust-lang.github.io/fls/attributes.html",
+  "summary": "FLS Chapter 13 defines attributes as general, free-form metadata interpreted based on name, convention, language, and tool. iceoryx2 makes extensive use of built-in attributes (2,500+ usages) including derive macros (658), conditional compilation (150 cfg), type representation (197 repr), testing (1,463 test), and documentation (87 doc). The codebase also defines 2 custom proc_macro_derive macros (PlacementDefault, ZeroCopySend) demonstrating FLS 13.2.8.6 compliance.",
+
+  "statistics": {
+    "total_attributes_approx": 2700,
+    "derive_attributes": 658,
+    "cfg_attributes": 150,
+    "repr_attributes": 197,
+    "test_attributes": 1463,
+    "inline_attributes": 23,
+    "doc_attributes": 87,
+    "allow_attributes": 62,
+    "should_panic_attributes": 40,
+    "non_exhaustive_attributes": 10,
+    "must_use_attributes": 8,
+    "cfg_attr_attributes": 6,
+    "ignore_attributes": 5,
+    "inner_attributes": 308,
+    "macro_export_attributes": 12,
+    "no_std_attributes": 2,
+    "proc_macro_derive_definitions": 2
+  },
+
+  "sections": {
+    "13.1": "Attribute Properties",
+    "13.2": "Built-in Attributes",
+    "13.2.1": "Code Generation Attributes",
+    "13.2.2": "Conditional Compilation Attributes",
+    "13.2.3": "Derivation Attributes",
+    "13.2.4": "Diagnostics Attributes",
+    "13.2.5": "Documentation Attributes",
+    "13.2.6": "Foreign Function Interface Attributes",
+    "13.2.7": "Limits Attributes",
+    "13.2.8": "Macros Attributes",
+    "13.2.9": "Modules Attributes",
+    "13.2.10": "Prelude Attributes",
+    "13.2.11": "Runtime Attributes",
+    "13.2.12": "Testing Attributes",
+    "13.2.13": "Type Attributes"
+  },
+
+  "attribute_basics": {
+    "13:1_to_13:4": {
+      "rule": "An attribute is free-form metadatum; inner attributes apply to enclosing item; outer attributes apply to subsequent item; attribute content provides the content.",
+      "status": "demonstrated",
+      "inner_attribute_count": 308,
+      "samples": [
+        {
+          "description": "Inner attribute",
+          "file": "iceoryx2-pal-configuration-0.7.0/src/lib.rs",
+          "line": 13,
+          "code": "#![no_std]"
+        },
+        {
+          "description": "Outer attribute",
+          "file": "iceoryx2-bb-memory-0.7.0/src/pool_allocator.rs",
+          "line": 63,
+          "code": "#[derive(Debug)]"
+        }
+      ]
+    }
+  },
+
+  "attribute_properties": {
+    "section": "13.1",
+    "rules": {
+      "13.1:1_to_13.1:8": {
+        "rule": "Active attributes are removed from items (cfg, cfg_attr, attribute macros); inert attributes remain.",
+        "status": "demonstrated",
+        "notes": "cfg (150 uses) is active; derive (658 uses) is inert"
+      }
+    }
+  },
+
+  "code_generation_attributes": {
+    "section": "13.2.1",
+    "inline": {
+      "rule_ref": "13.2.1.2",
+      "rule": "Attribute inline marks function as inlined; hints: always, never.",
+      "count": 23,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-lock-free-0.7.0/src/spsc/safely_overflowing_index_queue.rs",
+          "line": 197,
+          "code": "#[inline(always)]"
+        },
+        {
+          "file": "iceoryx2-0.7.0/src/raw_sample.rs",
+          "line": 32,
+          "code": "#[inline]"
+        }
+      ]
+    },
+    "cold": {
+      "rule_ref": "13.2.1.1",
+      "count": 0,
+      "notes": "Not used in iceoryx2"
+    },
+    "target_feature": {
+      "rule_ref": "13.2.1.4",
+      "count": 0,
+      "notes": "Not used; iceoryx2 targets portable code"
+    },
+    "track_caller": {
+      "rule_ref": "13.2.1.5",
+      "count": 0,
+      "notes": "Not used in iceoryx2"
+    },
+    "naked": {
+      "rule_ref": "13.2.1.6",
+      "count": 0,
+      "notes": "Not used; iceoryx2 doesn't do naked functions"
+    }
+  },
+
+  "conditional_compilation_attributes": {
+    "section": "13.2.2",
+    "cfg": {
+      "rule_ref": "13.2.2.1",
+      "rule": "Attribute cfg enables conditional compilation based on configuration predicates.",
+      "count": 150,
+      "predicate_types_used": {
+        "debug_assertions": 28,
+        "doctest": 27,
+        "target_pointer_width_64": 17,
+        "target_pointer_width_32": 17,
+        "test": 11,
+        "target_os_windows": 6,
+        "target_os_nto": 2,
+        "target_os_linux": 2,
+        "feature_flags": 7
+      },
+      "samples": [
+        {
+          "file": "iceoryx2-pal-configuration-0.7.0/src/lib.rs",
+          "line": 15,
+          "code": "#[cfg(all(not(target_os = \"windows\"), not(target_os = \"nto\")))]",
+          "notes": "all() configuration predicate"
+        },
+        {
+          "file": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs",
+          "line": 135,
+          "code": "#[cfg(debug_assertions)]"
+        }
+      ]
+    },
+    "cfg_attr": {
+      "rule_ref": "13.2.2.2",
+      "rule": "Attribute cfg_attr conditionally applies attributes based on predicate.",
+      "count": 6,
+      "samples": [
+        {
+          "file": "iceoryx2-pal-posix-0.7.0/src/linux/pthread.rs",
+          "line": 254,
+          "code": "#[cfg_attr(target_os = \"linux\", link(name = \"pthread\"))]"
+        },
+        {
+          "file": "iceoryx2-pal-posix-0.7.0/src/freebsd/errno.rs",
+          "line": 171,
+          "code": "#[cfg_attr(target_os = \"freebsd\", link(name = \"c\"))]"
+        }
+      ]
+    }
+  },
+
+  "derivation_attributes": {
+    "section": "13.2.3",
+    "derive": {
+      "rule_ref": "13.2.3.2",
+      "rule": "Attribute derive lists derive macros for automatic trait implementation.",
+      "count": 658,
+      "most_common_derives": {
+        "Debug": 251,
+        "Debug_Clone_Copy_Eq_Hash_PartialEq": 88,
+        "ZeroCopySend": 38,
+        "Debug_Clone_Copy_PartialEq_Eq": 26,
+        "Debug_PartialEq_Eq_Copy_Clone": 18,
+        "Serialize_Deserialize": 7,
+        "PlacementDefault": 5
+      },
+      "samples": [
+        {
+          "file": "iceoryx2-bb-memory-0.7.0/src/pool_allocator.rs",
+          "line": 63,
+          "code": "#[derive(Debug)]"
+        },
+        {
+          "file": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs",
+          "line": 105,
+          "code": "#[derive(Debug, Clone, Copy, Eq, PartialEq)]"
+        },
+        {
+          "file": "iceoryx2-bb-posix-0.7.0/src/clock.rs",
+          "line": 69,
+          "code": "#[derive(Debug, Clone, Copy, Eq, Hash, PartialEq, ZeroCopySend, Serialize, Deserialize)]"
+        }
+      ]
+    },
+    "automatically_derived": {
+      "rule_ref": "13.2.3.1",
+      "notes": "Added automatically by compiler to derive implementations"
+    }
+  },
+
+  "diagnostics_attributes": {
+    "section": "13.2.4",
+    "notes": "Diagnostic attributes are related to linting and not fully defined in FLS.",
+    "allow": {
+      "count": 62,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs",
+          "line": 482,
+          "code": "#[allow(clippy::mut_from_ref)]"
+        },
+        {
+          "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs",
+          "line": 23,
+          "code": "#[allow(clippy::disallowed_types)]"
+        }
+      ]
+    },
+    "warn": {
+      "samples": [
+        {
+          "file": "iceoryx2-bb-memory-0.7.0/src/lib.rs",
+          "line": 13,
+          "code": "#![warn(clippy::alloc_instead_of_core)]",
+          "notes": "Inner attribute enabling lint warnings"
+        }
+      ]
+    },
+    "deny": {
+      "count": 5,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs",
+          "line": 485,
+          "code": "#[deny(clippy::mut_from_ref)]"
+        }
+      ]
+    },
+    "must_use": {
+      "count": 8,
+      "samples": [
+        {
+          "file": "iceoryx2-0.7.0/src/raw_sample.rs",
+          "line": 53,
+          "code": "#[must_use]"
+        }
+      ]
+    },
+    "deprecated": {
+      "count": 0,
+      "notes": "Not used in iceoryx2"
+    }
+  },
+
+  "documentation_attributes": {
+    "section": "13.2.5",
+    "doc": {
+      "rule_ref": "13.2.5.1",
+      "rule": "Attribute doc associates documentation with a construct.",
+      "count": 87,
+      "primary_usage": "doc(hidden)",
+      "samples": [
+        {
+          "file": "iceoryx2-bb-lock-free-0.7.0/src/spmc/unrestricted_atomic.rs",
+          "line": 56,
+          "code": "#[doc(hidden)]",
+          "notes": "Hides internal implementation details from documentation"
+        }
+      ]
+    }
+  },
+
+  "ffi_attributes": {
+    "section": "13.2.6",
+    "repr": {
+      "rule_ref": "13.2.6.11",
+      "rule": "Attribute repr indicates the type representation.",
+      "count": 197,
+      "representation_kinds": {
+        "C": 160,
+        "transparent": 18,
+        "i32": 13,
+        "u8": 2,
+        "u32": 2,
+        "u64": 1,
+        "i16": 1
+      },
+      "samples": [
+        {
+          "file": "iceoryx2-bb-memory-0.7.0/src/pool_allocator.rs",
+          "line": 287,
+          "code": "#[repr(C)]",
+          "notes": "C representation for FFI compatibility and predictable memory layout"
+        },
+        {
+          "file": "iceoryx2-pal-posix-0.7.0/src/macos/signal.rs",
+          "line": 19,
+          "code": "#[repr(transparent)]",
+          "notes": "Transparent representation for newtype wrappers"
+        },
+        {
+          "file": "iceoryx2-bb-elementary-0.7.0/src/enum_gen.rs",
+          "line": 341,
+          "code": "#[repr(i32)]",
+          "notes": "Primitive representation for enums"
+        }
+      ]
+    },
+    "link": {
+      "rule_ref": "13.2.6.4",
+      "count": 1,
+      "sample": {
+        "file": "iceoryx2-pal-posix-0.7.0/src/macos/pthread.rs",
+        "line": 149,
+        "code": "#[link(name = \"c++\")]"
+      }
+    },
+    "no_mangle": {
+      "rule_ref": "13.2.6.10",
+      "count": 0,
+      "notes": "Not used; iceoryx2 doesn't export C symbols directly"
+    },
+    "export_name": {
+      "rule_ref": "13.2.6.3",
+      "count": 0
+    },
+    "link_name": {
+      "rule_ref": "13.2.6.5",
+      "count": 0
+    },
+    "link_section": {
+      "rule_ref": "13.2.6.6",
+      "count": 0
+    },
+    "used": {
+      "rule_ref": "13.2.6.13",
+      "count": 0
+    }
+  },
+
+  "macros_attributes": {
+    "section": "13.2.8",
+    "macro_export": {
+      "rule_ref": "13.2.8.2",
+      "rule": "Attribute macro_export changes visibility of declarative macro to public.",
+      "count": 12,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-elementary-0.7.0/src/enum_gen.rs",
+          "line": 171,
+          "code": "#[macro_export(local_inner_macros)]"
+        },
+        {
+          "file": "iceoryx2-bb-log-0.7.0/src/log.rs",
+          "line": 38,
+          "code": "#[macro_export(local_inner_macros)]"
+        }
+      ]
+    },
+    "macro_use": {
+      "rule_ref": "13.2.8.3",
+      "count": 6,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-elementary-0.7.0/src/lib.rs",
+          "line": 19,
+          "code": "#[macro_use]"
+        }
+      ]
+    },
+    "proc_macro_derive": {
+      "rule_ref": "13.2.8.6",
+      "rule": "Attribute proc_macro_derive turns function into derive macro.",
+      "count": 2,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-derive-macros-0.7.0/src/lib.rs",
+          "line": 51,
+          "code": "#[proc_macro_derive(PlacementDefault)]",
+          "description": "Derives PlacementDefault trait for in-place initialization"
+        },
+        {
+          "file": "iceoryx2-bb-derive-macros-0.7.0/src/lib.rs",
+          "line": 151,
+          "code": "#[proc_macro_derive(ZeroCopySend, attributes(type_name))]",
+          "description": "Derives ZeroCopySend trait with helper attribute for type safety in IPC"
+        }
+      ],
+      "proc_macro_crate": {
+        "name": "iceoryx2-bb-derive-macros",
+        "version": "0.7.0",
+        "crate_type": "proc-macro"
+      }
+    },
+    "proc_macro": {
+      "rule_ref": "13.2.8.4",
+      "count": 0,
+      "notes": "No function-like proc macros defined"
+    },
+    "proc_macro_attribute": {
+      "rule_ref": "13.2.8.5",
+      "count": 0,
+      "notes": "No attribute proc macros defined"
+    }
+  },
+
+  "prelude_attributes": {
+    "section": "13.2.10",
+    "no_std": {
+      "rule_ref": "13.2.10.2",
+      "rule": "Attribute no_std prevents import of standard library prelude.",
+      "count": 2,
+      "samples": [
+        {
+          "file": "iceoryx2-pal-configuration-0.7.0/src/lib.rs",
+          "line": 13,
+          "code": "#![no_std]"
+        }
+      ]
+    },
+    "no_implicit_prelude": {
+      "rule_ref": "13.2.10.1",
+      "count": 0
+    }
+  },
+
+  "testing_attributes": {
+    "section": "13.2.12",
+    "test": {
+      "rule_ref": "13.2.12.3",
+      "rule": "Attribute test indicates function is a testing function.",
+      "count": 1463,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs",
+          "line": 60,
+          "code": "#[test]"
+        }
+      ]
+    },
+    "should_panic": {
+      "rule_ref": "13.2.12.2",
+      "rule": "Attribute should_panic indicates test should panic to pass.",
+      "count": 40,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-memory-0.7.0/tests/pool_allocator_tests.rs",
+          "line": 134,
+          "code": "#[should_panic]"
+        },
+        {
+          "file": "iceoryx2-bb-lock-free-0.7.0/tests/bitset_tests.rs",
+          "line": 105,
+          "code": "#[should_panic]"
+        }
+      ]
+    },
+    "ignore": {
+      "rule_ref": "13.2.12.1",
+      "rule": "Attribute ignore prevents execution of testing function.",
+      "count": 5,
+      "samples": [
+        {
+          "file": "iceoryx2-cal-0.7.0/tests/dynamic_storage_trait_tests.rs",
+          "line": 407,
+          "code": "#[ignore] // TODO: iox2-671 enable this test when the concurrency issue is fixed.",
+          "notes": "Used for temporarily disabled tests with tracking"
+        }
+      ]
+    }
+  },
+
+  "type_attributes": {
+    "section": "13.2.13",
+    "non_exhaustive": {
+      "rule_ref": "13.2.13.1",
+      "rule": "Attribute non_exhaustive indicates type may have more fields/variants added.",
+      "count": 10,
+      "samples": [
+        {
+          "file": "iceoryx2-0.7.0/src/config.rs",
+          "line": 127,
+          "code": "#[non_exhaustive]",
+          "notes": "Configuration structs marked non_exhaustive for forward compatibility"
+        },
+        {
+          "file": "iceoryx2-0.7.0/src/service/static_config/messaging_pattern.rs",
+          "line": 32,
+          "code": "#[non_exhaustive]"
+        }
+      ],
+      "rationale": "Allows adding new configuration fields in future versions without breaking API"
+    }
+  },
+
+  "custom_derives": {
+    "PlacementDefault": {
+      "defined_in": "iceoryx2-bb-derive-macros-0.7.0/src/lib.rs:51",
+      "trait": "iceoryx2_bb_elementary_traits::placement_default::PlacementDefault",
+      "purpose": "Implements in-place initialization without stack allocation for large types",
+      "usage_count": 5
+    },
+    "ZeroCopySend": {
+      "defined_in": "iceoryx2-bb-derive-macros-0.7.0/src/lib.rs:151",
+      "trait": "ZeroCopySend",
+      "helper_attributes": ["type_name"],
+      "purpose": "Marks types safe for zero-copy IPC transmission",
+      "usage_count": 38
+    }
+  },
+
+  "design_patterns": {
+    "repr_c_for_shared_memory": {
+      "description": "#[repr(C)] ensures predictable layout for types shared across processes",
+      "count": 160,
+      "rationale": "IPC requires identical memory layout between reader and writer"
+    },
+    "cfg_for_platform_abstraction": {
+      "description": "Conditional compilation for multi-platform support",
+      "platforms": ["linux", "windows", "macos", "freebsd", "nto"],
+      "count": 150
+    },
+    "derive_for_common_traits": {
+      "description": "Automatic implementation of common traits",
+      "most_common": "Debug (251)",
+      "pattern": "Debug enables logging; Clone/Copy for value semantics; Eq/Hash for collections"
+    },
+    "non_exhaustive_for_config": {
+      "description": "Configuration types marked non_exhaustive for API stability",
+      "count": 10,
+      "benefit": "New config fields can be added without breaking changes"
+    },
+    "custom_derives_for_domain": {
+      "description": "Domain-specific derive macros for IPC safety",
+      "macros": ["ZeroCopySend", "PlacementDefault"],
+      "benefit": "Compile-time verification of IPC type requirements"
+    }
+  },
+
+  "cross_chapter_references": {
+    "chapter_3": "Attributes apply to items",
+    "chapter_4": "repr attribute affects type representation",
+    "chapter_11": "derive generates implementations",
+    "chapter_12": "derive-generated impls handle generic parameters",
+    "chapter_17": "Send/Sync derives affect concurrency safety",
+    "chapter_20": "proc_macro_derive creates macros",
+    "chapter_21": "FFI attributes for foreign function interface"
+  }
+}

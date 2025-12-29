@@ -1,0 +1,357 @@
+{
+  "chapter": 20,
+  "title": "Macros",
+  "fls_url": "https://rust-lang.github.io/fls/macros.html",
+  "summary": "FLS Chapter 20 covers declarative macros (macro_rules!), procedural macros (derive, attribute, function-like), macro invocation, expansion, and hygiene. iceoryx2 defines 16 declarative macros and 2 procedural derive macros (PlacementDefault, ZeroCopySend). Key declarative macros include fail! (887 invocations), fatal_panic! (192), logging macros (trace/debug/info/warn/error), enum_gen! (63), and semantic_string! (11). All public macros use #[macro_export(local_inner_macros)] and $crate for proper hygiene.",
+
+  "statistics": {
+    "declarative_macros_defined": 16,
+    "procedural_macros_defined": 2,
+    "proc_macro_derive": 2,
+    "proc_macro_attribute": 0,
+    "proc_macro_function": 0,
+    "macro_export_count": 12,
+    "crate_metavariable_usage": 22,
+    "fail_invocations": 887,
+    "fatal_panic_invocations": 192,
+    "trace_invocations": 43,
+    "debug_invocations": 46,
+    "warn_invocations": 77,
+    "info_invocations": 12,
+    "error_invocations": 30,
+    "enum_gen_invocations": 63,
+    "semantic_string_invocations": 11,
+    "placement_default_derives": 11,
+    "zero_copy_send_derives": 138,
+    "vec_invocations": 465,
+    "format_invocations": 217,
+    "assert_that_invocations": 4571
+  },
+
+  "sections": {
+    "20.1": "Declarative Macros",
+    "20.1.1": "Metavariables",
+    "20.1.2": "Repetition",
+    "20.2": "Procedural Macros",
+    "20.2.1": "Function-like Macros",
+    "20.2.2": "Derive Macros",
+    "20.2.3": "Attribute Macros",
+    "20.3": "Macro Invocation",
+    "20.4": "Macro Expansion",
+    "20.5": "Hygiene"
+  },
+
+  "declarative_macros": {
+    "section": "20.1",
+    "count": 16,
+    "macros": [
+      {
+        "name": "fail!",
+        "file": "iceoryx2-bb-log-0.7.0/src/fail.rs",
+        "invocations": 887,
+        "exported": true,
+        "purpose": "Combines error handling with logging - fails and returns error with debug message",
+        "patterns": [
+          "fail!(with $error_value, $message)",
+          "fail!(from $origin, with $error_value, $message)",
+          "fail!(from $origin, when $call, with $error_value, $message)",
+          "fail!(from $origin, when $call, map $error => $mapped; ..., unmatched $default, $message)"
+        ]
+      },
+      {
+        "name": "trace!",
+        "file": "iceoryx2-bb-log-0.7.0/src/log.rs",
+        "invocations": 43,
+        "exported": true,
+        "purpose": "Logs trace-level messages"
+      },
+      {
+        "name": "debug!",
+        "file": "iceoryx2-bb-log-0.7.0/src/log.rs",
+        "invocations": 46,
+        "exported": true,
+        "purpose": "Logs debug-level messages"
+      },
+      {
+        "name": "info!",
+        "file": "iceoryx2-bb-log-0.7.0/src/log.rs",
+        "invocations": 12,
+        "exported": true,
+        "purpose": "Logs info-level messages"
+      },
+      {
+        "name": "warn!",
+        "file": "iceoryx2-bb-log-0.7.0/src/log.rs",
+        "invocations": 77,
+        "exported": true,
+        "purpose": "Logs warning-level messages"
+      },
+      {
+        "name": "error!",
+        "file": "iceoryx2-bb-log-0.7.0/src/log.rs",
+        "invocations": 30,
+        "exported": true,
+        "purpose": "Logs error-level messages"
+      },
+      {
+        "name": "fatal_panic!",
+        "file": "iceoryx2-bb-log-0.7.0/src/log.rs",
+        "invocations": 192,
+        "exported": true,
+        "purpose": "Logs fatal message then panics - for invariant violations"
+      },
+      {
+        "name": "enum_gen!",
+        "file": "iceoryx2-bb-elementary-0.7.0/src/enum_gen.rs",
+        "invocations": 63,
+        "exported": true,
+        "purpose": "Generates error enums with automatic From implementations for composition"
+      },
+      {
+        "name": "semantic_string!",
+        "file": "iceoryx2-bb-container-0.7.0/src/semantic_string.rs",
+        "invocations": 11,
+        "exported": true,
+        "purpose": "Generates semantic string types with validation and normalization"
+      },
+      {
+        "name": "handle_errno!",
+        "file": "iceoryx2-bb-posix-0.7.0/src/handle_errno.rs",
+        "exported": true,
+        "purpose": "Maps errno values to error enums with logging"
+      },
+      {
+        "name": "define_signals!",
+        "file": "iceoryx2-bb-posix-0.7.0/src/signal.rs",
+        "exported": false,
+        "purpose": "Defines signal constants for platform abstraction"
+      },
+      {
+        "name": "generate_id!",
+        "file": "iceoryx2-0.7.0/src/port/port_identifiers.rs",
+        "exported": false,
+        "purpose": "Generates port identifier types"
+      },
+      {
+        "name": "Impl!",
+        "file": "iceoryx2-bb-elementary-traits-0.7.0/src/placement_default.rs",
+        "exported": false,
+        "purpose": "Helper for PlacementDefault implementations on primitives"
+      },
+      {
+        "name": "win32call!",
+        "file": "iceoryx2-pal-posix-0.7.0/src/windows/win32_call.rs",
+        "exported": true,
+        "purpose": "Windows API call wrapper with error handling"
+      },
+      {
+        "name": "add_to_ace_string!",
+        "file": "iceoryx2-pal-posix-0.7.0/src/windows/win32_security_attributes.rs",
+        "exported": false,
+        "purpose": "Builds Windows ACE strings"
+      },
+      {
+        "name": "ErrnoEnumGenerator!",
+        "file": "iceoryx2-pal-posix-0.7.0/src/common/error_enum_generator.rs",
+        "exported": true,
+        "purpose": "Generates errno enums for POSIX compatibility"
+      }
+    ]
+  },
+
+  "metavariables": {
+    "section": "20.1.1",
+    "fragment_specifiers_used": {
+      "expr": {
+        "count": 70,
+        "examples": ["$e:expr", "$message:expr", "$call:expr", "$origin:expr"]
+      },
+      "ident": {
+        "count": 50,
+        "examples": ["$error_value:ident", "$error_type:ident", "$enum_name:ident"]
+      },
+      "meta": {
+        "count": 11,
+        "examples": ["$documentation:meta"]
+      },
+      "ty": {
+        "count": 3,
+        "usage": "Type specifications in macros"
+      },
+      "tt": {
+        "count": 2,
+        "usage": "Token trees for flexible matching"
+      }
+    }
+  },
+
+  "repetition": {
+    "section": "20.1.2",
+    "operators_used": {
+      "*": "Zero or more - used in logging macros for variadic messages",
+      "+": "One or more - used in enum_gen for entries",
+      "?": "Optional - used for optional errno suffixes"
+    },
+    "sample": {
+      "file": "iceoryx2-bb-posix-0.7.0/src/handle_errno.rs",
+      "pattern": "$( $errno:ident$(::$errno_suf:ident)? => ($error_value:ident$(($inner_value:expr))?, $($message:expr),*))*"
+    }
+  },
+
+  "procedural_macros": {
+    "section": "20.2",
+    "crate": "iceoryx2-bb-derive-macros",
+    "macros": [
+      {
+        "name": "PlacementDefault",
+        "type": "derive",
+        "attribute": "#[proc_macro_derive(PlacementDefault)]",
+        "invocations": 11,
+        "purpose": "Generates PlacementDefault trait impl for in-place initialization",
+        "description": "Recursively calls PlacementDefault::placement_default on each field using addr_of_mut!",
+        "supports": ["Named fields", "Unnamed fields", "Unit structs"]
+      },
+      {
+        "name": "ZeroCopySend",
+        "type": "derive",
+        "attribute": "#[proc_macro_derive(ZeroCopySend, attributes(type_name))]",
+        "invocations": 138,
+        "purpose": "Marks types as safe for IPC/shared memory transfer",
+        "helper_attributes": ["type_name"],
+        "description": "Generates unsafe impl ZeroCopySend with optional custom type_name",
+        "supports": ["Structs", "Enums"]
+      }
+    ],
+    "dependencies": ["proc_macro", "quote", "syn"]
+  },
+
+  "macro_invocation": {
+    "section": "20.3",
+    "high_frequency_custom": {
+      "fail!": 887,
+      "fatal_panic!": 192,
+      "warn!": 77,
+      "enum_gen!": 63,
+      "debug!": 46,
+      "trace!": 43,
+      "error!": 30,
+      "info!": 12,
+      "semantic_string!": 11
+    },
+    "high_frequency_standard": {
+      "assert_that!": 4571,
+      "vec!": 465,
+      "panic!": 234,
+      "format!": 217,
+      "assert!": 67
+    },
+    "derive_invocations": {
+      "ZeroCopySend": 138,
+      "PlacementDefault": 11
+    }
+  },
+
+  "macro_expansion": {
+    "section": "20.4",
+    "expansion_contexts": {
+      "statements": "fail!, logging macros expand to statements with return/log calls",
+      "items": "enum_gen!, semantic_string! expand to struct/enum/impl items",
+      "expressions": "Logging macros can expand to expressions in conditional contexts"
+    }
+  },
+
+  "hygiene": {
+    "section": "20.5",
+    "crate_metavariable": {
+      "usage_count": 22,
+      "purpose": "Refers to the crate the macro was defined in",
+      "sample": "$crate::__internal_print_log_msg($crate::LogLevel::Trace, ...)"
+    },
+    "local_inner_macros": {
+      "usage_count": 12,
+      "purpose": "Allows exported macros to call other macros from the same crate",
+      "pattern": "#[macro_export(local_inner_macros)]"
+    },
+    "mixed_site_hygiene": "Declarative macros use mixed site hygiene (definition site for $crate, call site otherwise)"
+  },
+
+  "macro_samples": {
+    "fail_macro": {
+      "file": "iceoryx2-bb-log-0.7.0/src/fail.rs",
+      "definition": [
+        "macro_rules! fail {",
+        "    (from $origin:expr, when $call:expr, with $error_value:expr, $($message:expr),*) => {",
+        "        {",
+        "            let result = $call;",
+        "            match result.is_err() {",
+        "                true => {",
+        "                    debug!(from $origin, $($message),*);",
+        "                    return Err($error_value);",
+        "                }",
+        "                false => { result.ok().unwrap() }",
+        "            }",
+        "        }",
+        "    };",
+        "}"
+      ],
+      "usage_sample": "fail!(from self, when file.read_to_string(&mut contents), with ConfigCreationError::UnableToReadConfigFile, \"Failed to read config\")"
+    },
+    "enum_gen_macro": {
+      "file": "iceoryx2-bb-elementary-0.7.0/src/enum_gen.rs",
+      "purpose": "Generates error enums with From implementations",
+      "usage_sample": [
+        "enum_gen! {",
+        "    MyErrorEnum",
+        "  entry:",
+        "    Failure1,",
+        "    Failure2",
+        "  mapping:",
+        "    SomeOtherError",
+        "}"
+      ]
+    },
+    "logging_macro": {
+      "file": "iceoryx2-bb-log-0.7.0/src/log.rs",
+      "definition": [
+        "macro_rules! trace {",
+        "    ($($e:expr),*) => {",
+        "        $crate::__internal_print_log_msg($crate::LogLevel::Trace, std::format_args!(\"\"), std::format_args!($($e),*))",
+        "    };",
+        "    (from $o:expr, $($e:expr),*) => {",
+        "        $crate::__internal_print_log_msg($crate::LogLevel::Trace, std::format_args!(\"{:?}\", $o), std::format_args!($($e),*))",
+        "    };",
+        "}"
+      ]
+    }
+  },
+
+  "design_patterns": {
+    "error_handling_with_logging": {
+      "description": "fail! macro combines Result error handling with debug logging",
+      "benefit": "Single macro call handles check, log, and return"
+    },
+    "enum_composition": {
+      "description": "enum_gen! generates error enums with From implementations",
+      "benefit": "Automatic error type composition and propagation"
+    },
+    "semantic_string_generation": {
+      "description": "semantic_string! generates validated string types",
+      "benefit": "Type-safe strings with validation, normalization, and serde support"
+    },
+    "derive_for_ipc": {
+      "description": "PlacementDefault and ZeroCopySend derive macros for IPC types",
+      "benefit": "Safe shared memory initialization and transfer"
+    },
+    "hygiene_through_crate": {
+      "description": "All exported macros use $crate and local_inner_macros",
+      "benefit": "Proper hygiene when macros call other macros"
+    }
+  },
+
+  "cross_chapter_references": {
+    "chapter_13": "Attributes - #[macro_export], #[proc_macro_derive]",
+    "chapter_16": "Exceptions and Errors - fail! macro for error handling",
+    "chapter_18": "Program Structure - proc-macro crate type",
+    "chapter_19": "Unsafety - ZeroCopySend unsafe trait derived by macro"
+  }
+}

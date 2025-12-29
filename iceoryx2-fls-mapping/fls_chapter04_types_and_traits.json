@@ -1,0 +1,549 @@
+{
+  "fls_chapter": "4. Types and Traits",
+  "fls_reference": "https://spec.ferrocene.dev/types-and-traits.html",
+  "codebase": "iceoryx2",
+  "analysis_date": "2025-12-18",
+  "overview": {
+    "description": "FLS Chapter 4 defines types and traits. Types define sets of values and operations. This mapping covers all type categories as defined in the FLS and their usage in iceoryx2.",
+    "type_syntax": "TypeSpecification ::= ImplTraitTypeSpecification | TraitObjectTypeSpecification | TypeSpecificationWithoutBounds"
+  },
+  "sections": {
+    "4.1_types": {
+      "fls_section": "4.1 Types",
+      "description": "A type defines a set of values and a set of operations that act on those values",
+      "findings": {
+        "local_types": "All structs, enums, traits defined in iceoryx2 crates are local types",
+        "type_ascription_usage": "Extensive use of type ascription (: Type) for explicit typing"
+      },
+      "samples": []
+    },
+    "4.2_type_classification": {
+      "fls_section": "4.2 Type Classification",
+      "description": "Types are organized into categories: scalar, sequence, abstract data, function, indirection, trait, and other types",
+      "note": "Informational section - see subsections for detailed mappings",
+      "samples": []
+    },
+    "4.3_scalar_types": {
+      "4.3.1_bool_type": {
+        "fls_section": "4.3.1 Bool Type",
+        "description": "Bool type denotes truth values of logic and Boolean algebra",
+        "findings": {
+          "usage": "Extensive use for feature flags, state indicators, and control flow",
+          "patterns": "Platform support flags, atomic booleans for synchronization"
+        },
+        "samples": [
+          {"path": "iceoryx2-pal-posix-0.7.0/src/linux/support.rs", "lines": "13", "code": "pub const POSIX_SUPPORT_ACL: bool = true;"},
+          {"path": "iceoryx2-pal-posix-0.7.0/src/linux/support.rs", "lines": "14", "code": "pub const POSIX_SUPPORT_NAMED_SEMAPHORE: bool = true;"},
+          {"path": "iceoryx2-pal-posix-0.7.0/src/linux/support.rs", "lines": "15", "code": "pub const POSIX_SUPPORT_PERSISTENT_SHARED_MEMORY: bool = true;"},
+          {"path": "iceoryx2-pal-posix-0.7.0/src/linux/support.rs", "lines": "17", "code": "pub const POSIX_SUPPORT_CPU_AFFINITY: bool = true;"}
+        ]
+      },
+      "4.3.2_char_type": {
+        "fls_section": "4.3.2 Char Type",
+        "description": "Char type represents Unicode scalar values (32-bit)",
+        "findings": {},
+        "samples": []
+      },
+      "4.3.3_numeric_types": {
+        "4.3.3.1_floating_point_types": {
+          "fls_section": "4.3.3.1 Floating Point Types",
+          "description": "f32 (IEEE 754 binary32) and f64 (IEEE 754 binary64)",
+          "findings": {
+            "f32_usage": "Configuration timing variance, scheduler priority calculations",
+            "f64_usage": "Limited - primarily in examples and tests"
+          },
+          "samples": [
+            {"path": "iceoryx2-pal-configuration-0.7.0/src/lib.rs", "lines": "30", "code": "pub const AT_LEAST_TIMING_VARIANCE: f32 = 0.25;"},
+            {"path": "iceoryx2-bb-posix-0.7.0/src/scheduler.rs", "lines": "93", "code": "let relative_prio: f32 = match max_priority > min_priority {"},
+            {"path": "iceoryx2-bb-posix-0.7.0/src/scheduler.rs", "lines": "113", "code": "let relative_prio: f32 = (priority as f32 / u8::MAX as f32).clamp(0.0, 1.0);"}
+          ]
+        },
+        "4.3.3.2_integer_types": {
+          "fls_section": "4.3.3.2 Integer Types",
+          "description": "Unsigned (u8-u128, usize) and signed (i8-i128, isize) integer types",
+          "findings": {
+            "unsigned_usage": "usize dominant for sizes/indices, u8 for bytes, u32/u64 for IDs and counters",
+            "signed_usage": "i32 for FFI return codes, i64 for counters in tests",
+            "platform_specific": "usize/isize for platform-dependent pointer-width values"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-lock-free-0.7.0/tests/spsc_index_queue_tests.rs", "lines": "21", "code": "const CAPACITY: usize = 128;"},
+            {"path": "iceoryx2-bb-lock-free-0.7.0/tests/spsc_index_queue_tests.rs", "lines": "138", "code": "let mut counter: usize = 0;"},
+            {"path": "iceoryx2-pal-posix-0.7.0/src/windows/pthread.rs", "lines": "702", "code": "const DEADLOCK_CODE: i32 = Errno::EDEADLK as i32;"},
+            {"path": "iceoryx2-0.7.0/src/waitset.rs", "lines": "387", "code": "reactor_idx: i32,"},
+            {"path": "iceoryx2-bb-lock-free-0.7.0/tests/spsc_queue_tests.rs", "lines": "120", "code": "const LIMIT: i64 = 10000;"}
+          ]
+        }
+      }
+    },
+    "4.4_sequence_types": {
+      "4.4.1_array_types": {
+        "fls_section": "4.4.1 Array Types",
+        "description": "Fixed-size sequence of elements [T; N]",
+        "findings": {
+          "usage": "Fixed-size buffers, shared memory structures, signal masks",
+          "const_generics": "Used with const generics for compile-time sized arrays"
+        },
+        "samples": [
+          {"path": "iceoryx2-bb-lock-free-0.7.0/tests/mpmc_container_tests.rs", "lines": "17", "code": "some_numbers: [usize; 32],"},
+          {"path": "iceoryx2-pal-posix-0.7.0/src/linux/mman.rs", "lines": "42", "code": "pub unsafe fn shm_list() -> Vec<[i8; 256]> {"},
+          {"path": "iceoryx2-pal-posix-0.7.0/src/linux/mman.rs", "lines": "56", "code": "let mut temp = [0i8; 256];"},
+          {"path": "iceoryx2-pal-posix-0.7.0/src/libc/signal.rs", "lines": "42", "code": "type sa_mask_underlying = [u32; 32];"}
+        ]
+      },
+      "4.4.2_slice_types": {
+        "fls_section": "4.4.2 Slice Types",
+        "description": "Dynamically-sized view into a sequence [T]",
+        "findings": {
+          "usage": "Buffer views, string slices, FFI data passing",
+          "safety": "Slice types used with references for safe access"
+        },
+        "samples": [
+          {"path": "iceoryx2-pal-posix-0.7.0/src/freebsd/mman.rs", "lines": "49", "code": "unsafe fn shm_file_path(name: *const c_char, suffix: &[u8]) -> [u8; MAX_PATH_LENGTH] {"},
+          {"path": "iceoryx2-pal-posix-0.7.0/src/freebsd/mman.rs", "lines": "150", "code": "unsafe fn trim_ascii(value: &[i8]) -> &[u8] {"},
+          {"path": "iceoryx2-pal-posix-0.7.0/src/freebsd/settings.rs", "lines": "14", "code": "pub(crate) const SHM_STATE_DIRECTORY: &[u8] = iceoryx2_pal_configuration::TEMP_DIRECTORY;"},
+          {"path": "iceoryx2-pal-posix-0.7.0/src/windows/win32_security_attributes.rs", "lines": "67", "code": "const GENERIC_PERM_ALL: &[u8] = b\"GA\";"}
+        ]
+      },
+      "4.4.3_str_type": {
+        "fls_section": "4.4.3 Str Type",
+        "description": "Sequence type representing UTF-8 encoded text",
+        "findings": {
+          "usage": "Error messages, debug output, verification messages",
+          "safety": "UTF-8 validity maintained through &str references"
+        },
+        "samples": [
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs", "lines": "306", "code": "fn verify_init(&self, source: &str) {"},
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/bit_set.rs", "lines": "182", "code": "fn verify_init(&self, source: &str) {"},
+          {"path": "iceoryx2-0.7.0/tests/node_tests.rs", "lines": "80", "code": "fn generate_node_name(i: usize, prefix: &str) -> NodeName {"},
+          {"path": "iceoryx2-0.7.0/src/node/mod.rs", "lines": "659", "code": "origin: &str,"}
+        ]
+      },
+      "4.4.4_tuple_types": {
+        "fls_section": "4.4.4 Tuple Types",
+        "description": "Heterogeneous list of types (T1, T2, ...)",
+        "findings": {
+          "usage": "Return multiple values, grouping related data",
+          "unit_tuple": "() used as void return type equivalent"
+        },
+        "samples": [
+          {"path": "iceoryx2-bb-lock-free-0.7.0/tests/mpmc_container_tests.rs", "lines": "79", "code": "let mut contained_values: Vec<(u32, usize)> = vec![];"}
+        ]
+      }
+    },
+    "4.5_abstract_data_types": {
+      "4.5.1_enum_types": {
+        "fls_section": "4.5.1 Enum Types",
+        "description": "Sum types with variants, including discriminants",
+        "findings": {
+          "usage": "Error types, state machines, messaging patterns",
+          "discriminants": "Explicit repr(u32/i32) for FFI compatibility"
+        },
+        "samples": [
+          {"path": "iceoryx2-0.7.0/src/service/messaging_pattern.rs", "lines": "53-54", "code": "#[repr(u32)] pub enum MessagingPattern {"},
+          {"path": "iceoryx2-bb-posix-0.7.0/src/signal.rs", "lines": "82-83", "code": "#[repr(i32)] pub enum UnfetchableSignal {"},
+          {"path": "iceoryx2-bb-posix-0.7.0/src/signal.rs", "lines": "119-120", "code": "#[repr(i32)] pub enum Signal {"},
+          {"path": "iceoryx2-bb-posix-0.7.0/src/file_type.rs", "lines": "19-20", "code": "#[repr(u32)] pub enum FileType {"},
+          {"path": "iceoryx2-bb-log-0.7.0/src/lib.rs", "lines": "181", "code": "#[repr(u8)]"}
+        ]
+      },
+      "4.5.1.1_zero_variant_enum_types": {
+        "fls_section": "4.5.1 Zero-Variant Enum Types",
+        "description": "Enums with no variants (uninhabited types)",
+        "findings": {},
+        "samples": []
+      },
+      "4.5.2_struct_types": {
+        "fls_section": "4.5.2 Struct Types",
+        "description": "Product types (record, tuple, unit structs)",
+        "findings": {
+          "record_structs": "Primary usage for data structures",
+          "tuple_structs": "Used for newtypes (e.g., NodeId(UniqueSystemId))",
+          "unit_structs": "Marker types (e.g., GenericOwningPointer)"
+        },
+        "samples": [
+          {"path": "iceoryx2-0.7.0/src/node/mod.rs", "lines": "201", "code": "pub struct NodeId(UniqueSystemId);"},
+          {"path": "iceoryx2-bb-elementary-traits-0.7.0/src/owning_pointer.rs", "lines": "24", "code": "pub struct GenericOwningPointer;"},
+          {"path": "iceoryx2-0.7.0/src/node/mod.rs", "lines": "316", "code": "pub struct NodeDetails {"},
+          {"path": "iceoryx2-0.7.0/src/node/mod.rs", "lines": "845", "code": "pub struct Node<Service: service::Service> {"}
+        ]
+      },
+      "4.5.3_union_types": {
+        "fls_section": "4.5.3 Union Types",
+        "description": "Sum types with shared storage (unsafe)",
+        "findings": {},
+        "samples": []
+      }
+    },
+    "4.6_function_types": {
+      "4.6.1_closure_types": {
+        "fls_section": "4.6.1 Closure Types",
+        "description": "Anonymous function types capturing environment",
+        "findings": {
+          "usage": "Callbacks, iterators, event handlers",
+          "trait_bounds": "FnMut commonly used for mutable callbacks"
+        },
+        "samples": [
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/bit_set.rs", "lines": "272", "code": "pub fn reset_all<F: FnMut(usize)>(&self, mut callback: F) {"},
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs", "lines": "146", "code": "pub fn for_each<F: FnMut(ContainerHandle, &T) -> CallbackProgression>(&self, mut callback: F) {"},
+          {"path": "iceoryx2-0.7.0/src/node/mod.rs", "lines": "883", "code": "pub fn list<F: FnMut(NodeState<Service>) -> CallbackProgression>("},
+          {"path": "iceoryx2-0.7.0/src/waitset.rs", "lines": "746", "code": "pub fn wait_and_process<F: FnMut(WaitSetAttachmentId<Service>) -> CallbackProgression>("},
+          {"path": "iceoryx2-0.7.0/src/sample_mut_uninit.rs", "lines": "442", "code": "pub fn write_from_fn<F: FnMut(usize) -> Payload>("}
+        ]
+      },
+      "4.6.2_function_item_types": {
+        "fls_section": "4.6.2 Function Item Types",
+        "description": "Unique anonymous type identifying a function",
+        "findings": {
+          "usage": "Functions passed as values, extern C callbacks",
+          "coercion": "Coerced to function pointers for FFI"
+        },
+        "samples": [
+          {"path": "iceoryx2-bb-posix-0.7.0/src/signal.rs", "lines": "303", "code": "extern \"C\" fn handler(signal: posix::int) {"},
+          {"path": "iceoryx2-bb-posix-0.7.0/src/signal.rs", "lines": "310", "code": "extern \"C\" fn capture_signal(signal: posix::int) {"}
+        ]
+      }
+    },
+    "4.7_indirection_types": {
+      "4.7.1_function_pointer_types": {
+        "fls_section": "4.7.1 Function Pointer Types",
+        "description": "Pointer to a function (fn(...) -> ...)",
+        "findings": {
+          "usage": "FFI callbacks, signal handlers, thread entry points",
+          "unsafe": "Often combined with unsafe and extern \"C\""
+        },
+        "samples": [
+          {"path": "iceoryx2-pal-posix-0.7.0/src/linux/signal.rs", "lines": "30", "code": "core::option::Option<unsafe extern \"C\" fn(i32)>,"},
+          {"path": "iceoryx2-pal-posix-0.7.0/src/linux/pthread.rs", "lines": "100", "code": "start_routine: unsafe extern \"C\" fn(*mut void) -> *mut void,"},
+          {"path": "iceoryx2-pal-posix-0.7.0/src/windows/pthread.rs", "lines": "273", "code": "start_routine: unsafe extern \"C\" fn(*mut void) -> *mut void,"},
+          {"path": "iceoryx2-pal-posix-0.7.0/src/libc/pthread.rs", "lines": "97", "code": "start_routine: extern \"C\" fn(*mut void) -> *mut void,"}
+        ]
+      },
+      "4.7.2_raw_pointer_types": {
+        "fls_section": "4.7.2 Raw Pointer Types",
+        "description": "*const T (immutable) and *mut T (mutable) raw pointers",
+        "findings": {
+          "usage": "FFI, low-level memory operations, shared memory",
+          "safety": "Requires unsafe blocks for dereference"
+        },
+        "samples": [
+          {"path": "iceoryx2-bb-lock-free-0.7.0/tests/spmc_unrestricted_atomic_tests.rs", "lines": "198", "code": "let value_ptr: *const u64 = &NEW_VALUE;"},
+          {"path": "iceoryx2-bb-lock-free-0.7.0/tests/spmc_unrestricted_atomic_tests.rs", "lines": "203", "code": "let read_value_ptr: *mut u64 = &mut read_value;"},
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs", "lines": "290", "code": "(self.data_ptr.as_ptr() as *mut UnsafeCell<u32>)"},
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/bit_set.rs", "lines": "147", "code": "(self.data_ptr.as_ptr() as *mut BitsetElement)"}
+        ]
+      },
+      "4.7.3_reference_types": {
+        "fls_section": "4.7.3 Reference Types",
+        "description": "&T (shared) and &mut T (mutable) references with ownership",
+        "findings": {
+          "shared_refs": "Extensively used for read-only access",
+          "mutable_refs": "Used for state modification with borrow checking",
+          "lifetime_annotations": "Explicit lifetimes where needed"
+        },
+        "samples": [
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs", "lines": "140", "code": "index_set: &'a UniqueIndexSet,"},
+          {"path": "iceoryx2-bb-posix-0.7.0/src/read_write_mutex.rs", "lines": "315", "code": "pub struct ReadWriteMutex<'this, 'handle: 'this, T: Sized + Debug> {"},
+          {"path": "iceoryx2-bb-posix-0.7.0/src/mutex.rs", "lines": "500", "code": "pub struct Mutex<'this, 'handle: 'this, T: Sized + Debug> {"}
+        ]
+      }
+    },
+    "4.8_trait_types": {
+      "4.8.1_impl_trait_types": {
+        "fls_section": "4.8.1 Impl Trait Types",
+        "description": "impl Trait - opaque type implementing a trait (compile-time known)",
+        "findings": {},
+        "samples": []
+      },
+      "4.8.2_trait_object_types": {
+        "fls_section": "4.8.2 Trait Object Types",
+        "description": "dyn Trait - dynamically dispatched trait objects",
+        "findings": {
+          "usage": "Error types (Box<dyn Error>), logging (dyn Log), views (dyn NodeView)",
+          "object_safety": "Used only with object-safe traits"
+        },
+        "samples": [
+          {"path": "iceoryx2-0.7.0/tests/node_tests.rs", "lines": "62-63", "code": "NodeState::<S>::Alive(ref view) => view as &dyn NodeView,"},
+          {"path": "iceoryx2-0.7.0/tests/publisher_tests.rs", "lines": "32", "code": "type TestResult<T> = core::result::Result<T, Box<dyn std::error::Error>>;"},
+          {"path": "iceoryx2-bb-log-0.7.0/src/lib.rs", "lines": "171", "code": "static mut LOGGER: Option<&'static dyn Log> = None;"}
+        ]
+      }
+    },
+    "4.9_other_types": {
+      "4.9.1_inferred_types": {
+        "fls_section": "4.9.1 Inferred Types",
+        "description": "_ placeholder for type inference",
+        "findings": {},
+        "samples": []
+      },
+      "4.9.2_type_parameters": {
+        "fls_section": "4.9.2 Type Parameters",
+        "description": "Generic type parameters <T>",
+        "findings": {
+          "usage": "Extensive use for generic containers and abstractions",
+          "bounds": "Commonly bounded by traits (T: Copy + Debug)"
+        },
+        "samples": [
+          {"path": "iceoryx2-0.7.0/src/node/mod.rs", "lines": "845", "code": "pub struct Node<Service: service::Service> {"},
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs", "lines": "114", "code": "pub struct ContainerState<T: Copy + Debug> {"}
+        ]
+      },
+      "4.9.3_never_type": {
+        "fls_section": "4.9.3 Never Type",
+        "description": "! type representing computations that never complete",
+        "findings": {},
+        "samples": []
+      },
+      "4.9.4_parenthesized_types": {
+        "fls_section": "4.9.4 Parenthesized Types",
+        "description": "(Type) for disambiguation",
+        "findings": {},
+        "samples": []
+      }
+    },
+    "4.10_type_aliases": {
+      "fls_section": "4.10 Type Aliases",
+      "description": "type Name = Type for introducing alternative names",
+      "findings": {
+        "usage": "Platform abstraction (Ipc/Local), pointer types, FFI types",
+        "patterns": "recommended.rs pattern for platform selection"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/bit_set.rs", "lines": "53", "code": "pub type BitSet = details::BitSet<OwningPointer<details::BitsetElement>>;"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/bit_set.rs", "lines": "55", "code": "pub type RelocatableBitSet = details::BitSet<RelocatablePointer<details::BitsetElement>>;"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/spsc/index_queue.rs", "lines": "96", "code": "pub type IndexQueue = details::IndexQueue<OwningPointer<UnsafeCell<u64>>>;"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/spsc/index_queue.rs", "lines": "97", "code": "pub type RelocatableIndexQueue = details::IndexQueue<RelocatablePointer<UnsafeCell<u64>>>;"},
+        {"path": "iceoryx2-pal-posix-0.7.0/src/linux/types.rs", "lines": "19", "code": "pub type ulong = crate::internal::ulong;"},
+        {"path": "iceoryx2-pal-posix-0.7.0/src/linux/types.rs", "lines": "34", "code": "pub type c_char = core::ffi::c_char;"}
+      ]
+    },
+    "4.11_representation": {
+      "4.11.1_type_layout": {
+        "fls_section": "4.11.1 Type Layout",
+        "description": "Alignment and size of values",
+        "findings": {
+          "dynamically_sized_types": "Slices, str, dyn Trait used via references",
+          "sized_trait": "?Sized used for DST-generic code"
+        },
+        "samples": [
+          {"path": "iceoryx2-0.7.0/src/response_mut.rs", "lines": "77", "code": "ResponsePayload: Debug + ZeroCopySend + ?Sized,"},
+          {"path": "iceoryx2-0.7.0/src/sample_mut_uninit.rs", "lines": "113", "code": "Payload: Debug + ZeroCopySend + ?Sized,"}
+        ]
+      },
+      "4.11.2_type_representation": {
+        "4.11.2.1_c_representation": {
+          "fls_section": "4.11.2 C Representation",
+          "description": "#[repr(C)] for FFI-compatible layout",
+          "findings": {
+            "usage": "Lock-free data structures, shared memory structs, FFI types"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs", "lines": "226", "code": "#[repr(C)]"},
+            {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/bit_set.rs", "lines": "80", "code": "#[repr(C)]"},
+            {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs", "lines": "167", "code": "#[repr(C)]"},
+            {"path": "iceoryx2-bb-lock-free-0.7.0/src/spsc/index_queue.rs", "lines": "105", "code": "#[repr(C)]"}
+          ]
+        },
+        "4.11.2.2_default_representation": {
+          "fls_section": "4.11.2 Default Representation",
+          "description": "Rust's default struct layout (no repr attribute)",
+          "findings": {
+            "usage": "Most structs without FFI requirements"
+          },
+          "samples": []
+        },
+        "4.11.2.3_transparent_representation": {
+          "fls_section": "4.11.2 Transparent Representation",
+          "description": "#[repr(transparent)] for newtype wrapper layout",
+          "findings": {
+            "usage": "Signal action wrappers, CPU set wrappers"
+          },
+          "samples": [
+            {"path": "iceoryx2-pal-posix-0.7.0/src/linux/signal.rs", "lines": "20", "code": "#[repr(transparent)]"},
+            {"path": "iceoryx2-pal-posix-0.7.0/src/linux/types.rs", "lines": "163", "code": "#[repr(transparent)]"},
+            {"path": "iceoryx2-pal-posix-0.7.0/src/macos/types.rs", "lines": "238", "code": "#[repr(transparent)]"}
+          ]
+        },
+        "4.11.2.4_primitive_representation": {
+          "fls_section": "4.11.2 Primitive Representation",
+          "description": "#[repr(u8/i32/etc)] for enum discriminant control",
+          "findings": {
+            "usage": "FFI enums, serialization-stable enums"
+          },
+          "samples": [
+            {"path": "iceoryx2-0.7.0/src/service/messaging_pattern.rs", "lines": "53", "code": "#[repr(u32)]"},
+            {"path": "iceoryx2-bb-log-0.7.0/src/lib.rs", "lines": "181", "code": "#[repr(u8)]"},
+            {"path": "iceoryx2-bb-posix-0.7.0/src/signal.rs", "lines": "82", "code": "#[repr(i32)]"},
+            {"path": "iceoryx2-bb-posix-0.7.0/src/memory_lock.rs", "lines": "54", "code": "#[repr(i32)]"},
+            {"path": "iceoryx2-bb-posix-0.7.0/src/file_type.rs", "lines": "19", "code": "#[repr(u32)]"}
+          ]
+        }
+      }
+    },
+    "4.12_type_model": {
+      "4.12.1_recursive_types": {
+        "fls_section": "4.12.1 Recursive Types",
+        "description": "Types that contain themselves (via indirection)",
+        "findings": {},
+        "samples": []
+      },
+      "4.12.2_type_unification": {
+        "fls_section": "4.12.2 Type Unification",
+        "description": "Process of determining type compatibility",
+        "findings": {},
+        "samples": []
+      },
+      "4.12.3_type_coercion": {
+        "fls_section": "4.12.3 Type Coercion",
+        "description": "Implicit type conversions",
+        "findings": {},
+        "samples": []
+      },
+      "4.12.4_structural_equality": {
+        "fls_section": "4.12.4 Structural Equality",
+        "description": "Types whose values can be compared by structure",
+        "findings": {
+          "derive_eq_partialeq": "Standard pattern for equality"
+        },
+        "samples": [
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs", "lines": "105", "code": "#[derive(Debug, Clone, Copy, Eq, PartialEq)]"},
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs", "lines": "77", "code": "#[derive(Debug, Clone, Copy, PartialEq, Eq)]"}
+        ]
+      },
+      "4.12.5_interior_mutability": {
+        "fls_section": "4.12.5 Interior Mutability",
+        "description": "Types allowing mutation through immutable references (UnsafeCell)",
+        "findings": {
+          "usage": "Lock-free data structures, atomic operations",
+          "safety": "Carefully managed in concurrent code"
+        },
+        "samples": [
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs", "lines": "85", "code": "use core::cell::UnsafeCell;"},
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs", "lines": "229", "code": "data_ptr: RelocatablePointer<UnsafeCell<u32>>,"},
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs", "lines": "74", "code": "use core::{cell::UnsafeCell, mem::MaybeUninit, sync::atomic::Ordering};"},
+          {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs", "lines": "172", "code": "data_ptr: RelocatablePointer<UnsafeCell<MaybeUninit<T>>>,"}
+        ]
+      },
+      "4.12.6_visible_emptiness": {
+        "fls_section": "4.12.6 Visible Emptiness",
+        "description": "Types with no observable values",
+        "findings": {},
+        "samples": []
+      },
+      "4.12.7_type_inference": {
+        "fls_section": "4.12.7 Type Inference",
+        "description": "Automatic type determination by compiler",
+        "findings": {},
+        "samples": []
+      }
+    },
+    "4.13_marker_traits": {
+      "fls_section": "Marker Traits (Send, Sync, Copy, Sized)",
+      "description": "Auto traits and marker traits for type properties",
+      "findings": {
+        "send_sync": "unsafe impl Send/Sync for lock-free structures",
+        "copy": "Derived for value types",
+        "sized": "?Sized bounds for DST-generic APIs"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs", "lines": "235-236", "code": "unsafe impl Sync for UniqueIndexSet {} unsafe impl Send for UniqueIndexSet {}"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/bit_set.rs", "lines": "89-90", "code": "unsafe impl<PointerType: PointerTrait<BitsetElement>> Send for BitSet<PointerType> {}"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs", "lines": "182-183", "code": "unsafe impl<T: Copy + Debug> Send for Container<T> {} unsafe impl<T: Copy + Debug> Sync for Container<T> {}"}
+      ]
+    },
+    "4.14_drop_trait": {
+      "fls_section": "Drop Trait",
+      "description": "Custom destructor implementation",
+      "findings": {
+        "usage": "Resource cleanup for lock-free structures"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs", "lines": "161", "code": "impl Drop for UniqueIndex<'_> {"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/spsc/queue.rs", "lines": "60", "code": "impl<T: Copy, const CAPACITY: usize> Drop for Producer<'_, T, CAPACITY> {"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/spmc/unrestricted_atomic.rs", "lines": "81", "code": "impl<T: Copy> Drop for Producer<'_, T> {"}
+      ]
+    },
+    "4.15_trait_and_lifetime_bounds": {
+      "fls_section": "Trait and Lifetime Bounds",
+      "description": "Constraints on generic types and lifetimes",
+      "findings": {
+        "trait_bounds": "Extensive use of where clauses",
+        "lifetime_bounds": "'a: 'b patterns for complex borrowing",
+        "supertraits": "Trait inheritance (e.g., Allocator: BaseAllocator)"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-posix-0.7.0/src/read_write_mutex.rs", "lines": "315", "code": "pub struct ReadWriteMutex<'this, 'handle: 'this, T: Sized + Debug> {"},
+        {"path": "iceoryx2-bb-posix-0.7.0/src/mutex.rs", "lines": "500", "code": "pub struct Mutex<'this, 'handle: 'this, T: Sized + Debug> {"}
+      ]
+    }
+  },
+  "special_types_summary": {
+    "option_type": {
+      "description": "Option<T> for nullable values",
+      "findings": {
+        "usage": "Extensive use for optional return values and nullable fields"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/bit_set.rs", "lines": "256", "code": "pub fn reset_next(&self) -> Option<usize> {"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/spsc/queue.rs", "lines": "73", "code": "pub fn pop(&mut self) -> Option<T> {"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/spsc/queue.rs", "lines": "124", "code": "pub fn acquire_producer(&self) -> Option<Producer<'_, T, CAPACITY>> {"}
+      ]
+    },
+    "result_type": {
+      "description": "Result<T, E> for fallible operations",
+      "findings": {
+        "usage": "Primary error handling mechanism throughout codebase"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs", "lines": "277", "code": "unsafe fn init<T: BaseAllocator>(&mut self, allocator: &T) -> Result<(), AllocationError> {"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs", "lines": "325", "code": "pub unsafe fn acquire(&self) -> Result<UniqueIndex<'_>, UniqueIndexSetAcquireFailure> {"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs", "lines": "292", "code": "pub unsafe fn add(&self, value: T) -> Result<ContainerHandle, ContainerAddFailure> {"}
+      ]
+    },
+    "maybe_uninit_type": {
+      "description": "MaybeUninit<T> for uninitialized memory",
+      "findings": {
+        "usage": "Low-level memory initialization in lock-free structures"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs", "lines": "74", "code": "use core::{cell::UnsafeCell, mem::MaybeUninit, sync::atomic::Ordering};"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs", "lines": "117", "code": "data: Vec<MaybeUninit<T>>,"},
+        {"path": "iceoryx2-bb-lock-free-0.7.0/src/mpmc/container.rs", "lines": "172", "code": "data_ptr: RelocatablePointer<UnsafeCell<MaybeUninit<T>>>,"}
+      ]
+    },
+    "phantom_data_type": {
+      "description": "PhantomData<T> for unused type parameters",
+      "findings": {
+        "usage": "Marker for generic parameters not stored in struct"
+      },
+      "samples": [
+        {"path": "iceoryx2-0.7.0/src/node/mod.rs", "lines": "161", "code": "use core::marker::PhantomData;"},
+        {"path": "iceoryx2-0.7.0/tests/service_tests.rs", "lines": "74", "code": "_data: PhantomData<Sut>,"}
+      ]
+    }
+  },
+  "safety_critical_summary": {
+    "types_not_used": {
+      "union_types": "No union types - unsafe memory aliasing avoided",
+      "never_type": "No explicit ! return types",
+      "zero_variant_enums": "No uninhabited enum types",
+      "impl_trait_types": "No impl Trait in return position",
+      "char_type": "No direct char type usage",
+      "recursive_types": "No self-referential types",
+      "inferred_types": "No _ type placeholders"
+    },
+    "safety_patterns": {
+      "repr_attributes": "#[repr(C)] for FFI stability, #[repr(transparent)] for newtypes",
+      "marker_traits": "unsafe impl Send/Sync with careful review",
+      "interior_mutability": "UnsafeCell usage in lock-free structures",
+      "unsized_types": "?Sized bounds for DST-generic APIs",
+      "lifetime_bounds": "Explicit lifetime relationships for borrow safety"
+    },
+    "type_safety_features": {
+      "explicit_typing": "Minimal type inference - explicit annotations preferred",
+      "enum_discriminants": "Explicit repr for ABI stability",
+      "newtype_pattern": "Tuple structs for type-safe wrappers",
+      "trait_bounds": "Send + Sync + Copy + Debug common bounds"
+    }
+  }
+}

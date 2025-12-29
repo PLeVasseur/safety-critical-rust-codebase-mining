@@ -1,0 +1,394 @@
+{
+  "chapter": 11,
+  "title": "Implementations",
+  "fls_url": "https://rust-lang.github.io/fls/implementations.html",
+  "summary": "FLS Chapter 11 defines implementations as items that supplement an implementing type by extending its functionality. There are two kinds: inherent implementations (adding direct functionality) and trait implementations (adding functionality specified by a trait). iceoryx2 uses 1,353 impl blocks total, with heavy use of trait implementations for abstraction and unsafe impl for Send/Sync markers on IPC types.",
+
+  "statistics": {
+    "total_impl_blocks": 1353,
+    "inherent_implementations": 344,
+    "trait_implementations": 1163,
+    "unsafe_trait_implementations": 66,
+    "generic_trait_implementations": 197,
+    "self_keyword_usages": 1579
+  },
+
+  "syntax": {
+    "Implementation": "InherentImplementation | TraitImplementation",
+    "InherentImplementation": "impl GenericParameterList? ImplementingType WhereClause? ImplementationBody",
+    "TraitImplementation": "unsafe? impl GenericParameterList? !? ImplementedTrait for ImplementingType WhereClause? ImplementationBody",
+    "ImplementingType": "TypeSpecification",
+    "ImplementedTrait": "TypePath",
+    "ImplementationBody": "{ InnerAttributeOrDoc* AssociatedItem* }"
+  },
+
+  "legality_rules": {
+    "11:1": {
+      "rule": "An implementation is an item that supplements an implementing type by extending its functionality.",
+      "status": "demonstrated",
+      "count": 1353,
+      "notes": "1,353 impl blocks extend types with methods, trait implementations, and associated items."
+    },
+    "11:2": {
+      "rule": "An implementing type is the type that the associated items of an implementation are associated with.",
+      "status": "demonstrated",
+      "samples": [
+        {
+          "file": "iceoryx2-bb-memory-0.7.0/src/heap_allocator.rs",
+          "line": 32,
+          "code": "impl HeapAllocator {",
+          "implementing_type": "HeapAllocator"
+        },
+        {
+          "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/mutex.rs",
+          "line": 29,
+          "code": "impl Mutex {",
+          "implementing_type": "Mutex"
+        }
+      ]
+    },
+    "11:3": {
+      "rule": "Within an implementation, the type Self acts as a type alias for the implementing type.",
+      "status": "demonstrated",
+      "count": 1579,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-system-types-0.7.0/src/port.rs",
+          "line": 31,
+          "code": "pub const fn new(port: u16) -> Self {\n    Self(port)\n}",
+          "notes": "Self used as return type and constructor"
+        },
+        {
+          "file": "iceoryx2-bb-posix-0.7.0/src/permission.rs",
+          "line": 53,
+          "code": "pub fn none() -> Self {\n    Self(0)\n}"
+        }
+      ]
+    },
+    "11:4": {
+      "rule": "An implementation body is a construct that encapsulates the associated items, inner attributes, and inner doc comments of an implementation.",
+      "status": "demonstrated",
+      "notes": "All impl blocks contain implementation bodies with associated functions, constants, and types."
+    },
+    "11:5": {
+      "rule": "An inherent implementation is an implementation that adds direct functionality.",
+      "status": "demonstrated",
+      "count": 344,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-system-types-0.7.0/src/port.rs",
+          "line": 30,
+          "code": "impl Port {"
+        },
+        {
+          "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/rwlock.rs",
+          "line": 31,
+          "code": "impl RwLockReaderPreference {"
+        },
+        {
+          "file": "iceoryx2-bb-elementary-0.7.0/src/alignment.rs",
+          "line": 36,
+          "code": "impl Alignment {"
+        }
+      ]
+    },
+    "11:6": {
+      "rule": "Inherent implementations of the same implementing type shall be defined within the same crate.",
+      "status": "compliant",
+      "notes": "All inherent implementations are within their defining crates. Example: Permission has two impl blocks in permission.rs."
+    },
+    "11:7": {
+      "rule": "A trait implementation is an implementation that adds functionality specified by a trait.",
+      "status": "demonstrated",
+      "count": 1163,
+      "samples": [
+        {
+          "file": "iceoryx2-bb-memory-0.7.0/src/one_chunk_allocator.rs",
+          "line": 94,
+          "code": "impl BaseAllocator for OneChunkAllocator {"
+        },
+        {
+          "file": "iceoryx2-bb-system-types-0.7.0/src/port.rs",
+          "line": 22,
+          "code": "impl Display for Port {"
+        },
+        {
+          "file": "iceoryx2-bb-log-0.7.0/src/logger/console.rs",
+          "line": 32,
+          "code": "impl Default for Logger {"
+        }
+      ]
+    },
+    "11:8": {
+      "rule": "An unsafe trait implementation is a trait implementation subject to keyword unsafe.",
+      "status": "demonstrated",
+      "count": 66,
+      "primary_uses": ["Send", "Sync", "ZeroCopySend"],
+      "samples": [
+        {
+          "file": "iceoryx2-bb-posix-0.7.0/src/barrier.rs",
+          "line": 160,
+          "code": "unsafe impl Send for BarrierHandle {}"
+        },
+        {
+          "file": "iceoryx2-bb-posix-0.7.0/src/barrier.rs",
+          "line": 161,
+          "code": "unsafe impl Sync for BarrierHandle {}"
+        },
+        {
+          "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs",
+          "line": 144,
+          "code": "unsafe impl<T: internal::AtomicInteger> Send for IoxAtomic<T> {}"
+        },
+        {
+          "file": "iceoryx2-cal-0.7.0/src/shared_memory_directory/file_reference_set.rs",
+          "line": 57,
+          "code": "unsafe impl Send for FileReferenceSet {}"
+        }
+      ]
+    },
+    "11:9": {
+      "rule": "An implemented trait is a trait whose functionality has been implemented by an implementing type.",
+      "status": "demonstrated",
+      "notes": "BaseAllocator, Display, Default, Drop, Send, Sync are common implemented traits."
+    },
+    "11:10": {
+      "rule": "The type path of a trait implementation shall resolve to a trait.",
+      "status": "compliant",
+      "notes": "All trait implementations reference valid trait paths (e.g., Display, Default, BaseAllocator)."
+    },
+    "11:11": {
+      "rule": "A trait implementation shall be an unsafe trait implementation if and only if it implements an unsafe trait.",
+      "status": "compliant",
+      "notes": "Send and Sync are unsafe traits, all their implementations use 'unsafe impl'. Safe traits use regular 'impl'."
+    },
+    "11:12": {
+      "rule": "Trait implementations are subject to implementation coherence and implementation conformance.",
+      "status": "compliant",
+      "notes": "See sections 11.1 and 11.2 below."
+    },
+    "11:13": {
+      "rule": "Inherent implementations of the same implementing type shall not define more than one associated item with the same name in the same namespace.",
+      "status": "compliant",
+      "example": {
+        "file": "iceoryx2-bb-posix-0.7.0/src/permission.rs",
+        "notes": "Two impl Permission blocks exist but define different items: first block defines constants and bits(), second block defines has() and as_mode(). No duplicates."
+      }
+    }
+  },
+
+  "implementation_coherence": {
+    "section": "11.1",
+    "description": "Rules ensuring trait implementations don't overlap and follow orphan rules",
+    "rules": {
+      "11.1:1": {
+        "rule": "A trait implementation exhibits implementation coherence when it is valid and does not overlap with another trait implementation.",
+        "status": "compliant",
+        "notes": "All trait implementations are coherent - implementing local traits on local types or std traits on local types."
+      },
+      "11.1:2": {
+        "rule": "Two trait implementations of the same implemented trait overlap when the intersection of the implementing types is non-empty.",
+        "status": "compliant",
+        "notes": "No overlapping implementations found."
+      },
+      "11.1:3_to_11.1:7": {
+        "rule": "Validity rules: trait is fundamental/local, OR at least one type is fundamental/local AND type parameters follow coverage rules.",
+        "status": "compliant",
+        "patterns": [
+          "Local trait on local type: impl BaseAllocator for PoolAllocator",
+          "Std trait on local type: impl Display for Permission",
+          "Std trait on generic local type: impl<T> Default for TypedUniqueId<T>"
+        ]
+      },
+      "11.1:8_to_11.1:16": {
+        "rule": "Fundamental types (&T, Pin<T>) and traits (Fn, FnMut, FnOnce, Sized) have relaxed coherence rules.",
+        "status": "acknowledged",
+        "notes": "iceoryx2 doesn't implement traits for fundamental types directly; uses them in bounds."
+      },
+      "11.1:17": {
+        "rule": "A trait implementation shall be coherent.",
+        "status": "compliant"
+      }
+    }
+  },
+
+  "implementation_conformance": {
+    "section": "11.2",
+    "description": "Rules ensuring trait implementations satisfy the constraints of their implemented trait",
+    "rules": {
+      "11.2:1": {
+        "rule": "A trait implementation exhibits implementation conformance when it satisfies the constraints of its implemented trait.",
+        "status": "demonstrated"
+      },
+      "11.2:2_to_11.2:4": {
+        "rule": "Associated constants are conformant when names match and types are subtypes.",
+        "status": "demonstrated",
+        "samples": [
+          {
+            "trait_definition": {
+              "file": "iceoryx2-cal-0.7.0/src/event/mod.rs",
+              "line": 119,
+              "code": "const IS_FILE_DESCRIPTOR_BASED: bool = false;"
+            },
+            "implementation": {
+              "file": "iceoryx2-cal-0.7.0/src/event/unix_datagram_socket.rs",
+              "line": 273,
+              "code": "const IS_FILE_DESCRIPTOR_BASED: bool = true;"
+            },
+            "notes": "Implementation overrides default value with same name and type"
+          }
+        ]
+      },
+      "11.2:5_to_11.2:7": {
+        "rule": "Associated functions are conformant when signatures are subtypes and bounds are more general.",
+        "status": "demonstrated",
+        "samples": [
+          {
+            "trait_definition": {
+              "file": "iceoryx2-bb-elementary-traits-0.7.0/src/allocator.rs",
+              "line": 51,
+              "code": "fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocationError>;"
+            },
+            "implementation": {
+              "file": "iceoryx2-bb-memory-0.7.0/src/pool_allocator.rs",
+              "line": 189,
+              "code": "fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocationError> {"
+            }
+          }
+        ]
+      },
+      "11.2:8_to_11.2:10": {
+        "rule": "Associated types are conformant when names match and type specification conforms to bounds.",
+        "status": "demonstrated",
+        "notes": "GAT implementations provide concrete types that satisfy trait bounds."
+      },
+      "11.2:11_to_11.2:14": {
+        "rule": "A trait implementation is conformant when it has conformant items for all required trait items (unless defaults exist).",
+        "status": "compliant",
+        "examples": {
+          "required_constant_with_default": {
+            "trait": "Listener",
+            "item": "IS_FILE_DESCRIPTOR_BASED",
+            "default": "false",
+            "notes": "Implementations can use default or override"
+          },
+          "required_function_with_default": {
+            "trait": "BaseAllocator",
+            "item": "allocate_zeroed",
+            "notes": "Has default implementation; implementations need only provide allocate()"
+          }
+        }
+      },
+      "11.2:15": {
+        "rule": "A trait implementation shall be conformant.",
+        "status": "compliant"
+      }
+    }
+  },
+
+  "implementation_patterns": {
+    "inherent_impl_patterns": {
+      "constructor_pattern": {
+        "description": "pub const fn new() -> Self for type construction",
+        "example": "impl HeapAllocator { pub const fn new() -> HeapAllocator { ... } }"
+      },
+      "associated_constants": {
+        "description": "Constants defined directly on types",
+        "example": "impl Permission { pub const OWNER_READ: Self = Self(0o0400); }"
+      },
+      "multiple_impl_blocks": {
+        "description": "Same type can have multiple impl blocks for organization",
+        "example": "Permission has two impl blocks: one for constants, one for methods"
+      }
+    },
+    "trait_impl_patterns": {
+      "marker_trait_implementations": {
+        "description": "unsafe impl Send/Sync for thread-safety declarations",
+        "count": 66,
+        "notes": "Critical for IPC types that cross thread boundaries"
+      },
+      "std_trait_implementations": {
+        "Display": "For human-readable formatting",
+        "Debug": "For debug formatting",
+        "Default": "For default values",
+        "Drop": "For cleanup on destruction",
+        "From": "For type conversions"
+      },
+      "generic_implementations": {
+        "description": "impl<T> Trait for Type<T>",
+        "count": 197,
+        "example": "impl<T: internal::AtomicInteger> Debug for IoxAtomic<T>"
+      }
+    }
+  },
+
+  "unsafe_impl_analysis": {
+    "total_count": 66,
+    "breakdown": {
+      "Send": "Thread transfer safety",
+      "Sync": "Shared reference safety", 
+      "ZeroCopySend": "Zero-copy IPC safety"
+    },
+    "rationale": "IPC primitives (barriers, semaphores, shared memory) require manual verification of thread-safety properties that the compiler cannot infer.",
+    "samples": [
+      {
+        "file": "iceoryx2-bb-posix-0.7.0/src/semaphore.rs",
+        "lines": "398-399",
+        "code": "unsafe impl Send for NamedSemaphore {}\nunsafe impl Sync for NamedSemaphore {}"
+      },
+      {
+        "file": "iceoryx2-0.7.0/src/port/notifier.rs",
+        "lines": "257-259",
+        "code": "unsafe impl<Service: service::Service> Send for Notifier<Service> where\n    Service::ArcThreadSafetyPolicy<ListenerConnections<Service>>: Send + Sync\n{}"
+      }
+    ]
+  },
+
+  "generic_implementations": {
+    "const_generic_impls": {
+      "description": "Implementations parameterized by const generics",
+      "count": "20+",
+      "samples": [
+        {
+          "file": "iceoryx2-bb-system-types-0.7.0/src/file_name.rs",
+          "line": 193,
+          "code": "impl<const CAPACITY: usize> core::fmt::Display for RestrictedFileName<CAPACITY>"
+        }
+      ]
+    },
+    "type_generic_impls": {
+      "description": "Implementations parameterized by type parameters",
+      "samples": [
+        {
+          "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs",
+          "line": 147,
+          "code": "impl<T: internal::AtomicInteger> Debug for IoxAtomic<T>"
+        },
+        {
+          "file": "iceoryx2-bb-elementary-0.7.0/src/lazy_singleton.rs",
+          "line": 50,
+          "code": "impl<T> Default for LazySingleton<T>"
+        }
+      ]
+    },
+    "where_clause_impls": {
+      "description": "Implementations with where clause constraints",
+      "samples": [
+        {
+          "file": "iceoryx2-0.7.0/src/port/notifier.rs",
+          "lines": "257-259",
+          "code": "unsafe impl<Service: service::Service> Send for Notifier<Service> where\n    Service::ArcThreadSafetyPolicy<ListenerConnections<Service>>: Send + Sync"
+        }
+      ]
+    }
+  },
+
+  "cross_chapter_references": {
+    "chapter_3": "Implementations are items",
+    "chapter_4": "Implementing types are types; trait implementations implement traits",
+    "chapter_10": "Associated items within implementations",
+    "chapter_12": "Generic parameters and where clauses on implementations",
+    "chapter_17": "Send/Sync implementations for concurrency safety",
+    "chapter_19": "Unsafe trait implementations"
+  }
+}

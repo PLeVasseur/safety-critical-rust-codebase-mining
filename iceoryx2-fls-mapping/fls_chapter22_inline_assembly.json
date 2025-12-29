@@ -1,0 +1,210 @@
+{
+  "chapter": 22,
+  "title": "Inline Assembly",
+  "fls_url": "https://rust-lang.github.io/fls/inline-assembly.html",
+  "summary": "FLS Chapter 22 covers inline assembly (asm!, global_asm!, naked_asm! macros). iceoryx2 deliberately DOES NOT USE inline assembly - zero instances across all 14 crates. Instead, it achieves low-level memory operations through Rust's standard library atomics (1,452 atomic operations), fence()/compiler_fence() for memory barriers (20 uses), and POSIX APIs via FFI. This portability-first design enables support across 5 platforms (Linux, macOS, FreeBSD, Windows, QNX) and 4+ architectures without architecture-specific assembly.",
+
+  "statistics": {
+    "asm_macro_usage": 0,
+    "global_asm_macro_usage": 0,
+    "naked_asm_macro_usage": 0,
+    "core_arch_usage": 0,
+    "total_inline_assembly": 0,
+    "fence_usage": 12,
+    "compiler_fence_usage": 8,
+    "atomic_operations": 1452,
+    "memory_ordering_total": 816
+  },
+
+  "sections": {
+    "22.1": "Registers",
+    "22.2": "Register Classes",
+    "22.3": "Register Arguments",
+    "22.4": "Assembly Instructions",
+    "22.5": "ABI Clobbers",
+    "22.6": "Assembly Options",
+    "22.7": "Macros asm, global_asm, and naked_asm",
+    "22.8": "Label block"
+  },
+
+  "rules_mapping": {
+    "22:1-2": {
+      "rule": "Inline assembly is hand-written assembly wrapped in asm!/global_asm!/naked_asm! macros.",
+      "status": "NOT_USED",
+      "count": 0
+    },
+    "22:3-7": {
+      "rule": "Inline assembly available on AArch64, ARM, RISC-V, x86/x86-64.",
+      "status": "NOT_APPLICABLE",
+      "note": "iceoryx2 supports all these architectures via portable Rust code"
+    },
+    "22.1-22.6": {
+      "rule": "Register specifications, classes, arguments, instructions, clobbers, options.",
+      "status": "NOT_USED"
+    },
+    "22.7:1-12": {
+      "rule": "Assembly code blocks embedded via core::arch macros.",
+      "status": "NOT_USED",
+      "alternative": "Rust atomics and FFI to POSIX APIs"
+    }
+  },
+
+  "design_decision": {
+    "approach": "NO_INLINE_ASSEMBLY",
+    "rationale": [
+      "Maximum portability across platforms",
+      "Rust's std atomics compile to optimal CPU instructions",
+      "POSIX APIs provide platform abstraction",
+      "Reduced maintenance burden",
+      "Better compiler optimization opportunities",
+      "Safety certification friendliness (Ferrocene/safety-critical)"
+    ],
+    "supported_architectures": [
+      "x86",
+      "x86_64",
+      "ARM",
+      "AArch64",
+      "RISC-V (via Rust stdlib)"
+    ],
+    "supported_platforms": [
+      "Linux",
+      "macOS",
+      "FreeBSD",
+      "Windows",
+      "QNX"
+    ]
+  },
+
+  "alternatives_used": {
+    "atomics": {
+      "description": "Rust standard library atomics instead of asm for atomic operations",
+      "count": 1452,
+      "types": [
+        "IoxAtomicBool",
+        "IoxAtomicU8",
+        "IoxAtomicU16",
+        "IoxAtomicU32",
+        "IoxAtomicU64",
+        "IoxAtomicI8",
+        "IoxAtomicI16",
+        "IoxAtomicI32",
+        "IoxAtomicI64",
+        "IoxAtomicUsize",
+        "IoxAtomicIsize"
+      ],
+      "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs"
+    },
+    "memory_barriers": {
+      "description": "fence() and compiler_fence() instead of asm memory barriers",
+      "fence_count": 12,
+      "compiler_fence_count": 8,
+      "locations": {
+        "fence": [
+          "iceoryx2-bb-lock-free-0.7.0/src/spsc/index_queue.rs",
+          "iceoryx2-bb-lock-free-0.7.0/src/mpmc/unique_index_set.rs",
+          "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs"
+        ],
+        "compiler_fence": [
+          "iceoryx2-0.7.0/src/port/client.rs",
+          "iceoryx2-0.7.0/src/port/subscriber.rs",
+          "iceoryx2-0.7.0/src/port/server.rs",
+          "iceoryx2-0.7.0/src/port/listener.rs",
+          "iceoryx2-0.7.0/src/port/reader.rs",
+          "iceoryx2-0.7.0/src/port/notifier.rs",
+          "iceoryx2-0.7.0/src/port/writer.rs",
+          "iceoryx2-0.7.0/src/port/publisher.rs"
+        ]
+      }
+    },
+    "memory_ordering": {
+      "description": "Memory ordering via Ordering enum instead of asm memory fence instructions",
+      "distribution": {
+        "Relaxed": 719,
+        "Acquire": 37,
+        "Release": 19,
+        "AcqRel": 9,
+        "SeqCst": 32
+      },
+      "total": 816
+    },
+    "ffi_posix": {
+      "description": "Platform-specific operations via POSIX FFI instead of asm",
+      "functions": [
+        "pthread_* (threading)",
+        "sem_* (semaphores)",
+        "mmap/munmap (memory mapping)",
+        "shm_open/shm_unlink (shared memory)"
+      ]
+    }
+  },
+
+  "iox_atomic_abstraction": {
+    "file": "iceoryx2-pal-concurrency-sync-0.7.0/src/iox_atomic.rs",
+    "purpose": "Type aliases wrapping std atomics for platform consistency",
+    "sample": [
+      "pub type IoxAtomicBool = core::sync::atomic::AtomicBool;",
+      "pub type IoxAtomicU64 = core::sync::atomic::AtomicU64;",
+      "pub type IoxAtomicUsize = core::sync::atomic::AtomicUsize;"
+    ],
+    "clippy_allowance": "#[allow(clippy::disallowed_types)]",
+    "note": "Clippy rules prevent direct atomic use elsewhere; IoxAtomic provides controlled access"
+  },
+
+  "fence_samples": {
+    "hardware_fence": {
+      "file": "iceoryx2-bb-lock-free-0.7.0/src/spsc/index_queue.rs",
+      "code": "core::sync::atomic::fence(Ordering::AcqRel);",
+      "purpose": "Synchronize producer/consumer in lock-free queue"
+    },
+    "compiler_fence": {
+      "file": "iceoryx2-0.7.0/src/port/subscriber.rs",
+      "code": "core::sync::atomic::compiler_fence(Ordering::SeqCst);",
+      "purpose": "Prevent compiler reordering in IPC port operations"
+    }
+  },
+
+  "why_no_inline_assembly": {
+    "portability": {
+      "description": "Same code runs on x86, ARM, RISC-V without modification",
+      "benefit": "Single codebase for 5 platforms"
+    },
+    "safety": {
+      "description": "No undefined behavior from incorrect asm",
+      "benefit": "Rust compiler ensures memory safety"
+    },
+    "maintainability": {
+      "description": "No architecture-specific code paths to maintain",
+      "benefit": "Reduced testing and validation burden"
+    },
+    "optimization": {
+      "description": "Rust/LLVM can optimize atomic operations",
+      "benefit": "Better codegen than hand-written asm in many cases"
+    },
+    "certification": {
+      "description": "Inline asm complicates safety certification",
+      "benefit": "Easier path to automotive/safety-critical use"
+    }
+  },
+
+  "comparison_with_alternatives": {
+    "inline_asm_would_provide": [
+      "Fine-grained control over specific CPU instructions",
+      "Access to special registers (e.g., performance counters)",
+      "Custom atomic sequences not in std",
+      "Platform-specific optimizations"
+    ],
+    "rust_stdlib_provides_instead": [
+      "Portable atomics that compile to optimal instructions",
+      "Memory barriers via fence()",
+      "Compiler memory barriers via compiler_fence()",
+      "LLVM-optimized atomic operation sequences"
+    ],
+    "iceoryx2_choice": "Rust stdlib is sufficient for IPC framework needs"
+  },
+
+  "cross_chapter_references": {
+    "chapter_17": "Concurrency - Atomics section covers IoxAtomic usage",
+    "chapter_19": "Unsafety - Documents 0 asm! usage",
+    "chapter_21": "FFI - POSIX APIs used instead of asm for platform operations"
+  }
+}
