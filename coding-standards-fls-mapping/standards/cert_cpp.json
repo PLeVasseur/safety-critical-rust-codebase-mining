@@ -1,0 +1,796 @@
+{
+  "standard": "CERT-C++",
+  "version": "2016 Edition (wiki current)",
+  "extraction_date": "2025-12-31",
+  "source": "https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=88046682",
+  "statistics": {
+    "total_guidelines": 143,
+    "rules": 143,
+    "directives": 0,
+    "recommendations": 0,
+    "categories": 11
+  },
+  "categories": [
+    {
+      "id": "DCL",
+      "name": "Declarations and Initialization (DCL)",
+      "guidelines": [
+        {
+          "id": "DCL50-CPP",
+          "title": "Do not define a C-style variadic function",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "DCL51-CPP",
+          "title": "Do not declare or define a reserved identifier",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "DCL52-CPP",
+          "title": "Never qualify a reference type with const or volatile",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "DCL53-CPP",
+          "title": "Do not write syntactically ambiguous declarations",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "DCL54-CPP",
+          "title": "Overload allocation and deallocation functions as a pair in the same scope",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "DCL55-CPP",
+          "title": "Avoid information leakage when passing a class object across a trust boundary",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "DCL56-CPP",
+          "title": "Avoid cycles during initialization of static objects",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "DCL57-CPP",
+          "title": "Do not let exceptions escape from destructors or deallocation functions",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "DCL58-CPP",
+          "title": "Do not modify the standard namespaces",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "DCL59-CPP",
+          "title": "Do not define an unnamed namespace in a header file",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "DCL60-CPP",
+          "title": "Obey the one-definition rule",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "DCL30-C",
+          "title": "Declare objects with appropriate storage durations",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "DCL39-C",
+          "title": "Avoid information leakage when passing a structure across a trust boundary",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "DCL40-C",
+          "title": "Do not create incompatible declarations of the same function or object",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "EXP",
+      "name": "Expressions (EXP)",
+      "guidelines": [
+        {
+          "id": "EXP50-CPP",
+          "title": "Do not depend on the order of evaluation for side effects",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP51-CPP",
+          "title": "Do not delete an array through a pointer of the incorrect type",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP52-CPP",
+          "title": "Do not rely on side effects in unevaluated operands",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP53-CPP",
+          "title": "Do not read uninitialized memory",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP54-CPP",
+          "title": "Do not access an object outside of its lifetime",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP55-CPP",
+          "title": "Do not access a cv-qualified object through a cv-unqualified type",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP56-CPP",
+          "title": "Do not call a function with a mismatched language linkage",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP57-CPP",
+          "title": "Do not cast or delete pointers to incomplete classes",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP58-CPP",
+          "title": "Pass an object of the correct type to va_start",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP59-CPP",
+          "title": "Use offsetof() on valid types and members",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP60-CPP",
+          "title": "Do not pass a nonstandard-layout type object across execution boundaries",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP61-CPP",
+          "title": "A lambda object must not outlive any of its reference captured objects",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP62-CPP",
+          "title": "Do not access the bits of an object representation that are not part of the object's value representation",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP63-CPP",
+          "title": "Do not rely on the value of a moved-from object",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP34-C",
+          "title": "Do not dereference null pointers",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP35-C",
+          "title": "Do not modify objects with temporary lifetime",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP36-C",
+          "title": "Do not cast pointers into more strictly aligned pointer types",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP37-C",
+          "title": "Call functions with the correct number and type of arguments",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP39-C",
+          "title": "Do not access a variable through a pointer of an incompatible type",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP42-C",
+          "title": "Do not compare padding data",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP45-C",
+          "title": "Do not perform assignments in selection statements",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP46-C",
+          "title": "Do not use a bitwise operator with a Boolean-like operand",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "EXP47-C",
+          "title": "Do not call va_arg with an argument of the incorrect type",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "INT",
+      "name": "Integers (INT)",
+      "guidelines": [
+        {
+          "id": "INT50-CPP",
+          "title": "Do not cast to an out-of-range enumeration value",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "INT30-C",
+          "title": "Ensure that unsigned integer operations do not wrap",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "INT31-C",
+          "title": "Ensure that integer conversions do not result in lost or misinterpreted data",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "INT32-C",
+          "title": "Ensure that operations on signed integers do not result in overflow",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "INT33-C",
+          "title": "Ensure that division and remainder operations do not result in divide-by-zero errors",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "INT34-C",
+          "title": "Do not shift an expression by a negative number of bits or by greater than or equal to the number of bits that exist in the operand",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "INT35-C",
+          "title": "Use correct integer precisions",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "INT36-C",
+          "title": "Converting a pointer to integer or integer to pointer",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "CTR",
+      "name": "Containers (CTR)",
+      "guidelines": [
+        {
+          "id": "CTR50-CPP",
+          "title": "Guarantee that container indices and iterators are within the valid range",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CTR51-CPP",
+          "title": "Use valid references, pointers, and iterators to reference elements of a container",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CTR52-CPP",
+          "title": "Guarantee that library functions do not overflow",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CTR53-CPP",
+          "title": "Use valid iterator ranges",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CTR54-CPP",
+          "title": "Do not subtract iterators that do not refer to the same container",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CTR55-CPP",
+          "title": "Do not use an additive operator on an iterator if the result would overflow",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CTR56-CPP",
+          "title": "Do not use pointer arithmetic on polymorphic objects",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CTR57-CPP",
+          "title": "Provide a valid ordering predicate",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CTR58-CPP",
+          "title": "Predicate function objects should not be mutable",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "STR",
+      "name": "Characters and Strings (STR)",
+      "guidelines": [
+        {
+          "id": "STR50-CPP",
+          "title": "Guarantee that storage for strings has sufficient space for character data and the null terminator",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "STR51-CPP",
+          "title": "Do not attempt to create a std::string from a null pointer",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "STR52-CPP",
+          "title": "Use valid references, pointers, and iterators to reference elements of a basic_string",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "STR53-CPP",
+          "title": "Range check element access",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "STR30-C",
+          "title": "Do not attempt to modify string literals",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "STR31-C",
+          "title": "Guarantee that storage for strings has sufficient space for character data and the null terminator",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "STR32-C",
+          "title": "Do not pass a non-null-terminated character sequence to a library function that expects a string",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "STR34-C",
+          "title": "Cast characters to unsigned char before converting to larger integer sizes",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "STR37-C",
+          "title": "Arguments to character-handling functions must be representable as an unsigned char",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "STR38-C",
+          "title": "Do not confuse narrow and wide character strings and functions",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "MEM",
+      "name": "Memory Management (MEM)",
+      "guidelines": [
+        {
+          "id": "MEM50-CPP",
+          "title": "Do not access freed memory",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MEM51-CPP",
+          "title": "Properly deallocate dynamically allocated resources",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MEM52-CPP",
+          "title": "Detect and handle memory allocation errors",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MEM53-CPP",
+          "title": "Explicitly construct and destruct objects when manually managing object lifetime",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MEM54-CPP",
+          "title": "Provide placement new with properly aligned pointers to sufficient storage capacity",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MEM55-CPP",
+          "title": "Honor replacement dynamic storage management requirements",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MEM56-CPP",
+          "title": "Do not store an already-owned pointer value in an unrelated smart pointer",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MEM57-CPP",
+          "title": "Avoid using default operator new for over-aligned types",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MEM30-C",
+          "title": "Do not access freed memory",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MEM31-C",
+          "title": "Free dynamically allocated memory when no longer needed",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MEM34-C",
+          "title": "Only free memory allocated dynamically",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MEM35-C",
+          "title": "Allocate sufficient memory for an object",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MEM36-C",
+          "title": "Do not modify the alignment of objects by calling realloc()",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "FIO",
+      "name": "Input Output (FIO)",
+      "guidelines": [
+        {
+          "id": "FIO50-CPP",
+          "title": "Do not alternately input and output from a file stream without an intervening positioning call",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO51-CPP",
+          "title": "Close files when they are no longer needed",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO30-C",
+          "title": "Exclude user input from format strings",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO32-C",
+          "title": "Do not perform operations on devices that are only appropriate for files",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO34-C",
+          "title": "Distinguish between characters read from a file and EOF or WEOF",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO37-C",
+          "title": "Do not assume that fgets() or fgetws() returns a nonempty string when successful",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO38-C",
+          "title": "Do not copy a FILE object",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO39-C",
+          "title": "Do not alternately input and output from a stream without an intervening flush or positioning call",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO40-C",
+          "title": "Reset strings on fgets()  or fgetws() failure",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO41-C",
+          "title": "Do not call getc(), putc(), getwc(), or putwc() with a stream argument that has side effects",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO42-C",
+          "title": "Close files when they are no longer needed",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO44-C",
+          "title": "Only use values for fsetpos() that are returned from fgetpos()",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO45-C",
+          "title": "Avoid TOCTOU race conditions while accessing files",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO46-C",
+          "title": "Do not access a closed file",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "FIO47-C",
+          "title": "Use valid format strings",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "ERR",
+      "name": "Exceptions and Error Handling (ERR)",
+      "guidelines": [
+        {
+          "id": "ERR50-CPP",
+          "title": "Do not abruptly terminate the program",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR51-CPP",
+          "title": "Handle all exceptions",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR52-CPP",
+          "title": "Do not use setjmp() or longjmp()",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR53-CPP",
+          "title": "Do not reference base classes or class data members in a constructor or destructor function-try-block handler",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR54-CPP",
+          "title": "Catch handlers should order their parameter types from most derived to least derived",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR55-CPP",
+          "title": "Honor exception specifications",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR56-CPP",
+          "title": "Guarantee exception safety",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR57-CPP",
+          "title": "Do not leak resources when handling exceptions",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR58-CPP",
+          "title": "Handle all exceptions thrown before main() begins executing",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR59-CPP",
+          "title": "Do not throw an exception across execution boundaries",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR60-CPP",
+          "title": "Exception objects must be nothrow copy constructible",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR61-CPP",
+          "title": "Catch exceptions by lvalue reference",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR62-CPP",
+          "title": "Detect errors when converting a string to a number",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR30-C",
+          "title": "Take care when reading errno",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR32-C",
+          "title": "Do not rely on indeterminate values of errno",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR33-C",
+          "title": "Detect and handle standard library errors",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "ERR34-C",
+          "title": "Detect errors when converting a string to a number",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "OOP",
+      "name": "Object Oriented Programming (OOP)",
+      "guidelines": [
+        {
+          "id": "OOP50-CPP",
+          "title": "Do not invoke virtual functions from constructors or destructors",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "OOP51-CPP",
+          "title": "Do not slice derived objects",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "OOP52-CPP",
+          "title": "Do not delete a polymorphic object without a virtual destructor",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "OOP53-CPP",
+          "title": "Write constructor member initializers in the canonical order",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "OOP54-CPP",
+          "title": "Gracefully handle self-copy assignment",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "OOP55-CPP",
+          "title": "Do not use pointer-to-member operators to access nonexistent members",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "OOP56-CPP",
+          "title": "Honor replacement handler requirements",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "OOP57-CPP",
+          "title": "Prefer special member functions and overloaded operators to C Standard Library functions",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "OOP58-CPP",
+          "title": "Copy operations must not mutate the source object",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "CON",
+      "name": "Concurrency (CON)",
+      "guidelines": [
+        {
+          "id": "CON50-CPP",
+          "title": "Do not destroy a mutex while it is locked",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CON51-CPP",
+          "title": "Ensure actively held locks are released on exceptional conditions",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CON52-CPP",
+          "title": "Prevent data races when accessing bit-fields from multiple threads",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CON53-CPP",
+          "title": "Avoid deadlock by locking in a predefined order",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CON54-CPP",
+          "title": "Wrap functions that can spuriously wake up in a loop",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CON55-CPP",
+          "title": "Preserve thread safety and liveness when using condition variables",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CON56-CPP",
+          "title": "Do not speculatively lock a non-recursive mutex that is already owned by the calling thread",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CON33-C",
+          "title": "Avoid race conditions when using library functions",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CON37-C",
+          "title": "Do not call signal() in a multithreaded program",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CON40-C",
+          "title": "Do not refer to an atomic variable twice in an expression",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CON41-C",
+          "title": "Wrap functions that can fail spuriously in a loop",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "CON43-C",
+          "title": "Do not allow data races in multithreaded code",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "MSC",
+      "name": "Miscellaneous (MSC)",
+      "guidelines": [
+        {
+          "id": "MSC50-CPP",
+          "title": "Do not use std::rand() for generating pseudorandom numbers",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MSC51-CPP",
+          "title": "Ensure your random number generator is properly seeded",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MSC52-CPP",
+          "title": "Value-returning functions must return a value from all exit paths",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MSC53-CPP",
+          "title": "Do not return from a function declared [[noreturn]]",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MSC54-CPP",
+          "title": "A signal handler must be a plain old function",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MSC30-C",
+          "title": "Do not use the rand() function for generating pseudorandom numbers",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MSC32-C",
+          "title": "Properly seed pseudorandom number generators",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MSC33-C",
+          "title": "Do not pass invalid data to the asctime() function",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MSC37-C",
+          "title": "Ensure that control never reaches the end of a non-void function",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MSC38-C",
+          "title": "Do not treat a predefined identifier as an object if it might only be implemented as a macro",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MSC39-C",
+          "title": "Do not call va_arg() on a va_list that has an indeterminate value",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MSC40-C",
+          "title": "Do not violate constraints",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "MSC41-C",
+          "title": "Never hard code sensitive information",
+          "guideline_type": "rule"
+        }
+      ]
+    }
+  ]
+}

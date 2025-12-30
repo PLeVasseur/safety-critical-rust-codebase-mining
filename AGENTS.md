@@ -576,3 +576,99 @@ When a new iceoryx2 version is released:
 - [Ferrocene Language Specification](https://rust-lang.github.io/fls/)
 - [iceoryx2 Repository](https://github.com/eclipse-iceoryx/iceoryx2)
 - [iceoryx2 v0.8.0 Release Notes](cache/repos/iceoryx2/v0.8.0/doc/release-notes/iceoryx2-v0.8.0.md)
+
+---
+
+# Coding Standards to FLS Mapping
+
+This section documents the infrastructure for mapping safety-critical C/C++ coding standards to the Ferrocene Language Specification (FLS).
+
+## Purpose
+
+The Safety-Critical Rust Consortium needs to understand how existing C/C++ safety coding standards (MISRA, CERT) relate to Rust language constructs as defined in the FLS. This enables:
+
+- **Prioritization**: Identify which FLS sections are most referenced by safety standards
+- **Gap Analysis**: Find where Rust's design prevents C/C++ issues entirely
+- **Traceability**: Provide mapping from established standards to Rust equivalents
+
+## Directory Structure
+
+```
+coding-standards-fls-mapping/
+├── schema/
+│   ├── coding_standard_rules.schema.json   # Schema for rule listings
+│   └── fls_mapping.schema.json             # Schema for FLS mappings
+├── standards/                               # Extracted rule listings
+│   ├── misra_c_2025.json                   # 212 guidelines (190 rules, 22 directives)
+│   ├── misra_cpp_2023.json                 # 172 guidelines (168 rules, 4 directives)
+│   ├── cert_c.json                         # 306 guidelines (123 rules, 183 recommendations)
+│   └── cert_cpp.json                       # 143 guidelines (143 rules)
+├── mappings/                                # FLS mappings (deliverables)
+│   ├── misra_c_to_fls.json
+│   ├── misra_cpp_to_fls.json
+│   ├── cert_c_to_fls.json
+│   └── cert_cpp_to_fls.json
+└── README.md
+```
+
+## Current Status (2025-12-31)
+
+**Infrastructure Complete**:
+- Schemas created and validated
+- MISRA C:2025 and C++:2023 rules extracted from PDFs
+- CERT C and C++ rules scraped from SEI wiki
+- Validation script operational
+- Empty mapping scaffolds created with all 833 guidelines
+
+**Next Steps**:
+- Populate FLS mappings with expert domain knowledge
+- Run cross-reference analysis to identify high-priority FLS sections
+
+## Tools
+
+| Tool | Description |
+|------|-------------|
+| `extract_misra_rules.py` | Extract rules/directives from MISRA PDFs |
+| `scrape_cert_rules.py` | Scrape rules from SEI CERT wiki |
+| `validate_coding_standards.py` | Validate JSON files against schemas |
+| `analyze_fls_coverage.py` | Cross-reference analysis of FLS coverage |
+
+## Validation
+
+```bash
+# Validate all standards and mapping files
+cd tools && uv run python validate_coding_standards.py
+
+# Check guideline coverage (all guidelines have mapping entries)
+uv run python validate_coding_standards.py --check-coverage
+
+# Analyze FLS coverage frequency
+uv run python analyze_fls_coverage.py
+```
+
+## Mapping Workflow
+
+1. Select a guideline from a mapping file (`applicability: "unmapped"`)
+2. Read the guideline in its original standard
+3. Identify relevant FLS sections using `tools/fls_section_mapping.json`
+4. Update the mapping with FLS IDs, sections, applicability, and notes
+5. Run validation to verify changes
+
+### Applicability Values
+
+| Value | Description |
+|-------|-------------|
+| `direct` | Maps directly to FLS concept(s) |
+| `partial` | Concept exists but Rust handles differently |
+| `not_applicable` | C/C++ specific, no Rust equivalent |
+| `rust_prevents` | Rust's design prevents the issue entirely |
+| `unmapped` | Awaiting expert mapping |
+
+## Data Sources
+
+- **MISRA**: PDFs in `cache/misra-standards/` (not redistributed)
+- **CERT C**: https://wiki.sei.cmu.edu/confluence/display/c/
+- **CERT C++**: https://wiki.sei.cmu.edu/confluence/display/cplusplus/
+- **FLS**: https://rust-lang.github.io/fls/
+
+See `coding-standards-fls-mapping/README.md` for full documentation.

@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eclipse-iceoryx/iceoryx2/coding-standards-fls-mapping/schema/fls_mapping.schema.json",
+  "title": "Coding Standard to FLS Mapping",
+  "description": "Schema for mapping coding standard guidelines (MISRA/CERT) to Ferrocene Language Specification (FLS) sections",
+  "type": "object",
+  "required": [
+    "standard",
+    "standard_version",
+    "fls_version",
+    "mapping_date",
+    "mappings"
+  ],
+  "properties": {
+    "standard": {
+      "type": "string",
+      "enum": ["MISRA-C", "MISRA-C++", "CERT-C", "CERT-C++"],
+      "description": "The coding standard being mapped"
+    },
+    "standard_version": {
+      "type": "string",
+      "description": "Version of the coding standard (e.g., '2025', '2023')"
+    },
+    "fls_version": {
+      "type": "string",
+      "description": "Version of the Ferrocene Language Specification used for mapping"
+    },
+    "mapping_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when the mapping was created/updated (YYYY-MM-DD)"
+    },
+    "methodology": {
+      "type": "string",
+      "description": "Description of how mappings were determined"
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Summary counts of mapping status",
+      "properties": {
+        "total_guidelines": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of guidelines in the standard"
+        },
+        "mapped": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Guidelines with FLS mappings (direct or partial)"
+        },
+        "unmapped": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Guidelines awaiting mapping"
+        },
+        "not_applicable": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Guidelines not applicable to Rust"
+        },
+        "rust_prevents": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Guidelines where Rust's design prevents the issue"
+        }
+      }
+    },
+    "mappings": {
+      "type": "array",
+      "description": "Array of guideline-to-FLS mappings",
+      "items": {
+        "$ref": "#/$defs/mapping_entry"
+      }
+    }
+  },
+  "$defs": {
+    "mapping_entry": {
+      "type": "object",
+      "description": "A single guideline's mapping to FLS sections",
+      "required": ["guideline_id", "guideline_type", "applicability"],
+      "properties": {
+        "guideline_id": {
+          "type": "string",
+          "description": "ID from the coding standard (e.g., 'Rule 1.1', 'MEM30-C')"
+        },
+        "guideline_type": {
+          "type": "string",
+          "enum": ["rule", "directive", "recommendation"],
+          "description": "Type of guideline"
+        },
+        "fls_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^fls_[a-z0-9]+$"
+          },
+          "description": "List of FLS IDs this guideline maps to (e.g., ['fls_jep7p27kaqlp'])"
+        },
+        "fls_sections": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Human-readable FLS section numbers (e.g., ['15.1', '17.2.3'])"
+        },
+        "applicability": {
+          "type": "string",
+          "enum": [
+            "direct",
+            "partial",
+            "not_applicable",
+            "rust_prevents",
+            "unmapped"
+          ],
+          "description": "How well this guideline maps to Rust/FLS: direct=maps cleanly, partial=concept differs in Rust, not_applicable=C/C++ specific with no Rust equivalent, rust_prevents=Rust's design prevents the issue entirely, unmapped=needs expert mapping"
+        },
+        "confidence": {
+          "type": ["string", "null"],
+          "enum": ["high", "medium", "low", null],
+          "description": "Confidence level in the mapping accuracy (null when unmapped)"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Explanation of mapping rationale, differences from C/C++, or why not applicable"
+        }
+      }
+    }
+  }
+}

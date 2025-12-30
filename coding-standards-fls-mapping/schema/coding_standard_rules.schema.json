@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eclipse-iceoryx/iceoryx2/coding-standards-fls-mapping/schema/coding_standard_rules.schema.json",
+  "title": "Coding Standard Rules and Directives",
+  "description": "Schema for representing rules, directives, and recommendations from safety-critical coding standards (MISRA C, MISRA C++, CERT C, CERT C++)",
+  "type": "object",
+  "required": [
+    "standard",
+    "version",
+    "extraction_date",
+    "source",
+    "categories"
+  ],
+  "properties": {
+    "standard": {
+      "type": "string",
+      "enum": ["MISRA-C", "MISRA-C++", "CERT-C", "CERT-C++"],
+      "description": "The coding standard this file represents"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the standard (e.g., '2025', '2023', '2016 Edition')"
+    },
+    "extraction_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when the rules were extracted (YYYY-MM-DD)"
+    },
+    "source": {
+      "type": "string",
+      "description": "Source document filename or URL"
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Summary counts of guidelines by type",
+      "properties": {
+        "total_guidelines": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of guidelines in the standard"
+        },
+        "rules": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of rules"
+        },
+        "directives": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of directives (MISRA terminology)"
+        },
+        "recommendations": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of recommendations (CERT terminology)"
+        },
+        "categories": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of categories/sections"
+        }
+      }
+    },
+    "categories": {
+      "type": "array",
+      "description": "Categories/sections grouping related guidelines",
+      "items": {
+        "$ref": "#/$defs/category"
+      }
+    }
+  },
+  "$defs": {
+    "category": {
+      "type": "object",
+      "description": "A category grouping related guidelines (e.g., 'Memory Management', 'Declarations')",
+      "required": ["id", "name", "guidelines"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Category identifier (e.g., '8', 'MEM', 'DCL')"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable category name (e.g., 'Memory Management', 'Declarations and Initialization')"
+        },
+        "guidelines": {
+          "type": "array",
+          "description": "Guidelines within this category",
+          "items": {
+            "$ref": "#/$defs/guideline"
+          }
+        }
+      }
+    },
+    "guideline": {
+      "type": "object",
+      "description": "A single rule, directive, or recommendation",
+      "required": ["id", "title", "guideline_type"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Guideline identifier (e.g., 'Rule 1.1', 'Dir 4.1', 'MEM30-C', 'MEM00-C')"
+        },
+        "title": {
+          "type": "string",
+          "description": "Full title/description of the guideline"
+        },
+        "guideline_type": {
+          "type": "string",
+          "enum": ["rule", "directive", "recommendation"],
+          "description": "Type of guideline: MISRA uses 'rule' and 'directive'; CERT uses 'rule' and 'recommendation'"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1303 @@
+{
+  "standard": "CERT-C++",
+  "standard_version": "2016 Edition",
+  "fls_version": "1.0 (2024)",
+  "mapping_date": "2025-12-31",
+  "methodology": "Manual expert mapping - awaiting completion",
+  "statistics": {
+    "total_guidelines": 143,
+    "mapped": 0,
+    "unmapped": 143,
+    "not_applicable": 0,
+    "rust_prevents": 0
+  },
+  "mappings": [
+    {
+      "guideline_id": "DCL50-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "DCL51-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "DCL52-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "DCL53-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "DCL54-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "DCL55-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "DCL56-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "DCL57-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "DCL58-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "DCL59-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "DCL60-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "DCL30-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "DCL39-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "DCL40-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP50-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP51-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP52-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP53-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP54-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP55-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP56-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP57-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP58-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP59-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP60-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP61-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP62-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP63-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP34-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP35-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP36-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP37-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP39-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP42-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP45-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP46-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "EXP47-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "INT50-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "INT30-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "INT31-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "INT32-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "INT33-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "INT34-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "INT35-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "INT36-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CTR50-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CTR51-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CTR52-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CTR53-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CTR54-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CTR55-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CTR56-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CTR57-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CTR58-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "STR50-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "STR51-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "STR52-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "STR53-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "STR30-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "STR31-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "STR32-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "STR34-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "STR37-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "STR38-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MEM50-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MEM51-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MEM52-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MEM53-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MEM54-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MEM55-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MEM56-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MEM57-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MEM30-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MEM31-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MEM34-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MEM35-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MEM36-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO50-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO51-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO30-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO32-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO34-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO37-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO38-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO39-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO40-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO41-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO42-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO44-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO45-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO46-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "FIO47-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR50-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR51-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR52-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR53-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR54-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR55-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR56-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR57-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR58-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR59-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR60-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR61-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR62-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR30-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR32-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR33-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "ERR34-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "OOP50-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "OOP51-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "OOP52-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "OOP53-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "OOP54-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "OOP55-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "OOP56-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "OOP57-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "OOP58-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CON50-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CON51-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CON52-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CON53-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CON54-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CON55-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CON56-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CON33-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CON37-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CON40-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CON41-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "CON43-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MSC50-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MSC51-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MSC52-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MSC53-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MSC54-CPP",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MSC30-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MSC32-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MSC33-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MSC37-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MSC38-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MSC39-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MSC40-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    },
+    {
+      "guideline_id": "MSC41-C",
+      "guideline_type": "rule",
+      "fls_ids": [],
+      "fls_sections": [],
+      "applicability": "unmapped",
+      "confidence": null,
+      "notes": ""
+    }
+  ]
+}

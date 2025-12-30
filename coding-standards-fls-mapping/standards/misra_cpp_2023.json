@@ -1,0 +1,1025 @@
+{
+  "standard": "MISRA-C++",
+  "version": "2023",
+  "extraction_date": "2025-12-31",
+  "source": "MISRA-CPP-2023-PDF-j3rs83.pdf",
+  "statistics": {
+    "total_guidelines": 172,
+    "rules": 168,
+    "directives": 4,
+    "recommendations": 0,
+    "categories": 25
+  },
+  "categories": [
+    {
+      "id": "Section 0",
+      "name": "Language independent issues",
+      "guidelines": [
+        {
+          "id": "Rule 0.0.1",
+          "title": "A function shall not contain unreachable statements",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 0.0.2",
+          "title": "Controlling expressions should not be invariant",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 0.1.1",
+          "title": "A value should not be unnecessarily written to a local object",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 0.1.2",
+          "title": "The value returned by a function shall be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 0.2.1",
+          "title": "Variables with limited visibility should be used at least once",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 0.2.3",
+          "title": "Advisory Types with limited visibility should be used at least once",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 0.2.4",
+          "title": "Functions with limited visibility should be used at least once",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Dir 0.3.1",
+          "title": "Floating-point arithmetic should be used appropriately",
+          "guideline_type": "directive"
+        },
+        {
+          "id": "Dir 0.3.2",
+          "title": "A function call shall not violate the function\u2019s preconditions",
+          "guideline_type": "directive"
+        }
+      ]
+    },
+    {
+      "id": "Section 4",
+      "name": "General principles",
+      "guidelines": [
+        {
+          "id": "Rule 4.1.1",
+          "title": "A program shall conform to ISO/IEC 14882:2017 (C++17)",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 4.1.2",
+          "title": "Deprecated features should not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 4.1.3",
+          "title": "There shall be no occurrence of unde%ned or critical unspeci%ed",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 4.6.1",
+          "title": "Operations on a memory location shall be sequenced appropriately",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 5",
+      "name": "Lexical conventions",
+      "guidelines": [
+        {
+          "id": "Rule 5.0.1",
+          "title": "Trigraph-like sequences should not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 5.7.1",
+          "title": "The character sequence /* shall not be used within a C-style",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Dir 5.7.2",
+          "title": "Sections of code should not be \u201ccommented out\u201d",
+          "guideline_type": "directive"
+        },
+        {
+          "id": "Rule 5.7.3",
+          "title": "Required Line-splicing shall not be used in // comments",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 5.10.1",
+          "title": "User-de9ned identi9ers shall have an appropriate form",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 5.13.1",
+          "title": "Within character literals and non raw-string literals, \\ shall only be",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 5.13.2",
+          "title": "Octal escape sequences, hexadecimal escape sequences and",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 5.13.3",
+          "title": "Octal constants shall not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 5.13.4",
+          "title": "Unsigned integer literals shall be appropriately su[xed",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 5.13.5",
+          "title": "The lowercase form of L shall not be used as the 9rst character in a",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 5.13.6",
+          "title": "An integer-literal of type long long shall not use a single L or l in",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 5.13.7",
+          "title": "Required String literals with diCerent encoding pre9xes shall not be concatenated",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 6",
+      "name": "Basic concepts",
+      "guidelines": [
+        {
+          "id": "Rule 6.0.1",
+          "title": "Block scope declarations shall not be visually ambiguous",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.0.2",
+          "title": "When an array with external linkage is declared, its size should be",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.0.3",
+          "title": "The only declarations in the global namespace should be main",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.0.4",
+          "title": "The identi9er main shall not be used for a function other than the",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.2.1",
+          "title": "The one-de%nition rule shall not be violated",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.2.2",
+          "title": "All declarations of a variable or function shall have the same type",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.2.3",
+          "title": "The source code used to implement an entity shall appear only once",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.2.4",
+          "title": "A header %le shall not contain de9nitions of functions or objects that",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.4.1",
+          "title": "A variable declared in an inner scope shall not hide a variable",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.4.2",
+          "title": "Derived classes shall not conceal functions that are inherited from",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.4.3",
+          "title": "A name that is present in a dependent base shall not be resolved by",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.5.1",
+          "title": "A function or object with external linkage should be introduced in a",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.5.2",
+          "title": "Internal linkage should be speci9ed appropriately",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.7.1",
+          "title": "Local variables shall not have static storage duration",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.7.2",
+          "title": "Section 4: Guidelines",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.8.1",
+          "title": "An object shall not be accessed outside of its lifetime",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.8.2",
+          "title": "A function must not return a reference or a pointer to a local variable",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.8.3",
+          "title": "An assignment operator shall not assign the address of an object",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.8.4",
+          "title": "Member functions returning references to their object should be ref-",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.9.1",
+          "title": "The same type aliases shall be used in all declarations of the same",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 6.9.2",
+          "title": "The names of the standard signed integer types and standard",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 7",
+      "name": "Standard conversions",
+      "guidelines": [
+        {
+          "id": "Rule 7.0.1",
+          "title": "There shall be no conversion from type bool",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 7.0.2",
+          "title": "There shall be no conversion to type bool",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 7.0.3",
+          "title": "The numerical value of a character shall not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 7.0.4",
+          "title": "The operands of bitwise operators and shift operators shall be",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 7.0.5",
+          "title": "Section 4: Guidelines",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 7.0.6",
+          "title": "Assignment between numeric types shall be appropriate",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 7.11.1",
+          "title": "nullptr shall be the only form of the null-pointer-constant",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 7.11.2",
+          "title": "An array passed as a function argument shall not decay to a pointer",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 7.11.3",
+          "title": "Required A conversion from function type to pointer-to-function type shall only",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 8",
+      "name": "Expressions",
+      "guidelines": [
+        {
+          "id": "Rule 8.0.1",
+          "title": "Parentheses should be used to make the meaning of an expression",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.1.1",
+          "title": "A non-transient lambda shall not implicitly capture this",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.1.2",
+          "title": "Variables should be captured explicitly in a non-transient lambda",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.2.1",
+          "title": "A virtual base class shall only be cast to a derived class by means of",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.2.2",
+          "title": "C-style casts and functional notation casts shall not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.2.3",
+          "title": "A cast shall not remove any const or volatile quali9cation from",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.2.4",
+          "title": "Required Casts shall not be performed between a pointer to function and any",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.2.5",
+          "title": "reinterpret_cast shall not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.2.6",
+          "title": "covers casting to pointer types.",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.2.7",
+          "title": "A cast should not convert a pointer type to an integral type",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.2.8",
+          "title": "An object pointer type shall not be cast to an integral type other than",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.2.9",
+          "title": "The operand to typeid shall not be an expression of polymorphic",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.2.10",
+          "title": "Functions shall not call themselves, either directly or indirectly",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.2.11",
+          "title": "An argument passed via ellipsis shall have an appropriate type",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.3.1",
+          "title": "The built-in unary - operator should not be applied to an expression",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.3.2",
+          "title": "The built-in unary + operator should not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.7.1",
+          "title": "Pointer arithmetic shall not form an invalid pointer",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.7.2",
+          "title": "Required Subtraction between pointers shall only be applied to pointers that",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.9.1",
+          "title": "The built-in relational operators >, >=, < and <= shall not be applied",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.14.1",
+          "title": "The right-hand operand of a logical && or || operator should not",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.18.1",
+          "title": "An object or subobject must not be copied to an overlapping object",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.18.2",
+          "title": "The result of an assignment operator should not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.19.1",
+          "title": "The comma operator should not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 8.20.1",
+          "title": "An unsigned arithmetic operation with constant operands should",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 9",
+      "name": "Statements",
+      "guidelines": [
+        {
+          "id": "Rule 9.2.1",
+          "title": "Section 4: Guidelines",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 9.3.1",
+          "title": "The body of an iteration-statement or a selection-statement shall be a",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 9.4.1",
+          "title": "All if ... else if constructs shall be terminated with an else",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 9.5.1",
+          "title": "Legacy for statements should be simple",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 9.5.2",
+          "title": "Required A for-range-initializer shall contain at most one function call",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 9.6.1",
+          "title": "The goto statement should not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 9.6.2",
+          "title": "A goto statement shall reference a label in a surrounding block",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 9.6.3",
+          "title": "The goto statement shall jump to a label declared later in the",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 9.6.4",
+          "title": "A function declared with the [[noreturn]] attribute shall not",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 9.6.5",
+          "title": "A function with non-void return type shall return a value on all",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 10",
+      "name": "Declarations",
+      "guidelines": [
+        {
+          "id": "Rule 10.0.1",
+          "title": "A declaration should not declare more than one variable or member",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 10.1.1",
+          "title": "The target type of a pointer or lvalue reference parameter should be",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 10.1.2",
+          "title": "The volatile quali9er shall be used appropriately",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 10.2.1",
+          "title": "An enumeration shall be de9ned with an explicit underlying type",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 10.2.2",
+          "title": "4.10.3 Namespaces",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 10.3.1",
+          "title": "There should be no unnamed namespaces in header %les",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 10.4.1",
+          "title": "The asm declaration shall not be used",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 11",
+      "name": "Declarators",
+      "guidelines": [
+        {
+          "id": "Rule 11.3.2",
+          "title": "The declaration of an object should contain no more than two levels",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 11.6.1",
+          "title": "All variables should be initialized",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 11.6.2",
+          "title": "Mandatory The value of an object must not be read before it has been set",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 11.6.3",
+          "title": "Required Within an enumerator list, the value of an implicitly-speci9ed",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 12",
+      "name": "Classes",
+      "guidelines": [
+        {
+          "id": "Rule 12.2.1",
+          "title": "Bit-9elds should not be declared",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 12.2.2",
+          "title": "A bit-9eld shall have an appropriate type",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 12.2.3",
+          "title": "A named bit-9eld with signed integer type shall not have a length of",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 12.3.1",
+          "title": "The union keyword shall not be used",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 13",
+      "name": "Derived classes",
+      "guidelines": [
+        {
+          "id": "Rule 13.1.1",
+          "title": "Classes should not be inherited virtually",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 13.1.2",
+          "title": "An accessible base class shall not be both virtual and non-virtual in",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 13.3.1",
+          "title": "User-declared member functions shall use the virtual, override",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 13.3.2",
+          "title": "Parameters in an overriding virtual function shall not specify diCerent",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 13.3.3",
+          "title": "The parameters in all declarations or overrides of a function shall",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 13.3.4",
+          "title": "A comparison of a potentially virtual pointer to member function shall",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 14",
+      "name": "Member access control",
+      "guidelines": [
+        {
+          "id": "Rule 14.1.1",
+          "title": "Non-static data members should be either all private or all",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 15",
+      "name": "Special member functions",
+      "guidelines": [
+        {
+          "id": "Rule 15.0.1",
+          "title": "Special member functions shall be provided appropriately",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 15.0.2",
+          "title": "User-provided copy and move member functions of a class should",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 15.1.1",
+          "title": "An object\u2019s dynamic type shall not be used from within its",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 15.1.2",
+          "title": "All constructors of a class should explicitly initialize all of its virtual",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 15.1.3",
+          "title": "Conversion operators and constructors that are callable with a single",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 15.1.5",
+          "title": "A class shall only de9ne an initializer-list constructor when it is the",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Dir 15.8.1",
+          "title": "User-provided copy assignment operators and move assignment",
+          "guideline_type": "directive"
+        }
+      ]
+    },
+    {
+      "id": "Section 16",
+      "name": "Overloading",
+      "guidelines": [
+        {
+          "id": "Rule 16.5.1",
+          "title": "The logical AND and logical OR operators shall not be overloaded",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 16.5.2",
+          "title": "The address-of operator shall not be overloaded",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 16.6.1",
+          "title": "Symmetrical operators should only be implemented as non-member",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 17",
+      "name": "Templates",
+      "guidelines": [
+        {
+          "id": "Rule 17.8.1",
+          "title": "Function templates shall not be explicitly specialized",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 18",
+      "name": "Exception handling",
+      "guidelines": [
+        {
+          "id": "Rule 18.1.1",
+          "title": "An exception object shall not have pointer type",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 18.1.2",
+          "title": "An empty throw shall only occur within the compound-statement of a",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 18.3.1",
+          "title": "There should be at least one exception handler to catch all otherwise",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 18.3.2",
+          "title": "Section 4: Guidelines",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 18.3.3",
+          "title": "Handlers for a function-try-block of a constructor or destructor shall",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 18.4.1",
+          "title": "Exception-unfriendly functions shall be noexcept",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 18.5.1",
+          "title": "A noexcept function should not attempt to propagate an exception to",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 18.5.2",
+          "title": "Program-terminating functions should not be used",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 19",
+      "name": "Preprocessing directives",
+      "guidelines": [
+        {
+          "id": "Rule 19.0.1",
+          "title": "A line whose 9rst token is # shall be a valid preprocessing directive",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.0.2",
+          "title": "Function-like macros shall not be de9ned",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.0.3",
+          "title": "Advisory #include directives should only be preceded by preprocessor directives",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.0.4",
+          "title": "#undef should only be used for macros de9ned previously in the",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.1.1",
+          "title": "The defined preprocessor operator shall be used appropriately",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.1.2",
+          "title": "All #else, #elif and #endif preprocessor directives shall reside in",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.1.3",
+          "title": "All identi9ers used in the controlling expression of #if or #elif",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.2.1",
+          "title": "Precautions shall be taken in order to prevent the contents of a",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.2.2",
+          "title": "The #include directive shall be followed by either a <filename>",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.2.3",
+          "title": "The ' or \" or \\ characters and the /* or // character sequences",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.3.2",
+          "title": "A macro parameter immediately following a # operator shall not be",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.3.3",
+          "title": "The argument to a mixed-use macro parameter shall not be subject",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.3.4",
+          "title": "Parentheses shall be used to ensure macro arguments are",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.3.5",
+          "title": "Tokens that look like a preprocessing directive shall not occur within",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 19.6.1",
+          "title": "The #pragma directive and the _Pragma operator should not be",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 21",
+      "name": "Standard library",
+      "guidelines": [
+        {
+          "id": "Rule 21.2.1",
+          "title": "The library functions atof, atoi, atol and atoll from <cstdlib>",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 21.2.2",
+          "title": "The string handling functions from <cstring>, <cstdlib>",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 21.2.3",
+          "title": "The library function system from <cstdlib> shall not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 21.2.4",
+          "title": "The macro offsetof shall not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 21.6.1",
+          "title": "Dynamic memory should not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 21.6.2",
+          "title": "Dynamic memory shall be managed automatically",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 21.6.3",
+          "title": "Advanced memory management shall not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 21.6.5",
+          "title": "A pointer to an incomplete class type shall not be deleted",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 21.10.1",
+          "title": "4.8.3 Unary expressions",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 21.10.2",
+          "title": "Required The standard header 9le <csetjmp> shall not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 21.10.3",
+          "title": "The facilities provided by the standard header %le <csignal> shall",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 22",
+      "name": "Section 22",
+      "guidelines": [
+        {
+          "id": "Rule 22.3.1",
+          "title": "The assert macro shall not be used with a constant-expression",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 22.4.1",
+          "title": "The literal value zero shall be the only value assigned to errno",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 23",
+      "name": "Section 23",
+      "guidelines": [
+        {
+          "id": "Rule 23.11.1",
+          "title": "The raw pointer constructors of std::shared_ptr and",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 24",
+      "name": "Section 24",
+      "guidelines": [
+        {
+          "id": "Rule 24.5.1",
+          "title": "The character handling functions from <cctype> and <cwctype>",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 24.5.2",
+          "title": "The C++ Standard Library functions memcpy, memmove and memcmp",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 25",
+      "name": "Section 25",
+      "guidelines": [
+        {
+          "id": "Rule 25.5.1",
+          "title": "The setlocale and std::locale::global functions shall not be",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 25.5.2",
+          "title": "The pointers returned by the C++ Standard Library functions",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 25.5.3",
+          "title": "The pointer returned by the C++ Standard Library functions",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 26",
+      "name": "Concurrency",
+      "guidelines": [
+        {
+          "id": "Rule 26.3.1",
+          "title": "std::vector should not be specialized with bool",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 28",
+      "name": "Appendix B: Library support",
+      "guidelines": [
+        {
+          "id": "Rule 28.3.1",
+          "title": "Predicates shall not have persistent side eAects",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 28.6.1",
+          "title": "The argument to std::move shall be a non-const lvalue",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 28.6.2",
+          "title": "Forwarding references and std::forward shall be used together",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 28.6.3",
+          "title": "An object shall not be used while in a potentially moved-from state",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 28.6.4",
+          "title": "4.0.2 Unused declarations",
+          "guideline_type": "rule"
+        }
+      ]
+    },
+    {
+      "id": "Section 30",
+      "name": "Appendix D: Compatibility features",
+      "guidelines": [
+        {
+          "id": "Rule 30.0.1",
+          "title": "The C Library input/output functions shall not be used",
+          "guideline_type": "rule"
+        },
+        {
+          "id": "Rule 30.0.2",
+          "title": "Reads and writes on the same 9le stream shall be separated by a",
+          "guideline_type": "rule"
+        }
+      ]
+    }
+  ]
+}

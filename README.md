@@ -1,3 +1,3 @@
-# Eclipse iceoryx2 - Actionable Safety Certification
+# Safety-Critical Rust Codebase Mining
 
-Here we try to find an actionable plan for the safety-certification to ASIL B of Eclipse iceoryx2.
+Here we try to mine a realistic Rust codebase (Eclipse iceoryx2) to figure out various things related to coding guidelines.
