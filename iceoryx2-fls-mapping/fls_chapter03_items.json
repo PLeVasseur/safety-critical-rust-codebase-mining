@@ -35,14 +35,14 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/traits/src/lib.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/lib.rs",
           "line": [
             19
           ],
           "code": "pub mod allocator;"
         },
         {
-          "file": "iceoryx2-bb/traits/src/lib.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/lib.rs",
           "line": [
             22,
             23,
@@ -96,7 +96,7 @@
       "findings": {
         "repr_samples": [
           {
-            "path": "iceoryx2-bb/traits/src/owning_pointer.rs",
+            "path": "iceoryx2-bb/elementary-traits/src/owning_pointer.rs",
             "lines": "27",
             "line_fragment": "#[repr(C)]"
           },
@@ -202,13 +202,13 @@
           "code": "pub struct WaitSet<Service: crate::service::Service> {"
         },
         {
-          "file": "iceoryx2-bb/container/src/vector.rs",
-          "line": [],
+          "file": "iceoryx2-bb/container/src/vector/static_vec.rs",
+          "line": [54],
           "code": "pub struct StaticVec<T, const CAPACITY: usize> { (NEW in v0.8.0)"
         },
         {
-          "file": "iceoryx2-bb/container/src/string.rs",
-          "line": [],
+          "file": "iceoryx2-bb/container/src/string/static_string.rs",
+          "line": [60],
           "code": "pub struct StaticString<const CAPACITY: usize> { (NEW in v0.8.0)"
         }
       ],
@@ -269,21 +269,21 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/traits/src/allocator.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
           "line": [
             20
           ],
           "code": "pub enum AllocationError {"
         },
         {
-          "file": "iceoryx2-bb/traits/src/allocator.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
           "line": [
             30
           ],
           "code": "pub enum AllocationGrowError {"
         },
         {
-          "file": "iceoryx2-bb/traits/src/allocator.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
           "line": [
             40
           ],
@@ -505,7 +505,7 @@
       "findings": {
         "unsafe_trait_samples": [
           {
-            "path": "iceoryx2-bb/traits/src/zero_copy_send.rs",
+            "path": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
             "lines": "34",
             "line_fragment": "pub unsafe trait ZeroCopySend {"
           }
@@ -517,42 +517,42 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/traits/src/placement_default.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/placement_default.rs",
           "line": [
             55
           ],
           "code": "pub trait PlacementDefault {"
         },
         {
-          "file": "iceoryx2-bb/traits/src/pointer_trait.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/pointer_trait.rs",
           "line": [
             18
           ],
           "code": "pub trait PointerTrait<T> {"
         },
         {
-          "file": "iceoryx2-bb/traits/src/allocator.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
           "line": [
             48
           ],
           "code": "pub trait BaseAllocator {"
         },
         {
-          "file": "iceoryx2-bb/traits/src/allocator.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
           "line": [
             80
           ],
           "code": "pub trait Allocator: BaseAllocator {"
         },
         {
-          "file": "iceoryx2-bb/traits/src/generic_pointer.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/generic_pointer.rs",
           "line": [
             18
           ],
           "code": "pub trait GenericPointer {"
         },
         {
-          "file": "iceoryx2-bb/traits/src/relocatable_container.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/relocatable_container.rs",
           "line": [
             20
           ],
@@ -648,14 +648,14 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/traits/src/zero_copy_send.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
           "line": [
             52
           ],
           "code": "unsafe impl ZeroCopySend for usize {}"
         },
         {
-          "file": "iceoryx2-bb/traits/src/zero_copy_send.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
           "line": [
             53,
             54,
@@ -673,7 +673,7 @@
           "code": "unsafe impl ZeroCopySend for u8 {} ... unsafe impl ZeroCopySend for i128 {}"
         },
         {
-          "file": "iceoryx2-bb/traits/src/zero_copy_send.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
           "line": [
             66,
             67
@@ -681,7 +681,7 @@
           "code": "unsafe impl ZeroCopySend for f32 {} unsafe impl ZeroCopySend for f64 {}"
         },
         {
-          "file": "iceoryx2-bb/traits/src/zero_copy_send.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
           "line": [
             69,
             70
@@ -689,7 +689,7 @@
           "code": "unsafe impl ZeroCopySend for char {} unsafe impl ZeroCopySend for bool {}"
         },
         {
-          "file": "iceoryx2-bb/traits/src/zero_copy_send.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
           "line": [
             72,
             73,
@@ -699,14 +699,14 @@
           "code": "unsafe impl ZeroCopySend for IoxAtomicUsize {} ... IoxAtomicU32 {}"
         },
         {
-          "file": "iceoryx2-bb/traits/src/zero_copy_send.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
           "line": [
             89
           ],
           "code": "unsafe impl<T: ZeroCopySend, const N: usize> ZeroCopySend for [T; N] {}"
         },
         {
-          "file": "iceoryx2-bb/traits/src/placement_default.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/placement_default.rs",
           "line": [
             115
           ],
@@ -762,9 +762,9 @@
             "line_fragment": "pub const fn capacity(&self) -> usize {"
           },
           {
-            "path": "iceoryx2-bb/container/src/string.rs",
-            "lines": "various",
-            "line_fragment": "pub const fn new_unchecked(...) (NEW unchecked const constructors)"
+            "file": "iceoryx2-bb/container/src/semantic_string.rs",
+            "line": [482],
+            "code": "pub const unsafe fn new_unchecked_const(value: &[u8]) (NEW unchecked const constructors)"
           }
         ],
         "total_constants": 5427,
@@ -894,22 +894,22 @@
       "findings": {
         "unsafe_fn_samples": [
           {
-            "path": "iceoryx2-bb/traits/src/zero_copy_send.rs",
+            "path": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
             "lines": "42",
             "line_fragment": "unsafe fn type_name() -> &'static str {"
           },
           {
-            "path": "iceoryx2-bb/traits/src/placement_default.rs",
+            "path": "iceoryx2-bb/elementary-traits/src/placement_default.rs",
             "lines": "65",
             "line_fragment": "unsafe fn placement_default(ptr: *mut Self);"
           },
           {
-            "path": "iceoryx2-bb/traits/src/pointer_trait.rs",
+            "path": "iceoryx2-bb/elementary-traits/src/pointer_trait.rs",
             "lines": "25",
             "line_fragment": "unsafe fn as_ptr(&self) -> *const T;"
           },
           {
-            "path": "iceoryx2-bb/traits/src/pointer_trait.rs",
+            "path": "iceoryx2-bb/elementary-traits/src/pointer_trait.rs",
             "lines": "33",
             "line_fragment": "unsafe fn as_mut_ptr(&mut self) -> *mut T;"
           },
@@ -1056,7 +1056,7 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/traits/src/lib.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/lib.rs",
           "line": [
             17
           ],
@@ -1131,17 +1131,17 @@
       "findings": {
         "glob_import_samples": [
           {
-            "path": "iceoryx2-bb/traits/src/zero_copy_send.rs",
+            "path": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
             "lines": "13",
             "line_fragment": "use iceoryx2_pal_concurrency_sync::iox_atomic::*;"
           },
           {
-            "path": "iceoryx2-bb/traits/src/placement_default.rs",
+            "path": "iceoryx2-bb/elementary-traits/src/placement_default.rs",
             "lines": "19",
             "line_fragment": "use iceoryx2_pal_concurrency_sync::iox_atomic::*;"
           },
           {
-            "path": "iceoryx2-bb/traits/src/lib.rs",
+            "path": "iceoryx2-bb/elementary-traits/src/lib.rs",
             "lines": "21",
             "line_fragment": "pub use crate::as_cstr::*;"
           }
@@ -1153,14 +1153,14 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/traits/src/allocator.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
           "line": [
             16
           ],
           "code": "pub use core::{alloc::Layout, ptr::NonNull};"
         },
         {
-          "file": "iceoryx2-bb/traits/src/lib.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/lib.rs",
           "line": [
             21
           ],
@@ -1317,7 +1317,7 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/traits/src/allocator.rs",
+          "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
           "line": [
             19
           ],
@@ -1352,9 +1352,9 @@
           "code": "#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]"
         },
         {
-          "file": "iceoryx2-bb/container/src/string.rs",
-          "line": [],
-          "code": "#[derive(Copy)] (NEW: StaticString implements Copy)"
+          "file": "iceoryx2-bb/container/src/string/static_string.rs",
+          "line": [58],
+          "code": "#[derive(PlacementDefault, ZeroCopySend, Clone, Copy)] (NEW: StaticString implements Copy)"
         }
       ],
       "safety_notes": [

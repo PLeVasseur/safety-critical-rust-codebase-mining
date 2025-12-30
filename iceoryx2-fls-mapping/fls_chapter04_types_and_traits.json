@@ -217,8 +217,8 @@
               "code": "type sa_mask_underlying = [u32; 32];"
             },
             {
-              "file": "iceoryx2-bb/container/src/vector.rs",
-              "line": [],
+              "file": "iceoryx2-bb/container/src/vector/static_vec.rs",
+              "line": [54],
               "code": "pub struct StaticVec<T, const CAPACITY: usize> { (NEW)"
             }
           ]
@@ -253,7 +253,7 @@
               "code": "pub(crate) const SHM_STATE_DIRECTORY: &[u8] = iceoryx2_pal_configuration::TEMP_DIRECTORY;"
             },
             {
-              "file": "iceoryx2-pal/posix/src/stub/win32_security_attributes.rs",
+              "file": "iceoryx2-pal/posix/src/windows/win32_security_attributes.rs",
               "line": [
                 67
               ],
@@ -285,9 +285,9 @@
               "code": "fn verify_init(&self, source: &str) {"
             },
             {
-              "file": "iceoryx2/tests/node_tests.rs",
+              "file": "iceoryx2/conformance-tests/src/node.rs",
               "line": [
-                80
+                84
               ],
               "code": "fn generate_node_name(i: usize, prefix: &str) -> NodeName {"
             },
@@ -299,8 +299,8 @@
               "code": "origin: &str,"
             },
             {
-              "file": "iceoryx2-bb/container/src/string.rs",
-              "line": [],
+              "file": "iceoryx2-bb/container/src/string/static_string.rs",
+              "line": [60],
               "code": "pub struct StaticString<const CAPACITY: usize> { (NEW)"
             }
           ]
@@ -404,7 +404,7 @@
               "code": "pub struct NodeId(UniqueSystemId);"
             },
             {
-              "file": "iceoryx2-bb/traits/src/owning_pointer.rs",
+              "file": "iceoryx2-bb/elementary-traits/src/owning_pointer.rs",
               "line": [
                 24
               ],
@@ -425,13 +425,13 @@
               "code": "pub struct Node<Service: service::Service> {"
             },
             {
-              "file": "iceoryx2-bb/container/src/vector.rs",
-              "line": [],
+              "file": "iceoryx2-bb/container/src/vector/static_vec.rs",
+              "line": [54],
               "code": "pub struct StaticVec<T, const CAPACITY: usize> { (NEW in v0.8.0)"
             },
             {
-              "file": "iceoryx2-bb/container/src/string.rs",
-              "line": [],
+              "file": "iceoryx2-bb/container/src/string/static_string.rs",
+              "line": [60],
               "code": "pub struct StaticString<const CAPACITY: usize> { (NEW in v0.8.0)"
             }
           ]
@@ -704,19 +704,19 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/tests/node_tests.rs",
+              "file": "iceoryx2/conformance-tests/src/node.rs",
               "line": [
-                62,
-                63
+                66,
+                67
               ],
               "code": "NodeState::<S>::Alive(ref view) => view as &dyn NodeView,"
             },
             {
-              "file": "iceoryx2/tests/publisher_tests.rs",
+              "file": "iceoryx2/src/waitset.rs",
               "line": [
-                32
+                49
               ],
-              "code": "type TestResult<T> = core::result::Result<T, Box<dyn std::error::Error>>;"
+              "code": "fn main() -> Result<(), Box<dyn core::error::Error>> { (in doc example)"
             },
             {
               "file": "iceoryx2-log/log/src/lib.rs",
@@ -774,8 +774,8 @@
               "code": "pub struct ContainerState<T: Copy + Debug> {"
             },
             {
-              "file": "iceoryx2-bb/container/src/vector.rs",
-              "line": [],
+              "file": "iceoryx2-bb/container/src/vector/static_vec.rs",
+              "line": [54],
               "code": "pub struct StaticVec<T, const CAPACITY: usize>"
             }
           ]
@@ -920,8 +920,8 @@
                 "code": "#[repr(C)]"
               },
               {
-                "file": "iceoryx2-ffi/c/src/api/*.rs",
-                "line": [],
+                "file": "iceoryx2-ffi/c/src/api/unique_subscriber_id.rs",
+                "line": [24],
                 "code": "#[repr(C)] (extensive in FFI layer)"
               }
             ]

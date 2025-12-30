@@ -5,7 +5,7 @@ FLS MAPPING VALIDATION REPORT
 Files validated: 20
 Schema valid: 20/20
 MUST_BE_FILLED markers: 137
-Path errors: 56
+Path errors: 0
 
 ------------------------------------------------------------
 FILE: fls_chapter02_lexical_elements.json
@@ -15,45 +15,21 @@ FILE: fls_chapter02_lexical_elements.json
     - summary
     - sections.lexical_elements_separators_punctuation.fls_section
     - sections.lexical_elements_separators_punctuation.description
-  PATH ERRORS (14):
-    - sections.lexical_elements_separators_punctuation.findings.punctuator_categories.arithmetic_operators.modulo.samples[0]: File not found: iceoryx2-bb/lock-free/src/mpmc/queue.rs
-    - sections.lexical_elements_separators_punctuation.findings.punctuator_categories.bitwise_operators.right_shift.samples[1]: Line 144 exceeds file length (67): iceoryx2-pal/posix/src/stub/mman.rs
-    - sections.lexical_elements_separators_punctuation.findings.punctuator_categories.range_operators.inclusive_range.samples[4]: File not found: iceoryx2-bb/container/src/byte_string.rs
-    - sections.literals.findings.subsection_2_4_4_numeric_literals.integer_literals.hexadecimal_literals.samples[2]: File not found: iceoryx2-pal/posix/src/stub/win32_security_attributes.rs
-    - sections.literals.findings.subsection_2_4_4_numeric_literals.integer_literals.integer_suffixes.u32_suffix.samples[1]: Line 207 exceeds file length (47): iceoryx2-pal/posix/src/stub/fcntl.rs
-    ... and 9 more
 
 ------------------------------------------------------------
 FILE: fls_chapter03_items.json
 ------------------------------------------------------------
-  PATH ERRORS (25):
-    - sections.modules.samples[0]: File not found: iceoryx2-bb/traits/src/lib.rs
-    - sections.modules.samples[1]: File not found: iceoryx2-bb/traits/src/lib.rs
-    - sections.structs.samples[8]: File not found: iceoryx2-bb/container/src/vector.rs
-    - sections.structs.samples[9]: File not found: iceoryx2-bb/container/src/string.rs
-    - sections.enums.samples[0]: File not found: iceoryx2-bb/traits/src/allocator.rs
-    ... and 20 more
+  OK - No issues found
 
 ------------------------------------------------------------
 FILE: fls_chapter04_types_and_traits.json
 ------------------------------------------------------------
-  PATH ERRORS (11):
-    - sections.sequence_types.findings.4.4.1_array_types.samples[4]: File not found: iceoryx2-bb/container/src/vector.rs
-    - sections.sequence_types.findings.4.4.2_slice_types.samples[3]: File not found: iceoryx2-pal/posix/src/stub/win32_security_attributes.rs
-    - sections.sequence_types.findings.4.4.3_str_type.samples[2]: File not found: iceoryx2/tests/node_tests.rs
-    - sections.sequence_types.findings.4.4.3_str_type.samples[4]: File not found: iceoryx2-bb/container/src/string.rs
-    - sections.abstract_data_types.findings.4.5.2_struct_types.samples[1]: File not found: iceoryx2-bb/traits/src/owning_pointer.rs
-    ... and 6 more
+  OK - No issues found
 
 ------------------------------------------------------------
 FILE: fls_chapter05_patterns.json
 ------------------------------------------------------------
-  PATH ERRORS (5):
-    - sections.5.1.2_literal_patterns.samples[1]: File not found: iceoryx2-pal/posix/src/stub/win32_call.rs
-    - sections.5.1.2_literal_patterns.samples[2]: File not found: iceoryx2-bb/container/src/byte_string.rs
-    - sections.5.1.2_literal_patterns.samples[3]: File not found: iceoryx2-bb/container/src/byte_string.rs
-    - sections.5.1.2_literal_patterns.samples[4]: File not found: iceoryx2-bb/container/src/byte_string.rs
-    - sections.5.1.5_range_patterns.samples[1]: File not found: iceoryx2-bb/container/src/byte_string.rs
+  OK - No issues found
 
 ------------------------------------------------------------
 FILE: fls_chapter06_expressions.json
@@ -70,8 +46,6 @@ FILE: fls_chapter06_expressions.json
     - sections.block_expressions.subsections.6.4.4_unsafe_blocks.fls_section
     - sections.operator_expressions.subsections.6.5.1_borrow_expression.fls_section
     ... and 16 more
-  PATH ERRORS (1):
-    - sections.literal_expressions.samples[1]: File not found: iceoryx2-bb/container/src/byte_string.rs
 
 ------------------------------------------------------------
 FILE: fls_chapter07_values.json

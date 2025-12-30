@@ -93,30 +93,30 @@
           "code": "0 => {"
         },
         {
-          "file": "iceoryx2-pal/posix/src/stub/win32_call.rs",
+          "file": "iceoryx2-pal/posix/src/windows/win32_call.rs",
           "line": [
             62
           ],
           "code": "0 => Errno::set(Errno::ESUCCES),"
         },
         {
-          "file": "iceoryx2-bb/container/src/byte_string.rs",
+          "file": "iceoryx2-bb/container/src/string/utils.rs",
           "line": [
-            274
+            40
           ],
           "code": "b'\\t' => vec![b'\\\\', b't'].into_iter(),"
         },
         {
-          "file": "iceoryx2-bb/container/src/byte_string.rs",
+          "file": "iceoryx2-bb/container/src/string/utils.rs",
           "line": [
-            275
+            41
           ],
           "code": "b'\\r' => vec![b'\\\\', b'r'].into_iter(),"
         },
         {
-          "file": "iceoryx2-bb/container/src/byte_string.rs",
+          "file": "iceoryx2-bb/container/src/string/utils.rs",
           "line": [
-            276
+            42
           ],
           "code": "b'\\n' => vec![b'\\\\', b'n'].into_iter(),"
         }
@@ -183,11 +183,11 @@
           "code": "1..=isize::MAX => {"
         },
         {
-          "file": "iceoryx2-bb/container/src/byte_string.rs",
+          "file": "iceoryx2-bb/container/src/string/utils.rs",
           "line": [
-            277
+            43
           ],
-          "code": "b'\\x20'..=b'\\x7e' => vec![*c].into_iter(),"
+          "code": "b'\\x20'..=b'\\x7f' => vec![*c].into_iter(),"
         },
         {
           "file": "iceoryx2-bb/system-types/src/path.rs",

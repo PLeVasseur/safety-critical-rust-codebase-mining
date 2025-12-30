@@ -5,7 +5,7 @@
   "fls_id": "fls_411up5z0b6n6",
   "repository": "eclipse-iceoryx/iceoryx2",
   "version": "0.8.0",
-  "analysis_date": "2024-12-30",
+  "analysis_date": "2025-12-30",
   "version_changes": {
     "from_version": "0.7.0",
     "to_version": "0.8.0",
@@ -100,9 +100,9 @@
               ],
               "samples": [
                 {
-                  "file": "iceoryx2-bb/lock-free/src/mpmc/queue.rs",
+                  "file": "iceoryx2-bb/lock-free/src/spsc/queue.rs",
                   "line": [
-                    181
+                    191
                   ],
                   "code": "current_write_pos % (CAPACITY as u64)"
                 }
@@ -174,9 +174,9 @@
                   "code": "(value >> 40) as u32"
                 },
                 {
-                  "file": "iceoryx2-pal/posix/src/stub/mman.rs",
+                  "file": "iceoryx2-pal/posix/src/windows/mman.rs",
                   "line": [
-                    144
+                    224
                   ],
                   "code": "(MAX_SUPPORTED_SHM_SIZE >> 32) & 0xFFFFFFFF"
                 }
@@ -222,11 +222,11 @@
                   "code": "1..=isize::MAX => {"
                 },
                 {
-                  "file": "iceoryx2-bb/container/src/byte_string.rs",
+                  "file": "iceoryx2-bb/container/src/string/utils.rs",
                   "line": [
-                    277
+                    43
                   ],
-                  "code": "b'\\x20'..=b'\\x7e' => vec![*c].into_iter(),"
+                  "code": "b'\\x20'..=b'\\x7f' => vec![*c].into_iter(),"
                 }
               ]
             },
@@ -444,30 +444,30 @@
             },
             "backslash_t": {
               "sample": {
-                "path": "iceoryx2-bb/container/src/byte_string.rs",
-                "lines": "274",
-                "line_fragment": "b'\\t'"
+                "file": "iceoryx2-bb/container/src/string/utils.rs",
+                "line": [40],
+                "code": "b'\\t'"
               }
             },
             "backslash_r": {
               "sample": {
-                "path": "iceoryx2-bb/container/src/byte_string.rs",
-                "lines": "275",
-                "line_fragment": "b'\\r'"
+                "file": "iceoryx2-bb/container/src/string/utils.rs",
+                "line": [41],
+                "code": "b'\\r'"
               }
             },
             "backslash_0": {
               "sample": {
-                "path": "iceoryx2-pal/posix/src/stub/win32_security_attributes.rs",
-                "lines": "97",
-                "line_fragment": "if data[i] == b'\\0'"
+                "file": "iceoryx2-pal/posix/src/windows/win32_security_attributes.rs",
+                "line": [97],
+                "code": "if data[i] == b'\\0'"
               }
             },
             "backslash_x": {
               "sample": {
-                "path": "iceoryx2-bb/container/src/byte_string.rs",
-                "lines": "277",
-                "line_fragment": "b'\\x20'..=b'\\x7e'"
+                "file": "iceoryx2-bb/container/src/string/utils.rs",
+                "line": [43],
+                "code": "b'\\x20'..=b'\\x7f'"
               }
             }
           }
@@ -806,7 +806,7 @@
                   "code": "pub const SCM_CREDENTIALS: int = 0x02;"
                 },
                 {
-                  "file": "iceoryx2-pal/posix/src/stub/win32_security_attributes.rs",
+                  "file": "iceoryx2-pal/posix/src/windows/win32_security_attributes.rs",
                   "line": [
                     85,
                     86,
@@ -985,7 +985,7 @@
                     "code": "new_socket.socket.set_socket_option(\"...\", &1u32, posix::SO_PASSCRED)"
                   },
                   {
-                    "file": "iceoryx2-pal/posix/src/stub/fcntl.rs",
+                    "file": "iceoryx2-pal/posix/src/windows/fcntl.rs",
                     "line": [
                       207
                     ],
@@ -1441,7 +1441,7 @@
                 "code": "macro_rules! enum_gen {"
               },
               {
-                "file": "iceoryx2-pal/posix/src/stub/win32_call.rs",
+                "file": "iceoryx2-pal/posix/src/windows/win32_call.rs",
                 "line": [
                   100
                 ],
@@ -1455,49 +1455,49 @@
                 "code": "macro_rules! semantic_string {"
               },
               {
-                "file": "iceoryx2-bb/log/src/log.rs",
+                "file": "iceoryx2-log/log/src/log.rs",
                 "line": [
                   39
                 ],
                 "code": "macro_rules! trace {"
               },
               {
-                "file": "iceoryx2-bb/log/src/log.rs",
+                "file": "iceoryx2-log/log/src/log.rs",
                 "line": [
                   80
                 ],
                 "code": "macro_rules! debug {"
               },
               {
-                "file": "iceoryx2-bb/log/src/log.rs",
+                "file": "iceoryx2-log/log/src/log.rs",
                 "line": [
                   121
                 ],
                 "code": "macro_rules! info {"
               },
               {
-                "file": "iceoryx2-bb/log/src/log.rs",
+                "file": "iceoryx2-log/log/src/log.rs",
                 "line": [
                   162
                 ],
                 "code": "macro_rules! warn {"
               },
               {
-                "file": "iceoryx2-bb/log/src/log.rs",
+                "file": "iceoryx2-log/log/src/log.rs",
                 "line": [
                   203
                 ],
                 "code": "macro_rules! error {"
               },
               {
-                "file": "iceoryx2-bb/log/src/log.rs",
+                "file": "iceoryx2-log/log/src/log.rs",
                 "line": [
                   244
                 ],
                 "code": "macro_rules! fatal_panic {"
               },
               {
-                "file": "iceoryx2-bb/log/src/fail.rs",
+                "file": "iceoryx2-log/log/src/fail.rs",
                 "line": [
                   55
                 ],
