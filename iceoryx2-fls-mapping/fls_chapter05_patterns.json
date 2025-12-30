@@ -42,28 +42,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-userland/record-and-replay/tests/replayer_tests.rs",
-              "line": [
-                29
-              ],
-              "code": "let file_name = generate_file_name();",
-              "purpose": "Demonstrates let\\s+\\w+\\s*=|let\\s+mut\\s+\\w+\\s*=..."
+              "file": "iceoryx2/src/service/mod.rs",
+              "line": [421, 422],
+              "code": "let origin = \"ServiceState::drop()\";\nlet id = self.static_config.service_id();",
+              "purpose": "Identifier patterns binding string literal and method call results to local variables"
             },
             {
-              "file": "benchmarks/publish-subscribe/src/main.rs",
-              "line": [
-                24
-              ],
-              "code": "let service_name_a2b = ServiceName::new(\"a2b\")?;",
-              "purpose": "Demonstrates let\\s+\\w+\\s*=|let\\s+mut\\s+\\w+\\s*=..."
+              "file": "iceoryx2/src/port/subscriber.rs",
+              "line": [162, 163, 164],
+              "code": "pub(crate) fn new(\n    service: Arc<ServiceState<Service, NoResource>>,\n    static_config: &StaticConfig,",
+              "purpose": "Identifier patterns in function parameters binding arguments to named parameters"
             },
             {
-              "file": "iceoryx2-userland/record-and-replay/tests/recorder_tests.rs",
-              "line": [
-                36
-              ],
-              "code": "let file_name = generate_file_name();",
-              "purpose": "Demonstrates let\\s+\\w+\\s*=|let\\s+mut\\s+\\w+\\s*=..."
+              "file": "iceoryx2/src/port/details/sender.rs",
+              "line": [332],
+              "code": "let (ref_count, sample_size) = self.borrow_sample(shm_pointer.offset);",
+              "purpose": "Identifier patterns in tuple destructuring binding method return values"
             }
           ],
           "count": 14175
@@ -80,28 +74,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-pal/posix/src/common/error_enum_generator.rs",
-              "line": [
-                52
-              ],
-              "code": "Err(_) => \"\".to_string(),",
-              "purpose": "Demonstrates =>\\s*\\d+|=>\\s*\\\"..."
+              "file": "iceoryx2-bb/posix/src/file_lock.rs",
+              "line": [484, 485, 486],
+              "code": "LockType::Read => 1,\nLockType::Write => -1,\nLockType::Unlock => {",
+              "purpose": "Literal integer patterns in match arms for lock type to numeric value conversion"
             },
             {
-              "file": "iceoryx2-pal/posix/src/windows/unistd.rs",
-              "line": [
-                86
-              ],
-              "code": "_SC_MONOTONIC_CLOCK => 0,",
-              "purpose": "Demonstrates =>\\s*\\d+|=>\\s*\\\"..."
+              "file": "iceoryx2-bb/posix/src/access_mode.rs",
+              "line": [62],
+              "code": "AccessMode::None => 0,",
+              "purpose": "Literal zero pattern in match arm for AccessMode enum to integer mapping"
             },
             {
               "file": "iceoryx2-bb/posix/src/file_lock.rs",
-              "line": [
-                466
-              ],
-              "code": "LockType::Read => \"Unable to acquire read file-lock\",",
-              "purpose": "Demonstrates =>\\s*\\d+|=>\\s*\\\"..."
+              "line": [466, 467, 468],
+              "code": "let msg = match lock_type {\n    LockType::Read => \"Unable to acquire read file-lock\",\n    _ => \"Unable to acquire write file-lock\",",
+              "purpose": "Literal string patterns in match arms for lock type error messages"
             }
           ],
           "count": 47
@@ -118,28 +106,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-services/discovery/tests/service_discovery_tracker_tests.rs",
-              "line": [
-                52
-              ],
-              "code": "let (added, _) = sut.sync().expect(\"failed to sync tracker\");",
-              "purpose": "Demonstrates let\\s*\\(..."
+              "file": "iceoryx2/src/service/naming_scheme.rs",
+              "line": [39, 40],
+              "code": "let (sender_port_id, _) = name.split_once('_')?;\nsender_port_id.parse::<u128>().ok()",
+              "purpose": "Parenthesized tuple pattern with underscore ignoring second element of split result"
             },
             {
-              "file": "iceoryx2-services/discovery/src/service_discovery/service.rs",
-              "line": [
-                372
-              ],
-              "code": "let (request_response, server) = if discovery_config.enable_server {",
-              "purpose": "Demonstrates let\\s*\\(..."
+              "file": "iceoryx2-log/loggers/src/file.rs",
+              "line": [73, 74],
+              "code": "let (sender, receiver) = channel();\n\nlet write_buffer_to_file = move || loop {",
+              "purpose": "Parenthesized tuple pattern destructuring channel sender and receiver pair"
             },
             {
-              "file": "examples/rust/health_monitoring/subscriber.rs",
-              "line": [
-                41
-              ],
-              "code": "let (service_event_1, service_pubsub_1) = open_service(&node, &service_name_1)?;",
-              "purpose": "Demonstrates let\\s*\\(..."
+              "file": "iceoryx2-pal/posix/src/windows/win32_security_attributes.rs",
+              "line": [222, 223, 224, 225],
+              "code": "let (read_bit, write_bit, exec_bit) = match ident {\n    IDENT_OTHERS => (S_IROTH, S_IWOTH, S_IXOTH),\n    IDENT_GROUP => (S_IRGRP, S_IWGRP, S_IXGRP),\n    IDENT_OWNER => (S_IRUSR, S_IWUSR, S_IXUSR),",
+              "purpose": "Parenthesized triple pattern destructuring permission bits from match result tuple"
             }
           ],
           "count": 216
@@ -157,27 +139,21 @@
           "samples": [
             {
               "file": "iceoryx2/src/waitset.rs",
-              "line": [
-                339
-              ],
-              "code": "GuardType::Tick(t) => WaitSetAttachmentId::tick(guard.waitset, t.index()),",
-              "purpose": "Demonstrates =>\\s*\\w+::..."
-            },
-            {
-              "file": "iceoryx2-cli/iox2-tunnel/src/command/zenoh.rs",
-              "line": [
-                33
-              ],
-              "code": "Some(path) => zenoh::Config::from_file(&path)",
-              "purpose": "Demonstrates =>\\s*\\w+::..."
+              "line": [339, 340, 341, 342, 343, 344],
+              "code": "GuardType::Tick(t) => WaitSetAttachmentId::tick(guard.waitset, t.index()),\nGuardType::Deadline(r, t) => WaitSetAttachmentId::deadline(\n    guard.waitset,\n    unsafe { r.file_descriptor().native_handle() },\n    t.index(),\n),",
+              "purpose": "Path patterns matching GuardType enum variants with tuple destructuring in arms"
             },
             {
               "file": "iceoryx2-cli/lib/src/filter.rs",
-              "line": [
-                84
-              ],
-              "code": "NodeState::Alive(view) => NodeIdString::from(view.id()) == **id,",
-              "purpose": "Demonstrates =>\\s*\\w+::..."
+              "line": [84, 85, 86],
+              "code": "NodeState::Alive(view) => NodeIdString::from(view.id()) == **id,\nNodeState::Dead(view) => NodeIdString::from(view.id()) == **id,\nNodeState::Inaccessible(node_id) => NodeIdString::from(node_id) == **id,",
+              "purpose": "Path patterns matching NodeState enum variants with bound identifiers"
+            },
+            {
+              "file": "iceoryx2-cli/iox2-tunnel/src/command/zenoh.rs",
+              "line": [32, 33, 34, 35],
+              "code": "let zenoh_config = match zenoh_config {\n    Some(path) => zenoh::Config::from_file(&path)\n        .map_err(|e| anyhow::anyhow!(\"failed to read zenoh config file '{path}': {e}\"))?,\n    None => zenoh::Config::default(),",
+              "purpose": "Path patterns matching Option::Some and Option::None variants"
             }
           ],
           "count": 609
@@ -194,28 +170,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/src/node/mod.rs",
-              "line": [
-                134
-              ],
-              "code": "//!             println!(\"Someone send an interrupt signal ...\");",
-              "purpose": "Demonstrates \\.\\.\\.|\\.\\.=..."
+              "file": "iceoryx2-bb/system-types/src/path.rs",
+              "line": [71, 72, 73, 74],
+              "code": "// windows only\n1..=31 => return true,\nb'<' => return true,\nb'>' => return true,",
+              "purpose": "Inclusive range pattern 1..=31 matching control characters in path validation"
             },
             {
-              "file": "iceoryx2/src/lib.rs",
-              "line": [
-                252
-              ],
-              "code": "//!     println!(\"Trigger event with id {} ...\", counter);",
-              "purpose": "Demonstrates \\.\\.\\.|\\.\\.=..."
+              "file": "iceoryx2-bb/system-types/src/group_name.rs",
+              "line": [53, 54, 55, 56],
+              "code": "match value {\n    b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'-' | b'_' => (),\n    _ => return true,\n}",
+              "purpose": "Multiple inclusive range patterns for alphanumeric character validation"
             },
             {
-              "file": "iceoryx2-bb/container/tests/string_tests.rs",
-              "line": [
-                171
-              ],
-              "code": "for byte in 128u8..=255u8 {",
-              "purpose": "Demonstrates \\.\\.\\.|\\.\\.=..."
+              "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+              "line": [970, 971, 972, 973],
+              "code": "1..=isize::MAX => {\n    socket_msg.extract_received_data(self);\n    Ok(true)\n}",
+              "purpose": "Inclusive range pattern matching positive return values from system call"
             }
           ],
           "count": 65
@@ -251,28 +221,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-services/discovery/tests/service_discovery_tracker_tests.rs",
-              "line": [
-                41
-              ],
-              "code": "for _ in 0..NUMBER_OF_SERVICES_ADDED {",
-              "purpose": "Demonstrates \\.\\...."
+              "file": "iceoryx2-bb/derive-macros/src/lib.rs",
+              "line": [256, 257, 258],
+              "code": "Self::#variant_name { #field_name, .. } => {\n    ZeroCopySend::__is_zero_copy_send(#field_name);\n}",
+              "purpose": "Rest pattern (..) ignoring remaining struct fields in enum variant match"
             },
             {
-              "file": "iceoryx2-cal/tests/used_chunk_list_tests.rs",
-              "line": [
-                24
-              ],
-              "code": "for i in 0..sut.capacity() {",
-              "purpose": "Demonstrates \\.\\...."
+              "file": "iceoryx2-bb/derive-macros/src/lib.rs",
+              "line": [264],
+              "code": "Self::#variant_name { .. } => {}",
+              "purpose": "Rest pattern matching any empty struct variant fields in generated code"
             },
             {
-              "file": "iceoryx2-cal/tests/static_storage_file_tests.rs",
-              "line": [
-                106
-              ],
-              "code": "for _i in 0..NUMBER_OF_STORAGES {",
-              "purpose": "Demonstrates \\.\\...."
+              "file": "iceoryx2-ffi/ffi-macros/src/lib.rs",
+              "line": [275],
+              "code": "Expr::Lit(ExprLit { lit: Lit::Str(lit), .. }) => Some(null_terminated(&lit.value())),",
+              "purpose": "Rest pattern in nested struct match extracting string literal from expression"
             }
           ],
           "count": 1158
@@ -289,28 +253,22 @@
           },
           "samples": [
             {
-              "file": "component-tests/rust/src/test_container_mutation.rs",
-              "line": [
-                125
-              ],
-              "code": "if !res.vector_add_element.iter().eq([1, 2, 3, 4, 123].iter()) {",
-              "purpose": "Demonstrates \\[\\s*\\w+\\s*,|\\[\\s*\\.\\...."
-            },
-            {
               "file": "iceoryx2-pal/posix/src/freebsd/mman.rs",
-              "line": [
-                55
-              ],
+              "line": [55],
               "code": "state_file_path[..SHM_STATE_DIRECTORY.len()].copy_from_slice(SHM_STATE_DIRECTORY);",
-              "purpose": "Demonstrates \\[\\s*\\w+\\s*,|\\[\\s*\\.\\...."
+              "purpose": "Slice pattern [..len] for copying directory path prefix into buffer"
             },
             {
-              "file": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
-              "line": [
-                109
-              ],
-              "code": "let send_data: Vec<u8> = vec![1u8, 3u8, 3u8, 7u8, 13u8, 37u8];",
-              "purpose": "Demonstrates \\[\\s*\\w+\\s*,|\\[\\s*\\.\\...."
+              "file": "iceoryx2-bb/system-types/src/path.rs",
+              "line": [108, 109],
+              "code": "raw_path[n..new_n].copy_from_slice(entry);\nn = new_n;",
+              "purpose": "Slice pattern [n..new_n] for copying path entry into buffer at offset"
+            },
+            {
+              "file": "iceoryx2-pal/posix/src/windows/win32_security_attributes.rs",
+              "line": [352],
+              "code": "ace_entries.push(&value[entry_start..i])",
+              "purpose": "Slice pattern extracting ACE entry substring from security descriptor"
             }
           ],
           "count": 100
@@ -350,28 +308,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-bb/system-types/src/path.rs",
-              "line": [
-                114
-              ],
-              "code": "unsafe { Path::new_unchecked(&raw_path[0..n]) }",
-              "purpose": "Demonstrates \\w+\\s*\\{\\s*\\w+\\s*:..."
+              "file": "iceoryx2/src/waitset.rs",
+              "line": [382, 383, 384, 385, 386, 387, 388],
+              "code": "Self {\n    attachment_type: AttachmentIdType::Tick(\n        waitset as *const WaitSet<Service> as u64,\n        deadline_queue_idx,\n    ),\n    _data: PhantomData,\n}",
+              "purpose": "Record struct pattern with named fields in Self construction"
             },
             {
-              "file": "iceoryx2-bb/trait-tests/tests/relocatable_container_tests.rs",
-              "line": [
-                52
-              ],
-              "code": "let mut sut = unsafe { T::new_uninit(capacity) };",
-              "purpose": "Demonstrates \\w+\\s*\\{\\s*\\w+\\s*:..."
+              "file": "iceoryx2-ffi/ffi-macros/src/lib.rs",
+              "line": [275],
+              "code": "Expr::Lit(ExprLit { lit: Lit::Str(lit), .. }) => Some(null_terminated(&lit.value())),",
+              "purpose": "Nested record struct pattern matching ExprLit with named lit field"
             },
             {
-              "file": "iceoryx2-bb/testing/src/lifetime_tracker.rs",
-              "line": [
-                44
-              ],
-              "code": "Self { value: 0 }",
-              "purpose": "Demonstrates \\w+\\s*\\{\\s*\\w+\\s*:..."
+              "file": "iceoryx2-bb/derive-macros/src/lib.rs",
+              "line": [256],
+              "code": "Self::#variant_name { #field_name, .. } => {",
+              "purpose": "Record struct pattern in macro-generated enum variant match"
             }
           ],
           "count": 583
@@ -388,28 +340,22 @@
           },
           "samples": [
             {
-              "file": "component-tests/rust/src/test_containers.rs",
-              "line": [
-                1
-              ],
-              "code": "// Copyright (c) 2025 Contributors to the Eclipse Foundation",
-              "purpose": "Demonstrates \\w+\\s*\\(\\s*\\w+..."
+              "file": "iceoryx2-bb/container/src/string/mod.rs",
+              "line": [370, 371, 372, 373, 374],
+              "code": "Some(0) => {\n    self.remove_range(0, bytes.len());\n    true\n}\n_ => false,",
+              "purpose": "Tuple struct pattern Some(0) matching Option with specific inner value"
             },
             {
-              "file": "component-tests/rust/src/test_container_mutation.rs",
-              "line": [
-                1
-              ],
-              "code": "// Copyright (c) 2025 Contributors to the Eclipse Foundation",
-              "purpose": "Demonstrates \\w+\\s*\\(\\s*\\w+..."
+              "file": "iceoryx2-pal/posix/src/windows/time.rs",
+              "line": [32, 33, 34, 35, 36],
+              "code": "Ok(v) => {\n    (*tp).tv_sec = v.as_secs() as _;\n    (*tp).tv_nsec = v.subsec_nanos() as _;\n    Errno::ESUCCES as _\n}",
+              "purpose": "Tuple struct pattern Ok(v) matching Result and binding inner value"
             },
             {
-              "file": "component-tests/rust/src/main.rs",
-              "line": [
-                1
-              ],
-              "code": "// Copyright (c) 2025 Contributors to the Eclipse Foundation",
-              "purpose": "Demonstrates \\w+\\s*\\(\\s*\\w+..."
+              "file": "iceoryx2-cal/src/zero_copy_connection/common.rs",
+              "line": [701, 702],
+              "code": "Some(v) => {\n    let channel_id = ChannelId::new(v);",
+              "purpose": "Tuple struct pattern Some(v) extracting value from Option in connection handling"
             }
           ],
           "count": 28630
@@ -426,28 +372,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-cli/iox2-config/src/commands.rs",
-              "line": [
-                90
-              ],
-              "code": "match (soft_limit_result, hard_limit_result) {",
-              "purpose": "Demonstrates \\(\\s*\\w+\\s*,\\s*\\w+\\s*\\)..."
+              "file": "iceoryx2-cli/iox2-config/src/command/mod.rs",
+              "line": [89, 90, 91, 92, 93, 94, 95, 96],
+              "code": "match (soft_limit_result, hard_limit_result) {\n    (Ok(soft), Ok(hard)) => {\n        println!(\n            \"  {:<43} soft:  {:<24} hard:  {}\",\n            format!(\"{i:?}\").white(),\n            format!(\"{soft}\").bright_blue(),\n            format!(\"{hard}\").bright_blue()\n        );",
+              "purpose": "Tuple pattern matching pair of Results with nested Ok tuple struct patterns"
             },
             {
-              "file": "benchmarks/request-response/src/main.rs",
-              "line": [
-                231
-              ],
-              "code": "#[derive(Parser, Debug)]",
-              "purpose": "Demonstrates \\(\\s*\\w+\\s*,\\s*\\w+\\s*\\)..."
+              "file": "iceoryx2-pal/posix/src/windows/win32_security_attributes.rs",
+              "line": [222, 223, 224, 225],
+              "code": "let (read_bit, write_bit, exec_bit) = match ident {\n    IDENT_OTHERS => (S_IROTH, S_IWOTH, S_IXOTH),\n    IDENT_GROUP => (S_IRGRP, S_IWGRP, S_IXGRP),\n    IDENT_OWNER => (S_IRUSR, S_IWUSR, S_IXUSR),",
+              "purpose": "Tuple pattern destructuring triple from match expression result"
             },
             {
-              "file": "benchmarks/queue/src/main.rs",
-              "line": [
-                120
-              ],
-              "code": "#[derive(Parser, Debug)]",
-              "purpose": "Demonstrates \\(\\s*\\w+\\s*,\\s*\\w+\\s*\\)..."
+              "file": "iceoryx2/src/service/naming_scheme.rs",
+              "line": [39],
+              "code": "let (sender_port_id, _) = name.split_once('_')?;",
+              "purpose": "Tuple pattern with underscore placeholder for unwanted element"
             }
           ],
           "count": 2263
@@ -465,27 +405,21 @@
           "samples": [
             {
               "file": "iceoryx2-cli/iox2-config/src/command/explain.rs",
-              "line": [
-                476
-              ],
+              "line": [476],
               "code": "_ => continue, // skip non-string keys",
-              "purpose": "Demonstrates \\b_\\b\\s*=>|let\\s+_\\s*=..."
+              "purpose": "Underscore wildcard pattern as catch-all match arm for non-string keys"
             },
             {
               "file": "iceoryx2-bb/system-types/src/user_name.rs",
-              "line": [
-                58
-              ],
-              "code": "_ => return true,",
-              "purpose": "Demonstrates \\b_\\b\\s*=>|let\\s+_\\s*=..."
+              "line": [56, 57, 58, 59],
+              "code": "match value {\n    b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'-' | b'_' => (),\n    _ => return true,\n}",
+              "purpose": "Underscore wildcard pattern with range alternatives for invalid character detection"
             },
             {
-              "file": "iceoryx2-bb/system-types/src/path.rs",
-              "line": [
-                78
-              ],
-              "code": "_ => (),",
-              "purpose": "Demonstrates \\b_\\b\\s*=>|let\\s+_\\s*=..."
+              "file": "iceoryx2-bb/system-types/src/group_name.rs",
+              "line": [53, 54, 55, 56],
+              "code": "match value {\n    b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'-' | b'_' => (),\n    _ => return true,\n}",
+              "purpose": "Underscore wildcard pattern as catch-all for non-alphanumeric characters in group name"
             }
           ],
           "count": 255
@@ -495,27 +429,24 @@
       "samples": [
         {
           "file": "iceoryx2-cli/iox2-config/src/main.rs",
-          "line": [
-            50
-          ],
-          "code": "Action::Show { config } => match config {",
-          "purpose": "Demonstrates \\w+\\s*\\{[^}]*\\}\\s*=>..."
+          "line": [50, 51, 52, 53, 54, 55],
+          "code": "Action::Show { config } => match config {\n    Some(ShowSubcommand::System) => {\n        if let Err(e) = command::show_system_config() {\n            eprintln!(\"Failed to show options: {e}\");\n        }\n    }",
+          "purpose": "Struct pattern matching Action::Show variant with named config field, nested match on inner Option"
         },
         {
           "file": "iceoryx2-bb/derive-macros/src/lib.rs",
-          "line": [
-            256
-          ],
-          "code": "Self::#variant_name { #field_name, .. } => {",
-          "purpose": "Demonstrates \\w+\\s*\\{[^}]*\\}\\s*=>..."
+          "line": [256, 257, 258],
+          "code": "Self::#variant_name { #field_name, .. } => {\n    ZeroCopySend::__is_zero_copy_send(#field_name);\n}",
+          "purpose": "Struct pattern in macro-generated code matching enum variant with named field and rest pattern"
+        },
+        {
+          "file": "iceoryx2-ffi/ffi-macros/src/lib.rs",
+          "line": [275],
+          "code": "Expr::Lit(ExprLit { lit: Lit::Str(lit), .. }) => Some(null_terminated(&lit.value())),",
+          "purpose": "Nested struct patterns matching expression literal with string literal inner field"
         }
       ],
-      "samples_waiver": {
-        "reason": "single_location",
-        "explanation": "Pattern found in limited locations (2 unique files) despite 4 total matches",
-        "approved_by": "automated",
-        "date": "2025-12-30"
-      }
+      "count": 4
     },
     "binding_modes": {
       "fls_section": "5.3",
@@ -531,28 +462,24 @@
       "samples": [
         {
           "file": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs",
-          "line": [
-            358
-          ],
-          "code": "if let FdHandleEntry::UdsDatagramSocket(ref mut s) = *self.fd2handle[fd as usize].get()"
+          "line": [392, 393, 394],
+          "code": "if let FdHandleEntry::UdsDatagramSocket(ref mut s) = *self.fd2handle[fd as usize].get()\n{\n    s.address = Some(address);",
+          "purpose": "ref mut binding mode for mutable borrow of socket in tuple struct pattern"
         },
         {
           "file": "iceoryx2-pal/posix/src/macos/pthread.rs",
-          "line": [
-            119
-          ],
-          "code": "if let Some(ref mut v) = *state.get() {"
+          "line": [120, 121],
+          "code": "if let Some(ref mut v) = *state.get() {\n    // mutate v",
+          "purpose": "ref mut binding in Option pattern for mutable access to inner value"
         },
         {
           "file": "iceoryx2/src/service/builder/publish_subscribe.rs",
-          "line": [
-            290
-          ],
-          "code": "MessagingPattern::PublishSubscribe(ref mut v) => v,"
+          "line": [290],
+          "code": "MessagingPattern::PublishSubscribe(ref mut v) => v,",
+          "purpose": "ref mut binding extracting mutable reference from enum variant"
         }
       ],
-      "count": null,
-      "count_methodology": "Pattern not defined for this section"
+      "count": 99
     },
     "pattern_matching": {
       "fls_section": "5.4",
@@ -578,28 +505,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-bb/elementary/tests/unique_id_tests.rs",
-              "line": [
-                18
-              ],
-              "code": "let a = UniqueId::new();",
-              "purpose": "Demonstrates let\\s+\\w+\\s*=..."
+              "file": "iceoryx2/src/service/mod.rs",
+              "line": [421, 422],
+              "code": "let origin = \"ServiceState::drop()\";\nlet id = self.static_config.service_id();",
+              "purpose": "Identifier pattern binding in let statements with string literal and method call"
             },
             {
-              "file": "iceoryx2-bb/elementary/tests/scope_guard_tests.rs",
-              "line": [
-                20
-              ],
-              "code": "let startup_callback = AtomicU64::new(0);",
-              "purpose": "Demonstrates let\\s+\\w+\\s*=..."
+              "file": "iceoryx2/src/config.rs",
+              "line": [552, 553],
+              "code": "Some(details) => {\n    let mut user_config = *details.config_dir();",
+              "purpose": "Identifier pattern 'details' in Some arm, then 'user_config' in let binding"
             },
             {
-              "file": "iceoryx2-bb/elementary/tests/relocatable_ptr_tests.rs",
-              "line": [
-                22
-              ],
-              "code": "let value = 9128391;",
-              "purpose": "Demonstrates let\\s+\\w+\\s*=..."
+              "file": "iceoryx2/src/port/details/sender.rs",
+              "line": [332],
+              "code": "let (ref_count, sample_size) = self.borrow_sample(shm_pointer.offset);",
+              "purpose": "Identifier patterns in tuple destructuring binding multiple return values"
             }
           ],
           "count": 12040
@@ -808,28 +729,22 @@
       "count": 1663,
       "samples": [
         {
-          "file": "iceoryx2-ffi/python/src/writer.rs",
-          "line": [
-            46
-          ],
-          "code": "match &*self.value.lock() {",
-          "purpose": "Demonstrates \\bmatch\\b..."
+          "file": "iceoryx2/src/config.rs",
+          "line": [551, 552, 553, 554, 555, 556],
+          "code": "match user.details() {\n    Some(details) => {\n        let mut user_config = *details.config_dir();\n        fail!(from origin,\n            when user_config.add_path_entry(&Self::relative_config_path()),\n            with ConfigIterationFailure::TooLongUserConfigDirectory,",
+          "purpose": "match expression with Option pattern matching for user details configuration"
         },
         {
-          "file": "iceoryx2-ffi/python/src/waitset_run_result.rs",
-          "line": [
-            38
-          ],
-          "code": "match value {",
-          "purpose": "Demonstrates \\bmatch\\b..."
+          "file": "iceoryx2/src/waitset.rs",
+          "line": [338, 339, 340],
+          "code": "match &guard.guard_type {\n    GuardType::Tick(t) => WaitSetAttachmentId::tick(guard.waitset, t.index()),\n    GuardType::Deadline(r, t) => WaitSetAttachmentId::deadline(",
+          "purpose": "match expression with enum variant patterns extracting inner values"
         },
         {
-          "file": "iceoryx2-ffi/python/src/waitset_guard.rs",
-          "line": [
-            43
-          ],
-          "code": "match self.0 {",
-          "purpose": "Demonstrates \\bmatch\\b..."
+          "file": "iceoryx2-cli/iox2-config/src/command/mod.rs",
+          "line": [89, 90],
+          "code": "match (soft_limit_result, hard_limit_result) {\n    (Ok(soft), Ok(hard)) => {",
+          "purpose": "match expression with tuple pattern combining multiple Results"
         }
       ]
     }
