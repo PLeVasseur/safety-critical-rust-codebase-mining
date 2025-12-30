@@ -3,9 +3,9 @@
   "standard_version": "2025",
   "fls_version": "1.0 (2024)",
   "mapping_date": "2025-12-31",
-  "methodology": "Semantic embedding similarity + manual verification. High confidence mappings verified against MISRA rationale and FLS content.",
+  "methodology": "Automated keyword matching against concept_to_fls.json with MISRA ADD-6 applicability data. All mappings have low/medium confidence and require manual review.",
   "statistics": {
-    "total_guidelines": 211,
+    "total_guidelines": 212,
     "mapped": 119,
     "unmapped": 0,
     "not_applicable": 91,
@@ -148,9 +148,9 @@
         "14.2"
       ],
       "misra_rust_category": "recommended",
-      "misra_rust_comment": "\u201cambiguity\u201d is determined by the project",
+      "misra_rust_comment": "“ambiguity” is determined by the project",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: \u201cambiguity\u201d is determined by the project. Rust has similar scoping rules with explicit shadowing"
+      "notes": "MISRA ADD-6: “ambiguity” is determined by the project. Rust has similar scoping rules with explicit shadowing"
     },
     {
       "guideline_id": "Dir 4.6",
@@ -994,9 +994,9 @@
         "13.2.6"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "no character limit, except in extern \u201cC\u201d",
+      "misra_rust_comment": "no character limit, except in extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: no character limit, except in extern \u201cC\u201d. Rust has similar scoping rules with explicit shadowing; Rust uses pub visibility and modules instead of linkage. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: no character limit, except in extern “C”. Rust has similar scoping rules with explicit shadowing; Rust uses pub visibility and modules instead of linkage. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 5.2",
@@ -1678,9 +1678,9 @@
         "15.8.1"
       ],
       "misra_rust_category": "advisory",
-      "misra_rust_comment": "may affect extern \u201cC\u201d declarations",
+      "misra_rust_comment": "may affect extern “C” declarations",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: may affect extern \u201cC\u201d declarations. Similar function semantics with stronger type checking; Rust uses pub visibility and modules instead of linkage. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: may affect extern “C” declarations. Similar function semantics with stronger type checking; Rust uses pub visibility and modules instead of linkage. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 8.6",
@@ -1731,9 +1731,9 @@
         "15.8.1"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "may affect extern \u201cC\u201d declarations",
+      "misra_rust_comment": "may affect extern “C” declarations",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: may affect extern \u201cC\u201d declarations. Rust has similar scoping rules with explicit shadowing; Rust uses pub visibility and modules instead of linkage. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: may affect extern “C” declarations. Rust has similar scoping rules with explicit shadowing; Rust uses pub visibility and modules instead of linkage. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 8.7",
@@ -2771,14 +2771,24 @@
       "applicability_all_rust": "direct",
       "applicability_safe_rust": "partial",
       "fls_ids": [
-        "fls_xztr1kebz8bo",
+        "fls_3i4ou0dq64ny",
+        "fls_ppd1xwve3tr7",
+        "fls_142vncdktbin",
+        "fls_v5x85lt5ulva",
+        "fls_a14slch83hzn",
+        "fls_5cm4gkt55hjh",
+        "fls_qztk0bkju9u",
+        "fls_jep7p27kaqlp",
+        "fls_jd1inwz7ulyw",
         "fls_hbbek3z4wtcs",
+        "fls_xztr1kebz8bo",
         "fls_airvr79xkcag",
+        "fls_77scxuomlbgs",
+        "fls_lnpyb285qdiy",
         "fls_1qhsun1vyarz",
         "fls_dw33yt5g6m0k",
-        "fls_jep7p27kaqlp",
-        "fls_ppd1xwve3tr7",
-        "fls_3i4ou0dq64ny"
+        "fls_exe4zodlwfez",
+        "fls_lv7w7aalpwm5"
       ],
       "fls_rationale_type": "partial_mapping",
       "fls_sections": [
@@ -2803,85 +2813,28 @@
       ],
       "misra_rust_category": "required",
       "misra_rust_comment": "includes both safe `as` and unsafe `transmute` operations",
-      "confidence": "high",
-      "notes": "MISRA: Prevent conversions between function pointers and other types. Rust: Function item types are distinct from function pointer types. Coercion fn item -> fn ptr is allowed. Arbitrary conversions require unsafe transmute. Safe Rust prevents the UB this rule addresses; unsafe Rust requires explicit unsafe block."
+      "confidence": "medium",
+      "notes": "MISRA ADD-6: includes both safe `as` and unsafe `transmute` operations. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Similar function semantics with stronger type checking"
     },
     {
       "guideline_id": "Rule 11.2",
       "guideline_type": "rule",
-      "applicability_all_rust": "partial",
+      "applicability_all_rust": "direct",
       "applicability_safe_rust": "not_applicable",
       "fls_ids": [
+        "fls_3i4ou0dq64ny",
         "fls_ppd1xwve3tr7",
-        "fls_1qhsun1vyarz",
+        "fls_142vncdktbin",
+        "fls_v5x85lt5ulva",
+        "fls_a14slch83hzn",
+        "fls_5cm4gkt55hjh",
+        "fls_qztk0bkju9u",
         "fls_jep7p27kaqlp",
-        "fls_ohhsmifo0urd"
-      ],
-      "fls_rationale_type": "rust_alternative",
-      "fls_sections": [
-        "4.7",
-        "4.7.2",
-        "4.7.3",
-        "15.3",
-        "15.4",
-        "6.5.2",
-        "6.5.1",
-        "19",
-        "19.-2.4",
-        "6.5.10",
-        "4.12.3",
-        "4.12.2",
-        "4.12.7"
-      ],
-      "misra_rust_category": "required",
-      "confidence": "high",
-      "notes": "MISRA: Prevent conversions to/from pointers to incomplete types. Rust: No 'incomplete types' in C sense. Opaque types handled via private fields or extern types. Raw pointers can point to unsized types (*const T where T: ?Sized). Safe Rust handles this through the type system; unsafe requires explicit blocks."
-    },
-    {
-      "guideline_id": "Rule 11.3",
-      "guideline_type": "rule",
-      "applicability_all_rust": "direct",
-      "applicability_safe_rust": "partial",
-      "fls_ids": [
-        "fls_ppd1xwve3tr7",
+        "fls_jd1inwz7ulyw",
         "fls_1qhsun1vyarz",
         "fls_dw33yt5g6m0k",
-        "fls_jep7p27kaqlp",
-        "fls_ohhsmifo0urd",
-        "fls_g1z6bpyjqxkz"
-      ],
-      "fls_rationale_type": "partial_mapping",
-      "fls_sections": [
-        "4.7",
-        "4.7.2",
-        "4.7.3",
-        "15.3",
-        "15.4",
-        "6.5.2",
-        "6.5.1",
-        "19",
-        "19.-2.4",
-        "6.5.10",
-        "4.12.3",
-        "4.12.2",
-        "4.12.7"
-      ],
-      "misra_rust_category": "required",
-      "confidence": "high",
-      "notes": "MISRA: Prevent pointer-to-object type conversions (alignment/aliasing UB). Rust: Pointer casts via 'as' are allowed but dereferencing requires unsafe. Miri can detect UB. Safe Rust's references have stricter aliasing rules via borrow checker. Unsafe Rust allows raw pointer casts but UB on misaligned/aliased access."
-    },
-    {
-      "guideline_id": "Rule 11.4",
-      "guideline_type": "rule",
-      "applicability_all_rust": "direct",
-      "applicability_safe_rust": "not_applicable",
-      "fls_ids": [
-        "fls_1qhsun1vyarz",
-        "fls_ppd1xwve3tr7",
-        "fls_3qnpv2z7yjil",
-        "fls_jep7p27kaqlp",
-        "fls_ohhsmifo0urd",
-        "fls_g1z6bpyjqxkz"
+        "fls_exe4zodlwfez",
+        "fls_lv7w7aalpwm5"
       ],
       "fls_rationale_type": "direct_mapping",
       "fls_sections": [
@@ -2900,8 +2853,88 @@
         "4.12.7"
       ],
       "misra_rust_category": "required",
-      "confidence": "high",
-      "notes": "MISRA: Prevent pointer<->integer conversions (alignment UB). Rust: pointer as usize and usize as *const T allowed but dereferencing requires unsafe. Safe Rust cannot create invalid pointers from integers. Common in FFI/embedded for memory-mapped registers. Note: Rule 11.7 was combined into this rule in MISRA C:2025."
+      "confidence": "medium",
+      "notes": "Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Rust requires explicit casts; no implicit narrowing conversions; transmute is unsafe. Only applicable in unsafe Rust"
+    },
+    {
+      "guideline_id": "Rule 11.3",
+      "guideline_type": "rule",
+      "applicability_all_rust": "direct",
+      "applicability_safe_rust": "direct",
+      "fls_ids": [
+        "fls_3i4ou0dq64ny",
+        "fls_ppd1xwve3tr7",
+        "fls_142vncdktbin",
+        "fls_v5x85lt5ulva",
+        "fls_a14slch83hzn",
+        "fls_5cm4gkt55hjh",
+        "fls_qztk0bkju9u",
+        "fls_jep7p27kaqlp",
+        "fls_jd1inwz7ulyw",
+        "fls_1qhsun1vyarz",
+        "fls_dw33yt5g6m0k",
+        "fls_exe4zodlwfez",
+        "fls_lv7w7aalpwm5"
+      ],
+      "fls_rationale_type": "direct_mapping",
+      "fls_sections": [
+        "4.7",
+        "4.7.2",
+        "4.7.3",
+        "15.3",
+        "15.4",
+        "6.5.2",
+        "6.5.1",
+        "19",
+        "19.-2.4",
+        "6.5.10",
+        "4.12.3",
+        "4.12.2",
+        "4.12.7"
+      ],
+      "misra_rust_category": "required",
+      "confidence": "medium",
+      "notes": "Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Rust requires explicit casts; no implicit narrowing conversions; transmute is unsafe"
+    },
+    {
+      "guideline_id": "Rule 11.4",
+      "guideline_type": "rule",
+      "applicability_all_rust": "direct",
+      "applicability_safe_rust": "direct",
+      "fls_ids": [
+        "fls_3i4ou0dq64ny",
+        "fls_ppd1xwve3tr7",
+        "fls_142vncdktbin",
+        "fls_v5x85lt5ulva",
+        "fls_a14slch83hzn",
+        "fls_5cm4gkt55hjh",
+        "fls_qztk0bkju9u",
+        "fls_jep7p27kaqlp",
+        "fls_jd1inwz7ulyw",
+        "fls_1qhsun1vyarz",
+        "fls_dw33yt5g6m0k",
+        "fls_exe4zodlwfez",
+        "fls_lv7w7aalpwm5"
+      ],
+      "fls_rationale_type": "direct_mapping",
+      "fls_sections": [
+        "4.7",
+        "4.7.2",
+        "4.7.3",
+        "15.3",
+        "15.4",
+        "6.5.2",
+        "6.5.1",
+        "19",
+        "19.-2.4",
+        "6.5.10",
+        "4.12.3",
+        "4.12.2",
+        "4.12.7"
+      ],
+      "misra_rust_category": "required",
+      "confidence": "medium",
+      "notes": "Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Rust requires explicit casts; no implicit narrowing conversions; transmute is unsafe"
     },
     {
       "guideline_id": "Rule 11.6",
@@ -2909,12 +2942,21 @@
       "applicability_all_rust": "direct",
       "applicability_safe_rust": "not_applicable",
       "fls_ids": [
-        "fls_1qhsun1vyarz",
-        "fls_3qnpv2z7yjil",
+        "fls_3i4ou0dq64ny",
         "fls_ppd1xwve3tr7",
-        "fls_jep7p27kaqlp"
+        "fls_142vncdktbin",
+        "fls_v5x85lt5ulva",
+        "fls_a14slch83hzn",
+        "fls_5cm4gkt55hjh",
+        "fls_qztk0bkju9u",
+        "fls_jep7p27kaqlp",
+        "fls_jd1inwz7ulyw",
+        "fls_1qhsun1vyarz",
+        "fls_dw33yt5g6m0k",
+        "fls_exe4zodlwfez",
+        "fls_lv7w7aalpwm5"
       ],
-      "fls_rationale_type": "rust_alternative",
+      "fls_rationale_type": "direct_mapping",
       "fls_sections": [
         "4.7",
         "4.7.2",
@@ -2931,15 +2973,76 @@
         "4.12.7"
       ],
       "misra_rust_category": "advisory",
-      "confidence": "high",
-      "notes": "MISRA: Prevent void*<->arithmetic conversions. Rust: No void* equivalent; *const () or *mut () used instead. Casting *const () as usize works. Safe Rust prevents creating arbitrary pointers. Unsafe needed for dereference."
+      "confidence": "medium",
+      "notes": "Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Rust requires explicit casts; no implicit narrowing conversions; transmute is unsafe. Only applicable in unsafe Rust"
+    },
+    {
+      "guideline_id": "Rule 11.7",
+      "guideline_type": "rule",
+      "applicability_all_rust": "direct",
+      "applicability_safe_rust": "not_applicable",
+      "fls_ids": [
+        "fls_3i4ou0dq64ny",
+        "fls_ppd1xwve3tr7",
+        "fls_142vncdktbin",
+        "fls_v5x85lt5ulva",
+        "fls_a14slch83hzn",
+        "fls_5cm4gkt55hjh",
+        "fls_qztk0bkju9u",
+        "fls_jep7p27kaqlp",
+        "fls_jd1inwz7ulyw",
+        "fls_1qhsun1vyarz",
+        "fls_dw33yt5g6m0k",
+        "fls_exe4zodlwfez",
+        "fls_lv7w7aalpwm5"
+      ],
+      "fls_rationale_type": "direct_mapping",
+      "fls_sections": [
+        "4.7",
+        "4.7.2",
+        "4.7.3",
+        "15.3",
+        "15.4",
+        "6.5.2",
+        "6.5.1",
+        "19",
+        "19.-2.4",
+        "6.5.10",
+        "4.12.3",
+        "4.12.2",
+        "4.12.7"
+      ],
+      "misra_rust_category": "required",
+      "misra_rust_comment": "merged into Rule 11.4",
+      "confidence": "medium",
+      "notes": "MISRA ADD-6: merged into Rule 11.4. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Rust requires explicit casts; no implicit narrowing conversions; transmute is unsafe. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 11.9",
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
       "applicability_safe_rust": "not_applicable",
-      "fls_ids": [],
+      "fls_ids": [
+        "fls_3i4ou0dq64ny",
+        "fls_ppd1xwve3tr7",
+        "fls_142vncdktbin",
+        "fls_v5x85lt5ulva",
+        "fls_a14slch83hzn",
+        "fls_5cm4gkt55hjh",
+        "fls_qztk0bkju9u",
+        "fls_jep7p27kaqlp",
+        "fls_jd1inwz7ulyw",
+        "fls_3qnpv2z7yjil",
+        "fls_1k9mkv7rbezi",
+        "fls_abp6tjbz8tpn",
+        "fls_nsvzzbldhq53",
+        "fls_id66vnaqw0zt",
+        "fls_szibmtfv117b",
+        "fls_1qhsun1vyarz",
+        "fls_dw33yt5g6m0k",
+        "fls_exe4zodlwfez",
+        "fls_lv7w7aalpwm5"
+      ],
       "fls_rationale_type": "no_equivalent",
       "fls_sections": [
         "4.7",
@@ -2964,8 +3067,8 @@
       ],
       "misra_rust_category": "n_a",
       "misra_rust_comment": "Rust does not have a null pointer constant",
-      "confidence": "high",
-      "notes": "MISRA: Use NULL macro for null pointer constants. Rust: No NULL macro. Option<T> or Option<NonNull<T>> for nullable pointers. Raw pointers use std::ptr::null() or std::ptr::null_mut(). The C concept of integer 0 as null pointer doesn't exist in Rust."
+      "confidence": "medium",
+      "notes": "MISRA ADD-6: Rust does not have a null pointer constant. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Rust has checked arithmetic in debug mode, wrapping/saturating methods; overflow behavior differs from C"
     },
     {
       "guideline_id": "Rule 11.10",
@@ -2973,7 +3076,22 @@
       "applicability_all_rust": "not_applicable",
       "applicability_safe_rust": "not_applicable",
       "fls_ids": [
-        "fls_vyc9vcuamlph"
+        "fls_vyc9vcuamlph",
+        "fls_eiw4by8z75di",
+        "fls_142vncdktbin",
+        "fls_omaq7psg83n3",
+        "fls_3i4ou0dq64ny",
+        "fls_ppd1xwve3tr7",
+        "fls_v5x85lt5ulva",
+        "fls_a14slch83hzn",
+        "fls_5cm4gkt55hjh",
+        "fls_qztk0bkju9u",
+        "fls_jep7p27kaqlp",
+        "fls_jd1inwz7ulyw",
+        "fls_1qhsun1vyarz",
+        "fls_dw33yt5g6m0k",
+        "fls_exe4zodlwfez",
+        "fls_lv7w7aalpwm5"
       ],
       "fls_rationale_type": "no_equivalent",
       "fls_sections": [
@@ -2995,8 +3113,8 @@
         "4.12.7"
       ],
       "misra_rust_category": "n_a",
-      "confidence": "high",
-      "notes": "MISRA: _Atomic void is problematic in C. Rust: No _Atomic qualifier. Atomics via std::sync::atomic types (AtomicUsize, AtomicPtr<T>, etc.). No concept of 'atomic void'. AtomicPtr<T> requires sized T."
+      "confidence": "medium",
+      "notes": "Rust has std::sync::atomic with similar memory ordering; Rust uses mut/immutable references; volatile via std::ptr::read/write_volatile (unsafe)"
     },
     {
       "guideline_id": "Rule 11.11",
@@ -3004,8 +3122,20 @@
       "applicability_all_rust": "rust_prevents",
       "applicability_safe_rust": "rust_prevents",
       "fls_ids": [
-        "fls_nsvzzbldhq53",
-        "fls_tiqp1gxf116z"
+        "fls_3i4ou0dq64ny",
+        "fls_ppd1xwve3tr7",
+        "fls_142vncdktbin",
+        "fls_v5x85lt5ulva",
+        "fls_a14slch83hzn",
+        "fls_5cm4gkt55hjh",
+        "fls_qztk0bkju9u",
+        "fls_jep7p27kaqlp",
+        "fls_jd1inwz7ulyw",
+        "fls_szibmtfv117b",
+        "fls_1qhsun1vyarz",
+        "fls_dw33yt5g6m0k",
+        "fls_exe4zodlwfez",
+        "fls_lv7w7aalpwm5"
       ],
       "fls_rationale_type": "rust_prevents",
       "fls_sections": [
@@ -3026,8 +3156,8 @@
       ],
       "misra_rust_category": "implicit",
       "misra_rust_comment": "enforced by rustc",
-      "confidence": "high",
-      "notes": "MISRA: Don't implicitly compare pointers to NULL. Rust: Pointers are not implicitly convertible to bool. Must use explicit is_null() or pattern matching with Option. Comparison operators on raw pointers compare addresses, not nullness. Safe Rust typically uses Option<NonNull<T>> instead of nullable pointers."
+      "confidence": "medium",
+      "notes": "MISRA ADD-6: enforced by rustc. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Safe Rust uses Option<T> instead of nullable pointers; raw pointers can be null in unsafe"
     },
     {
       "guideline_id": "Rule 12.1",
@@ -5134,9 +5264,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs; Similar function semantics with stronger type checking. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs; Similar function semantics with stronger type checking. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.4",
@@ -5175,9 +5305,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Rust has no setjmp/longjmp; uses panic/catch_unwind or Result; Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Rust has no setjmp/longjmp; uses panic/catch_unwind or Result; Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.5",
@@ -5216,9 +5346,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Rust has no native signal handling; use platform-specific crates; Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Rust has no native signal handling; use platform-specific crates; Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.6",
@@ -5267,9 +5397,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.7",
@@ -5318,9 +5448,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.8",
@@ -5369,9 +5499,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.9",
@@ -5420,9 +5550,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.10",
@@ -5471,9 +5601,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.11",
@@ -5553,9 +5683,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs; Rust has no setjmp/longjmp; uses panic/catch_unwind or Result. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs; Rust has no setjmp/longjmp; uses panic/catch_unwind or Result. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.13",
@@ -5604,9 +5734,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.14",
@@ -5655,9 +5785,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.15",
@@ -5724,9 +5854,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Similar function semantics with stronger type checking. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Similar function semantics with stronger type checking. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.16",
@@ -5793,9 +5923,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Similar function semantics with stronger type checking. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Similar function semantics with stronger type checking. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.17",
@@ -5844,9 +5974,9 @@
         "15.9"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; Safe Rust String/str types prevent buffer overflows and ensure valid UTF-8; unsafe can use raw pointers. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; Safe Rust String/str types prevent buffer overflows and ensure valid UTF-8; unsafe can use raw pointers. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.19",
@@ -5913,9 +6043,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Similar function semantics with stronger type checking. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Similar function semantics with stronger type checking. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.20",
@@ -5982,9 +6112,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Similar function semantics with stronger type checking. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Similar function semantics with stronger type checking. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.21",
@@ -6033,9 +6163,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.22",
@@ -6198,9 +6328,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; C standard library rules don't apply to Rust std library. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.25",
@@ -6299,9 +6429,9 @@
         "4.4.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; Rust has Mutex<T> and RwLock<T> with RAII guards. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; Rust has Mutex<T> and RwLock<T> with RAII guards. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.1",
@@ -6395,9 +6525,9 @@
         "17.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs; Rust has similar control flow with expressions. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs; Rust has similar control flow with expressions. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.3",
@@ -6444,9 +6574,9 @@
         "17.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Rust has similar control flow with expressions; Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Rust has similar control flow with expressions; Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.4",
@@ -6481,9 +6611,9 @@
         "17.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs; Rust uses std::io and std::fs; different API design. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs; Rust uses std::io and std::fs; different API design. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.5",
@@ -6556,9 +6686,9 @@
         "17.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Core Rust concept for safe memory access, applies to all Rust. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Core Rust concept for safe memory access, applies to all Rust. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.6",
@@ -6611,9 +6741,9 @@
         "17.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Safe Rust uses references with borrow checking, preventing null/dangling pointers; raw pointers require unsafe blocks; Safe Rust prevents use-after-free and double-free at compile time via ownership; unsafe Rust can use raw allocator APIs. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.7",
@@ -6658,9 +6788,9 @@
         "17.2"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; Rust has no C-style preprocessor; uses modules and declarative/procedural macros. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; Rust has no C-style preprocessor; uses modules and declarative/procedural macros. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.8",
@@ -6713,9 +6843,9 @@
         "17.2"
       ],
       "misra_rust_category": "disapplied",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; Rust uses Result<T, E> type instead of errno. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; Rust uses Result<T, E> type instead of errno. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.9",
@@ -6768,9 +6898,9 @@
         "17.2"
       ],
       "misra_rust_category": "disapplied",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; Rust uses Result<T, E> type instead of errno. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; Rust uses Result<T, E> type instead of errno. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.10",
@@ -6823,9 +6953,9 @@
         "17.2"
       ],
       "misra_rust_category": "disapplied",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; Rust uses Result<T, E> type instead of errno. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; Rust uses Result<T, E> type instead of errno. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.11",
@@ -6896,9 +7026,9 @@
         "15.9"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Safe Rust Send/Sync traits prevent data races at compile time; unsafe can bypass; Rust has Mutex<T> and RwLock<T> with RAII guards. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Safe Rust Send/Sync traits prevent data races at compile time; unsafe can bypass; Rust has Mutex<T> and RwLock<T> with RAII guards. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.13",
@@ -7065,9 +7195,9 @@
         "15.9"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Safe Rust Send/Sync traits prevent data races at compile time; unsafe can bypass; Rust has Mutex<T> and RwLock<T> with RAII guards. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Safe Rust Send/Sync traits prevent data races at compile time; unsafe can bypass; Rust has Mutex<T> and RwLock<T> with RAII guards. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.17",
@@ -7124,9 +7254,9 @@
         "15.9"
       ],
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
+      "misra_rust_comment": "only accessible through unsafe extern “C”",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Similar function semantics with stronger type checking; Rust has similar control flow with expressions. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Similar function semantics with stronger type checking; Rust has similar control flow with expressions. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.18",

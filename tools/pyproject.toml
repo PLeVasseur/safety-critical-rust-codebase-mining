@@ -8,6 +8,8 @@ dependencies = [
     "pypdf>=4.0",           # For MISRA PDF extraction
     "httpx>=0.25",          # For CERT web scraping
     "beautifulsoup4>=4.12", # For HTML parsing
+    "sentence-transformers>=3.0",  # For semantic embeddings
+    "numpy>=1.24",          # For vector operations
 ]
 
 [project.optional-dependencies]
