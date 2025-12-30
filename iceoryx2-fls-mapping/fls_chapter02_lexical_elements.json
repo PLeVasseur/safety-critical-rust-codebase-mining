@@ -1023,13 +1023,11 @@
                     "code": "let mut id = 0u64;"
                   },
                   {
-                    "file": "iceoryx2-cal/src/shared_memory_directory/reference_counter.rs",
+                    "file": "iceoryx2-cli/iox2-service/src/command/subscribe.rs",
                     "line": [
-                      34,
-                      35,
-                      36
+                      104
                     ],
-                    "code": "let to_be_removed = if self.to_be_removed { 1u64 } else { 0u64 }; ..."
+                    "code": "let mut msg_counter = 0u64;"
                   }
                 ]
               },
