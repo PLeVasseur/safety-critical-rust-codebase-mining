@@ -4,6 +4,8 @@ FLS MAPPING VALIDATION REPORT
 
 Files validated: 21
 Schema valid: 21/21
+Coverage valid: 21/21
+FLS IDs valid: 21/21
 MUST_BE_FILLED markers: 0
 Path errors: 0
 
@@ -113,5 +115,256 @@ FILE: fls_chapter22_inline_assembly.json
   OK - No issues found
 
 ============================================================
+FLS COVERAGE REPORT
+============================================================
+
+fls_chapter02_lexical_elements.json:
+  Coverage: 24/24 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) safety_critical_summary
+
+fls_chapter03_items.json:
+  Coverage: 15/15 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) safety_critical_summary
+
+fls_chapter04_types_and_traits.json:
+  Coverage: 57/57 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) safety_critical_summary
+
+fls_chapter05_patterns.json:
+  Coverage: 27/27 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) safety_critical_summary
+
+fls_chapter06_expressions.json:
+  Coverage: 58/58 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) safety_critical_summary
+
+fls_chapter07_values.json:
+  Coverage: 5/5 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) safety_critical_summary
+
+fls_chapter08_statements.json:
+  Coverage: 6/6 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) safety_critical_summary
+
+fls_chapter09_functions.json:
+  Coverage: 11/11 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) design_patterns
+    - (top-level) cross_chapter_references
+
+fls_chapter10_associated_items.json:
+  Coverage: 3/3 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) design_patterns
+    - (top-level) cross_chapter_references
+
+fls_chapter11_implementations.json:
+  Coverage: 2/2 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) cross_chapter_references
+
+fls_chapter12_generics.json:
+  Coverage: 4/4 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) design_patterns
+    - (top-level) cross_chapter_references
+
+fls_chapter13_attributes.json:
+  Coverage: 57/57 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) design_patterns
+    - (top-level) cross_chapter_references
+
+fls_chapter14_entities_resolution.json:
+  Coverage: 23/23 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) design_patterns
+    - (top-level) cross_chapter_references
+
+fls_chapter15_ownership_destruction.json:
+  Coverage: 10/10 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) design_patterns
+    - (top-level) cross_chapter_references
+
+fls_chapter16_exceptions_errors.json:
+  Coverage: 2/2 sections (100%)
+  Missing: none
+
+fls_chapter17_concurrency.json:
+  Coverage: 3/3 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) design_patterns
+    - (top-level) cross_chapter_references
+
+fls_chapter18_program_structure.json:
+  Coverage: 7/7 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) design_patterns
+    - (top-level) cross_chapter_references
+
+fls_chapter19_unsafety.json:
+  Coverage: 10/10 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) design_patterns
+    - (top-level) cross_chapter_references
+
+fls_chapter20_macros.json:
+  Coverage: 14/14 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) design_patterns
+    - (top-level) cross_chapter_references
+
+fls_chapter21_ffi.json:
+  Coverage: 4/4 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) design_patterns
+    - (top-level) cross_chapter_references
+
+fls_chapter22_inline_assembly.json:
+  Coverage: 10/10 sections (100%)
+  Missing: none
+  Extra (informational):
+    - (top-level) cross_chapter_references
+
+============================================================
+FLS ID VALIDATION
+============================================================
+
+fls_chapter02_lexical_elements.json:
+  Valid IDs: 21
+  Invalid IDs: none
+  Unmapped in FLS source: 4 (OK)
+
+fls_chapter03_items.json:
+  Valid IDs: 1
+  Invalid IDs: none
+
+fls_chapter04_types_and_traits.json:
+  Valid IDs: 50
+  Invalid IDs: none
+  Unmapped in FLS source: 8 (OK)
+
+fls_chapter05_patterns.json:
+  Valid IDs: 28
+  Invalid IDs: none
+
+fls_chapter06_expressions.json:
+  Valid IDs: 52
+  Invalid IDs: none
+  Unmapped in FLS source: 7 (OK)
+
+fls_chapter07_values.json:
+  Valid IDs: 6
+  Invalid IDs: none
+
+fls_chapter08_statements.json:
+  Valid IDs: 7
+  Invalid IDs: none
+
+fls_chapter09_functions.json:
+  Valid IDs: 1
+  Invalid IDs: none
+
+fls_chapter10_associated_items.json:
+  Valid IDs: 1
+  Invalid IDs: none
+
+fls_chapter11_implementations.json:
+  Valid IDs: 3
+  Invalid IDs: none
+
+fls_chapter12_generics.json:
+  Valid IDs: 5
+  Invalid IDs: none
+
+fls_chapter13_attributes.json:
+  Valid IDs: 54
+  Invalid IDs: none
+  Unmapped in FLS source: 4 (OK)
+
+fls_chapter14_entities_resolution.json:
+  Valid IDs: 23
+  Invalid IDs: none
+  Unmapped in FLS source: 1 (OK)
+
+fls_chapter15_ownership_destruction.json:
+  Valid IDs: 11
+  Invalid IDs: none
+
+fls_chapter16_exceptions_errors.json:
+  Valid IDs: 3
+  Invalid IDs: none
+
+fls_chapter17_concurrency.json:
+  Valid IDs: 4
+  Invalid IDs: none
+
+fls_chapter18_program_structure.json:
+  Valid IDs: 7
+  Invalid IDs: none
+  Unmapped in FLS source: 1 (OK)
+
+fls_chapter19_unsafety.json:
+  Valid IDs: 11
+  Invalid IDs: none
+
+fls_chapter20_macros.json:
+  Valid IDs: 15
+  Invalid IDs: none
+
+fls_chapter21_ffi.json:
+  Valid IDs: 5
+  Invalid IDs: none
+
+fls_chapter22_inline_assembly.json:
+  Valid IDs: 10
+  Invalid IDs: none
+  Unmapped in FLS source: 1 (OK)
+
+============================================================
+MISSING CHAPTERS
+============================================================
+
+  Chapter 1 (General): No JSON file found
+
+============================================================
 MUST_BE_FILLED INVENTORY
 ============================================================
+
+  (none)
+
+============================================================
+EXIT CODES
+============================================================
+  0 = All checks pass
+  1 = Schema validation failed
+  2 = FLS coverage check failed
+  3 = FLS ID validation failed
+  4 = Multiple failures

@@ -11,13 +11,13 @@
     "to_version": "0.8.0",
     "summary": "Logging system restructured to iceoryx2-log crate. New proc-macro crates added for FFI and conformance testing.",
     "key_changes": [
-      "Declarative macros: 16 → 28 (+75%)",
-      "Procedural macros: 2 → 6 (+200%)",
-      "Proc-macro crates: 1 → 3 (derive-macros, ffi-macros, conformance-test-macros)",
-      "#[macro_export]: 12 → 20 (+67%)",
-      "ZeroCopySend derives: 138 → 166 (+20%)",
-      "PlacementDefault derives: 11 → 20 (+82%)",
-      "assert_that! invocations: 4,571 → 5,283 (+16%)",
+      "Declarative macros: 16 \u2192 28 (+75%)",
+      "Procedural macros: 2 \u2192 6 (+200%)",
+      "Proc-macro crates: 1 \u2192 3 (derive-macros, ffi-macros, conformance-test-macros)",
+      "#[macro_export]: 12 \u2192 20 (+67%)",
+      "ZeroCopySend derives: 138 \u2192 166 (+20%)",
+      "PlacementDefault derives: 11 \u2192 20 (+82%)",
+      "assert_that! invocations: 4,571 \u2192 5,283 (+16%)",
       "Logging macros moved to iceoryx2-log/log/src/log.rs",
       "fail! macro moved to iceoryx2-log/log/src/fail.rs",
       "New CStrRepr derive macro for FFI",
@@ -257,7 +257,45 @@
           }
         }
       },
-      "samples": []
+      "samples": [],
+      "subsections": {
+        "metavariables": {
+          "fls_section": "20.1.1",
+          "fls_ids": [
+            "fls_8nzypdu9j3ge"
+          ],
+          "description": "Metavariables",
+          "status": "demonstrated",
+          "findings": {
+            "description": "Metavariables ($ident, $expr, $ty, etc.) used in 20 files across iceoryx2 macro definitions.",
+            "common_types": [
+              "$ident",
+              "$expr",
+              "$ty",
+              "$tt",
+              "$literal"
+            ],
+            "example_files": [
+              "iceoryx2-log/log/src/log.rs",
+              "iceoryx2-bb/elementary/src/enum_gen.rs"
+            ]
+          },
+          "samples": []
+        },
+        "repetition": {
+          "fls_section": "20.1.2",
+          "fls_ids": [
+            "fls_k01lsksqtq1r"
+          ],
+          "description": "Repetition",
+          "status": "demonstrated",
+          "findings": {
+            "description": "Repetition operators ($(...)*) used extensively for variadic macro arguments.",
+            "usage": "Logging macros, enum_gen!, semantic_string! all use repetition for flexible argument handling."
+          },
+          "samples": []
+        }
+      }
     },
     "procedural_macros": {
       "fls_section": "20.2",
@@ -343,7 +381,76 @@
           ]
         }
       },
-      "samples": []
+      "samples": [],
+      "subsections": {
+        "functionlike_macros": {
+          "fls_section": "20.2.1",
+          "fls_ids": [
+            "fls_2d6bqnpy6tvs"
+          ],
+          "description": "Function-like Macros",
+          "status": "not_used",
+          "findings": {
+            "description": "No function-like procedural macros (#[proc_macro]) defined in iceoryx2. All proc macros are derive or attribute macros.",
+            "count": 0
+          },
+          "samples": []
+        },
+        "derive_macros": {
+          "fls_section": "20.2.2",
+          "fls_ids": [
+            "fls_o8s3r7m90q59"
+          ],
+          "description": "Derive Macros",
+          "status": "demonstrated",
+          "findings": {
+            "description": "Three derive macros defined: PlacementDefault, ZeroCopySend (iceoryx2-bb/derive-macros), CStrRepr (iceoryx2-ffi/ffi-macros).",
+            "count": 3,
+            "macros": [
+              "PlacementDefault",
+              "ZeroCopySend",
+              "CStrRepr"
+            ]
+          },
+          "samples": [
+            {
+              "file": "iceoryx2-bb/derive-macros/src/lib.rs",
+              "line": [
+                10
+              ],
+              "code": "#[proc_macro_derive(PlacementDefault)]",
+              "purpose": "Derive macro for in-place default initialization"
+            }
+          ]
+        },
+        "attribute_macros": {
+          "fls_section": "20.2.3",
+          "fls_ids": [
+            "fls_4vjbkm4ceymk"
+          ],
+          "description": "Attribute Macros",
+          "status": "demonstrated",
+          "findings": {
+            "description": "Three attribute macros: conformance_test, conformance_test_module (conformance-test-macros), iceoryx2_ffi (ffi-macros).",
+            "count": 3,
+            "macros": [
+              "conformance_test",
+              "conformance_test_module",
+              "iceoryx2_ffi"
+            ]
+          },
+          "samples": [
+            {
+              "file": "iceoryx2-bb/conformance-test-macros/src/lib.rs",
+              "line": [
+                5
+              ],
+              "code": "#[proc_macro_attribute]",
+              "purpose": "Attribute macro for conformance testing"
+            }
+          ]
+        }
+      }
     },
     "macro_invocation": {
       "fls_section": "20.3",
@@ -417,11 +524,65 @@
       "samples": [
         {
           "file": "iceoryx2-bb/elementary/src/enum_gen.rs",
-          "line": [172],
+          "line": [
+            172
+          ],
           "code": "macro_rules! enum_gen { ... }",
           "purpose": "Generates error enums with automatic From implementations"
         }
-      ]
+      ],
+      "subsections": {
+        "macro_matching": {
+          "fls_section": "20.4.1",
+          "fls_ids": [
+            "fls_4apk1exafxii"
+          ],
+          "description": "Macro Matching",
+          "status": "demonstrated",
+          "findings": {
+            "description": "Macro matching is used by all 28 declarative macros. Pattern matching in macro_rules! is the foundation of macro expansion."
+          },
+          "samples": [],
+          "subsections": {
+            "rule_matching": {
+              "fls_section": "20.4.1.1",
+              "fls_ids": [
+                "fls_n3ktmjqf87qb"
+              ],
+              "description": "Rule Matching",
+              "status": "demonstrated",
+              "findings": {
+                "description": "Multi-rule macros use rule matching to select the appropriate expansion. enum_gen! and logging macros have multiple rules."
+              },
+              "samples": []
+            },
+            "token_matching": {
+              "fls_section": "20.4.1.2",
+              "fls_ids": [
+                "fls_qpx6lgapce57"
+              ],
+              "description": "Token Matching",
+              "status": "demonstrated",
+              "findings": {
+                "description": "Token matching occurs during macro invocation. All macro_rules! macros use token matching for pattern recognition."
+              },
+              "samples": []
+            }
+          }
+        },
+        "macro_transcription": {
+          "fls_section": "20.4.2",
+          "fls_ids": [
+            "fls_ym00b6ewf4n3"
+          ],
+          "description": "Macro Transcription",
+          "status": "demonstrated",
+          "findings": {
+            "description": "Macro transcription produces the expanded code. All declarative macros transcribe their matched patterns into Rust code."
+          },
+          "samples": []
+        }
+      }
     }
   },
   "design_patterns": {

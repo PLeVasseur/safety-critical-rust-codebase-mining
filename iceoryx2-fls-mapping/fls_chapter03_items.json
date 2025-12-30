@@ -41,9 +41,7 @@
   "sections": {
     "constant_declaration": {
       "fls_section": "3.0.1",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Constant Declaration",
       "status": "demonstrated",
       "findings": {
@@ -68,9 +66,7 @@
     },
     "enum_declaration": {
       "fls_section": "3.0.2",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Enum Declaration",
       "status": "demonstrated",
       "findings": {
@@ -97,9 +93,7 @@
     },
     "external_block": {
       "fls_section": "3.0.3",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "External Block",
       "status": "demonstrated",
       "findings": {
@@ -126,9 +120,7 @@
     },
     "external_crate_import": {
       "fls_section": "3.0.4",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "External Crate Import",
       "status": "demonstrated",
       "findings": {
@@ -207,9 +199,7 @@
     },
     "function_declaration": {
       "fls_section": "3.0.5",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Function Declaration",
       "status": "demonstrated",
       "findings": {
@@ -226,9 +216,7 @@
     },
     "implementation": {
       "fls_section": "3.0.6",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Implementation",
       "status": "demonstrated",
       "findings": {
@@ -311,9 +299,7 @@
     },
     "module_declaration": {
       "fls_section": "3.0.7",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Module Declaration",
       "status": "demonstrated",
       "findings": {
@@ -378,9 +364,7 @@
     },
     "static_declaration": {
       "fls_section": "3.0.8",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Static Declaration",
       "status": "demonstrated",
       "findings": {
@@ -407,9 +391,7 @@
     },
     "struct_declaration": {
       "fls_section": "3.0.9",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Struct Declaration",
       "status": "demonstrated",
       "findings": {
@@ -437,9 +419,7 @@
     },
     "trait_declaration": {
       "fls_section": "3.0.10",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Trait Declaration",
       "status": "demonstrated",
       "findings": {
@@ -465,9 +445,7 @@
     },
     "type_alias_declaration": {
       "fls_section": "3.0.11",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Type Alias Declaration",
       "status": "demonstrated",
       "findings": {
@@ -562,9 +540,7 @@
     },
     "union_declaration": {
       "fls_section": "3.0.12",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Union Declaration",
       "status": "demonstrated",
       "findings": {
@@ -591,9 +567,7 @@
     },
     "use_import": {
       "fls_section": "3.0.13",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Use Import",
       "status": "demonstrated",
       "findings": {
@@ -664,9 +638,7 @@
     },
     "macro_rules_declaration": {
       "fls_section": "3.0.14",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Macro Rules Declaration",
       "status": "demonstrated",
       "findings": {
@@ -725,9 +697,7 @@
     },
     "terminated_macro_invocation": {
       "fls_section": "3.0.15",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Terminated Macro Invocation",
       "status": "demonstrated",
       "findings": {

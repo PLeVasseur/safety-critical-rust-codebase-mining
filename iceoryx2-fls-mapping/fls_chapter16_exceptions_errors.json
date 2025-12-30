@@ -93,7 +93,7 @@
         "fls_hi1iz0gbnksi"
       ],
       "description": "Abort",
-      "status": "platform_abstraction_provided",
+      "status": "demonstrated",
       "findings": {
         "abort_wrapper": {
           "count": 10,
@@ -108,7 +108,8 @@
           "macos",
           "freebsd",
           "android"
-        ]
+        ],
+        "note": "Platform abstraction layer provides abort handling. See iceoryx2-pal for implementation."
       },
       "samples": [
         {

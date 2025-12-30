@@ -3,7 +3,9 @@ name = "iceoryx2-fls-tools"
 version = "0.1.0"
 description = "Tools for analyzing iceoryx2 FLS mappings across versions"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "jsonschema>=4.0",
+]
 
 [project.optional-dependencies]
 dev = [

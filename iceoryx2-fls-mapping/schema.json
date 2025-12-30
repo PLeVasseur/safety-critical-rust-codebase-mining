@@ -166,9 +166,11 @@
             "limited_use",
             "not_used",
             "not_applicable",
+            "implicit",
+            "deliberately_avoided",
             "MUST_BE_FILLED"
           ],
-          "description": "Usage status in iceoryx2"
+          "description": "Usage status in iceoryx2. 'implicit' = used by compiler/generated code, not directly. 'deliberately_avoided' = intentionally not used with specific rationale."
         },
         "findings": {
           "type": "object",

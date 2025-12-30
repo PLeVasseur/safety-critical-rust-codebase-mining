@@ -34,20 +34,7 @@
     "let_else_statements": 6,
     "expression_statements_semicolons": 45398,
     "fn_declarations": 3941,
-    "macro_statements": {
-      "assert_that": 5263,
-      "fail": 1065,
-      "fatal_panic": 320,
-      "test_requires": 93,
-      "debug_assert": 634,
-      "assert": 30,
-      "assert_eq": 17,
-      "panic": 107,
-      "unreachable": 6,
-      "todo": 6,
-      "unimplemented": 161,
-      "print_family": 437
-    }
+    "macro_statements": 8139
   },
   "sections": {
     "item_statement": {
@@ -67,13 +54,18 @@
       "samples": [
         {
           "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [65, 66],
+          "line": [
+            65,
+            66
+          ],
           "code": "const BUCKET_SIZE: usize = 128;\nconst BUCKET_ALIGNMENT: usize = 1;",
           "purpose": "Test-local constants declared inside test function"
         },
         {
           "file": "iceoryx2-services/discovery/tests/service_discovery_tracker_tests.rs",
-          "line": [32],
+          "line": [
+            32
+          ],
           "code": "const NUMBER_OF_SERVICES_ADDED: usize = 8;",
           "purpose": "Local constant for test configuration"
         }
@@ -128,19 +120,25 @@
       "samples": [
         {
           "file": "iceoryx2-bb/elementary/tests/scope_guard_tests.rs",
-          "line": [34],
+          "line": [
+            34
+          ],
           "code": "assert_that!(guard, is_ok);",
           "purpose": "Custom assertion macro for testing"
         },
         {
           "file": "iceoryx2-cal/src/zero_copy_connection/common.rs",
-          "line": [657],
+          "line": [
+            657
+          ],
           "code": "debug_assert!(channel_id.value() < self.storage.get().channels.capacity());",
           "purpose": "Debug-only invariant check"
         },
         {
           "file": "iceoryx2-cal/src/zero_copy_connection/common.rs",
-          "line": [688],
+          "line": [
+            688
+          ],
           "code": "debug_assert!(ptr.offset() % sample_size == 0);",
           "purpose": "Debug-only alignment validation"
         }
@@ -191,19 +189,25 @@
       "samples": [
         {
           "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
-          "line": [56],
+          "line": [
+            56
+          ],
           "code": "let memory = self.allocate(layout)?;",
           "purpose": "Simple let binding with error propagation"
         },
         {
           "file": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
-          "line": [36],
+          "line": [
+            36
+          ],
           "code": "let mut file = FileName::new(b\"unix_datagram_socket_tests\").unwrap();",
           "purpose": "Mutable let binding"
         },
         {
           "file": "iceoryx2-bb/posix/tests/udp_socket_tests.rs",
-          "line": [86],
+          "line": [
+            86
+          ],
           "code": "let port;",
           "purpose": "Uninitialized binding - must be assigned before use"
         }
@@ -229,13 +233,17 @@
       "samples": [
         {
           "file": "iceoryx2-bb/posix/tests/signal_tests.rs",
-          "line": [45],
+          "line": [
+            45
+          ],
           "code": "COUNTER.fetch_add(1, Ordering::Relaxed);",
           "purpose": "Expression statement for atomic increment side effect"
         },
         {
           "file": "iceoryx2-bb/testing/src/lifetime_tracker.rs",
-          "line": [40],
+          "line": [
+            40
+          ],
           "code": "*DROP_COUNTER.lock().unwrap() += 1;",
           "purpose": "Expression statement for mutex-guarded update"
         }

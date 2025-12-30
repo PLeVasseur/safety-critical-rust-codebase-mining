@@ -36,9 +36,7 @@
   "sections": {
     "constant_declaration": {
       "fls_section": "10.0.1",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Constant Declaration",
       "status": "demonstrated",
       "findings": {
@@ -71,9 +69,7 @@
     },
     "function_declaration": {
       "fls_section": "10.0.2",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Function Declaration",
       "status": "demonstrated",
       "findings": {
@@ -108,9 +104,7 @@
     },
     "type_alias_declaration": {
       "fls_section": "10.0.3",
-      "fls_ids": [
-        "fls_extracted_from_syntax_block"
-      ],
+      "fls_ids": [],
       "description": "Type Alias Declaration",
       "status": "demonstrated",
       "findings": {

@@ -15,7 +15,20 @@ The FLS mapping files in `iceoryx2-fls-mapping/` document how iceoryx2 uses vari
 
 **All chapters updated to v0.8.0** - Completed 2025-12-30
 
+- 21 chapter JSON files (chapters 2-22)
+- 0 MUST_BE_FILLED markers remaining
+- All files pass schema validation
+- Chapter 1 (General) intentionally excluded (metadata, not language constructs)
+
 Next update required when iceoryx2 v0.9.0 or later is released.
+
+### Recent Updates (2025-12-30)
+
+1. **Fixed Chapter 13 JSON structure** - Subsections for `builtin_attributes` had escaped to become siblings instead of children. Restructured to properly nest all 13.2.x sections inside `builtin_attributes.subsections`.
+
+2. **Enhanced validation script** - Added FLS coverage checking, FLS ID validation, and section hierarchy validation. See [Validation](#validation) section below.
+
+3. **Dependency management cleanup** - `jsonschema` is now a required dependency in `pyproject.toml`, managed via `uv`.
 
 ## Repository Structure
 
@@ -38,6 +51,7 @@ eclipse-iceoryx2-actionanable-safety-certification/
 │   ├── fls_chapter13_attributes.json
 │   ├── fls_chapter14_entities_resolution.json
 │   ├── fls_chapter15_ownership_destruction.json
+│   ├── fls_chapter16_exceptions_errors.json
 │   ├── fls_chapter17_concurrency.json
 │   ├── fls_chapter18_program_structure.json
 │   ├── fls_chapter19_unsafety.json
@@ -120,17 +134,62 @@ python tools/validate_fls_json.py
 
 ### Validation
 
-To validate all JSON files against the schema:
+To validate all JSON files:
 
 ```bash
-pip install jsonschema
-python tools/validate_fls_json.py
+# Run with uv (recommended - handles dependencies automatically)
+uv run python tools/validate_fls_json.py
+
+# Limit coverage check depth (e.g., top-level sections only)
+uv run python tools/validate_fls_json.py --depth=1
+
+# Validate a specific file
+uv run python tools/validate_fls_json.py --file=fls_chapter13_attributes.json
 ```
 
-The validation script checks:
-- Schema compliance
-- `MUST_BE_FILLED` marker inventory
-- Sample file path existence in cached iceoryx2 repo
+The validation script performs comprehensive checks:
+
+| Check | Description |
+|-------|-------------|
+| **Schema validation** | Validates JSON structure against `schema.json` |
+| **MUST_BE_FILLED detection** | Finds placeholder markers needing completion |
+| **Sample path validation** | Verifies code sample paths exist in iceoryx2 repo |
+| **FLS coverage check** | Ensures all FLS sections from `fls_section_mapping.json` are documented |
+| **FLS ID validation** | Verifies `fls_ids` match canonical FLS identifiers |
+| **Section hierarchy validation** | Checks `fls_section` numbering is well-formed (X.Y.Z pattern) |
+
+#### Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | All checks pass |
+| 1 | Schema validation failed (invalid JSON structure) |
+| 2 | FLS coverage check failed (missing required sections) |
+| 3 | FLS ID validation failed (invalid IDs found) |
+| 4 | Multiple failures (combination of above) |
+
+#### FLS Section Mapping
+
+The file `tools/fls_section_mapping.json` contains the canonical FLS section hierarchy extracted from the FLS RST source files. It includes:
+- All section numbers (e.g., 13.1, 13.2, 13.2.1)
+- Section titles
+- FLS IDs (where available - some sections have `null` if no anchor in source)
+
+Sections marked with `fls_extracted_from_syntax_block` were programmatically extracted from syntax blocks in the FLS source and don't have native FLS ID anchors.
+
+#### FLS Section Number Encoding
+
+For FLS content that doesn't have traditional section headings, we use a special encoding with negative numbers:
+
+| Pattern | Meaning | Example |
+|---------|---------|---------|
+| `X.Y` | Standard sections | `8.1` (Let Statements) |
+| `X.0.Y` | Syntax block productions | (extracted from `.. syntax::` blocks) |
+| `X.-1.Y` | Top-level unsorted items | (items before first heading) |
+| `X.-2.Y` | Legality rules | `8.-2.1` (Item Statement legality rule) |
+| `X.-3.Y` | Dynamic semantics | `8.-3.1` (Empty Statement Execution) |
+
+This encoding allows us to reference and track FLS content that exists outside the traditional section hierarchy, particularly legality rules and dynamic semantics which are critical for safety certification.
 
 ### Normalization
 
@@ -378,6 +437,7 @@ Update line numbers as needed.
 - [x] Chapter 13 - Attributes
 - [x] Chapter 14 - Entities Resolution
 - [x] Chapter 15 - Ownership Destruction
+- [x] Chapter 16 - Exceptions and Errors
 - [x] Chapter 17 - Concurrency
 - [x] Chapter 18 - Program Structure
 - [x] Chapter 19 - Unsafety

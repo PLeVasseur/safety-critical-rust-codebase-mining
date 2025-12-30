@@ -162,59 +162,83 @@
         "change_from_v0_7_0": "static mut increased from 3 to 14 (+367%)",
         "with_atomics": "Primary pattern for thread-safe global state"
       },
-      "samples": {
-        "immutable_statics": [
-          {
-            "path": "iceoryx2-bb/posix/tests/signal_tests.rs",
-            "lines": "28-30",
-            "code": "static COUNTER: AtomicUsize = AtomicUsize::new(0);\nstatic SIGNAL: AtomicUsize = AtomicUsize::new(posix::MAX_SIGNAL_VALUE);\nstatic LOCK: Mutex<i32> = Mutex::new(0);"
-          },
-          {
-            "path": "iceoryx2/src/node/mod.rs",
-            "lines": "536",
-            "code": "static IN_CLEANUP_SECTION: AtomicBool = AtomicBool::new(false);"
-          },
-          {
-            "path": "iceoryx2-pal/posix/src/linux/errno.rs",
-            "lines": "162",
-            "code": "static IS_LOCKED: AtomicBool = AtomicBool::new(false);"
-          },
-          {
-            "path": "examples/rust/service_types/local_pubsub.rs",
-            "lines": "24",
-            "code": "static KEEP_RUNNING: AtomicBool = AtomicBool::new(true);"
-          }
-        ],
-        "mutable_statics": [
-          {
-            "path": "iceoryx2-pal/posix/src/windows/socket.rs",
-            "lines": "51-52",
-            "code": "static mut WSA_INSTANCE: OnceCell<GlobalWsaInitializer> = OnceCell::new();\nstatic mut INITIALIZATION_STATE: AtomicU8 = AtomicU8::new(0);"
-          },
-          {
-            "path": "iceoryx2-log/log/src/lib.rs",
-            "lines": "144",
-            "code": "static mut LOGGER: Option<&'static dyn Log> = None;"
-          },
-          {
-            "path": "iceoryx2-ffi/c/src/api/log.rs",
-            "lines": "79",
-            "code": "static mut LOGGER: Option<CLogger> = None;"
-          }
-        ],
-        "lazy_static": [
-          {
-            "path": "iceoryx2-cal/src/static_storage/process_local.rs",
-            "lines": "71",
-            "code": "lazy_static! {"
-          },
-          {
-            "path": "iceoryx2-cal/src/communication_channel/process_local.rs",
-            "lines": "55",
-            "code": "lazy_static! {"
-          }
-        ]
-      }
+      "samples": [
+        {
+          "file": "iceoryx2-bb/posix/tests/signal_tests.rs",
+          "line": [
+            28,
+            29,
+            30
+          ],
+          "code": "static COUNTER: AtomicUsize = AtomicUsize::new(0);\nstatic SIGNAL: AtomicUsize = AtomicUsize::new(posix::MAX_SIGNAL_VALUE);\nstatic LOCK: Mutex<i32> = Mutex::new(0);",
+          "purpose": "immutable_statics: static declaration"
+        },
+        {
+          "file": "iceoryx2/src/node/mod.rs",
+          "line": [
+            536
+          ],
+          "code": "static IN_CLEANUP_SECTION: AtomicBool = AtomicBool::new(false);",
+          "purpose": "immutable_statics: static declaration"
+        },
+        {
+          "file": "iceoryx2-pal/posix/src/linux/errno.rs",
+          "line": [
+            162
+          ],
+          "code": "static IS_LOCKED: AtomicBool = AtomicBool::new(false);",
+          "purpose": "immutable_statics: static declaration"
+        },
+        {
+          "file": "examples/rust/service_types/local_pubsub.rs",
+          "line": [
+            24
+          ],
+          "code": "static KEEP_RUNNING: AtomicBool = AtomicBool::new(true);",
+          "purpose": "immutable_statics: static declaration"
+        },
+        {
+          "file": "iceoryx2-pal/posix/src/windows/socket.rs",
+          "line": [
+            51,
+            52
+          ],
+          "code": "static mut WSA_INSTANCE: OnceCell<GlobalWsaInitializer> = OnceCell::new();\nstatic mut INITIALIZATION_STATE: AtomicU8 = AtomicU8::new(0);",
+          "purpose": "mutable_statics: static declaration"
+        },
+        {
+          "file": "iceoryx2-log/log/src/lib.rs",
+          "line": [
+            144
+          ],
+          "code": "static mut LOGGER: Option<&'static dyn Log> = None;",
+          "purpose": "mutable_statics: static declaration"
+        },
+        {
+          "file": "iceoryx2-ffi/c/src/api/log.rs",
+          "line": [
+            79
+          ],
+          "code": "static mut LOGGER: Option<CLogger> = None;",
+          "purpose": "mutable_statics: static declaration"
+        },
+        {
+          "file": "iceoryx2-cal/src/static_storage/process_local.rs",
+          "line": [
+            71
+          ],
+          "code": "lazy_static! {",
+          "purpose": "lazy_static: static declaration"
+        },
+        {
+          "file": "iceoryx2-cal/src/communication_channel/process_local.rs",
+          "line": [
+            55
+          ],
+          "code": "lazy_static! {",
+          "purpose": "lazy_static: static declaration"
+        }
+      ]
     },
     "temporaries": {
       "fls_section": "7.3",
@@ -236,19 +260,25 @@
       "samples": [
         {
           "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [50],
+          "line": [
+            50
+          ],
           "code": "(TestFixture::memory_size() / core::cmp::max(size, align)) as u32 - 1",
           "purpose": "Arithmetic expression creates temporaries for intermediate values"
         },
         {
           "file": "iceoryx2-bb/linux/tests/signal_fd_tests.rs",
-          "line": [34],
+          "line": [
+            34
+          ],
           "code": "let sut = SignalFdBuilder::new(signals).create_non_blocking().unwrap();",
           "purpose": "Builder pattern creates temporary SignalFdBuilder"
         },
         {
           "file": "iceoryx2-bb/linux/tests/signal_fd_tests.rs",
-          "line": [46],
+          "line": [
+            46
+          ],
           "code": "assert_that!(signal.origin_pid(), eq Process::from_self().id());",
           "purpose": "Method chain creates temporary Process instance"
         }
@@ -273,32 +303,40 @@
         "ratio": "16.1% of bindings are mutable",
         "change_from_v0_7_0": "+3680 let bindings (+34%), +655 let mut bindings (+39%)"
       },
-      "samples": {
-        "immutable_bindings": [
-          {
-            "path": "iceoryx2-bb/elementary-traits/src/allocator.rs",
-            "lines": "56",
-            "code": "let memory = self.allocate(layout)?;"
-          },
-          {
-            "path": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-            "lines": "68",
-            "code": "let sut = test.create_pool_allocator(BUCKET_SIZE, BUCKET_ALIGNMENT);"
-          }
-        ],
-        "mutable_bindings": [
-          {
-            "path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
-            "lines": "36",
-            "code": "let mut file = FileName::new(b\"unix_datagram_socket_tests\").unwrap();"
-          },
-          {
-            "path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
-            "lines": "110",
-            "code": "let mut receive_data: Vec<u8> = vec![0; 6];"
-          }
-        ]
-      },
+      "samples": [
+        {
+          "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
+          "line": [
+            56
+          ],
+          "code": "let memory = self.allocate(layout)?;",
+          "purpose": "immutable_bindings: let memory = self.allocate(layout)?;..."
+        },
+        {
+          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
+          "line": [
+            68
+          ],
+          "code": "let sut = test.create_pool_allocator(BUCKET_SIZE, BUCKET_ALIGNMENT);",
+          "purpose": "immutable_bindings: let sut = test.create_pool_allocator(BUCKET_SIZE, ..."
+        },
+        {
+          "file": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
+          "line": [
+            36
+          ],
+          "code": "let mut file = FileName::new(b\"unix_datagram_socket_tests\").unwrap();",
+          "purpose": "mutable_bindings: let mut file = FileName::new(b\"unix_datagram_socke..."
+        },
+        {
+          "file": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
+          "line": [
+            110
+          ],
+          "code": "let mut receive_data: Vec<u8> = vec![0; 6];",
+          "purpose": "mutable_bindings: let mut receive_data: Vec<u8> = vec![0; 6];..."
+        }
+      ],
       "subsections": {
         "constant_promotion": {
           "fls_section": "7.4.1",
@@ -318,7 +356,11 @@
           "samples": [
             {
               "file": "iceoryx2-userland/record-and-replay/tests/recorder_tests.rs",
-              "line": [73, 74, 75],
+              "line": [
+                73,
+                74,
+                75
+              ],
               "code": "system_header: &[0u8; 8],\nuser_header: &[0u8; 0],\npayload: &[0u8; 8],",
               "purpose": "Literal arrays promoted to static lifetime for test fixtures"
             }
