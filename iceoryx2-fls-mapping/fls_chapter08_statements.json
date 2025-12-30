@@ -53,29 +53,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            65,
-            66
-          ],
-          "code": "const BUCKET_SIZE: usize = 128;\nconst BUCKET_ALIGNMENT: usize = 1;",
-          "purpose": "Test-local constants declared inside test function"
+          "file": "iceoryx2/src/service/builder/request_response.rs",
+          "line": [792],
+          "code": "const OPEN_RETRY_LIMIT: usize = 5;",
+          "purpose": "Local constant inside function defining retry limit for service opening"
         },
         {
-          "file": "iceoryx2-services/discovery/tests/service_discovery_tracker_tests.rs",
-          "line": [
-            32
-          ],
-          "code": "const NUMBER_OF_SERVICES_ADDED: usize = 8;",
-          "purpose": "Local constant for test configuration"
+          "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+          "line": [615],
+          "code": "const FLAGS: i32 = 0;",
+          "purpose": "Inner constant for sendmsg flags inside send_msg method"
         },
         {
-          "file": "iceoryx2-log/types/src/lib.rs",
-          "line": [
-            18
-          ],
-          "code": "pub enum LogLevel {",
-          "purpose": "Demonstrates ^\\s*(pub\\s+)?(fn|struct|enum|const|static|type|tra..."
+          "file": "iceoryx2-bb/posix/src/directory.rs",
+          "line": [458],
+          "code": "const DOT: posix::c_char = b'.' as _;",
+          "purpose": "Local constant for dot character comparison in directory iteration"
         }
       ],
       "count": 22288
@@ -129,28 +122,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/elementary/tests/scope_guard_tests.rs",
-          "line": [
-            34
-          ],
-          "code": "assert_that!(guard, is_ok);",
-          "purpose": "Custom assertion macro for testing"
+          "file": "iceoryx2-bb/memory/src/pool_allocator.rs",
+          "line": [78, 79, 80],
+          "code": "debug_assert!(\n    self.is_memory_initialized.load(Ordering::Relaxed),\n    \"From: {self:?}, Undefined behavior when calling \\\"{source}\\\" and the object is not initialized.\"\n);",
+          "purpose": "Debug assertion verifying memory initialization before operations"
         },
         {
           "file": "iceoryx2-cal/src/zero_copy_connection/common.rs",
-          "line": [
-            657
-          ],
+          "line": [657],
           "code": "debug_assert!(channel_id.value() < self.storage.get().channels.capacity());",
-          "purpose": "Debug-only invariant check"
+          "purpose": "Debug-only invariant check for channel ID bounds"
         },
         {
           "file": "iceoryx2-cal/src/zero_copy_connection/common.rs",
-          "line": [
-            688
-          ],
+          "line": [688],
           "code": "debug_assert!(ptr.offset() % sample_size == 0);",
-          "purpose": "Debug-only alignment validation"
+          "purpose": "Debug-only alignment validation for sample offsets"
         }
       ],
       "count": 10953
@@ -201,28 +188,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
-          "line": [
-            56
-          ],
-          "code": "let memory = self.allocate(layout)?;",
-          "purpose": "Simple let binding with error propagation"
+          "file": "iceoryx2/src/config.rs",
+          "line": [237, 238],
+          "code": "let mut path = *self.root_path();\npath.add_path_entry(&self.service.directory).unwrap();",
+          "purpose": "Mutable let binding for path construction with method chaining"
         },
         {
-          "file": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
-          "line": [
-            36
-          ],
-          "code": "let mut file = FileName::new(b\"unix_datagram_socket_tests\").unwrap();",
-          "purpose": "Mutable let binding"
+          "file": "iceoryx2/src/node/mod.rs",
+          "line": [552],
+          "code": "let mut cleanup_failure = Ok(());",
+          "purpose": "Mutable let binding initialized to Ok for accumulating errors"
         },
         {
-          "file": "iceoryx2-bb/posix/tests/udp_socket_tests.rs",
-          "line": [
-            86
-          ],
-          "code": "let port;",
-          "purpose": "Uninitialized binding - must be assigned before use"
+          "file": "iceoryx2-bb/posix/src/shared_memory.rs",
+          "line": [288, 289, 290],
+          "code": "let shm_created;\nlet mut fd = match self\n    .config",
+          "purpose": "Uninitialized binding pattern - shm_created must be assigned in all match arms before use"
         }
       ],
       "count": 13605
@@ -246,28 +227,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/posix/tests/signal_tests.rs",
-          "line": [
-            45
-          ],
-          "code": "COUNTER.fetch_add(1, Ordering::Relaxed);",
-          "purpose": "Expression statement for atomic increment side effect"
+          "file": "iceoryx2/src/waitset.rs",
+          "line": [558],
+          "code": "self.attachment_counter.fetch_add(1, Ordering::Relaxed);",
+          "purpose": "Expression statement for atomic counter increment (side effect only)"
         },
         {
-          "file": "iceoryx2-bb/testing/src/lifetime_tracker.rs",
-          "line": [
-            40
-          ],
-          "code": "*DROP_COUNTER.lock().unwrap() += 1;",
-          "purpose": "Expression statement for mutex-guarded update"
+          "file": "iceoryx2-bb/lock-free/src/spsc/safely_overflowing_index_queue.rs",
+          "line": [318, 319],
+          "code": "self.write_position\n    .store(write_position + 1, Ordering::Release);",
+          "purpose": "Expression statement for atomic store with release ordering"
         },
         {
-          "file": "iceoryx2/tests/service_static_config_tests.rs",
-          "line": [
-            15
-          ],
-          "code": "use iceoryx2::service::static_config::message_type_details::{TypeDetail, TypeVariant};",
-          "purpose": "Demonstrates ;\\s*$..."
+          "file": "iceoryx2-bb/lock-free/src/spsc/queue.rs",
+          "line": [67],
+          "code": "self.queue.has_producer.store(true, Ordering::Relaxed);",
+          "purpose": "Expression statement for atomic flag update in producer registration"
         }
       ],
       "count": 45398
@@ -281,18 +256,14 @@
           "fls_reference": "8.1:15 - binding is uninitialized if no let initializer",
           "samples": [
             {
-              "file": "iceoryx2-bb/posix/tests/udp_socket_tests.rs",
-              "line": [
-                86
-              ],
-              "code": "let port; // Must be assigned before use"
+              "file": "iceoryx2-bb/posix/src/shared_memory.rs",
+              "line": [288],
+              "code": "let shm_created; // Must be assigned in all match arms before use"
             },
             {
-              "file": "iceoryx2-bb/elementary/src/math.rs",
-              "line": [
-                43
-              ],
-              "code": "let mut remainder; // Assigned in loop"
+              "file": "iceoryx2-bb/posix/src/semaphore.rs",
+              "line": [490],
+              "code": "let msg; // Assigned conditionally before use"
             }
           ]
         },

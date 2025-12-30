@@ -56,29 +56,21 @@
       "samples": [
         {
           "file": "iceoryx2-bb/posix/src/mutex.rs",
-          "line": [
-            281,
-            282,
-            283
-          ],
+          "line": [281, 282, 283],
           "code": "pub fn new() -> Self { Self::default() }",
-          "purpose": "Constructor following Rust naming conventions"
+          "purpose": "Public constructor following Rust new() naming convention"
         },
         {
-          "file": "iceoryx2-pal/concurrency-sync/tests/semaphore_tests.rs",
-          "line": [
-            24
-          ],
-          "code": "fn semaphore_post_and_try_wait_works() {",
-          "purpose": "Demonstrates fn\\s+\\w+..."
+          "file": "iceoryx2/src/config.rs",
+          "line": [236, 237, 238, 239, 240],
+          "code": "pub fn service_dir(&self) -> Path {\n    let mut path = *self.root_path();\n    path.add_path_entry(&self.service.directory).unwrap();\n    path\n}",
+          "purpose": "Public getter function returning computed Path value"
         },
         {
-          "file": "iceoryx2-bb/trait-tests/tests/semantic_string_tests.rs",
-          "line": [
-            25
-          ],
-          "code": "fn display_error_enum_works() {",
-          "purpose": "Demonstrates fn\\s+\\w+..."
+          "file": "iceoryx2/src/config.rs",
+          "line": [622],
+          "code": "pub fn from_file(config_file: &FilePath) -> Result<Config, ConfigCreationError> {",
+          "purpose": "Associated function for constructing Config from file"
         }
       ],
       "count": 9977
@@ -98,31 +90,21 @@
       "samples": [
         {
           "file": "iceoryx2-bb/elementary/src/lazy_singleton.rs",
-          "line": [
-            60,
-            61,
-            62
-          ],
+          "line": [60, 61, 62],
           "code": "pub const fn new() -> Self { ... }",
-          "purpose": "const fn constructor for compile-time initialization"
+          "purpose": "const fn constructor enabling compile-time singleton initialization"
         },
         {
           "file": "iceoryx2-ffi/c/src/api/service_name.rs",
-          "line": [
-            125,
-            126,
-            127
-          ],
+          "line": [125, 126, 127],
           "code": "#[no_mangle] pub unsafe extern \"C\" fn iox2_service_name_new(...)",
-          "purpose": "extern C function for FFI"
+          "purpose": "FFI function with extern C ABI, unsafe for raw pointer handling"
         },
         {
-          "file": "iceoryx2-pal/testing/src/memory.rs",
-          "line": [
-            69
-          ],
-          "code": "pub unsafe fn assume_init(&self) -> &T {",
-          "purpose": "Demonstrates (async|unsafe|const|extern)\\s+fn..."
+          "file": "iceoryx2-bb/posix/src/mutex.rs",
+          "line": [552],
+          "code": "pub fn lock(&self) -> Result<MutexGuard<T>, MutexLockError<T>>",
+          "purpose": "Public function with Result return type for fallible mutex acquisition"
         }
       ],
       "count": 1876
@@ -138,29 +120,21 @@
       "samples": [
         {
           "file": "iceoryx2-ffi/c/src/api/service_name.rs",
-          "line": [
-            126,
-            127,
-            128
-          ],
+          "line": [126, 127, 128],
           "code": "service_name_struct_ptr: *mut iox2_service_name_t, service_name_str: *const c_char",
-          "purpose": "C-compatible parameter list"
+          "purpose": "C-compatible raw pointer parameters for FFI function"
         },
         {
-          "file": "iceoryx2-userland/record-and-replay/tests/recorder_replayer_tests.rs",
-          "line": [
-            35
-          ],
-          "code": "fn generate_type_detail(variant: TypeVariant, size: usize, alignment: usize) -> TypeDetail {",
-          "purpose": "Demonstrates fn\\s+\\w+\\s*\\([^)]+\\)..."
-        },
-        {
-          "file": "iceoryx2/src/waitset.rs",
-          "line": [
-            265
-          ],
+          "file": "iceoryx2/src/sample.rs",
+          "line": [76],
           "code": "fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {",
-          "purpose": "Demonstrates fn\\s+\\w+\\s*\\([^)]+\\)..."
+          "purpose": "Debug trait implementation with self and formatter parameters"
+        },
+        {
+          "file": "iceoryx2/src/service/dynamic_config/request_response.rs",
+          "line": [182],
+          "code": "pub fn list_servers<F: FnMut(&ServerDetails) -> CallbackProgression>(&self, mut callback: F)",
+          "purpose": "Generic parameter with FnMut trait bound for callback"
         }
       ],
       "count": 5591
@@ -177,27 +151,21 @@
       "samples": [
         {
           "file": "iceoryx2/src/service/dynamic_config/request_response.rs",
-          "line": [
-            182
-          ],
+          "line": [182],
           "code": "pub fn list_servers<F: FnMut(&ServerDetails) -> CallbackProgression>(&self, mut callback: F)",
-          "purpose": "Callback parameter with FnMut trait bound"
+          "purpose": "Function with mut callback parameter for iteration with early exit"
         },
         {
-          "file": "component-tests/rust/src/test_containers.rs",
-          "line": [
-            127
-          ],
-          "code": "fn test_name(&self) -> &'static str {",
-          "purpose": "Demonstrates fn\\s+\\w+\\s*\\([^)]+\\)..."
+          "file": "iceoryx2-bb/container/src/semantic_string.rs",
+          "line": [83],
+          "code": "fn from(value: StringModificationError) -> Self {",
+          "purpose": "From trait parameter for type conversion"
         },
         {
-          "file": "iceoryx2/conformance-tests/src/writer.rs",
-          "line": [
-            235
-          ],
-          "code": "fn cmp_for_foo(lhs: *const u8, rhs: *const u8) -> bool {",
-          "purpose": "Demonstrates fn\\s+\\w+\\s*\\([^)]+\\)..."
+          "file": "iceoryx2/src/config.rs",
+          "line": [255],
+          "code": "pub fn set_root_path(&mut self, value: &Path) {",
+          "purpose": "Setter function with &mut self and reference parameter"
         }
       ],
       "count": 5591
@@ -215,28 +183,22 @@
       },
       "samples": [
         {
+          "file": "iceoryx2-bb/container/src/semantic_string.rs",
+          "line": [83, 84],
+          "code": "fn from(value: StringModificationError) -> Self {\n    match value {",
+          "purpose": "Simple identifier pattern in From trait implementation"
+        },
+        {
+          "file": "iceoryx2/src/config.rs",
+          "line": [622],
+          "code": "pub fn from_file(config_file: &FilePath) -> Result<Config, ConfigCreationError> {",
+          "purpose": "Reference parameter pattern with explicit type annotation"
+        },
+        {
           "file": "iceoryx2-services/discovery/src/service_discovery/tracker.rs",
-          "line": [
-            43
-          ],
-          "code": "fn from(error: ServiceListError) -> Self {",
-          "purpose": "Demonstrates fn\\s+\\w+\\s*\\(\\s*\\w+\\s*:..."
-        },
-        {
-          "file": "iceoryx2-ffi/python/src/waitset_run_result.rs",
-          "line": [
-            37
-          ],
-          "code": "fn from(value: iceoryx2::waitset::WaitSetRunResult) -> Self {",
-          "purpose": "Demonstrates fn\\s+\\w+\\s*\\(\\s*\\w+\\s*:..."
-        },
-        {
-          "file": "iceoryx2-ffi/python/src/waitset_attachment_id.rs",
-          "line": [
-            34
-          ],
-          "code": "pub fn from_guard(guard: &WaitSetGuard) -> Self {",
-          "purpose": "Demonstrates fn\\s+\\w+\\s*\\(\\s*\\w+\\s*:..."
+          "line": [43, 44, 45],
+          "code": "fn from(error: ServiceListError) -> Self {\n    match error {\n        ServiceListError::InsufficientPermissions => Self::InsufficientPermissions,",
+          "purpose": "Owned parameter in From impl for error type conversion"
         }
       ],
       "count": 2047
@@ -305,28 +267,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/trait-tests/tests/semantic_string_tests.rs",
-          "line": [
-            25
-          ],
-          "code": "fn display_error_enum_works() {",
-          "purpose": "Demonstrates fn\\s+\\w+[^{]*\\{..."
+          "file": "iceoryx2-bb/concurrency/src/spin_lock.rs",
+          "line": [119, 120, 121],
+          "code": "fn drop(&mut self) {\n    self.lock.locked.store(false, Ordering::Release);\n}",
+          "purpose": "Drop implementation releasing SpinLock with atomic release ordering"
         },
         {
-          "file": "iceoryx2-pal/testing/src/watchdog.rs",
-          "line": [
-            24
-          ],
-          "code": "fn drop(&mut self) {",
-          "purpose": "Demonstrates fn\\s+\\w+[^{]*\\{..."
+          "file": "iceoryx2/src/sample.rs",
+          "line": [76, 77, 78, 79],
+          "code": "fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {\n    write!(\n        f,\n        \"Sample<{}, {}, {}> {{ ptr: {:?}, details: {:?} }}\",",
+          "purpose": "Debug trait implementation with structured write! macro"
         },
         {
-          "file": "iceoryx2-pal/testing/src/memory.rs",
-          "line": [
-            23
-          ],
-          "code": "fn drop(&mut self) {",
-          "purpose": "Demonstrates fn\\s+\\w+[^{]*\\{..."
+          "file": "iceoryx2-bb/container/src/semantic_string.rs",
+          "line": [83, 84, 85, 86],
+          "code": "fn from(value: StringModificationError) -> Self {\n    match value {\n        StringModificationError::InsertWouldExceedCapacity => {\n            SemanticStringError::ExceedsMaximumLength",
+          "purpose": "From trait body with match expression for error conversion"
         }
       ],
       "count": 7904
@@ -344,29 +300,21 @@
       "samples": [
         {
           "file": "iceoryx2-bb/posix/src/mutex.rs",
-          "line": [
-            286,
-            287,
-            288
-          ],
-          "code": "pub fn clock_type(mut self, clock_type: ClockType) -> Self { ... }",
-          "purpose": "mut self for builder pattern"
+          "line": [286, 287, 288, 289],
+          "code": "pub fn clock_type(mut self, clock_type: ClockType) -> Self {\n    self.clock_type = clock_type;\n    self\n}",
+          "purpose": "Builder method taking mut self by value, returning Self"
         },
         {
-          "file": "iceoryx2-userland/record-and-replay/src/replayer.rs",
-          "line": [
-            129
-          ],
-          "code": "fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {",
-          "purpose": "Demonstrates fn\\s+\\w+\\s*\\(\\s*&?self|fn\\s+\\w+\\s*\\(\\s*&?mut\\s+sel..."
+          "file": "iceoryx2/src/config.rs",
+          "line": [250],
+          "code": "pub fn root_path(&self) -> &Path {",
+          "purpose": "Getter method taking &self, returning reference"
         },
         {
-          "file": "iceoryx2/src/waitset.rs",
-          "line": [
-            265
-          ],
-          "code": "fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {",
-          "purpose": "Demonstrates fn\\s+\\w+\\s*\\(\\s*&?self|fn\\s+\\w+\\s*\\(\\s*&?mut\\s+sel..."
+          "file": "iceoryx2-bb/concurrency/src/spin_lock.rs",
+          "line": [119, 120],
+          "code": "fn drop(&mut self) {\n    self.lock.locked.store(false, Ordering::Release);",
+          "purpose": "Drop trait taking &mut self for cleanup"
         }
       ],
       "count": 3542
@@ -399,28 +347,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-userland/record-and-replay/src/replayer.rs",
-          "line": [
-            130
-          ],
-          "code": "write!(f, \"ReplayerOpenError::{self:?}\")",
-          "purpose": "Demonstrates self\\s*:\\s*..."
+          "file": "iceoryx2/src/sample.rs",
+          "line": [77, 78, 79, 80],
+          "code": "write!(\n    f,\n    \"Sample<{}, {}, {}> {{ ptr: {:?}, details: {:?} }}\",\n    core::any::type_name::<Payload>(),",
+          "purpose": "Debug formatting using self in write! macro"
         },
         {
-          "file": "iceoryx2-ffi/python/src/waitset_run_result.rs",
-          "line": [
-            32
-          ],
-          "code": "format!(\"{self:?}\")",
-          "purpose": "Demonstrates self\\s*:\\s*..."
+          "file": "iceoryx2/src/waitset.rs",
+          "line": [265, 266],
+          "code": "fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {\n    write!(f, \"WaitSetAttachmentError::{self:?}\")",
+          "purpose": "Display impl using {self:?} format specifier"
         },
         {
-          "file": "iceoryx2-ffi/python/src/unable_to_deliver_strategy.rs",
-          "line": [
-            30
-          ],
-          "code": "format!(\"{self:?}\")",
-          "purpose": "Demonstrates self\\s*:\\s*..."
+          "file": "iceoryx2/src/node/mod.rs",
+          "line": [245, 246, 247],
+          "code": "fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {\n    write!(f, \"NodeId {{ value: {:?} }}\", self.value)",
+          "purpose": "Debug formatting accessing self.value in write! macro"
         }
       ],
       "count": 186

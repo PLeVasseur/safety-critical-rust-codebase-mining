@@ -150,28 +150,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-services/discovery/tests/service_discovery_tracker_tests.rs",
-          "line": [
-            32
-          ],
-          "code": "const NUMBER_OF_SERVICES_ADDED: usize = 8;",
-          "purpose": "Demonstrates =\\s*[^=]..."
+          "file": "iceoryx2/src/waitset.rs",
+          "line": [501, 502, 503],
+          "code": "let deadline_queue = fail!(from self, when DeadlineQueueBuilder::new().create(),\n        with WaitSetCreateError::InternalError,\n        \"{msg} since the underlying Timer could not be created.\");",
+          "purpose": "Initialization via builder pattern with error handling"
         },
         {
-          "file": "iceoryx2-cal/tests/zero_copy_connection_posix_shared_memory_tests.rs",
-          "line": [
-            26
-          ],
-          "code": "const TIMEOUT: Duration = Duration::from_millis(100);",
-          "purpose": "Demonstrates =\\s*[^=]..."
+          "file": "iceoryx2/src/config.rs",
+          "line": [237, 238],
+          "code": "let mut path = *self.root_path();\npath.add_path_entry(&self.service.directory).unwrap();",
+          "purpose": "Initialization with copy and subsequent mutation"
         },
         {
-          "file": "iceoryx2-cal/tests/used_chunk_list_tests.rs",
-          "line": [
-            22
-          ],
-          "code": "let mut sut = FixedSizeUsedChunkList::<CAPACITY>::new();",
-          "purpose": "Demonstrates =\\s*[^=]..."
+          "file": "iceoryx2-bb/posix/src/mutex.rs",
+          "line": [281],
+          "code": "pub fn new() -> Self { Self::default() }",
+          "purpose": "Constructor initialization returning new instance"
         }
       ],
       "count": 30042
@@ -260,28 +254,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/trait-tests/tests/semantic_string_tests.rs",
-          "line": [
-            238
-          ],
-          "code": "let result = sut.insert_bytes(0, &bytes);",
-          "purpose": "Demonstrates &\\w|&mut\\s..."
+          "file": "iceoryx2/src/waitset.rs",
+          "line": [265, 266],
+          "code": "fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {\n    write!(f, \"WaitSetAttachmentError::{self:?}\")",
+          "purpose": "Immutable reference &self and mutable reference &mut Formatter"
         },
         {
-          "file": "benchmarks/request-response/src/main.rs",
-          "line": [
-            22
-          ],
-          "code": "args: &Args,",
-          "purpose": "Demonstrates &\\w|&mut\\s..."
+          "file": "iceoryx2/src/config.rs",
+          "line": [255],
+          "code": "pub fn set_root_path(&mut self, value: &Path) {",
+          "purpose": "Mutable reference &mut self and immutable reference &Path"
         },
         {
-          "file": "iceoryx2-bb/trait-tests/tests/relocatable_container_tests.rs",
-          "line": [
-            37
-          ],
-          "code": "fn allocator(memory: &mut [u8]) -> BumpAllocator {",
-          "purpose": "Demonstrates &\\w|&mut\\s..."
+          "file": "iceoryx2/src/waitset.rs",
+          "line": [418],
+          "code": "pub fn has_event_from(&self, other: &WaitSetGuard<Service>) -> bool {",
+          "purpose": "Two immutable references in same function signature"
         }
       ],
       "count": 12141
@@ -356,28 +344,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-pal/testing/src/watchdog.rs",
-          "line": [
-            24
-          ],
-          "code": "fn drop(&mut self) {",
-          "purpose": "Demonstrates &\\w|&mut\\s..."
+          "file": "iceoryx2-bb/posix/src/read_write_mutex.rs",
+          "line": [215],
+          "code": "pub struct MutexReadGuard<'handle, T: Debug>",
+          "purpose": "Lifetime-annotated borrow in guard type binding guard to mutex"
         },
         {
-          "file": "component-tests/rust/src/test_containers.rs",
-          "line": [
-            71
-          ],
-          "code": "let stats = iceoryx2_bb_container::vector::VectorMemoryLayoutMetrics::from_vector(&v);",
-          "purpose": "Demonstrates &\\w|&mut\\s..."
+          "file": "iceoryx2-bb/posix/src/file_lock.rs",
+          "line": [126],
+          "code": "pub struct FileLockWriteGuard<'handle, 'b, T: FileDescriptorBased + Debug>",
+          "purpose": "Multiple lifetime parameters for complex borrowing relationships"
         },
         {
-          "file": "component-tests/rust/src/test_container_mutation.rs",
-          "line": [
-            52
-          ],
-          "code": "fn test_name(&self) -> &'static str {",
-          "purpose": "Demonstrates &\\w|&mut\\s..."
+          "file": "iceoryx2/src/waitset.rs",
+          "line": [375],
+          "code": "fn hash<H: core::hash::Hasher>(&self, state: &mut H) {",
+          "purpose": "Borrowing self immutably while mutably borrowing hasher state"
         }
       ],
       "count": 12141
@@ -761,17 +743,15 @@
         },
         {
           "file": "iceoryx2-bb/lock-free/src/spsc/queue.rs",
-          "line": [
-            60
-          ],
-          "code": "impl Drop for Producer<'_, T, CAPACITY> {"
+          "line": [64, 65, 66],
+          "code": "impl<T: Copy, const CAPACITY: usize> Drop for Producer<'_, T, CAPACITY> {\n    fn drop(&mut self) {\n        self.queue.has_producer.store(true, Ordering::Relaxed);",
+          "purpose": "Drop impl restoring producer flag on queue cleanup"
         },
         {
-          "file": "iceoryx2-bb/lock-free/src/spmc/unrestricted_atomic.rs",
-          "line": [
-            81
-          ],
-          "code": "impl Drop for Producer<'_, T> {"
+          "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+          "line": [546, 547, 548],
+          "code": "impl Drop for UnixDatagramSender {\n    fn drop(&mut self) {\n        trace!(from self, \"disconnected\");",
+          "purpose": "Drop impl logging disconnection before socket cleanup"
         },
         {
           "file": "iceoryx2-cal/src/monitoring/process_local.rs",
@@ -821,28 +801,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2/conformance-tests/src/writer.rs",
-          "line": [
-            24
-          ],
-          "code": "use iceoryx2::service::static_config::message_type_details::{TypeDetail, TypeVariant};",
-          "purpose": "Demonstrates \\{[^}]+\\}..."
+          "file": "iceoryx2-bb/concurrency/src/spin_lock.rs",
+          "line": [119, 120, 121],
+          "code": "fn drop(&mut self) {\n    self.lock.locked.store(false, Ordering::Release);\n}",
+          "purpose": "Block expression as drop scope - lock released at block end"
         },
         {
-          "file": "iceoryx2-cli/lib/src/output.rs",
-          "line": [
-            91
-          ],
-          "code": "NodeIdString(format!(\"{:032x}\", id.value()))",
-          "purpose": "Demonstrates \\{[^}]+\\}..."
+          "file": "iceoryx2/src/waitset.rs",
+          "line": [501, 502, 503, 504, 505, 506],
+          "code": "let deadline_queue = fail!(from self, when DeadlineQueueBuilder::new().create(),\n        with WaitSetCreateError::InternalError,\n        \"{msg} since the underlying Timer could not be created.\");\n\nmatch <Service::Reactor as Reactor>::Builder::new().create() {\n    Ok(reactor) => Ok(WaitSet {",
+          "purpose": "Match arms as drop scopes - temporaries dropped per arm"
         },
         {
-          "file": "iceoryx2-cli/lib/src/format.rs",
-          "line": [
-            13
-          ],
-          "code": "use anyhow::{anyhow, Context, Error, Result};",
-          "purpose": "Demonstrates \\{[^}]+\\}..."
+          "file": "iceoryx2-bb/container/src/semantic_string.rs",
+          "line": [83, 84, 85, 86, 87, 88, 89, 90, 91],
+          "code": "fn from(value: StringModificationError) -> Self {\n    match value {\n        StringModificationError::InsertWouldExceedCapacity => {\n            SemanticStringError::ExceedsMaximumLength\n        }\n        StringModificationError::InvalidCharacter => SemanticStringError::InvalidContent,\n    }\n}",
+          "purpose": "Function body as drop scope - parameter dropped at function end"
         }
       ],
       "subsections": {

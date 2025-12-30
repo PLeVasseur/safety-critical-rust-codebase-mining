@@ -36,37 +36,17 @@
         "fls_j9l8wn6wgm06"
       ],
       "description": "Registers",
-      "status": "limited_use",
+      "status": "deliberately_avoided",
       "findings": {
-        "description": "Register usage limited to bare-metal ARM example using r0/r1 for syscall",
-        "usage_context": "ARM semihosting syscall only"
+        "description": "iceoryx2 production code does not use inline assembly registers. Memory synchronization uses fence()/compiler_fence() instead.",
+        "rationale": "Portability across architectures without architecture-specific assembly"
       },
-      "samples": [
-        {
-          "file": "examples/nostd/bare-metal/rust/_common/src/semihosting.rs",
-          "line": [
-            19,
-            20,
-            21,
-            22
-          ],
-          "code": "core::arch::asm!(\"svc 0x123456\", inout(\"r0\") operation => result, in(\"r1\") arg, options(nostack));",
-          "purpose": "ARM semihosting syscall with r0/r1 register bindings"
-        },
-        {
-          "file": "examples/nostd/bare-metal/rust/publish-subscribe/src/startup.rs",
-          "line": [
-            13
-          ],
-          "code": "core::arch::global_asm!(",
-          "purpose": "Demonstrates asm!..."
-        }
-      ],
-      "count": 2,
+      "samples": [],
+      "count": 0,
       "samples_waiver": {
-        "reason": "insufficient_patterns",
-        "explanation": "Only 2 instance(s) found in codebase, fewer than 3 required samples",
-        "approved_by": "automated",
+        "reason": "other",
+        "explanation": "iceoryx2 production code does not use inline assembly for portability. Register usage only exists in bare-metal examples which are not production code.",
+        "approved_by": "manual_review",
         "date": "2025-12-30"
       }
     },
@@ -90,37 +70,17 @@
         "fls_hejgghwzblf"
       ],
       "description": "Register Arguments",
-      "status": "limited_use",
+      "status": "deliberately_avoided",
       "findings": {
-        "patterns": [
-          "inout(\"r0\") for bidirectional",
-          "in(\"r1\") for input-only"
-        ]
+        "description": "iceoryx2 production code does not use inline assembly register arguments.",
+        "rationale": "No asm! usage in production code for portability"
       },
-      "samples": [
-        {
-          "file": "examples/nostd/bare-metal/rust/_common/src/semihosting.rs",
-          "line": [
-            21,
-            22
-          ],
-          "code": "inout(\"r0\") operation => result, in(\"r1\") arg,",
-          "purpose": "Bidirectional and input register arguments"
-        },
-        {
-          "file": "examples/nostd/bare-metal/rust/publish-subscribe/src/startup.rs",
-          "line": [
-            13
-          ],
-          "code": "core::arch::global_asm!(",
-          "purpose": "Demonstrates asm!..."
-        }
-      ],
-      "count": 2,
+      "samples": [],
+      "count": 0,
       "samples_waiver": {
-        "reason": "insufficient_patterns",
-        "explanation": "Only 2 instance(s) found in codebase, fewer than 3 required samples",
-        "approved_by": "automated",
+        "reason": "other",
+        "explanation": "iceoryx2 production code does not use inline assembly register arguments. Only bare-metal examples use asm! which are not production code.",
+        "approved_by": "manual_review",
         "date": "2025-12-30"
       }
     },
@@ -130,32 +90,19 @@
         "fls_e0896uk0mdyl"
       ],
       "description": "Assembly Instructions",
-      "status": "limited_use",
+      "status": "deliberately_avoided",
       "findings": {
-        "instructions": [
-          "svc 0x123456 - ARM supervisor call",
-          "LDR - Load register",
-          "bl - Branch with link"
-        ]
+        "description": "iceoryx2 production code does not use inline assembly instructions.",
+        "rationale": "Memory synchronization achieved through Rust's fence() and compiler_fence() APIs"
       },
-      "samples": [
-        {
-          "file": "examples/nostd/bare-metal/rust/_common/src/semihosting.rs",
-          "line": [
-            20
-          ],
-          "code": "\"svc 0x123456\",",
-          "purpose": "ARM supervisor call for semihosting"
-        },
-        {
-          "file": "examples/nostd/bare-metal/rust/publish-subscribe/src/startup.rs",
-          "line": [
-            13
-          ],
-          "code": "core::arch::global_asm!(",
-          "purpose": "Demonstrates asm!..."
-        }
-      ],
+      "samples": [],
+      "count": 0,
+      "samples_waiver": {
+        "reason": "other",
+        "explanation": "iceoryx2 production code does not use inline assembly instructions. Only bare-metal examples use asm! which are not production code.",
+        "approved_by": "manual_review",
+        "date": "2025-12-30"
+      },
       "subsections": {
         "register_parameter_modifiers": {
           "fls_section": "22.4.1",
@@ -163,38 +110,17 @@
             "fls_lv19xysy1f7e"
           ],
           "description": "Register Parameter Modifiers",
-          "status": "limited_use",
+          "status": "deliberately_avoided",
           "findings": {
-            "description": "Register parameter modifiers specify how values are passed to/from assembly. iceoryx2 uses 'inout' and 'in' modifiers in bare-metal example.",
-            "modifiers_used": [
-              "inout",
-              "in"
-            ]
+            "description": "iceoryx2 production code does not use inline assembly register parameter modifiers.",
+            "rationale": "No asm! usage in production code for portability"
           },
-          "samples": [
-            {
-              "file": "examples/nostd/bare-metal/rust/_common/src/semihosting.rs",
-              "line": [
-                21,
-                22
-              ],
-              "code": "inout(\"r0\") operation => result, in(\"r1\") arg,",
-              "purpose": "inout for bidirectional r0, in for input-only r1"
-            },
-            {
-              "file": "examples/nostd/bare-metal/rust/publish-subscribe/src/startup.rs",
-              "line": [
-                13
-              ],
-              "code": "core::arch::global_asm!(",
-              "purpose": "Demonstrates asm!..."
-            }
-          ],
-          "count": 2,
+          "samples": [],
+          "count": 0,
           "samples_waiver": {
-            "reason": "insufficient_patterns",
-            "explanation": "Only 2 instance(s) found in codebase, fewer than 3 required samples",
-            "approved_by": "automated",
+            "reason": "other",
+            "explanation": "iceoryx2 production code does not use inline assembly register parameter modifiers. Only bare-metal examples use asm! which are not production code.",
+            "approved_by": "manual_review",
             "date": "2025-12-30"
           }
         },
@@ -204,46 +130,20 @@
             "fls_6momhvgx4w21"
           ],
           "description": "Directive Support",
-          "status": "limited_use",
+          "status": "deliberately_avoided",
           "findings": {
-            "description": "Assembly directives provide additional context to the assembler. iceoryx2 uses .section directive in global_asm! for bare-metal startup.",
-            "directives_used": [
-              ".section"
-            ]
+            "description": "iceoryx2 production code does not use assembly directives.",
+            "rationale": "No global_asm! usage in production code for portability"
           },
-          "samples": [
-            {
-              "file": "examples/nostd/bare-metal/rust/publish-subscribe/src/startup.rs",
-              "line": [
-                14
-              ],
-              "code": ".section .text.startup",
-              "purpose": "Places startup code in specific section"
-            },
-            {
-              "file": "examples/nostd/bare-metal/rust/_common/src/semihosting.rs",
-              "line": [
-                19
-              ],
-              "code": "core::arch::asm!(",
-              "purpose": "Demonstrates asm!..."
-            }
-          ],
-          "count": 2,
+          "samples": [],
+          "count": 0,
           "samples_waiver": {
-            "reason": "insufficient_patterns",
-            "explanation": "Only 2 instance(s) found in codebase, fewer than 3 required samples",
-            "approved_by": "automated",
+            "reason": "other",
+            "explanation": "iceoryx2 production code does not use assembly directives. Only bare-metal examples use global_asm! which are not production code.",
+            "approved_by": "manual_review",
             "date": "2025-12-30"
           }
         }
-      },
-      "count": 2,
-      "samples_waiver": {
-        "reason": "insufficient_patterns",
-        "explanation": "Only 2 instance(s) found in codebase, fewer than 3 required samples",
-        "approved_by": "automated",
-        "date": "2025-12-30"
       }
     },
     "abi_clobbers": {
@@ -266,28 +166,17 @@
         "fls_ylli0ortyegk"
       ],
       "description": "Assembly Options",
-      "status": "limited_use",
+      "status": "deliberately_avoided",
       "findings": {
-        "options_found": [
-          "nostack"
-        ]
+        "description": "iceoryx2 production code does not use inline assembly options.",
+        "rationale": "No asm! usage in production code for portability"
       },
-      "samples": [
-        {
-          "file": "examples/nostd/bare-metal/rust/_common/src/semihosting.rs",
-          "line": [
-            23
-          ],
-          "code": "options(nostack)",
-          "purpose": "Indicates assembly does not use stack"
-        }
-      ],
-      "count": null,
-      "count_methodology": "Pattern not defined for this section",
+      "samples": [],
+      "count": 0,
       "samples_waiver": {
-        "reason": "conceptual_section",
-        "explanation": "This section describes an abstract concept not directly mappable to concrete code patterns",
-        "approved_by": "automated",
+        "reason": "other",
+        "explanation": "iceoryx2 production code does not use inline assembly options. Only bare-metal examples use asm! options which are not production code.",
+        "approved_by": "manual_review",
         "date": "2025-12-30"
       }
     },
@@ -297,45 +186,23 @@
         "fls_qezwyridmjob"
       ],
       "description": "Macros: asm, global_asm, and naked_asm",
-      "status": "limited_use",
+      "status": "deliberately_avoided",
       "findings": {
-        "asm": 1,
-        "global_asm": 1,
-        "naked_asm": 0,
-        "location": "examples/nostd/bare-metal/rust/ only"
+        "asm_in_production": 0,
+        "global_asm_in_production": 0,
+        "naked_asm_in_production": 0,
+        "rationale": "Production code uses fence()/compiler_fence() for memory ordering instead of inline assembly"
       },
-      "samples": [
-        {
-          "file": "examples/nostd/bare-metal/rust/_common/src/semihosting.rs",
-          "line": [
-            17,
-            18,
-            19
-          ],
-          "code": "core::arch::asm!(\"svc 0x123456\", ...)",
-          "purpose": "asm! macro for ARM semihosting syscall"
-        },
-        {
-          "file": "examples/nostd/bare-metal/rust/publish-subscribe/src/startup.rs",
-          "line": [
-            13,
-            14,
-            15
-          ],
-          "code": "core::arch::global_asm!(r#\".section .text.startup...\"#);",
-          "purpose": "global_asm! for ARM bare-metal startup code"
-        }
-      ],
+      "samples": [],
       "safety_notes": [
-        "All inline assembly confined to bare-metal examples, not production code",
-        "asm! properly marked unsafe"
+        "iceoryx2 production code deliberately avoids asm!, global_asm!, and naked_asm! for portability",
+        "Memory synchronization achieved through fence() and compiler_fence() instead"
       ],
-      "count": null,
-      "count_methodology": "Pattern not defined for this section",
+      "count": 0,
       "samples_waiver": {
-        "reason": "conceptual_section",
-        "explanation": "This section describes an abstract concept not directly mappable to concrete code patterns",
-        "approved_by": "automated",
+        "reason": "other",
+        "explanation": "iceoryx2 production code does not use asm!, global_asm!, or naked_asm! macros. Only bare-metal examples (not production) use these constructs. Production code uses fence()/compiler_fence() for memory ordering.",
+        "approved_by": "manual_review",
         "date": "2025-12-30"
       }
     },
@@ -343,13 +210,19 @@
       "fls_section": "22.8",
       "fls_ids": [],
       "description": "Label block",
-      "status": "not_used",
+      "status": "deliberately_avoided",
       "findings": {
-        "description": "Label blocks in inline assembly allow defining named labels for branching. iceoryx2 does not use label blocks - the minimal assembly in bare-metal examples uses only simple instructions without labels."
+        "description": "iceoryx2 production code does not use inline assembly label blocks.",
+        "rationale": "No asm!/global_asm! usage in production code for portability"
       },
       "samples": [],
-      "count": null,
-      "count_methodology": "Pattern not defined for this section"
+      "count": 0,
+      "samples_waiver": {
+        "reason": "other",
+        "explanation": "iceoryx2 production code does not use inline assembly. Label blocks only exist in asm! which is not used.",
+        "approved_by": "manual_review",
+        "date": "2025-12-30"
+      }
     }
   },
   "cross_chapter_references": {

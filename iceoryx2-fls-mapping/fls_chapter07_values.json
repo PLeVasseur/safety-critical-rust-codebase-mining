@@ -82,57 +82,24 @@
       "samples": [
         {
           "file": "iceoryx2-bb/posix/src/config.rs",
-          "line": [
-            32
-          ],
-          "code": "pub const EINTR_REPETITIONS: u64 = 10;"
+          "line": [32],
+          "code": "pub const EINTR_REPETITIONS: u64 = 10;",
+          "purpose": "Public constant defining maximum EINTR retry attempts"
         },
         {
-          "file": "iceoryx2-bb/posix/src/config.rs",
-          "line": [
-            34
-          ],
-          "code": "pub const MAX_THREAD_NAME_LENGTH: usize = 16;"
+          "file": "iceoryx2-cal/src/zero_copy_connection/mod.rs",
+          "line": [142, 143, 144],
+          "code": "pub const DEFAULT_BUFFER_SIZE: usize = 4;\npub const DEFAULT_ENABLE_SAFE_OVERFLOW: bool = false;\npub const DEFAULT_MAX_BORROWED_SAMPLES_PER_CHANNEL: usize = 4;",
+          "purpose": "Module-level constants defining default configuration values"
         },
         {
-          "file": "iceoryx2-bb/posix/src/config.rs",
-          "line": [
-            37
-          ],
-          "code": "pub const ADAPTIVE_WAIT_YIELD_REPETITIONS: u64 = 10000;"
-        },
-        {
-          "file": "iceoryx2-bb/posix/src/config.rs",
-          "line": [
-            38
-          ],
-          "code": "pub const ADAPTIVE_WAIT_INITIAL_REPETITIONS: u64 = 100 + ADAPTIVE_WAIT_YIELD_REPETITIONS;"
-        },
-        {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            65,
-            66
-          ],
-          "code": "const BUCKET_SIZE: usize = 128;\nconst BUCKET_ALIGNMENT: usize = 1;"
-        },
-        {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            56
-          ],
-          "code": "NonNull::new(self.get_mut_memory()).unwrap()"
-        },
-        {
-          "file": "iceoryx2-bb/memory/src/bump_allocator.rs",
-          "line": [
-            48
-          ],
-          "code": "pub fn new(ptr: NonNull<u8>, size: usize) -> Self {"
+          "file": "iceoryx2/src/constants.rs",
+          "line": [14],
+          "code": "pub const MAX_SERVICE_NAME_LENGTH: usize = 255;",
+          "purpose": "Public constant defining maximum service name length limit"
         }
       ],
-      "count": null,
-      "count_methodology": "Pattern not defined for this section"
+      "count": 3968
     },
     "statics": {
       "fls_section": "7.2",
@@ -166,83 +133,37 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/posix/tests/signal_tests.rs",
-          "line": [
-            28,
-            29,
-            30
-          ],
-          "code": "static COUNTER: AtomicUsize = AtomicUsize::new(0);\nstatic SIGNAL: AtomicUsize = AtomicUsize::new(posix::MAX_SIGNAL_VALUE);\nstatic LOCK: Mutex<i32> = Mutex::new(0);",
-          "purpose": "immutable_statics: static declaration"
+          "file": "iceoryx2-bb/posix/src/signal.rs",
+          "line": [280],
+          "code": "static LAST_SIGNAL: AtomicUsize = AtomicUsize::new(posix::MAX_SIGNAL_VALUE);",
+          "purpose": "Immutable static with interior mutability for thread-safe signal tracking"
         },
         {
           "file": "iceoryx2/src/node/mod.rs",
-          "line": [
-            536
-          ],
+          "line": [536],
           "code": "static IN_CLEANUP_SECTION: AtomicBool = AtomicBool::new(false);",
-          "purpose": "immutable_statics: static declaration"
-        },
-        {
-          "file": "iceoryx2-pal/posix/src/linux/errno.rs",
-          "line": [
-            162
-          ],
-          "code": "static IS_LOCKED: AtomicBool = AtomicBool::new(false);",
-          "purpose": "immutable_statics: static declaration"
-        },
-        {
-          "file": "examples/rust/service_types/local_pubsub.rs",
-          "line": [
-            24
-          ],
-          "code": "static KEEP_RUNNING: AtomicBool = AtomicBool::new(true);",
-          "purpose": "immutable_statics: static declaration"
-        },
-        {
-          "file": "iceoryx2-pal/posix/src/windows/socket.rs",
-          "line": [
-            51,
-            52
-          ],
-          "code": "static mut WSA_INSTANCE: OnceCell<GlobalWsaInitializer> = OnceCell::new();\nstatic mut INITIALIZATION_STATE: AtomicU8 = AtomicU8::new(0);",
-          "purpose": "mutable_statics: static declaration"
+          "purpose": "Immutable static with AtomicBool for cleanup state tracking"
         },
         {
           "file": "iceoryx2-log/log/src/lib.rs",
-          "line": [
-            144
-          ],
-          "code": "static mut LOGGER: Option<&'static dyn Log> = None;",
-          "purpose": "mutable_statics: static declaration"
+          "line": [147],
+          "code": "static LOG_LEVEL: AtomicU8 = AtomicU8::new(DEFAULT_LOG_LEVEL as u8);",
+          "purpose": "Immutable static for thread-safe log level configuration"
         },
         {
-          "file": "iceoryx2-ffi/c/src/api/log.rs",
-          "line": [
-            79
-          ],
-          "code": "static mut LOGGER: Option<CLogger> = None;",
-          "purpose": "mutable_statics: static declaration"
+          "file": "iceoryx2-log/log/src/lib.rs",
+          "line": [144],
+          "code": "static mut LOGGER: Option<&'static dyn Log> = None;",
+          "purpose": "Mutable static for global logger instance (requires unsafe access)"
         },
         {
           "file": "iceoryx2-cal/src/static_storage/process_local.rs",
-          "line": [
-            71
-          ],
-          "code": "lazy_static! {",
-          "purpose": "lazy_static: static declaration"
-        },
-        {
-          "file": "iceoryx2-cal/src/communication_channel/process_local.rs",
-          "line": [
-            55
-          ],
-          "code": "lazy_static! {",
-          "purpose": "lazy_static: static declaration"
+          "line": [71, 72, 73],
+          "code": "lazy_static! {\n    static ref PROCESS_LOCAL_MTX_HANDLE: MutexHandle<BTreeMap<FilePath, StorageEntry>> =\n        MutexHandle::new();",
+          "purpose": "lazy_static! for complex initialization of process-local storage"
         }
       ],
-      "count": null,
-      "count_methodology": "Pattern not defined for this section"
+      "count": 85
     },
     "temporaries": {
       "fls_section": "7.3",
@@ -263,28 +184,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            50
-          ],
-          "code": "(TestFixture::memory_size() / core::cmp::max(size, align)) as u32 - 1",
-          "purpose": "Arithmetic expression creates temporaries for intermediate values"
+          "file": "iceoryx2/src/service/attribute.rs",
+          "line": [380],
+          "code": "let key_exists = rhs.iter().any(|attr| attr.key == *key);",
+          "purpose": "Iterator temporary created by .iter(), consumed by .any() method chain"
         },
         {
-          "file": "iceoryx2-bb/linux/tests/signal_fd_tests.rs",
-          "line": [
-            34
-          ],
-          "code": "let sut = SignalFdBuilder::new(signals).create_non_blocking().unwrap();",
-          "purpose": "Builder pattern creates temporary SignalFdBuilder"
+          "file": "iceoryx2/src/port/notifier.rs",
+          "line": [228],
+          "code": "for (i, index) in visited_indices.iter().enumerate() {",
+          "purpose": "Temporary iterator with enumerate creates (usize, &T) tuples"
         },
         {
-          "file": "iceoryx2-bb/linux/tests/signal_fd_tests.rs",
-          "line": [
-            46
-          ],
-          "code": "assert_that!(signal.origin_pid(), eq Process::from_self().id());",
-          "purpose": "Method chain creates temporary Process instance"
+          "file": "iceoryx2/src/service/attribute.rs",
+          "line": [438],
+          "code": "self.iter().filter(|element| element.key() == key).count()",
+          "purpose": "Method chain creates filter iterator temporary, consumed by count"
         }
       ],
       "count": null,
@@ -311,36 +226,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
-          "line": [
-            56
-          ],
-          "code": "let memory = self.allocate(layout)?;",
-          "purpose": "immutable_bindings: let memory = self.allocate(layout)?;..."
+          "file": "iceoryx2/src/port/notifier.rs",
+          "line": [135, 136, 137, 138, 139],
+          "code": "let mut new_self = Self {\n    connections: vec![],\n    service_state,\n    list_state,\n};",
+          "purpose": "Mutable binding for struct construction with later modification"
         },
         {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            68
-          ],
-          "code": "let sut = test.create_pool_allocator(BUCKET_SIZE, BUCKET_ALIGNMENT);",
-          "purpose": "immutable_bindings: let sut = test.create_pool_allocator(BUCKET_SIZE, ..."
+          "file": "iceoryx2/src/port/server.rs",
+          "line": [175],
+          "code": "let mut result = Ok(());",
+          "purpose": "Mutable binding initialized to Ok for accumulating operation results"
         },
         {
-          "file": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
-          "line": [
-            36
-          ],
-          "code": "let mut file = FileName::new(b\"unix_datagram_socket_tests\").unwrap();",
-          "purpose": "mutable_bindings: let mut file = FileName::new(b\"unix_datagram_socke..."
-        },
-        {
-          "file": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
-          "line": [
-            110
-          ],
-          "code": "let mut receive_data: Vec<u8> = vec![0; 6];",
-          "purpose": "mutable_bindings: let mut receive_data: Vec<u8> = vec![0; 6];..."
+          "file": "iceoryx2/src/config.rs",
+          "line": [237, 238],
+          "code": "let mut path = *self.root_path();\npath.add_path_entry(&self.service.directory).unwrap();",
+          "purpose": "Mutable binding for path construction with method mutation"
         }
       ],
       "subsections": {
@@ -361,30 +262,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-userland/record-and-replay/tests/recorder_tests.rs",
-              "line": [
-                73,
-                74,
-                75
-              ],
-              "code": "system_header: &[0u8; 8],\nuser_header: &[0u8; 0],\npayload: &[0u8; 8],",
-              "purpose": "Literal arrays promoted to static lifetime for test fixtures"
+              "file": "iceoryx2-bb/elementary/src/package_version.rs",
+              "line": [67, 68, 69, 70],
+              "code": "const MAJOR: u16 = 0;\nconst MINOR: u16 = 8;\nconst PATCH: u16 = 0;\n\nPackageVersion::from_version(MAJOR, MINOR, PATCH)",
+              "purpose": "Local constants in const fn enabling compile-time version construction"
             },
             {
-              "file": "iceoryx2-userland/record-and-replay/tests/recorder_replayer_tests.rs",
-              "line": [
-                193
-              ],
-              "code": "const NUMBER_OF_DATA: usize = 15;",
-              "purpose": "Demonstrates const\\s+\\w+.*=..."
+              "file": "iceoryx2/src/service/builder/mod.rs",
+              "line": [480, 481],
+              "code": ".has_ownership(true)\n.create(&[])",
+              "purpose": "Empty slice literal &[] promoted to 'static lifetime for service creation"
             },
             {
-              "file": "iceoryx2-pal/testing/src/lib.rs",
-              "line": [
-                43
-              ],
-              "code": "pub const AT_LEAST_TIMING_VARIANCE: f32 = iceoryx2_pal_configuration::AT_LEAST_TIMING_VARIANCE;",
-              "purpose": "Demonstrates const\\s+\\w+.*=..."
+              "file": "iceoryx2-cal/src/shm_allocator/pointer_offset.rs",
+              "line": [51],
+              "code": "const SEGMENT_ID: u8 = 0;",
+              "purpose": "Local const in Default impl for compile-time segment ID"
             }
           ],
           "count": 3964

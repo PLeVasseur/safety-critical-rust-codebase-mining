@@ -70,29 +70,25 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/trait-tests/src/lib.rs",
-          "line": [
-            14
-          ],
-          "code": "// dummy lib.rs",
-          "purpose": "Demonstrates \\.rs$..."
+          "file": "iceoryx2/src/lib.rs",
+          "line": [13, 14, 15, 16],
+          "code": "#![cfg_attr(not(any(test, feature = \"std\")), no_std)]\n#![warn(clippy::alloc_instead_of_core)]\n#![warn(clippy::std_instead_of_alloc)]\n#![warn(clippy::std_instead_of_core)]",
+          "purpose": "Library crate root with conditional no_std and lint attributes"
         },
         {
-          "file": "iceoryx2/conformance-tests/src/service_blackboard.rs",
-          "line": [
-            1838
-          ],
-          "code": "// TODO [#817] move the custom key type tests to testing.rs",
-          "purpose": "Demonstrates \\.rs$..."
+          "file": "iceoryx2/src/service/mod.rs",
+          "line": [203, 206, 210],
+          "code": "pub mod builder;\npub mod dynamic_config;\npub mod header;",
+          "purpose": "Module file declaring submodules"
+        },
+        {
+          "file": "iceoryx2/src/prelude.rs",
+          "line": [13, 14, 15],
+          "code": "pub use crate::config::Config;\npub use crate::node::{node_name::NodeName, Node, NodeBuilder, NodeState};\npub use crate::port::{event_id::EventId, unable_to_deliver_strategy::UnableToDeliverStrategy};",
+          "purpose": "Prelude module with public re-exports for convenient API access"
         }
       ],
-      "count": 2,
-      "samples_waiver": {
-        "reason": "insufficient_patterns",
-        "explanation": "Only 2 instance(s) found in codebase, fewer than 3 required samples",
-        "approved_by": "automated",
-        "date": "2025-12-30"
-      }
+      "count": 1071
     },
     "modules": {
       "fls_section": "18.2",
@@ -162,28 +158,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-pal/os-api/src/linux-libc/mod.rs",
-          "line": [
-            13
-          ],
-          "code": "pub mod epoll;",
-          "purpose": "Demonstrates \\bmod\\s+\\w+..."
+          "file": "iceoryx2/src/service/mod.rs",
+          "line": [203, 206, 210, 214],
+          "code": "pub mod builder;\npub mod dynamic_config;\npub mod header;\npub mod messaging_pattern;",
+          "purpose": "Public module declarations with doc comments for service subsystem"
         },
         {
-          "file": "iceoryx2/conformance-tests/tests/service_tests.rs",
-          "line": [
-            18
-          ],
-          "code": "mod ipc {",
-          "purpose": "Demonstrates \\bmod\\s+\\w+..."
+          "file": "iceoryx2/src/service/static_config/mod.rs",
+          "line": [16, 21, 25],
+          "code": "pub mod event;\npub mod publish_subscribe;\npub mod message_type_details;",
+          "purpose": "Outline module declarations for messaging pattern configs"
         },
         {
-          "file": "iceoryx2/src/service/builder/mod.rs",
-          "line": [
-            18
-          ],
-          "code": "pub mod event;",
-          "purpose": "Demonstrates \\bmod\\s+\\w+..."
+          "file": "iceoryx2-bb/posix/src/signal.rs",
+          "line": [279, 280],
+          "code": "#[cfg(not(all(test, loom, feature = \"std\")))]\nstatic LAST_SIGNAL: AtomicUsize = AtomicUsize::new(posix::MAX_SIGNAL_VALUE);",
+          "purpose": "Conditional module content with cfg attribute"
         }
       ],
       "count": 1039
@@ -388,28 +378,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/posix/tests/users_tests.rs",
-          "line": [
-            13
-          ],
-          "code": "extern crate iceoryx2_loggers;",
-          "purpose": "Demonstrates extern\\s+crate|use\\s+\\w+::..."
+          "file": "iceoryx2-bb/container/src/lib.rs",
+          "line": [96, 97, 98],
+          "code": "extern crate alloc;\n\n/// A queue similar to [`alloc::collections::vec_deque::VecDeque`]",
+          "purpose": "extern crate alloc enabling heap allocation in no_std container crate"
         },
         {
-          "file": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
-          "line": [
-            13
-          ],
-          "code": "extern crate iceoryx2_loggers;",
-          "purpose": "Demonstrates extern\\s+crate|use\\s+\\w+::..."
+          "file": "iceoryx2/src/port/writer.rs",
+          "line": [66, 67],
+          "code": "extern crate alloc;\nuse alloc::sync::Arc;",
+          "purpose": "extern crate alloc for Arc import in no_std writer port"
         },
         {
-          "file": "iceoryx2-bb/posix/tests/unique_system_id_tests.rs",
-          "line": [
-            13
-          ],
-          "code": "extern crate iceoryx2_loggers;",
-          "purpose": "Demonstrates extern\\s+crate|use\\s+\\w+::..."
+          "file": "iceoryx2-bb/lock-free/src/mpmc/container.rs",
+          "line": [77, 78, 79],
+          "code": "extern crate alloc;\n\nuse alloc::vec::Vec;",
+          "purpose": "extern crate alloc for Vec in lock-free MPMC container"
         }
       ],
       "count": 6847
@@ -435,21 +419,25 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/trait-tests/src/lib.rs",
-          "line": [
-            14
-          ],
-          "code": "// dummy lib.rs",
-          "purpose": "Demonstrates main\\.rs|lib\\.rs..."
+          "file": "iceoryx2/src/lib.rs",
+          "line": [13, 14, 15],
+          "code": "#![cfg_attr(not(any(test, feature = \"std\")), no_std)]\n#![warn(clippy::alloc_instead_of_core)]\n#![warn(clippy::std_instead_of_alloc)]",
+          "purpose": "Library crate root (lib.rs) with crate-level attributes"
+        },
+        {
+          "file": "iceoryx2-cli/iox2/src/main.rs",
+          "line": [14, 15, 17, 18],
+          "code": "#[cfg(not(debug_assertions))]\nuse human_panic::setup_panic;\n\n#[cfg(debug_assertions)]\nextern crate better_panic;",
+          "purpose": "Binary crate root (main.rs) with conditional panic handlers"
+        },
+        {
+          "file": "iceoryx2-bb/derive-macros/src/lib.rs",
+          "line": [13, 20, 21],
+          "code": "#![no_std]\n...\nextern crate alloc;\nextern crate proc_macro;",
+          "purpose": "Proc-macro crate root with extern crate proc_macro (required for proc-macros)"
         }
       ],
-      "count": 1,
-      "samples_waiver": {
-        "reason": "insufficient_patterns",
-        "explanation": "Only 1 instance(s) found in codebase, fewer than 3 required samples",
-        "approved_by": "automated",
-        "date": "2025-12-30"
-      }
+      "count": 40
     },
     "conditional_compilation": {
       "fls_section": "18.6",
@@ -539,28 +527,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2/tests/service_static_config_tests.rs",
-          "line": [
-            13
-          ],
-          "code": "#[cfg(test)]",
-          "purpose": "Demonstrates #\\[cfg\\(..."
+          "file": "iceoryx2/src/lib.rs",
+          "line": [13],
+          "code": "#![cfg_attr(not(any(test, feature = \"std\")), no_std)]",
+          "purpose": "Conditional no_std based on test and std feature flags"
         },
         {
-          "file": "iceoryx2-pal/posix/tests/win32_select_tests.rs",
-          "line": [
-            13
-          ],
-          "code": "#[cfg(target_os = \"windows\")]",
-          "purpose": "Demonstrates #\\[cfg\\(..."
+          "file": "iceoryx2-bb/posix/src/signal.rs",
+          "line": [279, 280, 282, 283],
+          "code": "#[cfg(not(all(test, loom, feature = \"std\")))]\nstatic LAST_SIGNAL: AtomicUsize = ...\n\n#[cfg(all(test, loom, feature = \"std\"))]\nstatic LAST_SIGNAL: std::sync::LazyLock<IoxAtomicUsize> = ...",
+          "purpose": "Conditional compilation for loom testing vs production"
         },
         {
           "file": "iceoryx2-log/loggers/src/console.rs",
-          "line": [
-            16
-          ],
+          "line": [16],
           "code": "#[cfg(feature = \"std\")]",
-          "purpose": "Demonstrates #\\[cfg\\(..."
+          "purpose": "Feature-gated console logger requiring std"
         }
       ],
       "count": 360

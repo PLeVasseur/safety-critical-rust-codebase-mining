@@ -89,27 +89,21 @@
       "samples": [
         {
           "file": "iceoryx2/src/waitset.rs",
-          "line": [
-            342
-          ],
-          "code": "unsafe { r.file_descriptor().native_handle() },",
-          "purpose": "Demonstrates \\bunsafe\\b..."
+          "line": [341, 342, 343],
+          "code": "GuardType::Deadline(r, t) => WaitSetAttachmentId::deadline(\n    guard.waitset,\n    unsafe { r.file_descriptor().native_handle() },",
+          "purpose": "unsafe block to access raw file descriptor handle from reactor"
         },
         {
-          "file": "iceoryx2/conformance-tests/src/sample_mut.rs",
-          "line": [
-            134
-          ],
-          "code": "let mut sample = unsafe { sample.assume_init() };",
-          "purpose": "Demonstrates \\bunsafe\\b..."
+          "file": "iceoryx2/src/service/dynamic_config/blackboard.rs",
+          "line": [84, 85],
+          "code": "readers: unsafe { Container::new_uninit(config.number_of_readers) },\nwriters: unsafe { Container::new_uninit(config.number_of_writers) },",
+          "purpose": "unsafe for uninitialized container allocation in shared memory"
         },
         {
-          "file": "examples/rust/cross_language_communication_complex_types/publisher.rs",
-          "line": [
-            45
-          ],
-          "code": "unsafe { ComplexType::placement_default(sample.payload_mut().as_mut_ptr()) };",
-          "purpose": "Demonstrates \\bunsafe\\b..."
+          "file": "iceoryx2/src/pending_response.rs",
+          "line": [305, 306],
+          "code": "ptr: unsafe {\n    NonNull::new_unchecked(payload_ptr as *mut PayloadFfi)",
+          "purpose": "unsafe for NonNull creation from raw pointer in response handling"
         }
       ],
       "count": 4961
@@ -136,27 +130,21 @@
       "samples": [
         {
           "file": "iceoryx2-bb/elementary/src/lazy_singleton.rs",
-          "line": [
-            94
-          ],
+          "line": [94],
           "code": "unsafe { *self.data.get() = Some(value) };",
-          "purpose": "Interior mutability access via UnsafeCell"
+          "purpose": "Interior mutability access via UnsafeCell for lazy initialization"
         },
         {
           "file": "iceoryx2/src/waitset.rs",
-          "line": [
-            342
-          ],
-          "code": "unsafe { r.file_descriptor().native_handle() },",
-          "purpose": "Demonstrates unsafe\\s*\\{..."
+          "line": [341, 342, 343, 344],
+          "code": "GuardType::Deadline(r, t) => WaitSetAttachmentId::deadline(\n    guard.waitset,\n    unsafe { r.file_descriptor().native_handle() },\n    t.index(),",
+          "purpose": "unsafe block accessing native file descriptor for deadline attachment"
         },
         {
-          "file": "iceoryx2-ffi/python/src/writer.rs",
-          "line": [
-            60
-          ],
-          "code": "let entry_handle = unsafe {",
-          "purpose": "Demonstrates unsafe\\s*\\{..."
+          "file": "iceoryx2/src/service/dynamic_config/blackboard.rs",
+          "line": [118],
+          "code": "let state = unsafe { self.readers.get_state() };",
+          "purpose": "unsafe access to container state for reader list iteration"
         }
       ],
       "count": 2376
@@ -231,49 +219,21 @@
       "samples": [
         {
           "file": "iceoryx2-ffi/c/src/api/active_request.rs",
-          "line": [
-            32
-          ],
-          "name": "ActiveRequestUnion"
-        },
-        {
-          "file": "iceoryx2-ffi/c/src/api/pending_response.rs",
-          "line": [
-            33
-          ],
-          "name": "PendingResponseUnion"
-        },
-        {
-          "file": "iceoryx2-ffi/c/src/api/port_factory_publisher_builder.rs",
-          "line": [
-            117
-          ],
-          "name": "PortFactoryPublisherBuilderUnion"
-        },
-        {
-          "file": "iceoryx2-ffi/c/src/api/static_config.rs",
-          "line": [
-            31
-          ],
-          "name": "iox2_static_config_details_t"
+          "line": [32, 33, 34, 35, 36, 37, 38, 39],
+          "code": "pub(super) union ActiveRequestUnion {\n    ipc: ManuallyDrop<\n        ActiveRequest<crate::IpcService, PayloadFfi, UserHeaderFfi, PayloadFfi, UserHeaderFfi>,\n    >,\n    local: ManuallyDrop<\n        ActiveRequest<crate::LocalService, PayloadFfi, UserHeaderFfi, PayloadFfi, UserHeaderFfi>,\n    >,\n}",
+          "purpose": "Union type with ManuallyDrop variants for FFI - accessing variants is unsafe"
         },
         {
           "file": "iceoryx2-bb/system-types/src/file_name.rs",
-          "line": [
-            231
-          ]
+          "line": [231, 232, 233],
+          "code": "// SAFETY: It is ensured that the RestrictedFileName contains always a valid FileName, just\n// with less capacity\nunsafe { FileName::new_unchecked(value.as_bytes()) }",
+          "purpose": "unsafe unchecked constructor with SAFETY comment justifying invariant"
         },
         {
           "file": "iceoryx2/src/sample_mut_uninit.rs",
-          "line": [
-            450
-          ]
-        },
-        {
-          "file": "iceoryx2-bb/container/src/semantic_string.rs",
-          "line": [
-            513
-          ]
+          "line": [450, 451],
+          "code": "// SAFETY: this is safe since the payload was initialized on the line above\nunsafe { self.assume_init() }",
+          "purpose": "unsafe assume_init after initialization with SAFETY comment"
         }
       ],
       "count": 2376
@@ -303,12 +263,10 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/elementary/tests/relocatable_ptr_tests.rs",
-          "line": [
-            28
-          ],
-          "code": "assert_that!(unsafe { *sut.as_ptr() }, eq value);",
-          "purpose": "Dereferencing relocatable pointer for testing"
+          "file": "iceoryx2-bb/lock-free/src/spsc/safely_overflowing_index_queue.rs",
+          "line": [335],
+          "code": "let value = unsafe { *self.at(read_position) };",
+          "purpose": "Raw pointer dereference to read value at index in lock-free queue"
         },
         {
           "file": "iceoryx2-bb/container/src/vector/mod.rs",
@@ -406,27 +364,21 @@
       "samples": [
         {
           "file": "iceoryx2-pal/posix/src/windows/socket.rs",
-          "line": [
-            51
-          ],
-          "code": "static mut WSA_INSTANCE: OnceCell<GlobalWsaInitializer> = OnceCell::new();",
-          "purpose": "Demonstrates static\\s+mut..."
+          "line": [51, 52],
+          "code": "static mut WSA_INSTANCE: OnceCell<GlobalWsaInitializer> = OnceCell::new();\nstatic mut INITIALIZATION_STATE: AtomicU8 = AtomicU8::new(0);",
+          "purpose": "static mut for Windows socket singleton - requires unsafe to access"
         },
         {
           "file": "iceoryx2-log/log/src/lib.rs",
-          "line": [
-            144
-          ],
+          "line": [144],
           "code": "static mut LOGGER: Option<&'static dyn Log> = None;",
-          "purpose": "Demonstrates static\\s+mut..."
+          "purpose": "static mut for global logger instance - unsafe access for set/get"
         },
         {
           "file": "iceoryx2-ffi/c/src/api/log.rs",
-          "line": [
-            79
-          ],
-          "code": "static mut LOGGER: Option<CLogger> = None;",
-          "purpose": "Demonstrates static\\s+mut..."
+          "line": [79, 80],
+          "code": "static mut LOGGER: Option<CLogger> = None;\nstatic INIT: Once = Once::new();",
+          "purpose": "static mut for C API logger with Once guard for initialization"
         }
       ],
       "count": 14
@@ -449,27 +401,21 @@
       "samples": [
         {
           "file": "iceoryx2-ffi/c/src/api/writer.rs",
-          "line": [
-            50
-          ],
-          "code": "pub(super) union WriterUnion {",
-          "purpose": "Demonstrates \\bunion\\b..."
+          "line": [50, 51, 52, 53],
+          "code": "pub(super) union WriterUnion {\n    ipc: ManuallyDrop<Writer<crate::IpcService, KeyFfi>>,\n    local: ManuallyDrop<Writer<crate::LocalService, KeyFfi>>,\n}",
+          "purpose": "Union type with ManuallyDrop for FFI - field access is unsafe"
         },
         {
           "file": "iceoryx2-ffi/c/src/api/waitset_guard.rs",
-          "line": [
-            25
-          ],
-          "code": "pub(crate) union GuardUnion {",
-          "purpose": "Demonstrates \\bunion\\b..."
+          "line": [25, 26, 27, 28],
+          "code": "pub(crate) union GuardUnion {\n    ipc: ManuallyDrop<WaitSetGuard<crate::IpcService>>,\n    local: ManuallyDrop<WaitSetGuard<crate::LocalService>>,\n}",
+          "purpose": "Union for WaitSet guard with IPC/Local variants"
         },
         {
           "file": "iceoryx2-ffi/c/src/api/waitset_attachment_id.rs",
-          "line": [
-            28
-          ],
-          "code": "pub(crate) union AttachmentIdUnion {",
-          "purpose": "Demonstrates \\bunion\\b..."
+          "line": [28, 29, 30, 31],
+          "code": "pub(crate) union AttachmentIdUnion {\n    ipc: WaitSetAttachmentId<crate::IpcService>,\n    local: WaitSetAttachmentId<crate::LocalService>,\n}",
+          "purpose": "Union for WaitSet attachment ID discriminated by service type"
         }
       ],
       "count": 42
