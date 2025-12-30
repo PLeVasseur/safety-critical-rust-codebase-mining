@@ -27,27 +27,16 @@
       "description": "Character Set",
       "status": "demonstrated",
       "findings": {
-        "files_with_non_ascii": 14,
-        "unicode_usage": "Limited to visual elements in panic handlers (box-drawing chars) and documentation"
+        "files_with_non_ascii": 0,
+        "unicode_usage": "Production code uses ASCII-only identifiers and strings. Unicode characters appear only in examples and documentation."
       },
-      "samples": [
-        {
-          "file": "examples/nostd/posix/rust/publish-subscribe/src/publisher.rs",
-          "line": [
-            92,
-            93,
-            94
-          ],
-          "code": "cout!(\"\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557\");",
-          "purpose": "Unicode box-drawing characters for panic display in no_std environment"
-        }
-      ],
+      "samples": [],
       "count": null,
       "count_methodology": "Conceptual - all Rust source uses UTF-8",
       "samples_waiver": {
         "reason": "conceptual_section",
-        "explanation": "This section describes an abstract concept not directly mappable to concrete code patterns",
-        "approved_by": "automated",
+        "explanation": "Character set is an inherent property of all Rust source files (UTF-8 encoded). Production code uses ASCII subset only.",
+        "approved_by": "pete.levasseur",
         "date": "2025-12-30"
       }
     },
@@ -89,27 +78,21 @@
       "samples": [
         {
           "file": "iceoryx2-cal/src/static_storage/file.rs",
-          "line": [
-            66
-          ],
+          "line": [66],
           "code": "const FINAL_PERMISSIONS: Permission = Permission::OWNER_READ;",
-          "purpose": "SCREAMING_SNAKE_CASE constants for file permissions"
+          "purpose": "SCREAMING_SNAKE_CASE constant identifier following Rust naming conventions for compile-time values"
         },
         {
-          "file": "iceoryx2-ffi/python/src/writer.rs",
-          "line": [
-            31
-          ],
-          "code": "pub struct Writer {",
-          "purpose": "Demonstrates ^(pub\\s+)?(fn|struct|enum|trait|type|const|static|..."
+          "file": "iceoryx2/src/sample.rs",
+          "line": [49, 50, 51, 52, 53],
+          "code": "pub struct Sample<\n    Service: crate::service::Service,\n    Payload: Debug + ?Sized + ZeroCopySend,\n    UserHeader: ZeroCopySend,\n> {",
+          "purpose": "PascalCase struct identifier 'Sample' with generic type parameters following Rust naming conventions"
         },
         {
-          "file": "iceoryx2-ffi/python/src/waitset_run_result.rs",
-          "line": [
-            18
-          ],
-          "code": "pub enum WaitSetRunResult {",
-          "purpose": "Demonstrates ^(pub\\s+)?(fn|struct|enum|trait|type|const|static|..."
+          "file": "iceoryx2/src/port/notifier.rs",
+          "line": [71],
+          "code": "pub enum NotifierCreateError {",
+          "purpose": "PascalCase enum identifier for error types, with descriptive naming indicating creation failure scenarios"
         }
       ],
       "count": 6857
@@ -159,28 +142,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-tunnel/conformance-tests/src/publish_subscribe_propagation.rs",
-              "line": [
-                228
-              ],
-              "code": "let char_value = (b'A' + char_index) as char;",
-              "purpose": "Byte literal for ASCII character arithmetic"
-            },
-            {
-              "file": "iceoryx2-bb/trait-tests/tests/semantic_string_tests.rs",
-              "line": [
-                79
-              ],
-              "code": "assert_that!(sut.insert(1, b't'), is_ok);",
-              "purpose": "Byte literal for character insertion"
+              "file": "iceoryx2-bb/container/src/string/utils.rs",
+              "line": [40, 41, 42],
+              "code": "b'\\t' => vec![b'\\\\', b't'].into_iter(),\nb'\\r' => vec![b'\\\\', b'r'].into_iter(),\nb'\\n' => vec![b'\\\\', b'n'].into_iter(),",
+              "purpose": "Byte literals for escape sequence handling in string processing, converting control characters to escaped representations"
             },
             {
               "file": "iceoryx2-pal/configuration/src/lib.rs",
-              "line": [
-                37
-              ],
+              "line": [37],
               "code": "pub const PATH_SEPARATOR: u8 = b'/';",
-              "purpose": "Demonstrates b'[^']*'..."
+              "purpose": "Byte literal defining platform path separator constant as u8 for efficient path manipulation"
+            },
+            {
+              "file": "iceoryx2-bb/container/src/semantic_string.rs",
+              "line": [44],
+              "code": "matches!(string[0], b'-' | b'0'..=b'9')",
+              "purpose": "Byte literals in pattern matching for semantic string validation, checking if first character is digit or hyphen"
             }
           ],
           "count": 157
@@ -205,27 +182,21 @@
           "samples": [
             {
               "file": "iceoryx2/src/node/mod.rs",
-              "line": [
-                343
-              ],
+              "line": [343],
               "code": "const FALLBACK_EXEC: &[u8] = b\"undefined\";",
-              "purpose": "Byte string for fallback executable name"
+              "purpose": "Byte string literal for fallback executable name constant, used when process name cannot be determined"
             },
             {
-              "file": "iceoryx2/src/node/mod.rs",
-              "line": [
-                1133
-              ],
-              "code": "&FileName::new(b\"node\").unwrap(),",
-              "purpose": "Byte string for node file name"
+              "file": "iceoryx2/src/config.rs",
+              "line": [94, 95, 96],
+              "code": "const DEFAULT_CONFIG_FILE_NAME: &[u8] = b\"iceoryx2.toml\";\nconst RELATIVE_LOCAL_CONFIG_PATH: &[u8] = b\"config\";\nconst RELATIVE_CONFIG_FILE_PATH: &[u8] = b\"iceoryx2\";",
+              "purpose": "Byte string literals defining configuration file paths and names as static byte slices for file system operations"
             },
             {
-              "file": "iceoryx2-cal/tests/zero_copy_connection_posix_shared_memory_tests.rs",
-              "line": [
-                29
-              ],
-              "code": "let mut file = FileName::new(b\"test_\").unwrap();",
-              "purpose": "Demonstrates b\"[^\"]*\"..."
+              "file": "iceoryx2/src/config.rs",
+              "line": [159, 160, 161],
+              "code": "directory: Path::new(b\"services\").unwrap(),\ndata_segment_suffix: FileName::new(b\".data\").unwrap(),\nstatic_config_storage_suffix: FileName::new(b\".service\").unwrap(),",
+              "purpose": "Byte string literals for default service directory and file suffix configuration values"
             }
           ],
           "subsections": {
@@ -240,28 +211,22 @@
               },
               "samples": [
                 {
-                  "file": "iceoryx2-bb/trait-tests/tests/semantic_string_tests.rs",
-                  "line": [
-                    37
-                  ],
-                  "code": "let sut = Sut::new(b\"hello-txt\");",
-                  "purpose": "Demonstrates b\"[^\"]*\"..."
+                  "file": "iceoryx2/src/config.rs",
+                  "line": [94],
+                  "code": "const DEFAULT_CONFIG_FILE_NAME: &[u8] = b\"iceoryx2.toml\";",
+                  "purpose": "Simple byte string literal for default configuration filename constant"
                 },
                 {
-                  "file": "iceoryx2/src/testing.rs",
-                  "line": [
-                    37
-                  ],
-                  "code": "let mut prefix = FileName::new(b\"test_prefix_\").unwrap();",
-                  "purpose": "Demonstrates b\"[^\"]*\"..."
+                  "file": "iceoryx2/src/node/mod.rs",
+                  "line": [343],
+                  "code": "const FALLBACK_EXEC: &[u8] = b\"undefined\";",
+                  "purpose": "Simple byte string literal for process executable fallback value"
                 },
                 {
-                  "file": "iceoryx2-userland/record-and-replay/src/replayer.rs",
-                  "line": [
-                    27
-                  ],
-                  "code": "//! let replay = ReplayerOpener::new(&FilePath::new(b\"recorded_data.iox2\")?)",
-                  "purpose": "Demonstrates b\"[^\"]*\"..."
+                  "file": "iceoryx2/src/config.rs",
+                  "line": [159],
+                  "code": "directory: Path::new(b\"services\").unwrap(),",
+                  "purpose": "Simple byte string literal for default service directory path initialization"
                 }
               ],
               "count": 741
@@ -296,27 +261,21 @@
           "samples": [
             {
               "file": "iceoryx2-pal/posix/src/qnx/unistd.rs",
-              "line": [
-                23
-              ],
+              "line": [23],
               "code": "c\"/proc/self/exefile\".to_owned()",
-              "purpose": "C string literal for QNX process path"
-            },
-            {
-              "file": "iceoryx2-pal/posix/src/libc/unistd.rs",
-              "line": [
-                23
-              ],
-              "code": "c\"/proc/self/exe\".to_owned()",
-              "purpose": "Demonstrates c\"[^\"]*\"..."
+              "purpose": "C string literal for QNX-specific proc filesystem path to get current executable"
             },
             {
               "file": "iceoryx2-pal/posix/src/linux/unistd.rs",
-              "line": [
-                23
-              ],
+              "line": [23],
               "code": "c\"/proc/self/exe\".to_owned()",
-              "purpose": "Demonstrates c\"[^\"]*\"..."
+              "purpose": "C string literal for Linux proc filesystem path to current executable, null-terminated for libc compatibility"
+            },
+            {
+              "file": "iceoryx2-pal/posix/src/windows/win32_udp_port_to_uds_name.rs",
+              "line": [32],
+              "code": "const SHM_SEGMENT_NAME: &CStr = c\"/port_to_uds_name_map\";",
+              "purpose": "C string literal constant for shared memory segment name in Windows UDS emulation layer"
             }
           ],
           "subsections": {
@@ -332,27 +291,21 @@
               "samples": [
                 {
                   "file": "iceoryx2-pal/posix/src/windows/win32_udp_port_to_uds_name.rs",
-                  "line": [
-                    32
-                  ],
+                  "line": [32],
                   "code": "const SHM_SEGMENT_NAME: &CStr = c\"/port_to_uds_name_map\";",
-                  "purpose": "Demonstrates c\"[^\"]*\"..."
-                },
-                {
-                  "file": "iceoryx2-bb/derive-macros/src/zero_copy_send_compile_tests.rs",
-                  "line": [
-                    156
-                  ],
-                  "code": "/// #[type_name(\"abc\" \"def\")]",
-                  "purpose": "Demonstrates c\"[^\"]*\"..."
+                  "purpose": "Simple C string literal for shared memory segment name, automatically null-terminated"
                 },
                 {
                   "file": "iceoryx2-pal/posix/src/linux/unistd.rs",
-                  "line": [
-                    23
-                  ],
+                  "line": [23],
                   "code": "c\"/proc/self/exe\".to_owned()",
-                  "purpose": "Demonstrates c\"[^\"]*\"..."
+                  "purpose": "Simple C string literal for Linux proc path, converted to owned CString for libc readlink call"
+                },
+                {
+                  "file": "iceoryx2-pal/posix/src/qnx/unistd.rs",
+                  "line": [23],
+                  "code": "c\"/proc/self/exefile\".to_owned()",
+                  "purpose": "Simple C string literal for QNX-specific executable path location"
                 }
               ],
               "count": 18
@@ -388,29 +341,21 @@
           "samples": [
             {
               "file": "iceoryx2-pal/posix/src/windows/win32_security_attributes.rs",
-              "line": [
-                85,
-                86,
-                87
-              ],
+              "line": [85, 86, 87],
               "code": "const FILE_READ_DATA_HEX: u32 = 0x1;\nconst FILE_WRITE_DATA_HEX: u32 = 0x2;\nconst FILE_EXECUTE_HEX: u32 = 0x20;",
-              "purpose": "Hexadecimal literals for Windows file permission flags"
+              "purpose": "Hexadecimal literals for Windows file permission bit flags, matching Win32 API constants"
             },
             {
-              "file": "iceoryx2-cal/tests/zero_copy_connection_posix_shared_memory_tests.rs",
-              "line": [
-                1
-              ],
-              "code": "// Copyright (c) 2024 Contributors to the Eclipse Foundation",
-              "purpose": "Demonstrates \\b\\d+(_\\d+)*\\b..."
+              "file": "iceoryx2-pal/posix/src/windows/win32_udp_port_to_uds_name.rs",
+              "line": [30, 31],
+              "code": "const IS_INITIALIZED: u64 = 0xaffedeadbeef;\nconst INITIALIZATION_IN_PROGRESS: u64 = 0xbebebebebebebebe;",
+              "purpose": "Hexadecimal magic number constants for initialization state tracking in lock-free algorithms"
             },
             {
-              "file": "iceoryx2-cal/tests/used_chunk_list_tests.rs",
-              "line": [
-                1
-              ],
-              "code": "// Copyright (c) 2024 Contributors to the Eclipse Foundation",
-              "purpose": "Demonstrates \\b\\d+(_\\d+)*\\b..."
+              "file": "iceoryx2-pal/posix/src/stub/constants.rs",
+              "line": [169, 170],
+              "code": "pub const S_IFMT: mode_t = 0o0170000;\npub const S_IFIFO: mode_t = 0o0010000;",
+              "purpose": "Octal literals for POSIX file mode bitmasks, following traditional Unix conventions"
             }
           ],
           "subsections": {
@@ -438,28 +383,21 @@
               "samples": [
                 {
                   "file": "iceoryx2-pal/posix/src/stub/constants.rs",
-                  "line": [
-                    169,
-                    170
-                  ],
+                  "line": [169, 170],
                   "code": "pub const S_IFMT: mode_t = 0o0170000;\npub const S_IFIFO: mode_t = 0o0010000;",
-                  "purpose": "Octal literals for POSIX file mode constants"
+                  "purpose": "Octal integer literals for POSIX file mode bitmasks used in file type detection"
                 },
                 {
-                  "file": "iceoryx2/tests/service_static_config_tests.rs",
-                  "line": [
-                    1
-                  ],
-                  "code": "// Copyright (c) 2024 Contributors to the Eclipse Foundation",
-                  "purpose": "Demonstrates \\b\\d+(_\\d+)*(u8|u16|u32|u64|u128|usize|i8|i16|i32|..."
+                  "file": "iceoryx2/src/constants.rs",
+                  "line": [14, 18, 21],
+                  "code": "pub const MAX_SERVICE_NAME_LENGTH: usize = 255;\npub const MAX_ATTRIBUTES: usize = 8;\npub const MAX_ATTRIBUTE_KEY_LENGTH: usize = 64;",
+                  "purpose": "Decimal integer literals with usize type suffix defining API size limits"
                 },
                 {
-                  "file": "iceoryx2-tunnel/tunnel/src/tunnel.rs",
-                  "line": [
-                    1
-                  ],
-                  "code": "// Copyright (c) 2025 Contributors to the Eclipse Foundation",
-                  "purpose": "Demonstrates \\b\\d+(_\\d+)*(u8|u16|u32|u64|u128|usize|i8|i16|i32|..."
+                  "file": "iceoryx2/src/service/service_id.rs",
+                  "line": [26],
+                  "code": "const SERVICE_ID_CAPACITY: usize = 64;",
+                  "purpose": "Decimal integer literal for internal buffer capacity constant"
                 }
               ],
               "count": 19819
@@ -478,28 +416,22 @@
               },
               "samples": [
                 {
-                  "file": "iceoryx2/tests/service_request_response_thread_safety_tests.rs",
-                  "line": [
-                    7
-                  ],
-                  "code": "// terms of the Apache Software License 2.0 which is available at",
-                  "purpose": "Demonstrates \\b\\d+\\.\\d+..."
+                  "file": "iceoryx2-pal/configuration/src/lib.rs",
+                  "line": [46],
+                  "code": "pub const AT_LEAST_TIMING_VARIANCE: f32 = 0.25;",
+                  "purpose": "Float literal for timing variance threshold constant used in platform-specific test configuration"
                 },
                 {
-                  "file": "iceoryx2-cal/tests/zero_copy_connection_posix_shared_memory_tests.rs",
-                  "line": [
-                    7
-                  ],
-                  "code": "// terms of the Apache Software License 2.0 which is available at",
-                  "purpose": "Demonstrates \\b\\d+\\.\\d+..."
+                  "file": "iceoryx2-bb/posix/src/scheduler.rs",
+                  "line": [95, 96],
+                  "code": ".clamp(0.0, 1.0),\nfalse => (1.0",
+                  "purpose": "Float literals 0.0 and 1.0 for priority normalization range bounds in scheduler configuration"
                 },
                 {
-                  "file": "iceoryx2-cal/tests/used_chunk_list_tests.rs",
-                  "line": [
-                    7
-                  ],
-                  "code": "// terms of the Apache Software License 2.0 which is available at",
-                  "purpose": "Demonstrates \\b\\d+\\.\\d+..."
+                  "file": "iceoryx2-bb/posix/src/scheduler.rs",
+                  "line": [113],
+                  "code": "let relative_prio: f32 = (priority as f32 / u8::MAX as f32).clamp(0.0, 1.0);",
+                  "purpose": "Float literals for clamping normalized priority values to valid 0-1 range"
                 }
               ],
               "count": 3264
@@ -525,28 +457,21 @@
           "samples": [
             {
               "file": "iceoryx2-bb/container/src/string/utils.rs",
-              "line": [
-                40,
-                41
-              ],
-              "code": "b'\\t' => vec![b'\\\\', b't'].into_iter(),\nb'\\r' => vec![b'\\\\', b'r'].into_iter(),",
-              "purpose": "Escape sequence handling with byte literals"
+              "line": [40, 41, 42],
+              "code": "b'\\t' => vec![b'\\\\', b't'].into_iter(),\nb'\\r' => vec![b'\\\\', b'r'].into_iter(),\nb'\\n' => vec![b'\\\\', b'n'].into_iter(),",
+              "purpose": "Byte character literals for escape sequence translation (tab, carriage return, newline)"
             },
             {
               "file": "iceoryx2-pal/posix/src/windows/win32_udp_port_to_uds_name.rs",
-              "line": [
-                130
-              ],
+              "line": [130],
               "code": "if *c == b'\\\\' || *c == b'/' {",
-              "purpose": "Demonstrates '[^'\\\\]'|'\\\\.'..."
+              "purpose": "Byte character literals for path separator comparison on Windows (backslash and forward slash)"
             },
             {
               "file": "iceoryx2/src/service/naming_scheme.rs",
-              "line": [
-                31
-              ],
+              "line": [31],
               "code": "file.push(b'_').unwrap();",
-              "purpose": "Demonstrates '[^'\\\\]'|'\\\\.'..."
+              "purpose": "Byte character literal for underscore separator in service file naming scheme"
             }
           ],
           "count": 178
@@ -569,28 +494,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-userland/record-and-replay/tests/hex_conversion_tests.rs",
-              "line": [
-                22
-              ],
-              "code": "let sut = \"don't stop me now\";",
-              "purpose": "String literal for test data"
+              "file": "iceoryx2/src/port/mod.rs",
+              "line": [101],
+              "code": "write!(f, \"LoanError::{self:?}\")",
+              "purpose": "String literal in Display trait implementation for error type formatting"
             },
             {
-              "file": "component-tests/rust/src/test_containers.rs",
-              "line": [
-                27
-              ],
-              "code": "#[type_name(\"ContainerTestRequest\")]",
-              "purpose": "Demonstrates \"[^\"]*\"..."
+              "file": "iceoryx2/src/node/mod.rs",
+              "line": [246],
+              "code": "write!(f, \"NodeCreationFailure::{self:?}\")",
+              "purpose": "String literal format string for Display impl of node creation error enum"
             },
             {
-              "file": "iceoryx2-services/discovery/tests/service_discovery_tracker_tests.rs",
-              "line": [
-                24
-              ],
-              "code": "\"test_service_tracker_{}\",",
-              "purpose": "Demonstrates \"[^\"]*\"..."
+              "file": "iceoryx2/src/service/service_name.rs",
+              "line": [173],
+              "code": "Err(v) => Err(E::custom(format!(\"invalid service name provided {v:?}.\"))),",
+              "purpose": "String literal in format! macro for custom deserialization error message"
             }
           ],
           "subsections": {
@@ -606,28 +525,22 @@
               },
               "samples": [
                 {
-                  "file": "iceoryx2-userland/record-and-replay/tests/replayer_tests.rs",
-                  "line": [
-                    45
-                  ],
-                  "code": "file.write(b\"schalalala\").unwrap();",
-                  "purpose": "Demonstrates \"[^\"]*\"..."
+                  "file": "iceoryx2/src/port/mod.rs",
+                  "line": [134],
+                  "code": "write!(f, \"SendError::{self:?}\")",
+                  "purpose": "Simple string literal as format string in Display implementation for SendError"
                 },
                 {
-                  "file": "iceoryx2-pal/testing/src/watchdog.rs",
-                  "line": [
-                    51
-                  ],
-                  "code": "eprintln!(\"Killing test since timeout of {timeout:?} was hit.\");",
-                  "purpose": "Demonstrates \"[^\"]*\"..."
+                  "file": "iceoryx2/src/request_mut_uninit.rs",
+                  "line": [83],
+                  "code": "write!(f, \"RequestMutUninit {{  request: {:?} }}\", self.request)",
+                  "purpose": "Simple string literal with escaped braces for Debug-style output formatting"
                 },
                 {
-                  "file": "iceoryx2-pal/testing/src/lib.rs",
-                  "line": [
-                    35
-                  ],
-                  "code": "\"test failed: {} {} {}\",",
-                  "purpose": "Demonstrates \"[^\"]*\"..."
+                  "file": "iceoryx2/src/service/builder/publish_subscribe.rs",
+                  "line": [411],
+                  "code": "let origin = format!(\"{self:?}\");",
+                  "purpose": "Simple string literal in format! macro for converting builder to string for logging"
                 }
               ],
               "count": 8828
@@ -679,28 +592,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/tests/service_request_response_thread_safety_tests.rs",
-              "line": [
-                39
-              ],
-              "code": ".enable_fire_and_forget_requests(true)",
-              "purpose": "Boolean literal for configuration option"
+              "file": "iceoryx2/src/config.rs",
+              "line": [203, 204],
+              "code": "cleanup_dead_nodes_on_creation: true,\ncleanup_dead_nodes_on_destruction: true,",
+              "purpose": "Boolean literals for default node cleanup configuration flags"
             },
             {
-              "file": "iceoryx2-pal/concurrency-sync/tests/rwlock_tests.rs",
-              "line": [
-                186
-              ],
-              "code": "assert_that!(test_result, eq true);",
-              "purpose": "Demonstrates \\b(true|false)\\b..."
+              "file": "iceoryx2/src/config.rs",
+              "line": [328],
+              "code": "enable_safe_overflow: true,",
+              "purpose": "Boolean literal enabling safe overflow behavior as default for publish-subscribe"
             },
             {
-              "file": "component-tests/rust/src/test_containers.rs",
-              "line": [
-                122
-              ],
-              "code": "size_component_type_is_unsigned: false,",
-              "purpose": "Demonstrates \\b(true|false)\\b..."
+              "file": "iceoryx2/src/config.rs",
+              "line": [696],
+              "code": "let mut is_config_file_set = false;",
+              "purpose": "Boolean literal initializing mutable state flag for config file parsing logic"
             }
           ],
           "count": 2618
@@ -730,28 +637,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-cli/lib/src/output.rs",
-          "line": [
-            1
-          ],
-          "code": "// Copyright (c) 2024 Contributors to the Eclipse Foundation",
-          "purpose": "Demonstrates //|/\\*..."
+          "file": "iceoryx2/src/service/service_id.rs",
+          "line": [57],
+          "code": "// SAFETY: a SemanticString is always a valid UTF-8 string",
+          "purpose": "Line comment documenting safety invariant for unsafe code block"
         },
         {
-          "file": "iceoryx2-cli/lib/src/lib.rs",
-          "line": [
-            1
-          ],
-          "code": "// Copyright (c) 2024 Contributors to the Eclipse Foundation",
-          "purpose": "Demonstrates //|/\\*..."
+          "file": "iceoryx2/src/request_mut_uninit.rs",
+          "line": [290],
+          "code": "// SAFETY: this is safe since the payload was initialized on the line above",
+          "purpose": "SAFETY comment explaining why unsafe transmute is sound after initialization"
         },
         {
-          "file": "iceoryx2-cli/lib/src/format.rs",
-          "line": [
-            1
-          ],
-          "code": "// Copyright (c) 2024 Contributors to the Eclipse Foundation",
-          "purpose": "Demonstrates //|/\\*..."
+          "file": "iceoryx2/src/config.rs",
+          "line": [1],
+          "code": "// Copyright (c) 2023 Contributors to the Eclipse Foundation",
+          "purpose": "Line comment for SPDX license header at file start"
         }
       ],
       "count": 36787
@@ -858,28 +759,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-bb/testing/src/instantiate_conformance_tests_macro.rs",
-              "line": [
-                31
-              ],
-              "code": "macro_rules! instantiate_conformance_tests {",
-              "purpose": "Demonstrates \\b(macro_rules|union|'static)\\b..."
+              "file": "iceoryx2-bb/posix/src/signal.rs",
+              "line": [85],
+              "code": "macro_rules! define_signals {",
+              "purpose": "macro_rules weak keyword defining declarative macro for signal constant generation"
             },
             {
-              "file": "iceoryx2-ffi/c/src/api/writer.rs",
-              "line": [
-                50
-              ],
-              "code": "pub(super) union WriterUnion {",
-              "purpose": "Demonstrates \\b(macro_rules|union|'static)\\b..."
+              "file": "iceoryx2-ffi/c/src/api/waitset.rs",
+              "line": [128],
+              "code": "pub(crate) union WaitSetUnion {",
+              "purpose": "union weak keyword declaring FFI-compatible discriminated union for IPC/Local waitset variants"
             },
             {
-              "file": "iceoryx2-ffi/c/src/api/waitset_guard.rs",
-              "line": [
-                25
-              ],
-              "code": "pub(crate) union GuardUnion {",
-              "purpose": "Demonstrates \\b(macro_rules|union|'static)\\b..."
+              "file": "iceoryx2-ffi/c/src/api/service_builder.rs",
+              "line": [54],
+              "code": "pub(super) union ServiceBuilderUnion {",
+              "purpose": "union weak keyword for service builder variant storage in C FFI bindings"
             }
           ],
           "count": 70

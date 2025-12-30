@@ -66,12 +66,10 @@
           "purpose": "Well-known IPv4 address constants using const fn"
         },
         {
-          "file": "component-tests/rust/src/test_containers.rs",
-          "line": [
-            67
-          ],
-          "code": "fn container_request<T, const CAPACITY: usize>(",
-          "purpose": "Demonstrates const\\s+\\w+\\s*:..."
+          "file": "iceoryx2/src/config.rs",
+          "line": [94, 95, 96],
+          "code": "const DEFAULT_CONFIG_FILE_NAME: &[u8] = b\"iceoryx2.toml\";\nconst RELATIVE_LOCAL_CONFIG_PATH: &[u8] = b\"config\";\nconst RELATIVE_CONFIG_FILE_PATH: &[u8] = b\"iceoryx2\";",
+          "purpose": "Module-level constants defining configuration file paths and names"
         }
       ],
       "count": 4199
@@ -110,12 +108,10 @@
           "purpose": "Deref implementation for RAII guard"
         },
         {
-          "file": "iceoryx2-pal/testing/src/watchdog.rs",
-          "line": [
-            24
-          ],
-          "code": "fn drop(&mut self) {",
-          "purpose": "Demonstrates fn\\s+\\w+..."
+          "file": "iceoryx2-bb/concurrency/src/spin_lock.rs",
+          "line": [118, 119, 120, 121],
+          "code": "impl<T> Drop for SpinLockGuard<'_, T> {\n    fn drop(&mut self) {\n        self.lock.locked.store(false, Ordering::Release);\n    }\n}",
+          "purpose": "Drop implementation for SpinLockGuard releasing the lock on scope exit"
         }
       ],
       "count": 9977
@@ -145,20 +141,16 @@
           "purpose": "Associated type declarations in PortFactory trait"
         },
         {
-          "file": "iceoryx2-bb/posix/src/mutex.rs",
-          "line": [
-            191
-          ],
-          "code": "type Target = T;",
-          "purpose": "Associated type binding in Deref impl"
+          "file": "iceoryx2/src/service/attribute.rs",
+          "line": [398, 399, 400, 401, 402, 403],
+          "code": "impl Deref for AttributeSet {\n    type Target = [Attribute];\n\n    fn deref(&self) -> &Self::Target {\n        self.0.as_slice()\n    }\n}",
+          "purpose": "Associated type Target bound to slice type in Deref implementation"
         },
         {
-          "file": "iceoryx2-cli/lib/src/output.rs",
-          "line": [
-            102
-          ],
-          "code": "type Target = str;",
-          "purpose": "Demonstrates type\\s+\\w+\\s*=..."
+          "file": "iceoryx2/src/service/service_name.rs",
+          "line": [149, 150, 151, 152, 153, 154, 155],
+          "code": "impl core::ops::Deref for ServiceName {\n    type Target = str;\n\n    fn deref(&self) -> &Self::Target {\n        self.as_str()\n    }\n}",
+          "purpose": "Deref impl with associated type Target enabling ServiceName to be used as str"
         }
       ],
       "count": 1166

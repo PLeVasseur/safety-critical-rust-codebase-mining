@@ -12,6 +12,7 @@ This script performs comprehensive validation of the FLS chapter mapping files:
 6. Section Hierarchy Validation - Checks fls_section numbering is well-formed
 7. Sample Minimum Check - Ensures sections have >= 3 samples (or waiver/exempt status)
 8. Count Field Check - Ensures all sections have count field
+9. Sample Audit (optional) - Audits sample quality for review
 
 Exit Codes:
     0 - All checks pass
@@ -30,6 +31,10 @@ Usage:
 
     # Validate a specific file
     uv run python tools/validate_fls_json.py --file=fls_chapter13_attributes.json
+
+    # Audit sample quality (for manual review)
+    uv run python tools/validate_fls_json.py --audit-samples
+    uv run python tools/validate_fls_json.py --audit-samples --file=fls_chapter02_lexical_elements.json
 """
 
 import argparse
@@ -112,6 +117,11 @@ Examples:
         type=str,
         default=None,
         help="Validate a specific file instead of all files (e.g., fls_chapter13_attributes.json)",
+    )
+    parser.add_argument(
+        "--audit-samples",
+        action="store_true",
+        help="Audit sample quality for manual review. Checks for test files, generic purposes, etc.",
     )
     return parser.parse_args()
 
@@ -575,6 +585,140 @@ def collect_count_coverage(data: Dict) -> Dict:
     return result
 
 
+def audit_samples(data: Dict, version: str) -> Dict:
+    """
+    Audit all samples in a chapter for quality issues.
+
+    Checks each sample for:
+        - test_file: Path contains /test/, /tests/, _test.rs, or _tests.rs
+        - short_snippet: Code < 20 characters
+        - generic_purpose: Purpose starts with "Demonstrates" or contains "..."
+        - file_missing: File doesn't exist in repo cache
+        - line_mismatch: Line content doesn't match code snippet
+
+    Returns dict with:
+        - total_samples: total number of samples
+        - flagged_samples: list of samples with issues
+        - issues_by_type: count of issues by type
+    """
+    result = {
+        "total_samples": 0,
+        "flagged_samples": [],
+        "issues_by_type": {
+            "test_file": 0,
+            "short_snippet": 0,
+            "generic_purpose": 0,
+            "file_missing": 0,
+            "line_mismatch": 0,
+        },
+    }
+
+    repo_path = ICEORYX2_CACHE / f"v{version}"
+
+    def check_sample(sample: Dict, section_path: str, fls_section: str) -> Optional[Dict]:
+        """Check a single sample for issues."""
+        issues = []
+        file_path = sample.get("file", "")
+        line_nums = sample.get("line", [])
+        code = sample.get("code", "")
+        purpose = sample.get("purpose", "")
+
+        # Handle line_nums that might be int
+        if isinstance(line_nums, int):
+            line_nums = [line_nums]
+
+        # Check for test file
+        test_patterns = ["/test/", "/tests/", "_test.rs", "_tests.rs", "test_"]
+        if any(pattern in file_path.lower() for pattern in test_patterns):
+            issues.append("test_file")
+            result["issues_by_type"]["test_file"] += 1
+
+        # Check for short snippet
+        if len(code) < 20:
+            issues.append("short_snippet")
+            result["issues_by_type"]["short_snippet"] += 1
+
+        # Check for generic purpose
+        if purpose.startswith("Demonstrates") or "..." in purpose:
+            issues.append("generic_purpose")
+            result["issues_by_type"]["generic_purpose"] += 1
+
+        # Check if file exists and get context
+        context_lines = []
+        actual_line_content = ""
+        if repo_path.exists():
+            full_path = repo_path / file_path
+            if not full_path.exists():
+                issues.append("file_missing")
+                result["issues_by_type"]["file_missing"] += 1
+            elif line_nums:
+                try:
+                    with open(full_path) as f:
+                        all_lines = f.readlines()
+                        # Get context (2 lines before and after)
+                        if line_nums:
+                            center_line = line_nums[0]
+                            start = max(0, center_line - 3)
+                            end = min(len(all_lines), center_line + 2)
+                            for i in range(start, end):
+                                prefix = ">>>" if (i + 1) in line_nums else "   "
+                                context_lines.append(f"{prefix} {i + 1:4}: {all_lines[i].rstrip()}")
+                            
+                            # Check if code matches
+                            if center_line <= len(all_lines):
+                                actual_line_content = all_lines[center_line - 1].strip()
+                                # Simple check: see if the code snippet is in the actual line
+                                code_simplified = code.strip().replace(" ", "")
+                                actual_simplified = actual_line_content.replace(" ", "")
+                                if code_simplified not in actual_simplified and actual_simplified not in code_simplified:
+                                    # More lenient: check if key parts match
+                                    if len(code) > 10 and code[:10] not in actual_line_content:
+                                        issues.append("line_mismatch")
+                                        result["issues_by_type"]["line_mismatch"] += 1
+                except Exception:
+                    pass
+
+        if issues:
+            return {
+                "section_path": section_path,
+                "fls_section": fls_section,
+                "file": file_path,
+                "line": line_nums,
+                "code": code,
+                "purpose": purpose,
+                "issues": issues,
+                "context": context_lines,
+                "actual_line": actual_line_content,
+            }
+        return None
+
+    def process_sections(sections: Dict, path: str = ""):
+        """Process all sections recursively."""
+        for key, section in sections.items():
+            if not isinstance(section, dict):
+                continue
+
+            current_path = f"{path}.{key}" if path else key
+            fls_section = section.get("fls_section", "")
+            samples = section.get("samples", [])
+
+            for sample in samples:
+                result["total_samples"] += 1
+                flagged = check_sample(sample, current_path, fls_section)
+                if flagged:
+                    result["flagged_samples"].append(flagged)
+
+            # Recurse into subsections
+            subsections = section.get("subsections", {})
+            if subsections:
+                process_sections(subsections, current_path)
+
+    json_sections = data.get("sections", {})
+    process_sections(json_sections, "sections")
+
+    return result
+
+
 def validate_section_hierarchy(data: Dict) -> List[str]:
     """
     Validate that fls_section values form a valid hierarchy.
@@ -638,7 +782,8 @@ def validate_section_hierarchy(data: Dict) -> List[str]:
 
 
 def validate_file(
-    file_path: Path, schema: Dict, fls_mapping: Dict, max_depth: Optional[int] = None
+    file_path: Path, schema: Dict, fls_mapping: Dict, max_depth: Optional[int] = None,
+    do_audit: bool = False
 ) -> Dict:
     """
     Validate a single JSON file.
@@ -653,6 +798,7 @@ def validate_file(
         - hierarchy_errors: section hierarchy errors
         - sample_violations: sections with insufficient samples
         - count_coverage: count field coverage summary
+        - sample_audit: sample quality audit results (if do_audit=True)
     """
     result = {
         "file": file_path.name,
@@ -669,6 +815,7 @@ def validate_file(
         "hierarchy_errors": [],
         "sample_violations": [],
         "count_coverage": {},
+        "sample_audit": {},
     }
 
     # Load JSON
@@ -731,6 +878,11 @@ def validate_file(
 
     # Count field coverage (independent of FLS mapping)
     result["count_coverage"] = collect_count_coverage(data)
+
+    # Sample audit (if requested)
+    if do_audit:
+        version = data.get("version", "0.8.0")
+        result["sample_audit"] = audit_samples(data, version)
 
     return result
 
@@ -1017,6 +1169,73 @@ def generate_report(
     lines.append(f"  With count (null): {total_with_null}")
     lines.append(f"  Missing count: {total_missing}")
 
+    # Sample Audit Report (if audit was performed)
+    has_audit = any(r.get("sample_audit", {}).get("total_samples", 0) > 0 for r in results)
+    if has_audit:
+        lines.append("")
+        lines.append("=" * 60)
+        lines.append("SAMPLE AUDIT REPORT")
+        lines.append("=" * 60)
+        lines.append("")
+        lines.append("Issue Types:")
+        lines.append("  - test_file: Sample from test file (should use production code)")
+        lines.append("  - short_snippet: Code snippet < 20 characters")
+        lines.append("  - generic_purpose: Purpose is auto-generated/generic")
+        lines.append("  - file_missing: File doesn't exist in repo")
+        lines.append("  - line_mismatch: Line content doesn't match code snippet")
+        lines.append("")
+
+        total_samples = 0
+        total_flagged = 0
+        total_issues = {"test_file": 0, "short_snippet": 0, "generic_purpose": 0, "file_missing": 0, "line_mismatch": 0}
+
+        for result in results:
+            audit = result.get("sample_audit", {})
+            if not audit or audit.get("total_samples", 0) == 0:
+                continue
+
+            total_samples += audit.get("total_samples", 0)
+            flagged = audit.get("flagged_samples", [])
+            total_flagged += len(flagged)
+            for issue_type, count in audit.get("issues_by_type", {}).items():
+                total_issues[issue_type] = total_issues.get(issue_type, 0) + count
+
+            lines.append("-" * 60)
+            lines.append(f"FILE: {result['file']}")
+            lines.append("-" * 60)
+            lines.append(f"  Total samples: {audit.get('total_samples', 0)}")
+            lines.append(f"  Flagged samples: {len(flagged)}")
+            lines.append("  Issues by type:")
+            for issue_type, count in audit.get("issues_by_type", {}).items():
+                if count > 0:
+                    lines.append(f"    - {issue_type}: {count}")
+            lines.append("")
+
+            if flagged:
+                lines.append("  FLAGGED SAMPLES:")
+                lines.append("")
+                for i, sample in enumerate(flagged, 1):
+                    lines.append(f"  [{i}] {sample['section_path']} ({sample['fls_section']})")
+                    lines.append(f"      File: {sample['file']}:{sample['line']}")
+                    lines.append(f"      Code: {sample['code'][:80]}{'...' if len(sample['code']) > 80 else ''}")
+                    lines.append(f"      Purpose: {sample['purpose'][:80]}{'...' if len(sample['purpose']) > 80 else ''}")
+                    lines.append(f"      Issues: {', '.join(sample['issues'])}")
+                    if sample.get("context"):
+                        lines.append("      Context:")
+                        for ctx_line in sample["context"]:
+                            lines.append(f"        {ctx_line}")
+                    lines.append("")
+
+        lines.append("=" * 60)
+        lines.append("SAMPLE AUDIT SUMMARY")
+        lines.append("=" * 60)
+        lines.append(f"  Total samples audited: {total_samples}")
+        lines.append(f"  Total flagged: {total_flagged}")
+        lines.append(f"  Issues by type:")
+        for issue_type, count in total_issues.items():
+            if count > 0:
+                lines.append(f"    - {issue_type}: {count}")
+
     # Exit codes reference
     lines.append("")
     lines.append("=" * 60)
@@ -1098,11 +1317,13 @@ def main() -> int:
     print(f"Validating {len(json_files)} files...")
     if args.depth:
         print(f"Coverage depth limit: {args.depth}")
+    if args.audit_samples:
+        print("Sample audit: enabled")
 
     results = []
     for json_file in json_files:
         print(f"  Checking {json_file.name}...")
-        result = validate_file(json_file, schema, fls_mapping, args.depth)
+        result = validate_file(json_file, schema, fls_mapping, args.depth, args.audit_samples)
         results.append(result)
 
     # Find missing chapters

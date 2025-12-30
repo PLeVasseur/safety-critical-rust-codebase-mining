@@ -2,115 +2,15 @@
 FLS MAPPING VALIDATION REPORT
 ============================================================
 
-Files validated: 21
-Schema valid: 21/21
-Coverage valid: 21/21
-FLS IDs valid: 21/21
-Sample minimums valid: 21/21
+Files validated: 1
+Schema valid: 1/1
+Coverage valid: 1/1
+FLS IDs valid: 1/1
+Sample minimums valid: 1/1
 MUST_BE_FILLED markers: 0
 Path errors: 0
 Sample violations (<3 samples): 0
 Sections missing count field: 0
-
-------------------------------------------------------------
-FILE: fls_chapter02_lexical_elements.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter03_items.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter04_types_and_traits.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter05_patterns.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter06_expressions.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter07_values.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter08_statements.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter09_functions.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter10_associated_items.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter11_implementations.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter12_generics.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter13_attributes.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter14_entities_resolution.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter15_ownership_destruction.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter16_exceptions_errors.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter17_concurrency.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter18_program_structure.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter19_unsafety.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter20_macros.json
-------------------------------------------------------------
-  OK - No issues found
-
-------------------------------------------------------------
-FILE: fls_chapter21_ffi.json
-------------------------------------------------------------
-  OK - No issues found
 
 ------------------------------------------------------------
 FILE: fls_chapter22_inline_assembly.json
@@ -120,135 +20,6 @@ FILE: fls_chapter22_inline_assembly.json
 ============================================================
 FLS COVERAGE REPORT
 ============================================================
-
-fls_chapter02_lexical_elements.json:
-  Coverage: 24/24 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) safety_critical_summary
-
-fls_chapter03_items.json:
-  Coverage: 15/15 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) safety_critical_summary
-
-fls_chapter04_types_and_traits.json:
-  Coverage: 57/57 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) safety_critical_summary
-
-fls_chapter05_patterns.json:
-  Coverage: 27/27 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) safety_critical_summary
-
-fls_chapter06_expressions.json:
-  Coverage: 58/58 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) safety_critical_summary
-
-fls_chapter07_values.json:
-  Coverage: 5/5 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) safety_critical_summary
-
-fls_chapter08_statements.json:
-  Coverage: 6/6 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) safety_critical_summary
-
-fls_chapter09_functions.json:
-  Coverage: 11/11 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) design_patterns
-    - (top-level) cross_chapter_references
-
-fls_chapter10_associated_items.json:
-  Coverage: 3/3 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) design_patterns
-    - (top-level) cross_chapter_references
-
-fls_chapter11_implementations.json:
-  Coverage: 2/2 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) cross_chapter_references
-
-fls_chapter12_generics.json:
-  Coverage: 4/4 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) design_patterns
-    - (top-level) cross_chapter_references
-
-fls_chapter13_attributes.json:
-  Coverage: 57/57 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) design_patterns
-    - (top-level) cross_chapter_references
-
-fls_chapter14_entities_resolution.json:
-  Coverage: 23/23 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) design_patterns
-    - (top-level) cross_chapter_references
-
-fls_chapter15_ownership_destruction.json:
-  Coverage: 10/10 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) design_patterns
-    - (top-level) cross_chapter_references
-
-fls_chapter16_exceptions_errors.json:
-  Coverage: 2/2 sections (100%)
-  Missing: none
-
-fls_chapter17_concurrency.json:
-  Coverage: 3/3 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) design_patterns
-    - (top-level) cross_chapter_references
-
-fls_chapter18_program_structure.json:
-  Coverage: 7/7 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) design_patterns
-    - (top-level) cross_chapter_references
-
-fls_chapter19_unsafety.json:
-  Coverage: 10/10 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) design_patterns
-    - (top-level) cross_chapter_references
-
-fls_chapter20_macros.json:
-  Coverage: 14/14 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) design_patterns
-    - (top-level) cross_chapter_references
-
-fls_chapter21_ffi.json:
-  Coverage: 4/4 sections (100%)
-  Missing: none
-  Extra (informational):
-    - (top-level) design_patterns
-    - (top-level) cross_chapter_references
 
 fls_chapter22_inline_assembly.json:
   Coverage: 10/10 sections (100%)
@@ -260,92 +31,6 @@ fls_chapter22_inline_assembly.json:
 FLS ID VALIDATION
 ============================================================
 
-fls_chapter02_lexical_elements.json:
-  Valid IDs: 21
-  Invalid IDs: none
-  Unmapped in FLS source: 4 (OK)
-
-fls_chapter03_items.json:
-  Valid IDs: 1
-  Invalid IDs: none
-
-fls_chapter04_types_and_traits.json:
-  Valid IDs: 50
-  Invalid IDs: none
-  Unmapped in FLS source: 8 (OK)
-
-fls_chapter05_patterns.json:
-  Valid IDs: 28
-  Invalid IDs: none
-
-fls_chapter06_expressions.json:
-  Valid IDs: 52
-  Invalid IDs: none
-  Unmapped in FLS source: 7 (OK)
-
-fls_chapter07_values.json:
-  Valid IDs: 6
-  Invalid IDs: none
-
-fls_chapter08_statements.json:
-  Valid IDs: 7
-  Invalid IDs: none
-
-fls_chapter09_functions.json:
-  Valid IDs: 1
-  Invalid IDs: none
-
-fls_chapter10_associated_items.json:
-  Valid IDs: 1
-  Invalid IDs: none
-
-fls_chapter11_implementations.json:
-  Valid IDs: 3
-  Invalid IDs: none
-
-fls_chapter12_generics.json:
-  Valid IDs: 5
-  Invalid IDs: none
-
-fls_chapter13_attributes.json:
-  Valid IDs: 54
-  Invalid IDs: none
-  Unmapped in FLS source: 4 (OK)
-
-fls_chapter14_entities_resolution.json:
-  Valid IDs: 23
-  Invalid IDs: none
-  Unmapped in FLS source: 1 (OK)
-
-fls_chapter15_ownership_destruction.json:
-  Valid IDs: 11
-  Invalid IDs: none
-
-fls_chapter16_exceptions_errors.json:
-  Valid IDs: 3
-  Invalid IDs: none
-
-fls_chapter17_concurrency.json:
-  Valid IDs: 4
-  Invalid IDs: none
-
-fls_chapter18_program_structure.json:
-  Valid IDs: 7
-  Invalid IDs: none
-  Unmapped in FLS source: 1 (OK)
-
-fls_chapter19_unsafety.json:
-  Valid IDs: 11
-  Invalid IDs: none
-
-fls_chapter20_macros.json:
-  Valid IDs: 15
-  Invalid IDs: none
-
-fls_chapter21_ffi.json:
-  Valid IDs: 5
-  Invalid IDs: none
-
 fls_chapter22_inline_assembly.json:
   Valid IDs: 10
   Invalid IDs: none
@@ -356,6 +41,46 @@ MISSING CHAPTERS
 ============================================================
 
   Chapter 1 (General): No JSON file found
+
+  Chapter 2 (Lexical Elements): No JSON file found
+
+  Chapter 3 (Items): No JSON file found
+
+  Chapter 4 (Types and Traits): No JSON file found
+
+  Chapter 5 (Patterns): No JSON file found
+
+  Chapter 6 (Expressions): No JSON file found
+
+  Chapter 7 (Values): No JSON file found
+
+  Chapter 8 (Statements): No JSON file found
+
+  Chapter 9 (Functions): No JSON file found
+
+  Chapter 10 (Associated Items): No JSON file found
+
+  Chapter 11 (Implementations): No JSON file found
+
+  Chapter 12 (Generics): No JSON file found
+
+  Chapter 13 (Attributes): No JSON file found
+
+  Chapter 14 (Entities and Resolution): No JSON file found
+
+  Chapter 15 (Ownership and Destruction): No JSON file found
+
+  Chapter 16 (Exceptions and Errors): No JSON file found
+
+  Chapter 17 (Concurrency): No JSON file found
+
+  Chapter 18 (Program Structure and Compilation): No JSON file found
+
+  Chapter 19 (Unsafety): No JSON file found
+
+  Chapter 20 (Macros): No JSON file found
+
+  Chapter 21 (FFI): No JSON file found
 
 ============================================================
 MUST_BE_FILLED INVENTORY
@@ -376,126 +101,6 @@ Exempt statuses: deliberately_avoided, implicit, not_applicable, not_used
 COUNT FIELD COVERAGE
 ============================================================
 
-fls_chapter02_lexical_elements.json:
-  Total sections: 24
-  With count (integer): 16
-  With count (null): 8
-  Missing count: 0
-
-fls_chapter03_items.json:
-  Total sections: 15
-  With count (integer): 12
-  With count (null): 3
-  Missing count: 0
-
-fls_chapter04_types_and_traits.json:
-  Total sections: 57
-  With count (integer): 34
-  With count (null): 23
-  Missing count: 0
-
-fls_chapter05_patterns.json:
-  Total sections: 27
-  With count (integer): 15
-  With count (null): 12
-  Missing count: 0
-
-fls_chapter06_expressions.json:
-  Total sections: 58
-  With count (integer): 31
-  With count (null): 27
-  Missing count: 0
-
-fls_chapter07_values.json:
-  Total sections: 5
-  With count (integer): 2
-  With count (null): 3
-  Missing count: 0
-
-fls_chapter08_statements.json:
-  Total sections: 6
-  With count (integer): 5
-  With count (null): 1
-  Missing count: 0
-
-fls_chapter09_functions.json:
-  Total sections: 11
-  With count (integer): 9
-  With count (null): 2
-  Missing count: 0
-
-fls_chapter10_associated_items.json:
-  Total sections: 3
-  With count (integer): 3
-  With count (null): 0
-  Missing count: 0
-
-fls_chapter11_implementations.json:
-  Total sections: 2
-  With count (integer): 2
-  With count (null): 0
-  Missing count: 0
-
-fls_chapter12_generics.json:
-  Total sections: 4
-  With count (integer): 3
-  With count (null): 1
-  Missing count: 0
-
-fls_chapter13_attributes.json:
-  Total sections: 57
-  With count (integer): 57
-  With count (null): 0
-  Missing count: 0
-
-fls_chapter14_entities_resolution.json:
-  Total sections: 23
-  With count (integer): 6
-  With count (null): 17
-  Missing count: 0
-
-fls_chapter15_ownership_destruction.json:
-  Total sections: 10
-  With count (integer): 6
-  With count (null): 4
-  Missing count: 0
-
-fls_chapter16_exceptions_errors.json:
-  Total sections: 2
-  With count (integer): 2
-  With count (null): 0
-  Missing count: 0
-
-fls_chapter17_concurrency.json:
-  Total sections: 3
-  With count (integer): 2
-  With count (null): 1
-  Missing count: 0
-
-fls_chapter18_program_structure.json:
-  Total sections: 7
-  With count (integer): 6
-  With count (null): 1
-  Missing count: 0
-
-fls_chapter19_unsafety.json:
-  Total sections: 10
-  With count (integer): 6
-  With count (null): 4
-  Missing count: 0
-
-fls_chapter20_macros.json:
-  Total sections: 14
-  With count (integer): 7
-  With count (null): 7
-  Missing count: 0
-
-fls_chapter21_ffi.json:
-  Total sections: 4
-  With count (integer): 4
-  With count (null): 0
-  Missing count: 0
-
 fls_chapter22_inline_assembly.json:
   Total sections: 10
   With count (integer): 5
@@ -504,10 +109,151 @@ fls_chapter22_inline_assembly.json:
 
 ----------------------------------------
 TOTALS:
-  Total sections: 352
-  With count (integer): 233
-  With count (null): 119
+  Total sections: 10
+  With count (integer): 5
+  With count (null): 5
   Missing count: 0
+
+============================================================
+SAMPLE AUDIT REPORT
+============================================================
+
+Issue Types:
+  - test_file: Sample from test file (should use production code)
+  - short_snippet: Code snippet < 20 characters
+  - generic_purpose: Purpose is auto-generated/generic
+  - file_missing: File doesn't exist in repo
+  - line_mismatch: Line content doesn't match code snippet
+
+------------------------------------------------------------
+FILE: fls_chapter22_inline_assembly.json
+------------------------------------------------------------
+  Total samples: 13
+  Flagged samples: 9
+  Issues by type:
+    - short_snippet: 3
+    - generic_purpose: 5
+    - line_mismatch: 2
+
+  FLAGGED SAMPLES:
+
+  [1] sections.registers (22.1)
+      File: examples/nostd/bare-metal/rust/publish-subscribe/src/startup.rs:[13]
+      Code: core::arch::global_asm!(
+      Purpose: Demonstrates asm!...
+      Issues: generic_purpose
+      Context:
+              11: // SPDX-License-Identifier: Apache-2.0 OR MIT
+              12: 
+        >>>   13: core::arch::global_asm!(
+              14:     r#"
+              15: 
+
+  [2] sections.register_arguments (22.3)
+      File: examples/nostd/bare-metal/rust/publish-subscribe/src/startup.rs:[13]
+      Code: core::arch::global_asm!(
+      Purpose: Demonstrates asm!...
+      Issues: generic_purpose
+      Context:
+              11: // SPDX-License-Identifier: Apache-2.0 OR MIT
+              12: 
+        >>>   13: core::arch::global_asm!(
+              14:     r#"
+              15: 
+
+  [3] sections.assembly_instructions (22.4)
+      File: examples/nostd/bare-metal/rust/_common/src/semihosting.rs:[20]
+      Code: "svc 0x123456",
+      Purpose: ARM supervisor call for semihosting
+      Issues: short_snippet
+      Context:
+              18:     let result: usize;
+              19:     core::arch::asm!(
+        >>>   20:         "svc 0x123456",
+              21:         inout("r0") operation => result,
+              22:         in("r1") arg,
+
+  [4] sections.assembly_instructions (22.4)
+      File: examples/nostd/bare-metal/rust/publish-subscribe/src/startup.rs:[13]
+      Code: core::arch::global_asm!(
+      Purpose: Demonstrates asm!...
+      Issues: generic_purpose
+      Context:
+              11: // SPDX-License-Identifier: Apache-2.0 OR MIT
+              12: 
+        >>>   13: core::arch::global_asm!(
+              14:     r#"
+              15: 
+
+  [5] sections.assembly_instructions.register_parameter_modifiers (22.4.1)
+      File: examples/nostd/bare-metal/rust/publish-subscribe/src/startup.rs:[13]
+      Code: core::arch::global_asm!(
+      Purpose: Demonstrates asm!...
+      Issues: generic_purpose
+      Context:
+              11: // SPDX-License-Identifier: Apache-2.0 OR MIT
+              12: 
+        >>>   13: core::arch::global_asm!(
+              14:     r#"
+              15: 
+
+  [6] sections.assembly_instructions.directive_support (22.4.2)
+      File: examples/nostd/bare-metal/rust/publish-subscribe/src/startup.rs:[14]
+      Code: .section .text.startup
+      Purpose: Places startup code in specific section
+      Issues: line_mismatch
+      Context:
+              12: 
+              13: core::arch::global_asm!(
+        >>>   14:     r#"
+              15: 
+              16: .section .text.startup
+
+  [7] sections.assembly_instructions.directive_support (22.4.2)
+      File: examples/nostd/bare-metal/rust/_common/src/semihosting.rs:[19]
+      Code: core::arch::asm!(
+      Purpose: Demonstrates asm!...
+      Issues: short_snippet, generic_purpose
+      Context:
+              17: pub unsafe fn syscall(operation: usize, arg: usize) -> usize {
+              18:     let result: usize;
+        >>>   19:     core::arch::asm!(
+              20:         "svc 0x123456",
+              21:         inout("r0") operation => result,
+
+  [8] sections.assembly_options (22.6)
+      File: examples/nostd/bare-metal/rust/_common/src/semihosting.rs:[23]
+      Code: options(nostack)
+      Purpose: Indicates assembly does not use stack
+      Issues: short_snippet
+      Context:
+              21:         inout("r0") operation => result,
+              22:         in("r1") arg,
+        >>>   23:         options(nostack)
+              24:     );
+              25: 
+
+  [9] sections.macros_asm_global_asm_and_naked_asm (22.7)
+      File: examples/nostd/bare-metal/rust/_common/src/semihosting.rs:[17, 18, 19]
+      Code: core::arch::asm!("svc 0x123456", ...)
+      Purpose: asm! macro for ARM semihosting syscall
+      Issues: line_mismatch
+      Context:
+              15: 
+              16: #[inline(always)]
+        >>>   17: pub unsafe fn syscall(operation: usize, arg: usize) -> usize {
+        >>>   18:     let result: usize;
+        >>>   19:     core::arch::asm!(
+
+============================================================
+SAMPLE AUDIT SUMMARY
+============================================================
+  Total samples audited: 13
+  Total flagged: 9
+  Issues by type:
+    - short_snippet: 3
+    - generic_purpose: 5
+    - line_mismatch: 2
 
 ============================================================
 EXIT CODES

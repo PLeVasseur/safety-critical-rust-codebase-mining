@@ -125,21 +125,15 @@
         },
         {
           "file": "examples/nostd/posix/rust/publish-subscribe/src/subscriber.rs",
-          "line": [
-            93,
-            94,
-            95
-          ],
-          "code": "SignalHandler::abort();",
-          "purpose": "no_std panic handler calls abort"
+          "line": [95, 96, 97, 98],
+          "code": "SignalHandler::abort();\n\nloop {\n    core::hint::spin_loop();\n}",
+          "purpose": "no_std panic handler calls abort then loops to prevent return"
         },
         {
           "file": "iceoryx2-pal/posix/src/android/signal.rs",
-          "line": [
-            71
-          ],
-          "code": "pub unsafe fn abort() {",
-          "purpose": "Demonstrates std::process::abort|abort\\s*\\(\\)..."
+          "line": [71, 72, 73],
+          "code": "pub unsafe fn abort() {\n    libc::abort()\n}",
+          "purpose": "Platform abstraction layer abort wrapper calling libc abort on Android"
         }
       ],
       "safety_notes": [

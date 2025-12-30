@@ -65,12 +65,10 @@
           "purpose": "Foreign trait (Display) for local type"
         },
         {
-          "file": "iceoryx2-cli/lib/src/output.rs",
-          "line": [
-            101
-          ],
-          "code": "impl Deref for NodeIdString {",
-          "purpose": "Demonstrates impl\\s+\\w+\\s+for\\s+\\w+..."
+          "file": "iceoryx2/src/service/attribute.rs",
+          "line": [398, 399, 400, 401, 402, 403],
+          "code": "impl Deref for AttributeSet {\n    type Target = [Attribute];\n\n    fn deref(&self) -> &Self::Target {\n        self.0.as_slice()\n    }\n}",
+          "purpose": "Foreign trait (Deref) for local type enabling slice access to attributes"
         }
       ],
       "count": 948
@@ -116,12 +114,10 @@
           "purpose": "Marker trait implementations for thread safety"
         },
         {
-          "file": "iceoryx2-bb/derive-macros/tests/zero_copy_send_tests.rs",
-          "line": [
-            25
-          ],
-          "code": "unsafe impl ZeroCopySend for Foo {}",
-          "purpose": "Demonstrates impl\\s+\\w+..."
+          "file": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
+          "line": [50, 51, 52, 53],
+          "code": "unsafe impl ZeroCopySend for usize {}\nunsafe impl ZeroCopySend for u8 {}\nunsafe impl ZeroCopySend for u16 {}\nunsafe impl ZeroCopySend for u32 {}",
+          "purpose": "Unsafe marker trait implementations for primitive types enabling zero-copy IPC"
         }
       ],
       "count": 2050

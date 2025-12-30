@@ -50,27 +50,21 @@
       "samples": [
         {
           "file": "iceoryx2/src/constants.rs",
-          "line": [
-            14
-          ],
+          "line": [14],
           "code": "pub const MAX_SERVICE_NAME_LENGTH: usize = 255;",
-          "purpose": "Configuration constant"
+          "purpose": "Public constant defining maximum service name length as API limit"
         },
         {
-          "file": "iceoryx2-bb/trait-tests/tests/semantic_string_tests.rs",
-          "line": [
-            36
-          ],
-          "code": "fn new_works<const CAPACITY: usize, Sut: SemanticString<CAPACITY>>() {",
-          "purpose": "Demonstrates const\\s+\\w+\\s*:..."
+          "file": "iceoryx2/src/constants.rs",
+          "line": [18, 21, 24],
+          "code": "pub const MAX_ATTRIBUTES: usize = 8;\npub const MAX_ATTRIBUTE_KEY_LENGTH: usize = 64;\npub const MAX_ATTRIBUTE_VALUE_LENGTH: usize = 256;",
+          "purpose": "Public constants defining attribute system capacity limits"
         },
         {
-          "file": "iceoryx2-ffi/python/src/port_factory_notifier.rs",
-          "line": [
-            51
-          ],
-          "code": "let v: *const iceoryx2::service::port_factory::event::PortFactory<",
-          "purpose": "Demonstrates const\\s+\\w+\\s*:..."
+          "file": "iceoryx2/src/service/service_name.rs",
+          "line": [41],
+          "code": "pub const INTERNAL_SERVICE_PREFIX: &str = \"iox2://\";",
+          "purpose": "Public string constant for internal service naming scheme prefix"
         }
       ],
       "safety_notes": [
@@ -92,29 +86,21 @@
       "samples": [
         {
           "file": "iceoryx2/src/service/service_name.rs",
-          "line": [
-            44,
-            45,
-            46
-          ],
-          "code": "pub enum ServiceNameError { InvalidContent, ExceedsMaximumLength }",
-          "purpose": "Error enum"
+          "line": [44, 45, 46, 47, 48, 49, 50],
+          "code": "#[derive(Debug, PartialEq, Eq, Copy, Clone)]\npub enum ServiceNameError {\n    InvalidContent,\n    ExceedsMaximumLength,\n}",
+          "purpose": "Public error enum with derive macros for common traits, representing service name validation failures"
         },
         {
-          "file": "iceoryx2-log/loggers/src/file.rs",
-          "line": [
-            33
-          ],
-          "code": "enum Message {",
-          "purpose": "Demonstrates ^\\s*pub\\s+enum\\s|^\\s*enum\\s..."
+          "file": "iceoryx2/src/signal_handling_mode.rs",
+          "line": [16],
+          "code": "pub enum SignalHandlingMode {",
+          "purpose": "Public enum defining signal handling behavior options for the runtime"
         },
         {
-          "file": "iceoryx2-ffi/python/src/waitset_run_result.rs",
-          "line": [
-            18
-          ],
-          "code": "pub enum WaitSetRunResult {",
-          "purpose": "Demonstrates ^\\s*pub\\s+enum\\s|^\\s*enum\\s..."
+          "file": "iceoryx2/src/port/mod.rs",
+          "line": [56],
+          "code": "pub enum DegradationAction {",
+          "purpose": "Public enum defining degradation behavior when publisher history cannot be delivered"
         }
       ],
       "safety_notes": [
@@ -136,28 +122,21 @@
       "samples": [
         {
           "file": "iceoryx2-pal/posix/src/linux/pthread.rs",
-          "line": [
-            255,
-            256
-          ],
-          "code": "extern \"C\" { pub fn pthread_attr_setaffinity_np(...) }",
-          "purpose": "POSIX FFI binding"
+          "line": [254, 255, 256, 257, 258, 259, 260],
+          "code": "#[cfg_attr(target_os = \"linux\", link(name = \"pthread\"))]\nextern \"C\" {\n    pub(super) fn pthread_attr_setaffinity_np(\n        attr: *mut pthread_attr_t,\n        cpusetsize: size_t,\n        cpuset: *const native_cpu_set_t,\n    ) -> int;",
+          "purpose": "External block binding Linux pthread affinity functions with conditional linking for platform-specific builds"
         },
         {
-          "file": "iceoryx2-pal/posix/src/linux/select.rs",
-          "line": [
-            68
-          ],
-          "code": "extern \"C\" {",
-          "purpose": "Demonstrates extern\\s+\"C\"\\s*\\{..."
+          "file": "iceoryx2-pal/posix/src/macos/pthread.rs",
+          "line": [150, 151, 152, 153, 154, 155, 156, 157],
+          "code": "#[link(name = \"c++\")]\nextern \"C\" {\n    #[link_name = \"_ZNSt3__123__libcpp_atomic_monitorEPVKv\"]\n    fn __libcpp_atomic_monitor(ptr: *const void) -> i64;\n\n    #[link_name = \"_ZNSt3__120__libcpp_atomic_waitEPVKv\"]\n    fn __libcpp_atomic_wait(ptr: *const void, monitor: i64);",
+          "purpose": "External block binding macOS libc++ atomic wait functions with mangled C++ symbol names"
         },
         {
-          "file": "iceoryx2-pal/posix/src/android/pthread.rs",
-          "line": [
-            284
-          ],
-          "code": "extern \"C\" {",
-          "purpose": "Demonstrates extern\\s+\"C\"\\s*\\{..."
+          "file": "iceoryx2-pal/posix/src/freebsd/errno.rs",
+          "line": [171, 172, 173, 174, 175],
+          "code": "#[cfg_attr(target_os = \"freebsd\", link(name = \"c\"))]\nextern \"C\" {\n    pub(super) fn __error() -> *mut int;\n    pub(super) fn strerror_r(errnum: int, buf: *mut c_char, buflen: size_t) -> int;\n}",
+          "purpose": "External block for FreeBSD-specific errno access via __error() thread-local function"
         }
       ],
       "safety_notes": [
@@ -180,64 +159,21 @@
       "samples": [
         {
           "file": "iceoryx2-bb/elementary-traits/src/lib.rs",
-          "line": [
-            17
-          ],
-          "code": "extern crate alloc;"
+          "line": [15, 16, 18],
+          "code": "#![warn(clippy::std_instead_of_alloc)]\n#![warn(clippy::std_instead_of_core)]\n\nextern crate alloc;",
+          "purpose": "Imports alloc crate for no_std heap allocation with clippy lints enforcing no_std compliance"
         },
         {
           "file": "iceoryx2/src/lib.rs",
-          "line": [
-            513
-          ],
-          "code": "extern crate alloc;"
-        },
-        {
-          "file": "iceoryx2/src/port/writer.rs",
-          "line": [
-            61
-          ],
-          "code": "extern crate alloc;"
-        },
-        {
-          "file": "iceoryx2/src/port/reader.rs",
-          "line": [
-            56
-          ],
-          "code": "extern crate alloc;"
-        },
-        {
-          "file": "iceoryx2-log/log/src/lib.rs",
-          "line": [
-            145
-          ],
-          "code": "extern crate alloc;"
-        },
-        {
-          "file": "iceoryx2-cal/src/lib.rs",
-          "line": [
-            17
-          ],
-          "code": "extern crate alloc;"
-        },
-        {
-          "file": "iceoryx2-bb/container/src/lib.rs",
-          "line": [
-            91
-          ],
-          "code": "extern crate alloc;"
+          "line": [511, 512],
+          "code": "extern crate alloc;\nextern crate iceoryx2_loggers;",
+          "purpose": "Main library imports alloc for no_std and links logger backend for runtime logging"
         },
         {
           "file": "iceoryx2-bb/derive-macros/src/lib.rs",
-          "line": [
-            19
-          ],
-          "code": "extern crate proc_macro;"
-        },
-        {
-          "file": "iceoryx2-log/loggers/src/lib.rs",
-          "line": [],
-          "code": "extern crate iceoryx2_log;"
+          "line": [20, 21, 23, 24],
+          "code": "extern crate alloc;\nextern crate proc_macro;\n\nuse alloc::format;\nuse alloc::vec::Vec;",
+          "purpose": "Derive macro crate imports alloc and proc_macro for compile-time code generation"
         }
       ],
       "safety_notes": [
@@ -260,28 +196,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-cli/lib/src/output.rs",
-          "line": [
-            38
-          ],
-          "code": "fn from(service: &IceoryxServiceDetails<T>) -> Self {",
-          "purpose": "Demonstrates fn\\s+\\w+..."
+          "file": "iceoryx2/src/sample.rs",
+          "line": [122],
+          "code": "pub fn payload(&self) -> &Payload {",
+          "purpose": "Public method returning reference to generic payload type"
         },
         {
-          "file": "component-tests/rust/src/test_containers.rs",
-          "line": [
-            21
-          ],
-          "code": "pub fn new() -> Self {",
-          "purpose": "Demonstrates fn\\s+\\w+..."
+          "file": "iceoryx2/src/sample.rs",
+          "line": [127],
+          "code": "pub fn user_header(&self) -> &UserHeader {",
+          "purpose": "Public method returning reference to user header in sample"
         },
         {
-          "file": "iceoryx2/tests/service_static_config_tests.rs",
-          "line": [
-            21
-          ],
-          "code": "fn test_internal_new() {",
-          "purpose": "Demonstrates fn\\s+\\w+..."
+          "file": "iceoryx2/src/sample.rs",
+          "line": [137],
+          "code": "pub fn origin(&self) -> UniquePublisherId {",
+          "purpose": "Public method returning the publisher ID that created this sample"
         }
       ],
       "safety_notes": [
@@ -388,52 +318,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/elementary-traits/src/lib.rs",
-          "line": [
-            19
-          ],
-          "code": "pub mod allocator;"
-        },
-        {
-          "file": "iceoryx2-bb/elementary-traits/src/lib.rs",
-          "line": [
-            22,
-            23,
-            24,
-            25,
-            26,
-            27
-          ],
-          "code": "pub mod generic_pointer; ... pub mod zero_copy_send;"
-        },
-        {
           "file": "iceoryx2/src/lib.rs",
-          "line": [
-            518,
-            519,
-            520,
-            521
-          ],
-          "code": "pub mod config; ... pub mod node;"
+          "line": [515, 518, 521, 524],
+          "code": "pub mod constants;\npub mod config;\npub mod node;\npub mod port;",
+          "purpose": "Main library module declarations exposing core public API components with doc comments"
+        },
+        {
+          "file": "iceoryx2-bb/elementary-traits/src/lib.rs",
+          "line": [20, 21, 22, 23, 24, 25],
+          "code": "pub mod allocator;\nmod as_cstr;\npub use crate::as_cstr::*;\npub mod generic_pointer;\npub mod owning_pointer;\npub mod placement_default;",
+          "purpose": "Elementary traits crate declares public and private modules with re-export pattern"
         },
         {
           "file": "iceoryx2/src/node/mod.rs",
-          "line": [
-            143
-          ],
-          "code": "pub mod node_name;"
-        },
-        {
-          "file": "iceoryx2/src/node/mod.rs",
-          "line": [
-            146
-          ],
-          "code": "pub mod testing;"
-        },
-        {
-          "file": "iceoryx2-ffi/c/src/api/mod.rs",
-          "line": [],
-          "code": "pub mod node; pub mod publisher; ... (FFI modules)"
+          "line": [143, 146],
+          "code": "pub mod node_name;\n#[doc(hidden)]\npub mod testing;",
+          "purpose": "Submodule declarations including hidden testing module for internal use"
         }
       ],
       "safety_notes": [
@@ -455,26 +355,21 @@
       "samples": [
         {
           "file": "iceoryx2-pal/posix/src/windows/errno.rs",
-          "line": [
-            142
-          ],
-          "code": "pub static GLOBAL_ERRNO_VALUE: Cell<u32> = const { Cell::new(Errno::ESUCCES as _) };"
+          "line": [142],
+          "code": "pub static GLOBAL_ERRNO_VALUE: Cell<u32> = const { Cell::new(Errno::ESUCCES as _) };",
+          "purpose": "Static thread-local errno storage for Windows platform abstraction using Cell for interior mutability"
         },
         {
           "file": "iceoryx2-bb/elementary/src/unique_id.rs",
-          "line": [
-            80
-          ],
+          "line": [80],
           "code": "static COUNTER: AtomicU64 = AtomicU64::new(0);",
-          "purpose": "Demonstrates ^\\s*pub\\s+static\\s|^\\s*static\\s..."
+          "purpose": "Atomic static counter for generating unique IDs across the process lifetime"
         },
         {
-          "file": "iceoryx2-bb/posix/tests/signal_tests.rs",
-          "line": [
-            30
-          ],
-          "code": "static COUNTER: AtomicUsize = AtomicUsize::new(0);",
-          "purpose": "Demonstrates ^\\s*pub\\s+static\\s|^\\s*static\\s..."
+          "file": "iceoryx2-bb/elementary/src/unique_id.rs",
+          "line": [115],
+          "code": "static COUNTER: AtomicU64 = AtomicU64::new(0);",
+          "purpose": "Another atomic static counter for a different unique ID type generation"
         }
       ],
       "safety_notes": [
@@ -499,28 +394,21 @@
       "samples": [
         {
           "file": "iceoryx2-bb/posix/src/mutex.rs",
-          "line": [
-            507,
-            508
-          ],
+          "line": [507, 508],
           "code": "pub struct Mutex<'this, 'handle: 'this, T: Debug> { ... }",
-          "purpose": "POSIX mutex wrapper"
+          "purpose": "Generic POSIX mutex wrapper struct with lifetime parameters for handle management"
         },
         {
-          "file": "iceoryx2/tests/service_static_config_tests.rs",
-          "line": [
-            24
-          ],
-          "code": "struct Tmp;",
-          "purpose": "Demonstrates ^\\s*pub\\s+struct\\s|^\\s*struct\\s..."
+          "file": "iceoryx2/src/service/service_id.rs",
+          "line": [33],
+          "code": "pub struct ServiceId(pub(crate) RestrictedFileName<SERVICE_ID_CAPACITY>);",
+          "purpose": "Newtype struct wrapping RestrictedFileName for type-safe service identification"
         },
         {
-          "file": "benchmarks/request-response/src/main.rs",
-          "line": [
-            233
-          ],
-          "code": "struct Args {",
-          "purpose": "Demonstrates ^\\s*pub\\s+struct\\s|^\\s*struct\\s..."
+          "file": "iceoryx2/src/sample.rs",
+          "line": [49, 50, 51, 52, 53],
+          "code": "pub struct Sample<\n    Service: crate::service::Service,\n    Payload: Debug + ?Sized + ZeroCopySend,\n    UserHeader: ZeroCopySend,\n> {",
+          "purpose": "Generic struct for received IPC samples with type parameters for service, payload, and header"
         }
       ],
       "safety_notes": [
@@ -544,27 +432,21 @@
       "samples": [
         {
           "file": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
-          "line": [
-            32
-          ],
+          "line": [32],
           "code": "pub unsafe trait ZeroCopySend { }",
-          "purpose": "Zero-copy safety trait"
+          "purpose": "Unsafe marker trait ensuring types are safe for zero-copy IPC transfer"
         },
         {
           "file": "iceoryx2/src/port/update_connections.rs",
-          "line": [
-            48
-          ],
+          "line": [48],
           "code": "pub trait UpdateConnections {",
-          "purpose": "Demonstrates ^\\s*pub\\s+trait\\s|^\\s*trait\\s..."
+          "purpose": "Trait defining connection update behavior for IPC ports"
         },
         {
           "file": "iceoryx2-cal/src/zero_copy_connection/mod.rs",
-          "line": [
-            150
-          ],
+          "line": [150],
           "code": "pub trait ZeroCopyConnectionBuilder<C: ZeroCopyConnection>: NamedConceptBuilder<C> {",
-          "purpose": "Demonstrates ^\\s*pub\\s+trait\\s|^\\s*trait\\s..."
+          "purpose": "Builder trait with supertrait bound for constructing zero-copy connections"
         }
       ],
       "safety_notes": [
@@ -587,81 +469,21 @@
       "samples": [
         {
           "file": "iceoryx2/src/port/event_id.rs",
-          "line": [
-            42
-          ],
-          "code": "pub type EventId = iceoryx2_cal::event::TriggerId;"
+          "line": [42],
+          "code": "pub type EventId = iceoryx2_cal::event::TriggerId;",
+          "purpose": "Type alias re-exporting internal TriggerId as public EventId for API stability"
         },
         {
           "file": "iceoryx2/src/service/static_config/message_type_details.rs",
-          "line": [
-            54
-          ],
-          "code": "pub type TypeNameString = StaticString<MAX_TYPE_NAME_LENGTH>;"
-        },
-        {
-          "file": "iceoryx2/src/service/attribute.rs",
-          "line": [
-            141
-          ],
-          "code": "pub type AttributeKey = key::FixedString;"
-        },
-        {
-          "file": "iceoryx2/src/service/attribute.rs",
-          "line": [
-            174
-          ],
-          "code": "pub type AttributeValue = value::FixedString;"
-        },
-        {
-          "file": "iceoryx2-bb/lock-free/src/mpmc/bit_set.rs",
-          "line": [
-            53
-          ],
-          "code": "pub type BitSet = details::BitSet<OwningPointer<details::BitsetElement>>;"
-        },
-        {
-          "file": "iceoryx2-bb/lock-free/src/mpmc/bit_set.rs",
-          "line": [
-            55
-          ],
-          "code": "pub type RelocatableBitSet = details::BitSet<RelocatablePointer<details::BitsetElement>>;"
-        },
-        {
-          "file": "iceoryx2-bb/lock-free/src/spsc/index_queue.rs",
-          "line": [
-            96,
-            97
-          ],
-          "code": "pub type IndexQueue = details::IndexQueue<OwningPointer<...>>; pub type RelocatableIndexQueue = ..."
+          "line": [54],
+          "code": "pub type TypeNameString = StaticString<MAX_TYPE_NAME_LENGTH>;",
+          "purpose": "Type alias creating bounded string type for storing type names in static config"
         },
         {
           "file": "iceoryx2-cal/src/dynamic_storage/recommended.rs",
-          "line": [
-            16
-          ],
-          "code": "pub type Ipc<T> = crate::dynamic_storage::posix_shared_memory::Storage<T>;"
-        },
-        {
-          "file": "iceoryx2-cal/src/dynamic_storage/recommended.rs",
-          "line": [
-            21
-          ],
-          "code": "pub type Local<T> = crate::dynamic_storage::process_local::Storage<T>;"
-        },
-        {
-          "file": "iceoryx2-cal/src/zero_copy_connection/recommended.rs",
-          "line": [
-            16
-          ],
-          "code": "pub type Ipc = crate::zero_copy_connection::posix_shared_memory::Connection;"
-        },
-        {
-          "file": "iceoryx2-cal/src/zero_copy_connection/recommended.rs",
-          "line": [
-            21
-          ],
-          "code": "pub type Local = crate::zero_copy_connection::process_local::Connection;"
+          "line": [16, 21],
+          "code": "pub type Ipc<T> = crate::dynamic_storage::posix_shared_memory::Storage<T>;\npub type Local<T> = crate::dynamic_storage::process_local::Storage<T>;",
+          "purpose": "Platform-abstraction type aliases selecting IPC vs process-local storage implementations"
         }
       ],
       "safety_notes": [
@@ -683,28 +505,21 @@
       "samples": [
         {
           "file": "iceoryx2-ffi/c/src/api/writer.rs",
-          "line": [
-            50,
-            51
-          ],
-          "code": "pub union WriterUnion { ipc: ManuallyDrop<...>, local: ManuallyDrop<...> }",
-          "purpose": "FFI union"
+          "line": [50, 51, 52, 53],
+          "code": "pub(super) union WriterUnion {\n    ipc: ManuallyDrop<Writer<crate::IpcService, KeyFfi>>,\n    local: ManuallyDrop<Writer<crate::LocalService, KeyFfi>>,\n}",
+          "purpose": "FFI union discriminating between IPC and local writer variants with ManuallyDrop for safe destruction"
         },
         {
           "file": "iceoryx2-ffi/c/src/api/static_config.rs",
-          "line": [
-            31
-          ],
-          "code": "pub union iox2_static_config_details_t {",
-          "purpose": "Demonstrates ^\\s*pub\\s+union\\s|^\\s*union\\s..."
+          "line": [29, 30, 31, 32, 33, 34, 35],
+          "code": "#[derive(Clone, Copy)]\n#[repr(C)]\npub union iox2_static_config_details_t {\n    pub event: iox2_static_config_event_t,\n    pub publish_subscribe: iox2_static_config_publish_subscribe_t,\n    pub request_response: iox2_static_config_request_response_t,\n    pub blackboard: iox2_static_config_blackboard_t,\n}",
+          "purpose": "C-compatible union for messaging pattern config with repr(C) for FFI ABI stability"
         },
         {
-          "file": "iceoryx2-bb/derive-macros/tests/zero_copy_send_tests.rs",
-          "line": [
-            93
-          ],
-          "code": "union BasicUnionTest {",
-          "purpose": "Demonstrates ^\\s*pub\\s+union\\s|^\\s*union\\s..."
+          "file": "iceoryx2-ffi/c/src/api/publisher.rs",
+          "line": [95, 96, 97, 98],
+          "code": "pub(super) union PublisherUnion {\n    ipc: ManuallyDrop<Publisher<crate::IpcService, Payload, UserHeader, KeyFfi>>,\n    local: ManuallyDrop<Publisher<crate::LocalService, Payload, UserHeader, KeyFfi>>,\n}",
+          "purpose": "FFI union for publisher variants enabling type-erased C API across transport modes"
         }
       ],
       "safety_notes": [
@@ -714,7 +529,7 @@
         "ZeroCopySend now supports unions (#1144)",
         "Review required: ensure all union accesses have proper safety justifications"
       ],
-      "count": 2
+      "count": 42
     },
     "use_import": {
       "fls_section": "3.0.13",
@@ -726,58 +541,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
-          "line": [
-            16
-          ],
-          "code": "pub use core::{alloc::Layout, ptr::NonNull};"
+          "file": "iceoryx2/src/prelude.rs",
+          "line": [14, 15, 16, 17, 18, 19, 20, 21],
+          "code": "pub use crate::node::{node_name::NodeName, Node, NodeBuilder, NodeState};\npub use crate::port::{event_id::EventId, unable_to_deliver_strategy::UnableToDeliverStrategy};\npub use crate::service::messaging_pattern::MessagingPattern;\npub use crate::service::{\n    attribute::AttributeSet, attribute::AttributeSpecifier, attribute::AttributeVerifier, ipc,\n    ipc_threadsafe, local, local_threadsafe, port_factory::PortFactory, service_name::ServiceName,\n    Service, ServiceDetails,\n};",
+          "purpose": "Prelude re-exports curated public API types for convenient single-import usage pattern"
         },
         {
           "file": "iceoryx2-bb/elementary-traits/src/lib.rs",
-          "line": [
-            21
-          ],
-          "code": "pub use crate::as_cstr::*;"
+          "line": [22],
+          "code": "pub use crate::as_cstr::*;",
+          "purpose": "Glob re-export making private module's public items available at crate root"
         },
         {
-          "file": "iceoryx2/src/prelude.rs",
-          "line": [
-            13
-          ],
-          "code": "pub use crate::config::Config;"
-        },
-        {
-          "file": "iceoryx2/src/prelude.rs",
-          "line": [
-            14
-          ],
-          "code": "pub use crate::node::{node_name::NodeName, Node, NodeBuilder, NodeState};"
-        },
-        {
-          "file": "iceoryx2/src/prelude.rs",
-          "line": [
-            17,
-            18,
-            19,
-            20,
-            21
-          ],
-          "code": "pub use crate::service::{ ... };"
-        },
-        {
-          "file": "iceoryx2/src/prelude.rs",
-          "line": [
-            24
-          ],
-          "code": "pub use iceoryx2_bb_container::semantic_string::SemanticString;"
-        },
-        {
-          "file": "iceoryx2/src/prelude.rs",
-          "line": [
-            26,
-            27
-          ],
-          "code": "pub use iceoryx2_bb_derive_macros::PlacementDefault; pub use ... ZeroCopySend;"
+          "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
+          "line": [16],
+          "code": "pub use core::{alloc::Layout, ptr::NonNull};",
+          "purpose": "Re-exports core library types for no_std allocator interface"
         }
       ],
       "safety_notes": [
@@ -798,46 +577,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/elementary-traits/src/allocator.rs",
-          "line": [
-            19
-          ],
-          "code": "#[derive(Debug, Clone, Copy, Eq, Hash, PartialEq)]"
+          "file": "iceoryx2-bb/container/src/semantic_string.rs",
+          "line": [388, 389, 390, 391, 392, 393, 394],
+          "code": "#[macro_export(local_inner_macros)]\nmacro_rules! semantic_string {\n    {$(#[$documentation:meta])*\n     name: $string_name:ident,\n     capacity: $capacity:expr,\n     invalid_content: $invalid_content:expr,\n     invalid_characters: $invalid_characters:expr,",
+          "purpose": "Exported macro for defining custom semantic string types with validation rules"
         },
         {
-          "file": "iceoryx2/src/signal_handling_mode.rs",
-          "line": [
-            15
-          ],
-          "code": "#[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]"
+          "file": "iceoryx2/src/port/port_identifiers.rs",
+          "line": [20, 21, 22, 23, 24, 25, 26],
+          "code": "macro_rules! generate_id {\n    { $(#[$documentation:meta])*\n        $id_name:ident } => {\n        $(#[$documentation])*\n        #[repr(C)]\n        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, ZeroCopySend)]\n        pub struct $id_name(pub(crate) UniqueSystemId);",
+          "purpose": "Internal macro generating type-safe ID wrapper structs with common derives"
         },
         {
-          "file": "iceoryx2/src/node/node_name.rs",
-          "line": [
-            23
-          ],
-          "code": "#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]"
-        },
-        {
-          "file": "iceoryx2/src/node/mod.rs",
-          "line": [
-            226
-          ],
-          "code": "#[derive(Debug, Copy, Clone, PartialEq, Eq)]"
-        },
-        {
-          "file": "iceoryx2/src/node/mod.rs",
-          "line": [
-            315
-          ],
-          "code": "#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]"
-        },
-        {
-          "file": "iceoryx2-bb/container/src/string/static_string.rs",
-          "line": [
-            58
-          ],
-          "code": "#[derive(PlacementDefault, ZeroCopySend, Clone, Copy)] (NEW: StaticString implements Copy)"
+          "file": "iceoryx2-bb/posix/src/handle_errno.rs",
+          "line": [17],
+          "code": "macro_rules! handle_errno {",
+          "purpose": "Utility macro for consistent POSIX errno handling across platform abstraction layer"
         }
       ],
       "safety_notes": [
@@ -859,28 +614,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-services/discovery/tests/service_discovery_tracker_tests.rs",
-          "line": [
-            40
-          ],
-          "code": "let mut services = vec![];",
-          "purpose": "Demonstrates \\w+!\\s*\\(.*\\);|\\w+!\\s*\\[.*\\];|\\w+!\\s*\\{.*\\};..."
+          "file": "iceoryx2/src/port/notifier.rs",
+          "line": [136],
+          "code": "connections: vec![],",
+          "purpose": "Vec initialization macro in struct constructor for dynamic listener connection storage"
         },
         {
-          "file": "iceoryx2-services/discovery/tests/service_discovery_service_tests.rs",
-          "line": [
-            67
-          ],
-          "code": "let mut services = vec![];",
-          "purpose": "Demonstrates \\w+!\\s*\\(.*\\);|\\w+!\\s*\\[.*\\];|\\w+!\\s*\\{.*\\};..."
+          "file": "iceoryx2/src/port/notifier.rs",
+          "line": [218, 219],
+          "code": "let mut visited_indices = vec![];\nvisited_indices.resize(self.len(), None);",
+          "purpose": "Vec macro creating resizable buffer for tracking visited listener indices"
         },
         {
-          "file": "iceoryx2-userland/record-and-replay/tests/hex_conversion_tests.rs",
-          "line": [
-            26
-          ],
-          "code": "assert_that!(sut.as_bytes(), eq roundtrip_sut);",
-          "purpose": "Demonstrates \\w+!\\s*\\(.*\\);|\\w+!\\s*\\[.*\\];|\\w+!\\s*\\{.*\\};..."
+          "file": "iceoryx2/src/service/builder/event.rs",
+          "line": [567],
+          "code": "let origin = format!(\"{self:?}\");",
+          "purpose": "Format macro creating debug origin string for logging and error context"
         }
       ],
       "count": 7322

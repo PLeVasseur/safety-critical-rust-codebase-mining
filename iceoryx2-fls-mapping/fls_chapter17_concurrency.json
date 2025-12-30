@@ -219,28 +219,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-cal/tests/dynamic_storage_posix_shared_memory_tests.rs",
-          "line": [
-            30
-          ],
-          "code": "unsafe impl Send for TestData {}",
-          "purpose": "Demonstrates unsafe\\s+impl\\s+(Send|Sync)|impl\\s+(Send|Sync)..."
+          "file": "iceoryx2-bb/posix/src/barrier.rs",
+          "line": [162, 163],
+          "code": "unsafe impl Send for BarrierHandle {}\nunsafe impl Sync for BarrierHandle {}",
+          "purpose": "Marker trait implementations enabling BarrierHandle to be shared across threads"
         },
         {
-          "file": "iceoryx2-pal/posix/src/windows/socket.rs",
-          "line": [
-            78
-          ],
-          "code": "unsafe impl Sync for GlobalWsaInitializer {}",
-          "purpose": "Demonstrates unsafe\\s+impl\\s+(Send|Sync)|impl\\s+(Send|Sync)..."
+          "file": "iceoryx2-bb/posix/src/semaphore.rs",
+          "line": [405, 406],
+          "code": "unsafe impl Send for NamedSemaphore {}\nunsafe impl Sync for NamedSemaphore {}",
+          "purpose": "Thread-safety markers for POSIX named semaphore wrapper"
         },
         {
-          "file": "iceoryx2-pal/posix/src/windows/signal.rs",
-          "line": [
-            104
-          ],
-          "code": "unsafe impl Send for SigAction {}",
-          "purpose": "Demonstrates unsafe\\s+impl\\s+(Send|Sync)|impl\\s+(Send|Sync)..."
+          "file": "iceoryx2-bb/posix/src/signal.rs",
+          "line": [297],
+          "code": "unsafe impl Send for SignalHandler {}",
+          "purpose": "Enables SignalHandler registration from different threads"
         }
       ],
       "count": 55
@@ -467,28 +461,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2/src/waitset.rs",
-          "line": [
-            222
-          ],
-          "code": "use iceoryx2_bb_concurrency::atomic::AtomicUsize;",
-          "purpose": "Demonstrates Atomic\\w+|Ordering::..."
+          "file": "iceoryx2-bb/elementary/src/unique_id.rs",
+          "line": [80],
+          "code": "static COUNTER: AtomicU64 = AtomicU64::new(0);",
+          "purpose": "Static atomic counter for generating globally unique IDs across threads"
         },
         {
-          "file": "iceoryx2/tests/service_event_thread_safety_tests.rs",
-          "line": [
-            18
-          ],
-          "code": "use iceoryx2_bb_concurrency::atomic::AtomicBool;",
-          "purpose": "Demonstrates Atomic\\w+|Ordering::..."
+          "file": "iceoryx2/src/waitset.rs",
+          "line": [511],
+          "code": "attachment_counter: AtomicUsize::new(0),",
+          "purpose": "Atomic counter tracking WaitSet attachments for thread-safe ID generation"
         },
         {
           "file": "iceoryx2-cal/src/zero_copy_connection/used_chunk_list.rs",
-          "line": [
-            15
-          ],
-          "code": "use iceoryx2_bb_concurrency::atomic::AtomicBool;",
-          "purpose": "Demonstrates Atomic\\w+|Ordering::..."
+          "line": [15, 16],
+          "code": "use iceoryx2_bb_concurrency::atomic::AtomicBool;\nuse iceoryx2_bb_concurrency::atomic::Ordering;",
+          "purpose": "Atomic types used for lock-free chunk tracking in zero-copy connections"
         }
       ],
       "count": 1711

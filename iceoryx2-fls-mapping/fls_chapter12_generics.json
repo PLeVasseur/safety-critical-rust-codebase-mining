@@ -47,28 +47,22 @@
       "findings": {},
       "samples": [
         {
-          "file": "benchmarks/publish-subscribe/src/main.rs",
-          "line": [
-            23
-          ],
-          "code": "fn perform_benchmark<T: Service>(args: &Args) -> Result<(), Box<dyn core::error::Error>> {",
-          "purpose": "Demonstrates <[A-Z]\\w*>|<[A-Z]\\w*,|<[A-Z]\\w*:..."
+          "file": "iceoryx2/src/sample_mut_uninit.rs",
+          "line": [119, 120, 121, 122, 123, 124],
+          "code": "unsafe impl<\n        Service: crate::service::Service,\n        Payload: Debug + ZeroCopySend + ?Sized,\n        UserHeader: ZeroCopySend,\n    > Send for SampleMutUninit<Service, Payload, UserHeader>",
+          "purpose": "Generic type parameters with trait bounds enabling thread-safe sample handling"
         },
         {
-          "file": "benchmarks/event/src/main.rs",
-          "line": [
-            19
-          ],
-          "code": "fn perform_benchmark<T: Service>(args: &Args) -> Result<(), Box<dyn core::error::Error>> {",
-          "purpose": "Demonstrates <[A-Z]\\w*>|<[A-Z]\\w*,|<[A-Z]\\w*:..."
+          "file": "iceoryx2/src/port/server.rs",
+          "line": [235, 236, 237, 238, 239, 240, 241],
+          "code": "unsafe impl<\n        Service: service::Service,\n        RequestPayload: Debug + ZeroCopySend + ?Sized,\n        RequestHeader: Debug + ZeroCopySend,\n        ResponsePayload: Debug + ZeroCopySend + ?Sized,\n        ResponseHeader: Debug + ZeroCopySend,\n    > Send for Server<Service, ...",
+          "purpose": "Multiple generic type parameters with trait bounds for request-response server"
         },
         {
-          "file": "benchmarks/queue/src/main.rs",
-          "line": [
-            40
-          ],
-          "code": "impl<const CAPACITY: usize> PushPop for FixedSizeIndexQueue<CAPACITY> {",
-          "purpose": "Demonstrates <[A-Z]\\w*>|<[A-Z]\\w*,|<[A-Z]\\w*:..."
+          "file": "iceoryx2/src/service/static_config/mod.rs",
+          "line": [66, 67, 68],
+          "code": "service_id: ServiceId::new::<Hasher>(\n    service_name,\n    crate::service::messaging_pattern::MessagingPattern::RequestResponse,\n),",
+          "purpose": "Turbofish syntax providing concrete type argument for hash function"
         }
       ],
       "count": 7012
@@ -83,28 +77,22 @@
       "findings": {},
       "samples": [
         {
-          "file": "iceoryx2/src/request_mut_uninit.rs",
-          "line": [
-            45
-          ],
-          "code": "/// A version of the [`RequestMut`] where the payload is not initialized which allows",
-          "purpose": "Demonstrates \\bwhere\\s+..."
+          "file": "iceoryx2/src/sample_mut_uninit.rs",
+          "line": [124, 125, 126, 127],
+          "code": "    > Send for SampleMutUninit<Service, Payload, UserHeader>\nwhere\n    Service::ArcThreadSafetyPolicy<PublisherSharedState<Service>>: Send + Sync,\n{",
+          "purpose": "Where clause constraining associated type to Send + Sync for thread safety"
         },
         {
-          "file": "iceoryx2/src/port/writer.rs",
-          "line": [
-            636
-          ],
-          "code": "/// where key and value type cannot be passed as generic.",
-          "purpose": "Demonstrates \\bwhere\\s+..."
+          "file": "iceoryx2/src/active_request.rs",
+          "line": [111, 112, 113, 114],
+          "code": "for ActiveRequest<Service, RequestPayload, RequestHeader, ResponsePayload, ResponseHeader>\nwhere\n    Service::ArcThreadSafetyPolicy<SharedServerState<Service>>: Send + Sync,\n{",
+          "purpose": "Where clause on ActiveRequest ensuring thread-safe service state handling"
         },
         {
-          "file": "iceoryx2/src/port/subscriber.rs",
-          "line": [
-            431
-          ],
-          "code": "///     corresponds to the payload type details that where overridden in",
-          "purpose": "Demonstrates \\bwhere\\s+..."
+          "file": "iceoryx2/src/port/server.rs",
+          "line": [253, 254, 255, 256],
+          "code": "> Sync for Server<Service, RequestPayload, RequestHeader, ResponsePayload, ResponseHeader>\nwhere\n    Service::ArcThreadSafetyPolicy<SharedServerState<Service>>: Send + Sync,\n{",
+          "purpose": "Where clause enabling Sync trait impl only when service policy supports it"
         }
       ],
       "count": 67
@@ -119,28 +107,22 @@
       "findings": {},
       "samples": [
         {
-          "file": "iceoryx2-cli/lib/src/filter.rs",
-          "line": [
-            45
-          ],
-          "code": "if let Ok(pid) = s.parse::<pid_t>() {",
-          "purpose": "Demonstrates ::<\\w+>|<\\w+>::..."
+          "file": "iceoryx2/src/service/static_config/mod.rs",
+          "line": [66],
+          "code": "service_id: ServiceId::new::<Hasher>(",
+          "purpose": "Turbofish generic argument specifying hash algorithm type"
         },
         {
-          "file": "iceoryx2-cli/iox2/tests/commands_tests.rs",
-          "line": [
-            114
-          ],
-          "code": "let commands = IceoryxCommandFinder::<HostEnvironment>::commands()",
-          "purpose": "Demonstrates ::<\\w+>|<\\w+>::..."
+          "file": "iceoryx2-cli/lib/src/filter.rs",
+          "line": [45],
+          "code": "if let Ok(pid) = s.parse::<pid_t>() {",
+          "purpose": "Turbofish specifying target type for string parsing"
         },
         {
           "file": "iceoryx2-cli/iox2/src/command/paths.rs",
-          "line": [
-            22
-          ],
+          "line": [22],
           "code": "let paths = IceoryxCommandFinder::<E>::paths().context(\"Failed to list search paths\")?;",
-          "purpose": "Demonstrates ::<\\w+>|<\\w+>::..."
+          "purpose": "Generic environment type parameter for command path lookup"
         }
       ],
       "count": 2617
