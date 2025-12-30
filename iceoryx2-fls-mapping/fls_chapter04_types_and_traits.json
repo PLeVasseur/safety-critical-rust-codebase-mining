@@ -109,28 +109,22 @@
           },
           "samples": [
             {
-              "file": "component-tests/rust/src/test_containers.rs",
-              "line": [
-                37
-              ],
-              "code": "size_component_type_is_unsigned: bool,",
-              "purpose": "Demonstrates :\\s*bool\\b|-> bool\\b..."
+              "file": "iceoryx2/src/port/details/receiver.rs",
+              "line": [151, 152, 153, 154],
+              "code": "pub(crate) fn set_channel_state(&self, channel_id: ChannelId, state: u64) -> bool {\n    let mut ret_val = true;\n    let connection_storage = unsafe { &mut *self.connection_storage.get() };\n    for (_, connection) in connection_storage.iter() {",
+              "purpose": "Bool return type for channel state update success indicator"
+            },
+            {
+              "file": "iceoryx2/src/port/details/receiver.rs",
+              "line": [262],
+              "code": "pub(crate) fn has_samples(&self, channel_id: ChannelId) -> bool {",
+              "purpose": "Bool return type for checking sample availability in receiver"
             },
             {
               "file": "iceoryx2-pal/concurrency-sync/src/once.rs",
-              "line": [
-                109
-              ],
-              "code": "pub fn is_completed(&self) -> bool {",
-              "purpose": "Demonstrates :\\s*bool\\b|-> bool\\b..."
-            },
-            {
-              "file": "component-tests/rust/src/test_container_mutation.rs",
-              "line": [
-                124
-              ],
-              "code": "fn check_response(res: &ContainerMutationTestResponse) -> bool {",
-              "purpose": "Demonstrates :\\s*bool\\b|-> bool\\b..."
+              "line": [109, 110],
+              "code": "pub fn is_completed(&self) -> bool {\n    self.load_state() == State::Complete",
+              "purpose": "Bool return type for once-cell completion status check"
             }
           ],
           "count": 789
@@ -150,19 +144,15 @@
           "samples": [
             {
               "file": "iceoryx2-cli/iox2/src/command/mod.rs",
-              "line": [
-                30
-              ],
-              "code": "const PATH_ENV_VAR_SEPARATOR: char = ';';",
-              "purpose": "Demonstrates :\\s*char\\b|-> char\\b..."
+              "line": [30, 31, 32, 33, 34, 35],
+              "code": "const PATH_ENV_VAR_SEPARATOR: char = ';';\n#[cfg(windows)]\nconst COMMAND_EXT: &str = \"exe\";\n\n#[cfg(not(windows))]\nconst PATH_ENV_VAR_SEPARATOR: char = ':';",
+              "purpose": "Char type constants for platform-specific path separator characters"
             },
             {
               "file": "iceoryx2-bb/elementary/src/math.rs",
-              "line": [
-                46
-              ],
-              "code": "let remainder_to_char = |value| -> char {",
-              "purpose": "Demonstrates :\\s*char\\b|-> char\\b..."
+              "line": [46, 47, 48],
+              "code": "let remainder_to_char = |value| -> char {\n    if value < 10 {\n        ((48 + value) as u8) as char",
+              "purpose": "Char return type in closure converting numeric remainder to digit character"
             }
           ],
           "count": 3,
@@ -202,28 +192,22 @@
               },
               "samples": [
                 {
-                  "file": "iceoryx2-pal/testing/src/lib.rs",
-                  "line": [
-                    43
-                  ],
-                  "code": "pub const AT_LEAST_TIMING_VARIANCE: f32 = iceoryx2_pal_configuration::AT_LEAST_TIMING_VARIANCE;",
-                  "purpose": "Demonstrates :\\s*f(32|64)\\b|-> f(32|64)\\b..."
+                  "file": "iceoryx2-pal/configuration/src/lib.rs",
+                  "line": [46, 47, 48],
+                  "code": "#[cfg(not(target_os = \"macos\"))]\npub const AT_LEAST_TIMING_VARIANCE: f32 = 0.25;\n#[cfg(target_os = \"macos\")]",
+                  "purpose": "f32 const for platform-specific timing variance threshold"
                 },
                 {
-                  "file": "examples/nostd/bare-metal/rust/publish-subscribe/src/publish-subscribe.rs",
-                  "line": [
-                    33
-                  ],
-                  "code": "pub funky: f64,",
-                  "purpose": "Demonstrates :\\s*f(32|64)\\b|-> f(32|64)\\b..."
+                  "file": "iceoryx2-pal/configuration/src/lib.rs",
+                  "line": [64],
+                  "code": "pub const AT_LEAST_TIMING_VARIANCE: f32 = 0.25;",
+                  "purpose": "f32 const for Windows timing variance threshold"
                 },
                 {
-                  "file": "iceoryx2-tunnel/conformance-tests/src/publish_subscribe_propagation.rs",
-                  "line": [
-                    48
-                  ],
-                  "code": "value: f64,",
-                  "purpose": "Demonstrates :\\s*f(32|64)\\b|-> f(32|64)\\b..."
+                  "file": "iceoryx2-pal/configuration/src/lib.rs",
+                  "line": [80],
+                  "code": "pub const AT_LEAST_TIMING_VARIANCE: f32 = 1.0;",
+                  "purpose": "f32 const for FreeBSD timing variance threshold"
                 }
               ],
               "count": 18
@@ -255,28 +239,22 @@
               },
               "samples": [
                 {
-                  "file": "component-tests/rust/src/test_containers.rs",
-                  "line": [
-                    30
-                  ],
-                  "code": "container_type_sequence: i32,",
-                  "purpose": "Demonstrates :\\s*(u|i)(8|16|32|64|128|size)\\b|-> (u|i)(8|16|32|..."
+                  "file": "iceoryx2/src/service/dynamic_config/request_response.rs",
+                  "line": [40, 41, 42, 43, 44, 45],
+                  "code": "pub request_buffer_size: usize,\n/// The total number of responses available in the\n/// [`Server`](crate::port::server::Server)s data segment\npub number_of_responses: usize,\n/// The current maximum length of a slice.\npub max_slice_len: usize,",
+                  "purpose": "usize fields for buffer sizes and counts in request-response configuration"
                 },
                 {
-                  "file": "iceoryx2/tests/service_request_response_thread_safety_tests.rs",
-                  "line": [
-                    27
-                  ],
-                  "code": "const NUMBER_OF_ITERATIONS: usize = 500;",
-                  "purpose": "Demonstrates :\\s*(u|i)(8|16|32|64|128|size)\\b|-> (u|i)(8|16|32|..."
+                  "file": "iceoryx2/src/port/details/receiver.rs",
+                  "line": [151],
+                  "code": "pub(crate) fn set_channel_state(&self, channel_id: ChannelId, state: u64) -> bool {",
+                  "purpose": "u64 parameter type for channel state value"
                 },
                 {
-                  "file": "iceoryx2/tests/service_publish_subscribe_thread_safety_tests.rs",
-                  "line": [
-                    27
-                  ],
-                  "code": "const NUMBER_OF_ITERATIONS: usize = 2000;",
-                  "purpose": "Demonstrates :\\s*(u|i)(8|16|32|64|128|size)\\b|-> (u|i)(8|16|32|..."
+                  "file": "iceoryx2-bb/system-types/src/ipv4_address.rs",
+                  "line": [145],
+                  "code": "const fn compare(&self, value: [u8; 4], netmask: u8) -> bool {",
+                  "purpose": "u8 types for IPv4 octets and netmask in address comparison"
                 }
               ],
               "count": 2920
@@ -331,28 +309,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-bb/linux/src/epoll.rs",
-              "line": [
-                44
-              ],
-              "code": "//!             let mut raw_data = [0u8; 20];",
-              "purpose": "Demonstrates \\[\\s*\\w+\\s*;\\s*\\d+\\s*\\]..."
+              "file": "iceoryx2-bb/system-types/src/ipv4_address.rs",
+              "line": [80, 81, 82, 83, 84],
+              "code": "pub const fn octets(&self) -> [u8; 4] {\n    [\n        (self.0 >> 24) as u8,\n        ((self.0 << 8) >> 24) as u8,\n        ((self.0 << 16) >> 24) as u8,",
+              "purpose": "Fixed-size [u8; 4] array return type for IPv4 address octets"
             },
             {
-              "file": "iceoryx2-bb/trait-tests/tests/relocatable_container_tests.rs",
-              "line": [
-                102
-              ],
-              "code": "#[instantiate_tests(<RelocatableVec<[u8; 123]>>)]",
-              "purpose": "Demonstrates \\[\\s*\\w+\\s*;\\s*\\d+\\s*\\]..."
+              "file": "iceoryx2-bb/container/src/string/utils.rs",
+              "line": [45, 46, 47, 48, 49],
+              "code": "let hex_digits: &[u8; 16] = b\"0123456789abcdef\";\nvec![\n    b'\\\\',\n    b'x',\n    hex_digits[(c >> 4) as usize],",
+              "purpose": "Fixed-size [u8; 16] array for hexadecimal digit lookup table"
             },
             {
-              "file": "examples/nostd/bare-metal/rust/_common/src/semihosting.rs",
-              "line": [
-                30
-              ],
-              "code": "let mut buffer = [0u8; 256];",
-              "purpose": "Demonstrates \\[\\s*\\w+\\s*;\\s*\\d+\\s*\\]..."
+              "file": "iceoryx2-bb/elementary/src/math.rs",
+              "line": [99],
+              "code": "impl<const N: usize> ToB64 for [u8; N] {",
+              "purpose": "Generic const N array type impl for base64 encoding trait"
             }
           ],
           "count": 171
@@ -374,28 +346,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-pal/configuration/src/lib.rs",
-              "line": [
-                32
-              ],
-              "code": "pub const GLOBAL_CONFIG_PATH: &[u8] = b\"/etc\";",
-              "purpose": "Demonstrates &\\[|\\&mut\\s*\\[..."
+              "file": "iceoryx2/src/service/attribute.rs",
+              "line": [129, 130, 131, 132],
+              "code": "invalid_content: |string: &[u8]| {\n    // empty keys are not allowed to be empty\n    string.is_empty()\n},",
+              "purpose": "&[u8] slice parameter in closure for byte string validation"
             },
             {
-              "file": "benchmarks/request-response/src/main.rs",
-              "line": [
-                67
-              ],
-              "code": ".affinity(&[args.cpu_core_participant_1])",
-              "purpose": "Demonstrates &\\[|\\&mut\\s*\\[..."
+              "file": "iceoryx2-bb/system-types/src/user_name.rs",
+              "line": [47, 48],
+              "code": "invalid_content: |string: &[u8]| {\n    matches!(string[0], b'-' | b'0'..=b'9')",
+              "purpose": "&[u8] slice parameter for user name content validation"
             },
             {
-              "file": "benchmarks/queue/src/main.rs",
-              "line": [
-                75
-              ],
-              "code": ".affinity(&[args.cpu_core_participant_1])",
-              "purpose": "Demonstrates &\\[|\\&mut\\s*\\[..."
+              "file": "iceoryx2/src/config.rs",
+              "line": [94],
+              "code": "const DEFAULT_CONFIG_FILE_NAME: &[u8] = b\"iceoryx2.toml\";",
+              "purpose": "&[u8] const slice for default configuration file name bytes"
             }
           ],
           "count": 387
@@ -416,28 +382,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-ffi/python/src/attribute_key.rs",
-              "line": [
-                28
-              ],
-              "code": "pub fn new(value: &str) -> PyResult<Self> {",
-              "purpose": "Demonstrates :\\s*&str\\b|-> &str\\b|:\\s*&'[a-z_]+\\s+str\\b..."
+              "file": "iceoryx2/src/waitset.rs",
+              "line": [590, 591, 592],
+              "code": "error_msg: &str,\n) -> Result<WaitSetRunResult, WaitSetRunError> {\n    let deadline_to_attachment = self.deadline_to_attachment.borrow();",
+              "purpose": "&str parameter for error message in waitset run function"
             },
             {
-              "file": "iceoryx2/src/waitset.rs",
-              "line": [
-                590
-              ],
-              "code": "error_msg: &str,",
-              "purpose": "Demonstrates :\\s*&str\\b|-> &str\\b|:\\s*&'[a-z_]+\\s+str\\b..."
+              "file": "iceoryx2/src/node/mod.rs",
+              "line": [962],
+              "code": "fn handle_termination_request(&self, error_msg: &str) -> Result<(), NodeWaitFailure> {",
+              "purpose": "&str parameter for termination error message in node handling"
             },
             {
               "file": "iceoryx2/src/service/stale_resource_cleanup.rs",
-              "line": [
-                60
-              ],
-              "code": "origin: &str,",
-              "purpose": "Demonstrates :\\s*&str\\b|-> &str\\b|:\\s*&'[a-z_]+\\s+str\\b..."
+              "line": [59, 60, 61, 62, 63],
+              "code": "fn connections<Service: service::Service>(\n    origin: &str,\n    msg: &str,\n    config: &<Service::Connection as NamedConceptMgmt>::Configuration,\n) -> Result<Vec<FileName>, RemovePortFromAllConnectionsError> {",
+              "purpose": "Multiple &str parameters for origin and message in cleanup function"
             }
           ],
           "count": 179
@@ -459,28 +419,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/tests/node_name_tests.rs",
-              "line": [
-                22
-              ],
-              "code": "assert_that!(sut, eq value);",
-              "purpose": "Demonstrates \\(\\s*\\w+\\s*,..."
+              "file": "iceoryx2/src/port/subscriber.rs",
+              "line": [332, 333, 334],
+              "code": "fn receive_impl(&self) -> Result<Option<(ChunkDetails, Chunk)>, ReceiveError> {\n    fail!(from self, when self.update_connections(),\n            \"Some samples are not being received since not all connections to publishers could be established.\");",
+              "purpose": "Private function returning tuple pair with chunk metadata and data"
             },
             {
-              "file": "iceoryx2/src/waitset.rs",
-              "line": [
-                238
-              ],
-              "code": "#[derive(Debug, PartialEq, Eq, Copy, Clone)]",
-              "purpose": "Demonstrates \\(\\s*\\w+\\s*,..."
+              "file": "iceoryx2/src/port/details/sender.rs",
+              "line": [332, 333, 334],
+              "code": "let (ref_count, sample_size) = self.borrow_sample(shm_pointer.offset);\nif ref_count != 0 {\n    fatal_panic!(from self,",
+              "purpose": "Tuple destructuring of (ref_count, sample_size) from borrow_sample return"
             },
             {
-              "file": "iceoryx2/src/signal_handling_mode.rs",
-              "line": [
-                15
-              ],
-              "code": "#[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]",
-              "purpose": "Demonstrates \\(\\s*\\w+\\s*,..."
+              "file": "iceoryx2/src/service/builder/mod.rs",
+              "line": [279],
+              "code": ") -> Result<Option<(StaticConfig, ServiceType::StaticStorage)>, ServiceState> {",
+              "purpose": "Tuple type in generic Result return for config and storage pair"
             }
           ],
           "count": 5464
@@ -526,28 +480,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs",
-              "line": [
-                35
-              ],
-              "code": "pub enum FdHandleEntry {",
-              "purpose": "Demonstrates ^\\s*pub\\s+enum\\s|^\\s*enum\\s..."
+              "file": "iceoryx2/src/port/writer.rs",
+              "line": [100, 101, 102, 103, 104, 105, 106, 107, 108],
+              "code": "pub enum WriterCreateError {\n    /// The maximum amount of [`Writer`]s that can connect to a\n    /// [`Service`](crate::service::Service) is\n    /// defined in [`crate::config::Config`]. When this is exceeded no more [`Writer`]s\n    /// can be created for a specific [`Service`](crate::service::Service).\n    ExceedsMaxSupportedWriters,\n    /// Errors that indicate either an implementation issue or a wrongly configured system.\n    InternalFailure,\n}",
+              "purpose": "Public enum defining writer creation error variants with documentation"
             },
             {
-              "file": "iceoryx2-tunnel/zenoh/src/discovery.rs",
-              "line": [
-                27
-              ],
-              "code": "pub enum CreationError {",
-              "purpose": "Demonstrates ^\\s*pub\\s+enum\\s|^\\s*enum\\s..."
+              "file": "iceoryx2/src/port/update_connections.rs",
+              "line": [20],
+              "code": "pub enum ConnectionFailure {",
+              "purpose": "Public enum for connection failure error types"
             },
             {
-              "file": "iceoryx2-tunnel/zenoh/src/backend.rs",
-              "line": [
-                24
-              ],
-              "code": "pub enum CreationError {",
-              "purpose": "Demonstrates ^\\s*pub\\s+enum\\s|^\\s*enum\\s..."
+              "file": "iceoryx2/src/port/subscriber.rs",
+              "line": [74],
+              "code": "pub enum SubscriberCreateError {",
+              "purpose": "Public enum for subscriber creation error types"
             }
           ],
           "count": 350
@@ -572,28 +520,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-userland/record-and-replay/tests/recorder_replayer_tests.rs",
-              "line": [
-                45
-              ],
-              "code": "struct Data {",
-              "purpose": "Demonstrates ^\\s*pub\\s+struct\\s|^\\s*struct\\s..."
+              "file": "iceoryx2/src/node/mod.rs",
+              "line": [326, 327, 328, 329, 330],
+              "code": "pub struct NodeDetails {\n    executable: FileName,\n    name: NodeName,\n    config: Config,\n}",
+              "purpose": "Public struct with named fields for node metadata"
             },
             {
-              "file": "iceoryx2-userland/record-and-replay/src/replayer.rs",
-              "line": [
-                140
-              ],
-              "code": "pub struct ReplayerOpener {",
-              "purpose": "Demonstrates ^\\s*pub\\s+struct\\s|^\\s*struct\\s..."
+              "file": "iceoryx2/src/node/mod.rs",
+              "line": [211],
+              "code": "pub struct NodeId(UniqueSystemId);",
+              "purpose": "Tuple struct newtype wrapping UniqueSystemId for type safety"
             },
             {
-              "file": "iceoryx2-userland/record-and-replay/src/recorder.rs",
-              "line": [
-                122
-              ],
-              "code": "pub struct ServiceTypes {",
-              "purpose": "Demonstrates ^\\s*pub\\s+struct\\s|^\\s*struct\\s..."
+              "file": "iceoryx2/src/node/mod.rs",
+              "line": [443],
+              "code": "pub struct CleanupState {",
+              "purpose": "Public struct for tracking node cleanup state"
             }
           ],
           "count": 1026
@@ -614,22 +556,18 @@
           "samples": [
             {
               "file": "iceoryx2-ffi/c/src/api/static_config.rs",
-              "line": [
-                31
-              ],
-              "code": "pub union iox2_static_config_details_t {",
-              "purpose": "Demonstrates ^\\s*pub\\s+union\\s|^\\s*union\\s..."
+              "line": [31, 32, 33, 34, 35],
+              "code": "pub union iox2_static_config_details_t {\n    pub event: iox2_static_config_event_t,\n    pub publish_subscribe: iox2_static_config_publish_subscribe_t,\n    pub request_response: iox2_static_config_request_response_t,\n    pub blackboard: iox2_static_config_blackboard_t,",
+              "purpose": "C FFI union with messaging pattern-specific static config variants"
             },
             {
-              "file": "iceoryx2-bb/derive-macros/tests/zero_copy_send_tests.rs",
-              "line": [
-                93
-              ],
-              "code": "union BasicUnionTest {",
-              "purpose": "Demonstrates ^\\s*pub\\s+union\\s|^\\s*union\\s..."
+              "file": "iceoryx2-ffi/c/src/api/waitset_attachment_id.rs",
+              "line": [28, 29, 30, 31],
+              "code": "pub(crate) union AttachmentIdUnion {\n    ipc: ManuallyDrop<WaitSetAttachmentId<crate::IpcService>>,\n    local: ManuallyDrop<WaitSetAttachmentId<crate::LocalService>>,\n}",
+              "purpose": "FFI union with ManuallyDrop variants for IPC vs local service types"
             }
           ],
-          "count": 2,
+          "count": 42,
           "samples_waiver": {
             "reason": "insufficient_patterns",
             "explanation": "Only 2 instance(s) found in codebase, fewer than 3 required samples",
@@ -682,28 +620,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-ffi/c/src/api/writer.rs",
-              "line": [
-                232
-              ],
-              "code": "let init_entry_handle_mut_struct_ptr = |entry_struct_ptr: *mut iox2_entry_handle_mut_t| {",
-              "purpose": "Demonstrates \\|[^|]*\\|..."
+              "file": "iceoryx2/src/waitset.rs",
+              "line": [594, 595, 596, 597, 598],
+              "code": "let call = |idx: DeadlineQueueIndex| -> CallbackProgression {\n    let progression = if let Some(reactor_idx) = deadline_to_attachment.get(&idx) {\n        fn_call(WaitSetAttachmentId::deadline(self, *reactor_idx, idx))\n    } else {\n        fn_call(WaitSetAttachmentId::tick(self, idx))",
+              "purpose": "Closure with typed parameter and return type for deadline handling"
             },
             {
-              "file": "iceoryx2-services/discovery/tests/service_discovery_service_tests.rs",
-              "line": [
-                77
-              ],
-              "code": "sut.spin(|_| {}, |_| {}).unwrap();",
-              "purpose": "Demonstrates \\|[^|]*\\|..."
+              "file": "iceoryx2/src/node/mod.rs",
+              "line": [553],
+              "code": "let remove_node_from_service = |service_id: &ServiceId| {",
+              "purpose": "Closure capturing environment for service cleanup callback"
             },
             {
               "file": "iceoryx2-services/discovery/src/service_discovery/tracker.rs",
-              "line": [
-                95
-              ],
+              "line": [95],
               "code": "S::list(&self.config, |service| {",
-              "purpose": "Demonstrates \\|[^|]*\\|..."
+              "purpose": "Closure as callback parameter in service listing"
             }
           ],
           "count": 1723
@@ -724,28 +656,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-bb/elementary/tests/unique_id_tests.rs",
-              "line": [
-                17
-              ],
-              "code": "fn unique_id_is_unique() {",
-              "purpose": "Demonstrates fn\\s+\\w+..."
+              "file": "iceoryx2/src/port/notifier.rs",
+              "line": [400],
+              "code": "pub fn id(&self) -> UniqueNotifierId {",
+              "purpose": "Public function returning notifier identifier"
             },
             {
-              "file": "iceoryx2-bb/elementary/tests/scope_guard_tests.rs",
-              "line": [
-                19
-              ],
-              "code": "fn scope_guard_callbacks_are_called_correctly_success_case() {",
-              "purpose": "Demonstrates fn\\s+\\w+..."
+              "file": "iceoryx2/src/port/notifier.rs",
+              "line": [409],
+              "code": "pub fn notify(&self) -> Result<usize, NotifierNotifyError> {",
+              "purpose": "Public function with Result return type for notification"
             },
             {
-              "file": "iceoryx2-bb/elementary/tests/relocatable_ptr_tests.rs",
-              "line": [
-                18
-              ],
-              "code": "fn relocatable_pointer_works() {",
-              "purpose": "Demonstrates fn\\s+\\w+..."
+              "file": "iceoryx2/src/port/notifier.rs",
+              "line": [414],
+              "code": "pub fn deadline(&self) -> Option<Duration> {",
+              "purpose": "Public function with Option return type for deadline query"
             }
           ],
           "count": 9977
@@ -792,28 +718,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/src/sample_mut_uninit.rs",
-              "line": [
-                57
-              ],
-              "code": "//! let mut sample = sample.write_from_fn(|n| n * 1234);",
-              "purpose": "Demonstrates fn\\s*\\(..."
+              "file": "iceoryx2-ffi/c/src/api/listener.rs",
+              "line": [163, 164, 165],
+              "code": "pub type iox2_listener_wait_all_callback =\n    extern \"C\" fn(*const iox2_event_id_t, iox2_callback_context);",
+              "purpose": "FFI function pointer type alias for C callback with event ID"
             },
             {
               "file": "iceoryx2-bb/memory/src/pool_allocator.rs",
-              "line": [
-                343
-              ],
+              "line": [343],
               "code": "next_free_index: core::array::from_fn(|i| UnsafeCell::new(i as u32 + 1)),",
-              "purpose": "Demonstrates fn\\s*\\(..."
+              "purpose": "core::array::from_fn function used for array initialization"
             },
             {
               "file": "iceoryx2-bb/lock-free/src/spsc/safely_overflowing_index_queue.rs",
-              "line": [
-                450
-              ],
+              "line": [450],
               "code": "data: core::array::from_fn(|_| UnsafeCell::new(0)),",
-              "purpose": "Demonstrates fn\\s*\\(..."
+              "purpose": "core::array::from_fn for zero-initializing UnsafeCell array"
             }
           ],
           "count": 259
@@ -836,27 +756,21 @@
           "samples": [
             {
               "file": "iceoryx2/src/raw_sample.rs",
-              "line": [
-                18
-              ],
-              "code": "header: *const Header,",
-              "purpose": "Demonstrates \\*const\\s|\\*mut\\s..."
+              "line": [17, 18, 19, 20, 21],
+              "code": "pub(crate) struct RawSample<Header, UserHeader, Payload: ?Sized> {\n    header: *const Header,\n    user_header: *const UserHeader,\n    payload: *const Payload,\n}",
+              "purpose": "FFI struct with multiple *const raw pointer fields for sample header and payload"
             },
             {
-              "file": "iceoryx2-tunnel/zenoh/src/relays/publish_subscribe.rs",
-              "line": [
-                156
-              ],
-              "code": "let bytes = payload.as_ptr() as *mut u8;",
-              "purpose": "Demonstrates \\*const\\s|\\*mut\\s..."
+              "file": "iceoryx2/src/port/writer.rs",
+              "line": [417, 418, 419],
+              "code": "> {\n    ptr: *mut ValueType,\n    entry_handle_mut: EntryHandleMut<Service, KeyType, ValueType>,",
+              "purpose": "*mut raw pointer field for mutable access to entry value in zero-copy update"
             },
             {
-              "file": "iceoryx2-pal/os-api/src/linux-libc/signalfd.rs",
-              "line": [
-                24
-              ],
-              "code": "mask: *const posix::sigset_t,",
-              "purpose": "Demonstrates \\*const\\s|\\*mut\\s..."
+              "file": "iceoryx2/src/port/subscriber.rs",
+              "line": [404, 405],
+              "code": "let header_ptr = chunk.header as *const Header;\nlet number_of_elements = unsafe { (*header_ptr).number_of_elements() };",
+              "purpose": "Cast to *const pointer and unsafe dereference for sample header access"
             }
           ],
           "count": 3834
@@ -877,28 +791,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-cli/iox2-tunnel/src/command/zenoh.rs",
-              "line": [
-                33
-              ],
-              "code": "Some(path) => zenoh::Config::from_file(&path)",
-              "purpose": "Demonstrates &\\s*\\w|&mut\\s..."
+              "file": "iceoryx2/src/port/notifier.rs",
+              "line": [187, 188, 189],
+              "code": "fn get(&self, index: usize) -> &Option<Connection<Service>> {\n    unsafe { &(*self.connections[index].get()) }\n}",
+              "purpose": "Shared reference &Option return from internal connection storage"
             },
             {
-              "file": "iceoryx2-bb/trait-tests/tests/semantic_string_tests.rs",
-              "line": [
-                238
-              ],
-              "code": "let result = sut.insert_bytes(0, &bytes);",
-              "purpose": "Demonstrates &\\s*\\w|&mut\\s..."
+              "file": "iceoryx2/src/port/notifier.rs",
+              "line": [191, 192, 193, 194],
+              "code": "#[allow(clippy::mut_from_ref)]\nfn get_mut(&self, index: usize) -> &mut Option<Connection<Service>> {\n    unsafe { &mut (*self.connections[index].get()) }\n}",
+              "purpose": "Mutable reference &mut Option return for interior mutability pattern"
             },
             {
-              "file": "iceoryx2-bb/trait-tests/tests/relocatable_container_tests.rs",
-              "line": [
-                37
-              ],
-              "code": "fn allocator(memory: &mut [u8]) -> BumpAllocator {",
-              "purpose": "Demonstrates &\\s*\\w|&mut\\s..."
+              "file": "iceoryx2/src/service/port_factory/notifier.rs",
+              "line": [44, 45, 46],
+              "code": "pub struct PortFactoryNotifier<'factory, Service: service::Service> {\n    pub(crate) factory: &'factory PortFactory<Service>,\n    default_event_id: EventId,",
+              "purpose": "Lifetime-annotated reference field &'factory for borrowed factory access"
             }
           ],
           "count": 12376
@@ -939,28 +847,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-pal/testing/src/watchdog.rs",
-              "line": [
-                23
-              ],
-              "code": "impl Drop for Watchdog {",
-              "purpose": "Demonstrates impl\\s+\\w+..."
+              "file": "iceoryx2/src/service/static_config/messaging_pattern.rs",
+              "line": [54, 55, 56, 57, 58, 59, 60, 61, 62, 63],
+              "code": "impl Display for MessagingPattern {\n    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {\n        match self {\n            MessagingPattern::RequestResponse(_) => write!(f, \"RequestResponse\"),\n            MessagingPattern::Event(_) => write!(f, \"Event\"),\n            MessagingPattern::PublishSubscribe(_) => write!(f, \"PublishSubscribe\"),\n            MessagingPattern::Blackboard(_) => write!(f, \"Blackboard\"),\n        }\n    }\n}",
+              "purpose": "impl Display trait for enum formatting with pattern matching"
             },
             {
-              "file": "iceoryx2-ffi/python/src/writer.rs",
-              "line": [
-                37
-              ],
-              "code": "impl Writer {",
-              "purpose": "Demonstrates impl\\s+\\w+..."
+              "file": "iceoryx2/src/service/builder/blackboard.rs",
+              "line": [283, 284, 285, 286, 287],
+              "code": "impl Debug for BuilderInternals {\n    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {\n        write!(f, \"\")\n    }\n}",
+              "purpose": "impl Debug trait for internal builder state with empty format"
             },
             {
-              "file": "iceoryx2-log/loggers/src/writer.rs",
-              "line": [
-                37
-              ],
-              "code": "impl Write for Stdout {",
-              "purpose": "Demonstrates impl\\s+\\w+..."
+              "file": "iceoryx2/src/service/builder/blackboard.rs",
+              "line": [289, 290, 291, 292, 293],
+              "code": "impl Drop for BuilderInternals {\n    fn drop(&mut self) {\n        (self.internal_value_cleanup_callback)();\n    }\n}",
+              "purpose": "impl Drop trait for cleanup callback execution on builder destruction"
             }
           ],
           "count": 2050
@@ -984,28 +886,22 @@
           },
           "samples": [
             {
-              "file": "component-tests/rust/src/test_containers.rs",
-              "line": [
-                131
-              ],
-              "code": "fn run_test(&mut self, node: &Node<ipc::Service>) -> Result<(), Box<dyn core::error::Error>> {",
-              "purpose": "Demonstrates dyn\\s+\\w+|Box<dyn..."
+              "file": "iceoryx2-log/log/src/lib.rs",
+              "line": [144],
+              "code": "static mut LOGGER: Option<&'static dyn Log> = None;",
+              "purpose": "Static mutable Option containing trait object reference &'static dyn Log"
             },
             {
-              "file": "iceoryx2-log/loggers/src/lib.rs",
-              "line": [
-                74
-              ],
-              "code": "pub extern \"Rust\" fn __internal_stdout() -> &'static mut dyn Write {",
-              "purpose": "Demonstrates dyn\\s+\\w+|Box<dyn..."
+              "file": "iceoryx2-log/log/src/lib.rs",
+              "line": [174, 175, 176, 177, 178, 179, 180],
+              "code": "fn get_logger() -> &'static dyn Log {\n    INIT.call_once(|| unsafe {\n        #[allow(static_mut_refs)]\n        if LOGGER.is_none() {\n            LOGGER = Some(__internal_default_logger());\n        }\n    });",
+              "purpose": "Function returning &'static dyn Log trait object for logger access"
             },
             {
-              "file": "iceoryx2-cal/src/dynamic_storage/process_local.rs",
-              "line": [
-                78
-              ],
-              "code": "content: Arc<dyn Any + Send + Sync>,",
-              "purpose": "Demonstrates dyn\\s+\\w+|Box<dyn..."
+              "file": "iceoryx2-log/log/src/lib.rs",
+              "line": [195],
+              "code": "pub fn set_logger(logger: &'static dyn Log) -> bool {",
+              "purpose": "Public function accepting &'static dyn Log trait object parameter"
             }
           ],
           "count": 318
@@ -1049,28 +945,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-pal/testing/src/assert.rs",
-              "line": [
-                17
-              ],
-              "code": "let lval = &$lhs;",
-              "purpose": "Demonstrates :\\s*_\\b|let\\s+\\w+\\s*=..."
+              "file": "iceoryx2/src/port/notifier.rs",
+              "line": [150, 151, 152],
+              "code": "let msg = \"Unable to establish connection to listener\";\nlet event_name = event_concept_name(&listener_id);\nlet event_config = event_config::<Service>(self.service_state.shared_node.config());",
+              "purpose": "Type inference for string literal, function return, and generic function call"
             },
             {
-              "file": "iceoryx2-pal/testing/src/watchdog.rs",
-              "line": [
-                26
-              ],
-              "code": "let handle = self.termination_thread.take();",
-              "purpose": "Demonstrates :\\s*_\\b|let\\s+\\w+\\s*=..."
+              "file": "iceoryx2/src/port/subscriber.rs",
+              "line": [403, 404, 405],
+              "code": "Ok(self.receive_impl()?.map(|(details, chunk)| {\n    let header_ptr = chunk.header as *const Header;\n    let number_of_elements = unsafe { (*header_ptr).number_of_elements() };",
+              "purpose": "Type inference for pointer cast and unsafe method call return"
             },
             {
-              "file": "iceoryx2-pal/testing/src/memory.rs",
-              "line": [
-                32
-              ],
-              "code": "let layout = Layout::new::<T>();",
-              "purpose": "Demonstrates :\\s*_\\b|let\\s+\\w+\\s*=..."
+              "file": "iceoryx2/src/waitset.rs",
+              "line": [541, 542],
+              "code": "attachment_to_deadline: RefCell<BTreeMap<i32, DeadlineQueueIndex>>,\ndeadline_to_attachment: RefCell<BTreeMap<DeadlineQueueIndex, i32>>,",
+              "purpose": "Explicit types for RefCell fields showing when inference is not used"
             }
           ],
           "count": 12040
@@ -1091,28 +981,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/tests/service_request_response_thread_safety_tests.rs",
-              "line": [
-                32
-              ],
-              "code": ".create::<ServiceType>()",
-              "purpose": "Demonstrates <[A-Z][\\w]*>|<[A-Z][\\w]*,..."
+              "file": "iceoryx2/src/service/mod.rs",
+              "line": [365, 366, 367, 368],
+              "code": "pub struct ServiceDynamicDetails<S: Service> {\n    /// A list of all [`Node`](crate::node::Node)s that are registered at the [`Service`]\n    pub nodes: Vec<NodeState<S>>,\n}",
+              "purpose": "Generic struct with type parameter S bounded by Service trait"
             },
             {
-              "file": "iceoryx2/src/sample.rs",
-              "line": [
-                54
-              ],
-              "code": "pub(crate) ptr: RawSample<Header, UserHeader, Payload>,",
-              "purpose": "Demonstrates <[A-Z][\\w]*>|<[A-Z][\\w]*,..."
+              "file": "iceoryx2/src/service/mod.rs",
+              "line": [371, 372, 373, 374, 375, 376, 377, 378],
+              "code": "/// Represents all the [`Service`] information that one can acquire with [`Service::list()`].\n#[derive(Debug)]\npub struct ServiceDetails<S: Service> {\n    /// The static configuration of the [`Service`] that never changes during the [`Service`]\n    /// lifetime.\n    pub static_details: StaticConfig,\n    /// The dynamic configuration of the [`Service`] that can conaints runtime informations.\n    pub dynamic_details: Option<ServiceDynamicDetails<S>>,",
+              "purpose": "Generic struct with nested generic type ServiceDynamicDetails<S>"
             },
             {
-              "file": "iceoryx2/src/response_mut_uninit.rs",
-              "line": [
-                59
-              ],
-              "code": "/// The generic parameter `Payload` is actually [`core::mem::MaybeUninit<Payload>`].",
-              "purpose": "Demonstrates <[A-Z][\\w]*>|<[A-Z][\\w]*,..."
+              "file": "iceoryx2/src/service/mod.rs",
+              "line": [381, 382],
+              "code": "#[derive(Debug)]\npub struct ServiceState<S: Service, R: ServiceResource> {",
+              "purpose": "Generic struct with multiple type parameters S and R with trait bounds"
             }
           ],
           "count": 5062
@@ -1147,28 +1031,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-services/discovery/tests/service_discovery_tracker_tests.rs",
-              "line": [
-                23
-              ],
-              "code": "ServiceName::new(&format!(",
-              "purpose": "Demonstrates \\(\\s*&|\\(\\s*\\*..."
+              "file": "iceoryx2/src/service/attribute.rs",
+              "line": [456, 457, 458, 459, 460],
+              "code": "pub fn iter_key_values<F: FnMut(&AttributeValue) -> CallbackProgression>(\n    &self,\n    key: &AttributeKey,\n    mut callback: F,\n) {",
+              "purpose": "FnMut trait bound with parenthesized closure signature in generic constraint"
             },
             {
-              "file": "iceoryx2/tests/service_static_config_tests.rs",
-              "line": [
-                26
-              ],
-              "code": "assert_that!(*sut.type_name(), eq core::any::type_name::<Tmp>());",
-              "purpose": "Demonstrates \\(\\s*&|\\(\\s*\\*..."
+              "file": "iceoryx2/src/service/dynamic_config/event.rs",
+              "line": [121, 122, 123, 124],
+              "code": "pub fn list_listeners<F: FnMut(&ListenerDetails) -> CallbackProgression>(\n    &self,\n    mut callback: F,\n) {",
+              "purpose": "FnMut closure parameter with parenthesized reference argument type"
             },
             {
-              "file": "iceoryx2-cal/tests/zero_copy_connection_posix_shared_memory_tests.rs",
-              "line": [
-                40
-              ],
-              "code": ".path_for(&storage_name)",
-              "purpose": "Demonstrates \\(\\s*&|\\(\\s*\\*..."
+              "file": "iceoryx2/src/service/dynamic_config/event.rs",
+              "line": [134, 135, 136, 137],
+              "code": "pub fn list_notifiers<F: FnMut(&NotifierDetails) -> CallbackProgression>(\n    &self,\n    mut callback: F,\n) {",
+              "purpose": "Generic function with FnMut bound for notifier iteration callback"
             }
           ],
           "count": 9295
@@ -1196,49 +1074,25 @@
       "samples": [
         {
           "file": "iceoryx2-bb/lock-free/src/mpmc/bit_set.rs",
-          "line": [
-            53
-          ],
-          "code": "pub type BitSet = details::BitSet<OwningPointer<details::BitsetElement>>;"
+          "line": [53],
+          "code": "pub type BitSet = details::BitSet<OwningPointer<details::BitsetElement>>;",
+          "purpose": "Type alias for owned pointer bitset container"
         },
         {
           "file": "iceoryx2-bb/lock-free/src/mpmc/bit_set.rs",
-          "line": [
-            55
-          ],
-          "code": "pub type RelocatableBitSet = details::BitSet<RelocatablePointer<details::BitsetElement>>;"
+          "line": [55],
+          "code": "pub type RelocatableBitSet = details::BitSet<RelocatablePointer<details::BitsetElement>>;",
+          "purpose": "Type alias for shared-memory relocatable bitset variant"
         },
         {
-          "file": "iceoryx2-bb/lock-free/src/spsc/index_queue.rs",
-          "line": [
-            96
-          ],
-          "code": "pub type IndexQueue = details::IndexQueue<OwningPointer<UnsafeCell<u64>>>;"
-        },
-        {
-          "file": "iceoryx2-bb/lock-free/src/spsc/index_queue.rs",
-          "line": [
-            97
-          ],
-          "code": "pub type RelocatableIndexQueue = details::IndexQueue<RelocatablePointer<UnsafeCell<u64>>>;"
-        },
-        {
-          "file": "iceoryx2-pal/posix/src/linux/types.rs",
-          "line": [
-            19
-          ],
-          "code": "pub type ulong = crate::internal::ulong;"
-        },
-        {
-          "file": "iceoryx2-pal/posix/src/linux/types.rs",
-          "line": [
-            34
-          ],
-          "code": "pub type c_char = core::ffi::c_char;"
+          "file": "iceoryx2/src/service/static_config/message_type_details.rs",
+          "line": [54],
+          "code": "pub type TypeName = StaticString<MAX_TYPE_NAME_LENGTH>;",
+          "purpose": "Type alias for fixed-size string storing type name information"
         }
       ],
-      "count": null,
-      "count_methodology": "Pattern not defined for this section"
+      "count": 578,
+      "count_methodology": "Count of 'type X = ...' declarations"
     },
     "representation": {
       "fls_section": "4.11",
@@ -1293,28 +1147,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-pal/concurrency-sync/src/once.rs",
-              "line": [
-                16
-              ],
-              "code": "#[repr(u8)]",
-              "purpose": "Demonstrates #\\[repr\\(..."
+              "file": "iceoryx2/src/service/static_config/message_type_details.rs",
+              "line": [57, 58, 59, 60, 61, 62, 63, 64],
+              "code": "#[derive(Default, Debug, Clone, Eq, Hash, PartialEq, ZeroCopySend, Serialize, Deserialize)]\n#[repr(C)]\npub struct TypeDetail {\n    pub(crate) variant: TypeVariant,\n    pub(crate) type_name: TypeName,\n    pub(crate) size: usize,\n    pub(crate) alignment: usize,\n}",
+              "purpose": "#[repr(C)] struct for FFI-compatible type metadata with known layout"
             },
             {
-              "file": "iceoryx2/conformance-tests/src/writer.rs",
-              "line": [
-                228
-              ],
-              "code": "#[repr(C)]",
-              "purpose": "Demonstrates #\\[repr\\(..."
+              "file": "iceoryx2/src/service/static_config/message_type_details.rs",
+              "line": [107, 108, 109],
+              "code": "#[derive(Default, Debug, Clone, Eq, Hash, PartialEq, ZeroCopySend, Serialize, Deserialize)]\n#[repr(C)]\npub struct MessageTypeDetails {",
+              "purpose": "#[repr(C)] for message type information shared across FFI boundary"
             },
             {
-              "file": "iceoryx2/conformance-tests/src/service_publish_subscribe.rs",
-              "line": [
-                46
-              ],
-              "code": "#[repr(C)]",
-              "purpose": "Demonstrates #\\[repr\\(..."
+              "file": "iceoryx2/src/service/service_name.rs",
+              "line": [74, 75, 76, 77, 78],
+              "code": "#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, ZeroCopySend)]\n#[repr(C)]\npub struct ServiceName {\n    value: ServiceNameString,\n}",
+              "purpose": "#[repr(C)] struct for C-compatible service name with fixed string field"
             }
           ],
           "subsections": {
@@ -1456,28 +1304,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/src/waitset.rs",
-              "line": [
-                384
-              ],
-              "code": "waitset as *const WaitSet<Service> as u64,",
-              "purpose": "Demonstrates as\\s+(u|i|f)\\d+|as\\s+\\*..."
+              "file": "iceoryx2/src/port/subscriber.rs",
+              "line": [404, 405, 406],
+              "code": "let header_ptr = chunk.header as *const Header;\nlet number_of_elements = unsafe { (*header_ptr).number_of_elements() };\n",
+              "purpose": "Type coercion via 'as *const' for raw pointer cast from chunk header"
             },
             {
-              "file": "benchmarks/publish-subscribe/src/main.rs",
-              "line": [
-                156
-              ],
-              "code": "stop.as_nanos() / (args.iterations as u128 * 2),",
-              "purpose": "Demonstrates as\\s+(u|i|f)\\d+|as\\s+\\*..."
+              "file": "iceoryx2/src/port/notifier.rs",
+              "line": [501],
+              "code": ".swap(duration_since_creation.as_nanos() as u64, Ordering::Relaxed);",
+              "purpose": "Type coercion via 'as u64' for duration nanoseconds atomic swap"
             },
             {
-              "file": "iceoryx2-cal/tests/static_storage_file_tests.rs",
-              "line": [
-                46
-              ],
-              "code": "let content_len = content.len() as u64;",
-              "purpose": "Demonstrates as\\s+(u|i|f)\\d+|as\\s+\\*..."
+              "file": "iceoryx2/src/port/writer.rs",
+              "line": [339, 340],
+              "code": ".payload_start_address() as u64\n+ offset) as *mut UnrestrictedAtomic<ValueType>;",
+              "purpose": "Chained type coercions: address to u64, then to typed raw pointer"
             }
           ],
           "count": 1525
@@ -1492,28 +1334,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/conformance-tests/src/service_blackboard.rs",
-              "line": [
-                728
-              ],
-              "code": "#[derive(Copy, Clone, ZeroCopySend, Debug, Eq, PartialEq)]",
-              "purpose": "Demonstrates #\\[derive\\([^)]*PartialEq..."
+              "file": "iceoryx2/src/service/static_config/request_response.rs",
+              "line": [53],
+              "code": "#[derive(Debug, Clone, Eq, Hash, PartialEq, ZeroCopySend, Serialize, Deserialize)]",
+              "purpose": "Derive PartialEq and Eq for structural equality comparison of request-response config"
             },
             {
-              "file": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs",
-              "line": [
-                34
-              ],
-              "code": "#[derive(Debug, Clone, Copy, PartialEq, Eq)]",
-              "purpose": "Demonstrates #\\[derive\\([^)]*PartialEq..."
+              "file": "iceoryx2/src/service/static_config/messaging_pattern.rs",
+              "line": [33],
+              "code": "#[derive(Debug, Clone, Eq, Hash, PartialEq, ZeroCopySend, Serialize, Deserialize)]",
+              "purpose": "Derive PartialEq for messaging pattern enum equality testing"
             },
             {
-              "file": "iceoryx2-ffi/python/src/waitset_run_result.rs",
-              "line": [
-                16
-              ],
-              "code": "#[derive(PartialEq, Clone, Debug)]",
-              "purpose": "Demonstrates #\\[derive\\([^)]*PartialEq..."
+              "file": "iceoryx2/src/service/stale_resource_cleanup.rs",
+              "line": [32],
+              "code": "#[derive(Debug, Eq, PartialEq, Clone, Copy)]",
+              "purpose": "Derive PartialEq and Eq for cleanup action result comparison"
             }
           ],
           "count": 385
@@ -1537,27 +1373,21 @@
           "samples": [
             {
               "file": "iceoryx2/src/waitset.rs",
-              "line": [
-                224
-              ],
-              "code": "use iceoryx2_bb_concurrency::cell::RefCell;",
-              "purpose": "Demonstrates UnsafeCell|RefCell|Cell<..."
+              "line": [541, 542],
+              "code": "attachment_to_deadline: RefCell<BTreeMap<i32, DeadlineQueueIndex>>,\ndeadline_to_attachment: RefCell<BTreeMap<DeadlineQueueIndex, i32>>,",
+              "purpose": "RefCell fields for runtime-borrowed interior mutability in waitset mappings"
             },
             {
-              "file": "iceoryx2-bb/container/tests/polymorphic_vec_tests.rs",
-              "line": [
-                15
-              ],
-              "code": "use iceoryx2_bb_concurrency::cell::UnsafeCell;",
-              "purpose": "Demonstrates UnsafeCell|RefCell|Cell<..."
+              "file": "iceoryx2/src/port/publisher.rs",
+              "line": [182, 183],
+              "code": "subscriber_list_state: UnsafeCell<ContainerState<SubscriberDetails>>,\nhistory: Option<UnsafeCell<Queue<OffsetAndSize>>>,",
+              "purpose": "UnsafeCell fields for lock-free interior mutability in publisher state"
             },
             {
-              "file": "iceoryx2-bb/container/tests/polymorphic_string_tests.rs",
-              "line": [
-                15
-              ],
-              "code": "use iceoryx2_bb_concurrency::cell::UnsafeCell;",
-              "purpose": "Demonstrates UnsafeCell|RefCell|Cell<..."
+              "file": "iceoryx2/src/port/notifier.rs",
+              "line": [192, 193, 194],
+              "code": "fn get_mut(&self, index: usize) -> &mut Option<Connection<Service>> {\n    unsafe { &mut (*self.connections[index].get()) }\n}",
+              "purpose": "UnsafeCell.get() for interior mutability allowing &mut from &self"
             }
           ],
           "count": 275
@@ -1623,27 +1453,21 @@
       "samples": [
         {
           "file": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
-          "line": [
-            32
-          ],
+          "line": [32],
           "code": "pub unsafe trait ZeroCopySend { }",
-          "purpose": "Zero-copy safety marker trait"
+          "purpose": "Unsafe marker trait for types safe to send via zero-copy IPC"
         },
         {
           "file": "iceoryx2/src/service/port_factory/mod.rs",
-          "line": [
-            62
-          ],
-          "code": "pub trait PortFactory {",
-          "purpose": "Demonstrates ^\\s*pub\\s+trait\\s|^\\s*trait\\s..."
+          "line": [62, 63, 64, 65, 66, 67, 68],
+          "code": "pub trait PortFactory {\n    /// The underlying [`crate::service::Service`] of the port factory.\n    type Service: crate::service::Service;\n\n    /// The underlying type that is used for all static configurations, meaning properties that\n    /// never change during the lifetime.\n    type StaticConfig;",
+          "purpose": "Public trait with associated types for port factory abstraction"
         },
         {
-          "file": "iceoryx2-pal/concurrency-sync/tests/atomic_tests.rs",
-          "line": [
-            30
-          ],
-          "code": "trait Req: AtomicInteger + Debug + BitOr + BitAnd {",
-          "purpose": "Demonstrates ^\\s*pub\\s+trait\\s|^\\s*trait\\s..."
+          "file": "iceoryx2/src/port/update_connections.rs",
+          "line": [47, 48, 49, 50, 51, 52, 53],
+          "code": "/// Explicitly triggers and update of all connections and performs underlying management work.\npub trait UpdateConnections {\n    /// Explicitly updates all connections to the [`crate::port::subscriber::Subscriber`]s. This is\n    /// required to be called whenever a new [`crate::port::subscriber::Subscriber`] connected to\n    /// the service. It is done implicitly whenever [`crate::sample_mut::SampleMut::send()`] or\n    /// [`crate::port::publisher::Publisher::send_copy()`] is called.\n    /// When a [`crate::port::subscriber::Subscriber`] is connected that requires a history this",
+          "purpose": "Public trait defining connection update interface for ports"
         }
       ],
       "subsections": {
@@ -1666,28 +1490,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-tunnel/end-to-end-tests/ping-pong/src/ponger.rs",
-              "line": [
-                30
-              ],
-              "code": "fn run_ponger<P: PayloadWriter>() -> Result<(), Box<dyn core::error::Error>> {",
-              "purpose": "Demonstrates dyn\\s+\\w+..."
+              "file": "iceoryx2-log/log/src/lib.rs",
+              "line": [144],
+              "code": "static mut LOGGER: Option<&'static dyn Log> = None;",
+              "purpose": "Object-safe dyn Log trait object for pluggable logging"
             },
             {
-              "file": "component-tests/rust/src/test_containers.rs",
-              "line": [
-                131
-              ],
-              "code": "fn run_test(&mut self, node: &Node<ipc::Service>) -> Result<(), Box<dyn core::error::Error>> {",
-              "purpose": "Demonstrates dyn\\s+\\w+..."
+              "file": "iceoryx2-log/log/src/lib.rs",
+              "line": [266, 267],
+              "code": "pub fn stdout() -> &'static mut dyn Write {\n    unsafe { __internal_stdout() }",
+              "purpose": "Object-safe dyn Write trait object for stdout abstraction"
             },
             {
-              "file": "iceoryx2-log/loggers/src/lib.rs",
-              "line": [
-                74
-              ],
-              "code": "pub extern \"Rust\" fn __internal_stdout() -> &'static mut dyn Write {",
-              "purpose": "Demonstrates dyn\\s+\\w+..."
+              "file": "iceoryx2-log/log/src/lib.rs",
+              "line": [271, 272],
+              "code": "pub fn stderr() -> &'static mut dyn Write {\n    unsafe { __internal_stderr() }",
+              "purpose": "Object-safe dyn Write trait object for stderr abstraction"
             }
           ],
           "count": 318
@@ -1707,26 +1525,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/posix/src/read_write_mutex.rs",
-          "line": [
-            320
-          ],
-          "code": "pub struct ReadWriteMutex<'this, 'handle: 'this, T: Sized + Debug> {"
+          "file": "iceoryx2/src/service/port_factory/writer.rs",
+          "line": [48, 49, 50, 51, 52, 53, 54],
+          "code": "pub struct PortFactoryWriter<\n    'factory,\n    Service: service::Service,\n    KeyType: Send + Sync + Eq + Clone + Copy + Debug + 'static + Hash + ZeroCopySend,\n> {\n    pub(crate) factory: &'factory PortFactory<Service, KeyType>,\n}",
+          "purpose": "Struct with lifetime parameter 'factory and multiple trait bounds on KeyType"
         },
         {
-          "file": "iceoryx2-bb/posix/src/mutex.rs",
-          "line": [
-            507
-          ],
-          "code": "pub struct Mutex<'this, 'handle: 'this, T: Sized + Debug> {"
+          "file": "iceoryx2/src/service/port_factory/notifier.rs",
+          "line": [44, 45, 46],
+          "code": "pub struct PortFactoryNotifier<'factory, Service: service::Service> {\n    pub(crate) factory: &'factory PortFactory<Service>,\n    default_event_id: EventId,",
+          "purpose": "Generic struct with lifetime 'factory for borrowed factory reference"
         },
         {
-          "file": "iceoryx2-ffi/python/src/waitset_guard.rs",
-          "line": [
-            20
-          ],
-          "code": "pub(crate) struct StorageType<S: iceoryx2::prelude::Service + 'static> {",
-          "purpose": "Demonstrates :\\s*\\w+\\s*\\+|where\\s+\\w+:..."
+          "file": "iceoryx2/src/service/port_factory/subscriber.rs",
+          "line": [61, 62],
+          "code": "PayloadType: Debug + ZeroCopySend + ?Sized,\nUserHeader: Debug + ZeroCopySend,",
+          "purpose": "Multiple trait bounds with Debug, ZeroCopySend, and ?Sized relaxed sizing"
         }
       ],
       "subsections": {
@@ -1748,28 +1562,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-bb/trait-tests/tests/semantic_string_tests.rs",
-              "line": [
-                57
-              ],
-              "code": "Sut: SemanticString<CAPACITY> + TryFrom<&'static str>,",
-              "purpose": "Demonstrates '[a-z_]+..."
+              "file": "iceoryx2/src/service/port_factory/writer.rs",
+              "line": [48, 49, 50],
+              "code": "pub struct PortFactoryWriter<\n    'factory,\n    Service: service::Service,",
+              "purpose": "Explicit lifetime 'factory in generic struct parameters"
             },
             {
-              "file": "iceoryx2-cal/src/zero_copy_connection/mod.rs",
-              "line": [
-                41
-              ],
-              "code": "fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {",
-              "purpose": "Demonstrates '[a-z_]+..."
+              "file": "iceoryx2/src/service/port_factory/notifier.rs",
+              "line": [44, 45],
+              "code": "pub struct PortFactoryNotifier<'factory, Service: service::Service> {\n    pub(crate) factory: &'factory PortFactory<Service>,",
+              "purpose": "Lifetime annotation 'factory for borrowed reference in struct field"
             },
             {
-              "file": "iceoryx2-cal/src/zero_copy_connection/common.rs",
-              "line": [
-                400
-              ],
-              "code": "let storage = <<Storage as DynamicStorage<SharedManagementData>>::Builder<'_> as NamedConceptBuilder<",
-              "purpose": "Demonstrates '[a-z_]+..."
+              "file": "iceoryx2/src/service/port_factory/notifier.rs",
+              "line": [51, 52],
+              "code": "impl<'factory, Service: service::Service> PortFactoryNotifier<'factory, Service> {\n    pub(crate) fn new(factory: &'factory PortFactory<Service>) -> Self {",
+              "purpose": "Lifetime in impl block connecting constructor parameter to struct lifetime"
             }
           ],
           "count": 1582
@@ -1839,28 +1647,22 @@
               },
               "samples": [
                 {
-                  "file": "component-tests/rust/src/test_containers.rs",
-                  "line": [
-                    127
-                  ],
-                  "code": "fn test_name(&self) -> &'static str {",
-                  "purpose": "Demonstrates 'static..."
+                  "file": "iceoryx2/src/config.rs",
+                  "line": [668, 669, 670],
+                  "code": "pub fn setup_global_config_from_file(\n    config_file: &FilePath,\n) -> Result<&'static Config, ConfigCreationError> {",
+                  "purpose": "'static lifetime return for globally-initialized configuration reference"
                 },
                 {
-                  "file": "component-tests/rust/src/common.rs",
-                  "line": [
-                    14
-                  ],
-                  "code": "fn test_name(&self) -> &'static str;",
-                  "purpose": "Demonstrates 'static..."
+                  "file": "iceoryx2/src/config.rs",
+                  "line": [693],
+                  "code": "pub fn global_config() -> &'static Config {",
+                  "purpose": "'static lifetime return for global configuration accessor"
                 },
                 {
-                  "file": "component-tests/rust/src/test_container_mutation.rs",
-                  "line": [
-                    52
-                  ],
-                  "code": "fn test_name(&self) -> &'static str {",
-                  "purpose": "Demonstrates 'static..."
+                  "file": "iceoryx2-log/log/src/lib.rs",
+                  "line": [144],
+                  "code": "static mut LOGGER: Option<&'static dyn Log> = None;",
+                  "purpose": "'static lifetime in static variable for global logger storage"
                 }
               ],
               "count": 268

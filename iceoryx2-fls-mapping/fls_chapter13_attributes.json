@@ -55,28 +55,32 @@
       "findings": {},
       "samples": [
         {
-          "file": "iceoryx2-pal/testing/src/lib.rs",
+          "file": "iceoryx2-cal/src/lib.rs",
           "line": [
-            13
+            14,
+            15,
+            16
           ],
-          "code": "#![warn(clippy::alloc_instead_of_core)]",
-          "purpose": "Demonstrates #\\[|#!\\[..."
+          "code": "#![warn(clippy::alloc_instead_of_core)]\n#![warn(clippy::std_instead_of_alloc)]\n#![warn(clippy::std_instead_of_core)]",
+          "purpose": "Outer attributes enabling Clippy lints to enforce no_std compatibility in CAL crate"
         },
         {
-          "file": "iceoryx2-pal/testing/src/assert.rs",
+          "file": "iceoryx2-log/log/src/log.rs",
           "line": [
-            13
+            38,
+            39
           ],
-          "code": "#[macro_export(local_inner_macros)]",
-          "purpose": "Demonstrates #\\[|#!\\[..."
+          "code": "#[macro_export(local_inner_macros)]\nmacro_rules! trace {",
+          "purpose": "Inner attribute exporting trace! macro with local_inner_macros for proper hygiene"
         },
         {
-          "file": "iceoryx2-pal/posix/tests/win32_select_tests.rs",
+          "file": "iceoryx2-cal/src/static_storage/file.rs",
           "line": [
-            13
+            65,
+            66
           ],
-          "code": "#[cfg(target_os = \"windows\")]",
-          "purpose": "Demonstrates #\\[|#!\\[..."
+          "code": "#[cfg(not(feature = \"dev_permissions\"))]\nconst FINAL_PERMISSIONS: Permission = Permission::OWNER_READ;",
+          "purpose": "Outer attribute for conditional compilation based on feature flags"
         }
       ],
       "count": 6376
@@ -91,28 +95,34 @@
       "findings": {},
       "samples": [
         {
-          "file": "iceoryx2-userland/record-and-replay/tests/replayer_tests.rs",
+          "file": "iceoryx2-bb/linux/src/signalfd.rs",
           "line": [
-            13
+            59,
+            60
           ],
-          "code": "#[cfg(test)]",
-          "purpose": "Demonstrates #\\[..."
+          "code": "#[derive(Debug, Clone, Copy, Eq, Hash, PartialEq)]\npub enum SignalFdCreationError {",
+          "purpose": "Built-in derive attribute generating trait implementations for error enum"
         },
         {
-          "file": "iceoryx2/tests/service_static_config_tests.rs",
+          "file": "iceoryx2-bb/concurrency/src/spin_lock.rs",
           "line": [
-            13
+            44,
+            45,
+            46
           ],
-          "code": "#[cfg(test)]",
-          "purpose": "Demonstrates #\\[..."
+          "code": "#[derive(Debug)]\n#[repr(C)]\npub struct SpinLock<T> {",
+          "purpose": "Multiple built-in attributes: derive for Debug and repr for C-compatible layout"
         },
         {
-          "file": "iceoryx2/tests/service_request_response_thread_safety_tests.rs",
+          "file": "iceoryx2-cal/src/static_storage/file.rs",
           "line": [
-            21
+            73,
+            74,
+            75,
+            76
           ],
-          "code": "#[test]",
-          "purpose": "Demonstrates #\\[..."
+          "code": "#[cfg(feature = \"dev_permissions\")]\nconst FINAL_PERMISSIONS: Permission = Permission::OWNER_READ\n    .const_bitor(Permission::GROUP_READ)\n    .const_bitor(Permission::OTHERS_READ);",
+          "purpose": "Built-in cfg attribute for feature-gated permission configuration"
         }
       ],
       "subsections": {
@@ -129,28 +139,34 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/src/raw_sample.rs",
+              "file": "iceoryx2-bb/container/src/queue.rs",
               "line": [
-                32
+                339,
+                340,
+                341
               ],
-              "code": "#[inline]",
-              "purpose": "Demonstrates #\\[(inline|cold|target_feature|track_caller)..."
+              "code": "#[inline(always)]\nfn verify_init(&self, source: &str) {\n    debug_assert!(",
+              "purpose": "Inline hint for debug verification method ensuring fast path in release builds"
             },
             {
-              "file": "iceoryx2-bb/concurrency/src/atomic.rs",
+              "file": "iceoryx2-log/log/src/lib.rs",
               "line": [
-                68
+                265,
+                266,
+                267
               ],
-              "code": "#[inline]",
-              "purpose": "Demonstrates #\\[(inline|cold|target_feature|track_caller)..."
+              "code": "#[inline(always)]\npub fn stdout() -> &'static mut dyn Write {\n    unsafe { __internal_stdout() }",
+              "purpose": "Force inlining of stdout accessor for zero-overhead logging abstraction"
             },
             {
-              "file": "iceoryx2-pal/concurrency-sync/src/once.rs",
+              "file": "iceoryx2-log/loggers/src/null.rs",
               "line": [
-                113
+                24,
+                25,
+                26
               ],
-              "code": "#[inline]",
-              "purpose": "Demonstrates #\\[(inline|cold|target_feature|track_caller)..."
+              "code": "#[inline(always)]\nfn log(\n    &self,",
+              "purpose": "Force inline null logger to enable compiler optimization (dead code elimination)"
             }
           ],
           "subsections": {
@@ -185,26 +201,32 @@
                 {
                   "file": "iceoryx2-log/loggers/src/null.rs",
                   "line": [
-                    24
+                    24,
+                    25,
+                    26
                   ],
-                  "code": "#[inline(always)]",
-                  "purpose": "Demonstrates #\\[inline..."
+                  "code": "#[inline(always)]\nfn log(\n    &self,",
+                  "purpose": "Force inline null logger method for dead code elimination by compiler"
                 },
                 {
                   "file": "iceoryx2-bb/container/src/queue.rs",
                   "line": [
-                    339
+                    339,
+                    340,
+                    341
                   ],
-                  "code": "#[inline(always)]",
-                  "purpose": "Demonstrates #\\[inline..."
+                  "code": "#[inline(always)]\nfn verify_init(&self, source: &str) {\n    debug_assert!(",
+                  "purpose": "Inline debug verification helper for fast-path queue operations"
                 },
                 {
-                  "file": "iceoryx2-bb/container/src/vec.rs",
+                  "file": "iceoryx2-log/log/src/lib.rs",
                   "line": [
-                    147
+                    270,
+                    271,
+                    272
                   ],
-                  "code": "#[inline(always)]",
-                  "purpose": "Demonstrates #\\[inline..."
+                  "code": "#[inline(always)]\npub fn stderr() -> &'static mut dyn Write {\n    unsafe { __internal_stderr() }",
+                  "purpose": "Force inline stderr accessor for zero-overhead logging"
                 }
               ],
               "count": 32
@@ -275,28 +297,32 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-cli/iox2-service/src/main.rs",
+              "file": "iceoryx2-cal/src/static_storage/file.rs",
               "line": [
-                13
+                65,
+                66
               ],
-              "code": "#[cfg(not(debug_assertions))]",
-              "purpose": "Demonstrates #\\[cfg..."
+              "code": "#[cfg(not(feature = \"dev_permissions\"))]\nconst FINAL_PERMISSIONS: Permission = Permission::OWNER_READ;",
+              "purpose": "Feature-gated permission configuration for production vs development builds"
             },
             {
-              "file": "iceoryx2-pal/posix/tests/win32_select_tests.rs",
+              "file": "iceoryx2-pal/posix/src/lib.rs",
               "line": [
-                13
+                44,
+                45,
+                46,
+                47
               ],
-              "code": "#[cfg(target_os = \"windows\")]",
-              "purpose": "Demonstrates #\\[cfg..."
+              "code": "#[cfg(not(platform_override))]\n#[cfg(all(target_os = \"linux\", feature = \"libc_platform\"))]\n#[path = \"libc/os.rs\"]\nmod os;",
+              "purpose": "Platform-specific module selection for Linux with libc feature"
             },
             {
-              "file": "iceoryx2-pal/posix/tests/win32_security_attributes_tests.rs",
+              "file": "iceoryx2-pal/posix/src/qnx/unistd.rs",
               "line": [
-                13
+                111
               ],
-              "code": "#[cfg(target_os = \"windows\")]",
-              "purpose": "Demonstrates #\\[cfg..."
+              "code": "#[cfg(target_pointer_width = \"32\")]",
+              "purpose": "Architecture-specific code for 32-bit QNX target pointer width"
             }
           ],
           "subsections": {
@@ -317,28 +343,32 @@
               },
               "samples": [
                 {
-                  "file": "iceoryx2/tests/service_static_config_tests.rs",
+                  "file": "iceoryx2-pal/posix/src/lib.rs",
                   "line": [
-                    13
+                    64,
+                    65,
+                    66,
+                    67
                   ],
-                  "code": "#[cfg(test)]",
-                  "purpose": "Demonstrates #\\[cfg\\(..."
+                  "code": "#[cfg(not(platform_override))]\n#[cfg(all(target_os = \"linux\", not(feature = \"libc_platform\")))]\n#[path = \"linux/os.rs\"]\npub mod os;",
+                  "purpose": "Platform selection: Linux without libc uses native bindgen module"
                 },
                 {
-                  "file": "iceoryx2-ffi/ffi-macros/src/lib.rs",
+                  "file": "iceoryx2-cal/src/static_storage/file.rs",
                   "line": [
-                    160
+                    73,
+                    74
                   ],
-                  "code": "#[cfg(test)]",
-                  "purpose": "Demonstrates #\\[cfg\\(..."
+                  "code": "#[cfg(feature = \"dev_permissions\")]\nconst FINAL_PERMISSIONS: Permission = Permission::OWNER_READ",
+                  "purpose": "Feature flag controlling file permission constants for dev mode"
                 },
                 {
-                  "file": "iceoryx2-cli/iox2/tests/commands_tests.rs",
+                  "file": "iceoryx2-pal/posix/src/qnx/types.rs",
                   "line": [
-                    13
+                    99
                   ],
-                  "code": "#[cfg(test)]",
-                  "purpose": "Demonstrates #\\[cfg\\(..."
+                  "code": "#[cfg(target_env = \"nto80\")]",
+                  "purpose": "QNX Neutrino 8.0 specific type definitions"
                 }
               ],
               "count": 360
@@ -360,7 +390,7 @@
                     67
                   ],
                   "code": "#[cfg_attr(target_os = \"nto\", link(name = \"c\"))]",
-                  "purpose": "Demonstrates #\\[cfg_attr\\(..."
+                  "purpose": "Conditionally link libc on QNX Neutrino for select syscall bindings"
                 },
                 {
                   "file": "iceoryx2-pal/posix/src/linux/pthread.rs",
@@ -368,7 +398,7 @@
                     254
                   ],
                   "code": "#[cfg_attr(target_os = \"linux\", link(name = \"pthread\"))]",
-                  "purpose": "Demonstrates #\\[cfg_attr\\(..."
+                  "purpose": "Conditionally link pthread library only on Linux platform"
                 },
                 {
                   "file": "iceoryx2-pal/posix/src/freebsd/errno.rs",
@@ -376,7 +406,7 @@
                     171
                   ],
                   "code": "#[cfg_attr(target_os = \"freebsd\", link(name = \"c\"))]",
-                  "purpose": "Demonstrates #\\[cfg_attr\\(..."
+                  "purpose": "Conditionally link libc on FreeBSD for errno access"
                 }
               ],
               "count": 6
@@ -397,28 +427,32 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/conformance-tests/src/writer.rs",
+              "file": "iceoryx2-bb/linux/src/signalfd.rs",
               "line": [
-                229
+                59,
+                60
               ],
-              "code": "#[derive(ZeroCopySend)]",
-              "purpose": "Demonstrates #\\[derive\\(..."
+              "code": "#[derive(Debug, Clone, Copy, Eq, Hash, PartialEq)]\npub enum SignalFdCreationError {",
+              "purpose": "Derives common traits for error enum enabling debugging, copying, and hashing"
             },
             {
-              "file": "iceoryx2/conformance-tests/src/service_request_response.rs",
+              "file": "iceoryx2-bb/linux/src/epoll.rs",
               "line": [
-                31
+                182,
+                183
               ],
-              "code": "#[derive(Clone, Copy)]",
-              "purpose": "Demonstrates #\\[derive\\(..."
+              "code": "#[derive(Debug, PartialEq, Eq, Clone, Copy)]\n#[repr(u32)]",
+              "purpose": "Derives comparison traits for epoll event type with u32 representation"
             },
             {
-              "file": "iceoryx2/conformance-tests/src/service_publish_subscribe.rs",
+              "file": "iceoryx2-ffi/c/src/api/writer.rs",
               "line": [
-                45
+                30,
+                31,
+                32
               ],
-              "code": "#[derive(Debug, ZeroCopySend)]",
-              "purpose": "Demonstrates #\\[derive\\(..."
+              "code": "#[repr(C)]\n#[derive(Copy, Clone, CStrRepr)]\npub enum iox2_entry_handle_mut_error_e {",
+              "purpose": "Derives Copy/Clone for FFI error enum plus custom CStrRepr for C string conversion"
             }
           ],
           "subsections": {
@@ -450,28 +484,33 @@
               },
               "samples": [
                 {
-                  "file": "iceoryx2-bb/elementary/src/enum_gen.rs",
+                  "file": "iceoryx2-bb/linux/src/signalfd.rs",
                   "line": [
-                    15
+                    82,
+                    83
                   ],
-                  "code": "#[derive(Debug, Clone, Copy, PartialEq, Eq)]",
-                  "purpose": "Standard derives for enum types"
+                  "code": "#[derive(Debug, Clone, Copy, Eq, Hash, PartialEq)]\npub enum SignalFdReadError {",
+                  "purpose": "Standard derives for error enum enabling error handling patterns"
                 },
                 {
-                  "file": "iceoryx2/tests/service_static_config_tests.rs",
+                  "file": "iceoryx2-bb/concurrency/src/spin_lock.rs",
                   "line": [
-                    22
+                    44,
+                    45,
+                    46
                   ],
-                  "code": "#[derive(ZeroCopySend)]",
-                  "purpose": "Demonstrates #\\[derive\\(..."
+                  "code": "#[derive(Debug)]\n#[repr(C)]\npub struct SpinLock<T> {",
+                  "purpose": "Derive Debug for lock type to enable debugging in safety-critical context"
                 },
                 {
-                  "file": "component-tests/rust/src/test_containers.rs",
+                  "file": "iceoryx2/src/service/static_config/messaging_pattern.rs",
                   "line": [
-                    26
+                    32,
+                    33,
+                    34
                   ],
-                  "code": "#[derive(Debug, Clone, Copy, ZeroCopySend)]",
-                  "purpose": "Demonstrates #\\[derive\\(..."
+                  "code": "#[non_exhaustive]\n#[derive(Debug, Clone, Eq, Hash, PartialEq, ZeroCopySend, Serialize, Deserialize)]\n#[repr(C)]",
+                  "purpose": "Multiple derives including custom ZeroCopySend and serde traits for IPC config"
                 }
               ],
               "count": 998
@@ -492,28 +531,33 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-log/loggers/src/console.rs",
+              "file": "iceoryx2-cal/src/zero_copy_connection/common.rs",
               "line": [
-                28
+                851,
+                852,
+                853
               ],
-              "code": "#[allow(dead_code)]",
-              "purpose": "Demonstrates #\\[(allow|warn|deny|forbid|must_use|deprecated)..."
+              "code": "#[allow(clippy::mut_from_ref)]\n// convenience to access internal mutable object\nfn borrow_counter(&self, channel_id: ChannelId) -> &mut usize {",
+              "purpose": "Allow interior mutability pattern for borrow counter access in IPC receiver"
             },
             {
-              "file": "iceoryx2-services/discovery/src/service_discovery/service.rs",
+              "file": "iceoryx2-bb/posix/src/memory_mapping.rs",
               "line": [
-                42
+                222,
+                223,
+                224
               ],
-              "code": "#[allow(dead_code)] // Fields used by subscribers",
-              "purpose": "Demonstrates #\\[(allow|warn|deny|forbid|must_use|deprecated)..."
+              "code": "#[allow(clippy::large_enum_variant)] // `Box` is not allowed in a mission-critical context\n#[derive(Debug)]\nenum MappingOrigin {",
+              "purpose": "Allow large enum variant because heap allocation is forbidden in safety-critical code"
             },
             {
-              "file": "iceoryx2-ffi/python/src/type_name.rs",
+              "file": "iceoryx2/src/service/static_config/messaging_pattern.rs",
               "line": [
-                42
+                35,
+                36
               ],
-              "code": "#[allow(clippy::inherent_to_string)] // method required to generate this API in Python",
-              "purpose": "Demonstrates #\\[(allow|warn|deny|forbid|must_use|deprecated)..."
+              "code": "#[allow(clippy::large_enum_variant)]\npub enum MessagingPattern {",
+              "purpose": "Allow large enum variant for messaging pattern config (heap allocation forbidden)"
             }
           ],
           "count": 159
@@ -530,28 +574,36 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-ffi/python/src/writer.rs",
+              "file": "iceoryx2-bb/lock-free/src/spmc/unrestricted_atomic.rs",
               "line": [
-                30
+                60,
+                61,
+                62,
+                63,
+                64,
+                65
               ],
-              "code": "/// Represents the writing endpoint of a blackboard based communication.",
-              "purpose": "Demonstrates #\\[doc|///|//!..."
+              "code": "#[doc(hidden)]\n// # Safety\n//\n//   * the memory position must not be modified after\n//     [`Producer::__internal_update_write_cell()`] has been called\npub unsafe fn __internal_get_ptr_to_write_cell(&self) -> *mut T {",
+              "purpose": "Hide internal unsafe API from public docs while preserving safety notes"
             },
             {
-              "file": "iceoryx2-ffi/python/src/waitset_run_result.rs",
+              "file": "iceoryx2-cal/src/lib.rs",
               "line": [
-                17
+                39,
+                40
               ],
-              "code": "/// States why the `WaitSet::wait_and_process()` method returned.",
-              "purpose": "Demonstrates #\\[doc|///|//!..."
+              "code": "#[doc(hidden)]\npub mod testing;",
+              "purpose": "Hide testing module from public documentation"
             },
             {
-              "file": "iceoryx2-ffi/python/src/waitset_guard.rs",
+              "file": "iceoryx2-bb/lock-free/src/spmc/unrestricted_atomic.rs",
               "line": [
-                35
+                94,
+                95,
+                96
               ],
-              "code": "/// Is returned when something is attached to the `WaitSet`. As soon as it goes out",
-              "purpose": "Demonstrates #\\[doc|///|//!..."
+              "code": "#[doc(hidden)]\n#[repr(C)]\npub struct UnrestrictedAtomicMgmt {",
+              "purpose": "Hide internal management struct from docs while exposing C-compatible layout"
             }
           ],
           "subsections": {
@@ -568,28 +620,32 @@
               },
               "samples": [
                 {
-                  "file": "iceoryx2-bb/testing/src/lifetime_tracker.rs",
+                  "file": "iceoryx2-bb/lock-free/src/spmc/unrestricted_atomic.rs",
                   "line": [
-                    48
+                    60,
+                    61
                   ],
-                  "code": "#[doc(hidden)]",
-                  "purpose": "Demonstrates #\\[doc..."
+                  "code": "#[doc(hidden)]\n// # Safety",
+                  "purpose": "Hide internal unsafe memory access method from public documentation"
                 },
                 {
-                  "file": "iceoryx2-bb/container/src/vector/mod.rs",
+                  "file": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs",
                   "line": [
-                    50
+                    33,
+                    34,
+                    35
                   ],
-                  "code": "#[doc(hidden)]",
-                  "purpose": "Demonstrates #\\[doc..."
+                  "code": "#[doc(hidden)]\n#[derive(Debug, Clone, Copy, PartialEq, Eq)]\npub enum FdHandleEntry {",
+                  "purpose": "Hide Windows-specific handle translation from public API docs"
                 },
                 {
-                  "file": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
+                  "file": "iceoryx2-cal/src/lib.rs",
                   "line": [
-                    44
+                    39,
+                    40
                   ],
-                  "code": "#[doc(hidden)]",
-                  "purpose": "Demonstrates #\\[doc..."
+                  "code": "#[doc(hidden)]\npub mod testing;",
+                  "purpose": "Hide internal testing utilities from generated documentation"
                 }
               ],
               "count": 156
@@ -611,28 +667,34 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/conformance-tests/src/writer.rs",
+              "file": "iceoryx2-ffi/c/src/api/writer.rs",
               "line": [
-                228
+                68,
+                69,
+                70
               ],
-              "code": "#[repr(C)]",
-              "purpose": "Demonstrates #\\[(no_mangle|repr|link|export_name)..."
+              "code": "#[repr(C)]\n#[repr(align(8))] // alignment of Option<WriterUnion>\npub struct iox2_writer_storage_t {",
+              "purpose": "C-compatible struct with explicit 8-byte alignment for FFI writer storage"
             },
             {
-              "file": "iceoryx2/conformance-tests/src/service_publish_subscribe.rs",
+              "file": "iceoryx2-ffi/c/src/api/reader.rs",
               "line": [
-                46
+                148,
+                149,
+                150
               ],
-              "code": "#[repr(C)]",
-              "purpose": "Demonstrates #\\[(no_mangle|repr|link|export_name)..."
+              "code": "#[no_mangle]\npub unsafe extern \"C\" fn iox2_entry_handle_error_string(\n    error: iox2_entry_handle_error_e,",
+              "purpose": "Export C function with stable symbol name for error string conversion"
             },
             {
-              "file": "iceoryx2/conformance-tests/src/service_blackboard.rs",
+              "file": "iceoryx2-pal/posix/src/macos/pthread.rs",
               "line": [
-                564
+                150,
+                151,
+                152
               ],
-              "code": "#[repr(C)]",
-              "purpose": "Demonstrates #\\[(no_mangle|repr|link|export_name)..."
+              "code": "#[link(name = \"c++\")]\nextern \"C\" {\n    #[link_name = \"_ZNSt3__123__libcpp_atomic_monitorEPVKv\"]",
+              "purpose": "Link to macOS libc++ for atomic wait/notify primitives"
             }
           ],
           "subsections": {
@@ -690,10 +752,13 @@
                 {
                   "file": "iceoryx2-pal/posix/src/macos/pthread.rs",
                   "line": [
-                    150
+                    150,
+                    151,
+                    152,
+                    153
                   ],
-                  "code": "#[link(name = \"c++\")]",
-                  "purpose": "Demonstrates #\\[link\\(..."
+                  "code": "#[link(name = \"c++\")]\nextern \"C\" {\n    #[link_name = \"_ZNSt3__123__libcpp_atomic_monitorEPVKv\"]\n    fn __libcpp_atomic_monitor(ptr: *const void) -> i64;",
+                  "purpose": "Link macOS libc++ library for atomic wait/notify primitives used in condvar"
                 }
               ],
               "count": 1,
@@ -719,10 +784,11 @@
                 {
                   "file": "iceoryx2-pal/posix/src/macos/pthread.rs",
                   "line": [
-                    152
+                    152,
+                    153
                   ],
-                  "code": "#[link_name = \"_ZNSt3__123__libcpp_atomic_monitorEPVKv\"]",
-                  "purpose": "Demonstrates #\\[link_name..."
+                  "code": "#[link_name = \"_ZNSt3__123__libcpp_atomic_monitorEPVKv\"]\nfn __libcpp_atomic_monitor(ptr: *const void) -> i64;",
+                  "purpose": "Map Rust function to mangled C++ symbol for libc++ atomic monitor"
                 }
               ],
               "count": 4,
@@ -776,37 +842,12 @@
                 "fls_fh27ljezn3qz"
               ],
               "description": "Attribute ``no_main``",
-              "status": "demonstrated",
+              "status": "not_used",
               "findings": {
-                "description": "Used in no_std bare-metal examples."
+                "description": "#![no_main] is only used in examples directory, not production code. Production crates use standard main entry points."
               },
-              "samples": [
-                {
-                  "file": "examples/nostd/posix/rust/publish-subscribe/src/subscriber.rs",
-                  "line": [
-                    14
-                  ],
-                  "code": "#![no_main]",
-                  "purpose": "Demonstrates #!\\[no_main\\]..."
-                },
-                {
-                  "file": "examples/nostd/bare-metal/rust/publish-subscribe/src/publish-subscribe.rs",
-                  "line": [
-                    14
-                  ],
-                  "code": "#![no_main]",
-                  "purpose": "Demonstrates #!\\[no_main\\]..."
-                },
-                {
-                  "file": "examples/nostd/posix/rust/publish-subscribe/src/publisher.rs",
-                  "line": [
-                    14
-                  ],
-                  "code": "#![no_main]",
-                  "purpose": "Demonstrates #!\\[no_main\\]..."
-                }
-              ],
-              "count": 5
+              "samples": [],
+              "count": 0
             },
             "attribute_no_mangle": {
               "fls_section": "13.2.6.10",
@@ -822,28 +863,36 @@
               },
               "samples": [
                 {
-                  "file": "examples/nostd/bare-metal/rust/publish-subscribe/src/publish-subscribe.rs",
+                  "file": "iceoryx2-log/loggers/src/lib.rs",
                   "line": [
-                    44
+                    73,
+                    74,
+                    75
                   ],
-                  "code": "#[no_mangle]",
-                  "purpose": "Demonstrates #\\[no_mangle\\]..."
+                  "code": "#[no_mangle]\npub extern \"Rust\" fn __internal_stdout() -> &'static mut dyn Write {\n    writer::stdout()",
+                  "purpose": "Export stdout accessor with stable symbol for cross-crate logging"
                 },
                 {
-                  "file": "iceoryx2-ffi/c/src/api/port_factory_writer_builder.rs",
+                  "file": "iceoryx2-ffi/c/src/api/reader.rs",
                   "line": [
-                    154
+                    168,
+                    169,
+                    170
                   ],
-                  "code": "#[no_mangle]",
-                  "purpose": "Demonstrates #\\[no_mangle\\]..."
+                  "code": "#[no_mangle]\npub unsafe extern \"C\" fn iox2_reader_id(\n    reader_handle: iox2_reader_h_ref,",
+                  "purpose": "Export C function to get unique reader ID with stable ABI symbol"
                 },
                 {
-                  "file": "iceoryx2-ffi/c/src/api/port_factory_subscriber_builder.rs",
+                  "file": "iceoryx2-log/loggers/src/lib.rs",
                   "line": [
-                    167
+                    84,
+                    85,
+                    86,
+                    87,
+                    88
                   ],
-                  "code": "#[no_mangle]",
-                  "purpose": "Demonstrates #\\[no_mangle\\]..."
+                  "code": "#[no_mangle]\npub extern \"Rust\" fn __internal_default_logger() -> &'static dyn Log {\n    {\n        static CONSOLE_LOGGER: console::Logger = console::Logger::new();\n        &CONSOLE_LOGGER",
+                  "purpose": "Export default logger accessor with stable symbol for logger selection"
                 }
               ],
               "count": 602
@@ -863,28 +912,34 @@
               },
               "samples": [
                 {
-                  "file": "iceoryx2/src/service/builder/mod.rs",
+                  "file": "iceoryx2-bb/concurrency/src/spin_lock.rs",
                   "line": [
+                    45,
+                    46,
+                    47
+                  ],
+                  "code": "#[repr(C)]\npub struct SpinLock<T> {\n    locked: AtomicBool,",
+                  "purpose": "C-compatible layout for SpinLock to ensure cross-language IPC compatibility"
+                },
+                {
+                  "file": "iceoryx2-bb/linux/src/epoll.rs",
+                  "line": [
+                    182,
+                    183,
+                    184
+                  ],
+                  "code": "#[derive(Debug, PartialEq, Eq, Clone, Copy)]\n#[repr(u32)]\npub enum EpollEventType {",
+                  "purpose": "u32 representation for epoll event type matching kernel ABI"
+                },
+                {
+                  "file": "iceoryx2-ffi/c/src/api/writer.rs",
+                  "line": [
+                    74,
+                    75,
                     76
                   ],
-                  "code": "#[repr(C)]",
-                  "purpose": "Demonstrates #\\[repr\\(..."
-                },
-                {
-                  "file": "iceoryx2/conformance-tests/src/writer.rs",
-                  "line": [
-                    228
-                  ],
-                  "code": "#[repr(C)]",
-                  "purpose": "Demonstrates #\\[repr\\(..."
-                },
-                {
-                  "file": "iceoryx2/tests/service_static_config_tests.rs",
-                  "line": [
-                    23
-                  ],
-                  "code": "#[repr(C)]",
-                  "purpose": "Demonstrates #\\[repr\\(..."
+                  "code": "#[repr(C)]\n#[iceoryx2_ffi(WriterUnion)]\npub struct iox2_writer_t {",
+                  "purpose": "C-compatible layout for FFI writer type with union storage"
                 }
               ],
               "count": 512
@@ -977,28 +1032,33 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-log/log/src/fail.rs",
+              "file": "iceoryx2-log/log/src/log.rs",
               "line": [
-                54
+                38,
+                39,
+                40
               ],
-              "code": "#[macro_export(local_inner_macros)]",
-              "purpose": "Demonstrates #\\[(macro_export|macro_use|proc_macro)..."
+              "code": "#[macro_export(local_inner_macros)]\nmacro_rules! trace {\n    ($($e:expr),*) => {",
+              "purpose": "Export trace! logging macro with local_inner_macros for hygiene"
             },
             {
-              "file": "iceoryx2-pal/testing/src/lib.rs",
+              "file": "iceoryx2-bb/elementary/src/lib.rs",
               "line": [
-                19
+                22,
+                23
               ],
-              "code": "#[macro_use]",
-              "purpose": "Demonstrates #\\[(macro_export|macro_use|proc_macro)..."
+              "code": "#[macro_use]\npub mod enum_gen;",
+              "purpose": "Import macros from enum_gen module for use in crate"
             },
             {
-              "file": "iceoryx2-pal/testing/src/assert.rs",
+              "file": "iceoryx2-bb/container/src/semantic_string.rs",
               "line": [
-                13
+                388,
+                389,
+                390
               ],
-              "code": "#[macro_export(local_inner_macros)]",
-              "purpose": "Demonstrates #\\[(macro_export|macro_use|proc_macro)..."
+              "code": "#[macro_export(local_inner_macros)]\nmacro_rules! semantic_string {\n    {$(#[$documentation:meta])*",
+              "purpose": "Export semantic_string! macro for creating validated string types"
             }
           ],
           "subsections": {
@@ -1028,26 +1088,30 @@
                 {
                   "file": "iceoryx2-log/log/src/lib.rs",
                   "line": [
-                    275
+                    275,
+                    276,
+                    277
                   ],
-                  "code": "#[macro_export]",
-                  "purpose": "Demonstrates #\\[macro_export\\]..."
+                  "code": "#[macro_export]\nmacro_rules! cout {\n    ($($arg:tt)*) => {{",
+                  "purpose": "Export cout! macro for stdout output in no_std environments"
                 },
                 {
-                  "file": "iceoryx2-bb/conformance-test-macros/src/lib.rs",
+                  "file": "iceoryx2-log/log/src/log.rs",
                   "line": [
-                    61
+                    79,
+                    80
                   ],
-                  "code": "#[macro_export]",
-                  "purpose": "Demonstrates #\\[macro_export\\]..."
+                  "code": "#[macro_export(local_inner_macros)]\nmacro_rules! debug {",
+                  "purpose": "Export debug! logging macro with proper macro hygiene"
                 },
                 {
-                  "file": "iceoryx2-bb/testing/src/instantiate_conformance_tests_macro.rs",
+                  "file": "iceoryx2-bb/container/src/semantic_string.rs",
                   "line": [
-                    30
+                    388,
+                    389
                   ],
-                  "code": "#[macro_export]",
-                  "purpose": "Demonstrates #\\[macro_export\\]..."
+                  "code": "#[macro_export(local_inner_macros)]\nmacro_rules! semantic_string {",
+                  "purpose": "Export macro for creating custom semantic string types with validation"
                 }
               ],
               "count": 5
@@ -1066,26 +1130,29 @@
                 {
                   "file": "iceoryx2-bb/posix/src/lib.rs",
                   "line": [
-                    48
+                    48,
+                    49
                   ],
-                  "code": "#[macro_use]",
-                  "purpose": "Demonstrates #\\[macro_use\\]..."
+                  "code": "#[macro_use]\npub mod handle_errno;",
+                  "purpose": "Import errno handling macros from submodule for use throughout POSIX crate"
                 },
                 {
                   "file": "iceoryx2-pal/posix/src/windows/mod.rs",
                   "line": [
-                    36
+                    36,
+                    37
                   ],
-                  "code": "#[macro_use]",
-                  "purpose": "Demonstrates #\\[macro_use\\]..."
+                  "code": "#[macro_use]\nmod win32_call;",
+                  "purpose": "Import win32_call macros for Windows PAL implementation"
                 },
                 {
-                  "file": "iceoryx2-pal/testing/src/lib.rs",
+                  "file": "iceoryx2-bb/container/src/lib.rs",
                   "line": [
-                    19
+                    104,
+                    105
                   ],
-                  "code": "#[macro_use]",
-                  "purpose": "Demonstrates #\\[macro_use\\]..."
+                  "code": "#[macro_use]\npub mod semantic_string;",
+                  "purpose": "Import semantic_string! macro for use in container crate"
                 }
               ],
               "count": 5
@@ -1121,18 +1188,22 @@
                 {
                   "file": "iceoryx2-ffi/ffi-macros/src/lib.rs",
                   "line": [
-                    25
+                    25,
+                    26,
+                    27
                   ],
-                  "code": "#[proc_macro_attribute]",
-                  "purpose": "Demonstrates #\\[proc_macro_attribute\\]..."
+                  "code": "#[proc_macro_attribute]\npub fn iceoryx2_ffi(args: TokenStream, input: TokenStream) -> TokenStream {\n    let Args { rust_type: my_type } = parse_attribute_args(args);",
+                  "purpose": "Define iceoryx2_ffi attribute macro for generating FFI wrapper code"
                 },
                 {
                   "file": "iceoryx2-bb/conformance-test-macros/src/lib.rs",
                   "line": [
-                    35
+                    35,
+                    36,
+                    37
                   ],
-                  "code": "#[proc_macro_attribute]",
-                  "purpose": "Demonstrates #\\[proc_macro_attribute\\]..."
+                  "code": "#[proc_macro_attribute]\npub fn conformance_test(_attr: TokenStream, item: TokenStream) -> TokenStream {\n    item",
+                  "purpose": "Define conformance_test attribute for marking conformance test functions"
                 }
               ],
               "count": 3,
@@ -1162,18 +1233,22 @@
                 {
                   "file": "iceoryx2-bb/derive-macros/src/lib.rs",
                   "line": [
-                    56
+                    56,
+                    57,
+                    58
                   ],
-                  "code": "#[proc_macro_derive(PlacementDefault)]",
-                  "purpose": "Demonstrates #\\[proc_macro_derive..."
+                  "code": "#[proc_macro_derive(PlacementDefault)]\npub fn placement_default_derive(input: TokenStream) -> TokenStream {\n    let input = parse_macro_input!(input as DeriveInput);",
+                  "purpose": "Define derive macro for PlacementDefault trait enabling in-place construction"
                 },
                 {
-                  "file": "iceoryx2-ffi/ffi-macros/src/lib.rs",
+                  "file": "iceoryx2-bb/derive-macros/src/lib.rs",
                   "line": [
-                    251
+                    156,
+                    157,
+                    158
                   ],
-                  "code": "#[proc_macro_derive(CStrRepr, attributes(CStr))]",
-                  "purpose": "Demonstrates #\\[proc_macro_derive..."
+                  "code": "#[proc_macro_derive(ZeroCopySend, attributes(type_name))]\npub fn zero_copy_send_derive(input: TokenStream) -> TokenStream {\n    let ast = parse_macro_input!(input as DeriveInput);",
+                  "purpose": "Define derive macro for ZeroCopySend trait with custom type_name attribute"
                 }
               ],
               "count": 3,
@@ -1199,28 +1274,37 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-pal/posix/src/windows/os.rs",
+              "file": "iceoryx2-pal/posix/src/lib.rs",
               "line": [
-                13
+                44,
+                45,
+                46,
+                47
               ],
-              "code": "#[path = \"mod.rs\"]",
-              "purpose": "Demonstrates #\\[path..."
+              "code": "#[cfg(not(platform_override))]\n#[cfg(all(target_os = \"linux\", feature = \"libc_platform\"))]\n#[path = \"libc/os.rs\"]\nmod os;",
+              "purpose": "Platform-conditional path selection for Linux libc module"
             },
             {
-              "file": "iceoryx2-pal/posix/src/stub/os.rs",
+              "file": "iceoryx2-pal/posix/src/lib.rs",
               "line": [
-                13
+                59,
+                60,
+                61,
+                62
               ],
-              "code": "#[path = \"mod.rs\"]",
-              "purpose": "Demonstrates #\\[path..."
+              "code": "#[cfg(not(platform_override))]\n#[cfg(target_os = \"macos\")]\n#[path = \"macos/os.rs\"]\nmod os;",
+              "purpose": "Platform-conditional path for macOS POSIX implementation"
             },
             {
-              "file": "iceoryx2-pal/posix/build.rs",
+              "file": "iceoryx2-pal/posix/src/lib.rs",
               "line": [
-                143
+                74,
+                75,
+                76,
+                77
               ],
-              "code": "#[path = \"bindgen/linux.rs\"]",
-              "purpose": "Demonstrates #\\[path..."
+              "code": "#[cfg(not(platform_override))]\n#[cfg(target_os = \"windows\")]\n#[path = \"windows/os.rs\"]\nmod os;",
+              "purpose": "Platform-conditional path for Windows POSIX compatibility layer"
             }
           ],
           "subsections": {
@@ -1238,26 +1322,29 @@
                 {
                   "file": "iceoryx2-pal/posix/src/lib.rs",
                   "line": [
-                    46
+                    46,
+                    47
                   ],
-                  "code": "#[path = \"libc/os.rs\"]",
-                  "purpose": "Demonstrates #\\[path\\s*=..."
+                  "code": "#[path = \"libc/os.rs\"]\nmod os;",
+                  "purpose": "Select libc-based POSIX implementation for Linux with libc feature"
                 },
                 {
-                  "file": "iceoryx2-pal/posix/src/freebsd/os.rs",
+                  "file": "iceoryx2-pal/posix/src/lib.rs",
                   "line": [
-                    13
+                    66,
+                    67
                   ],
-                  "code": "#[path = \"mod.rs\"]",
-                  "purpose": "Demonstrates #\\[path\\s*=..."
+                  "code": "#[path = \"linux/os.rs\"]\npub mod os;",
+                  "purpose": "Select native Linux bindgen implementation without libc feature"
                 },
                 {
-                  "file": "iceoryx2-pal/posix/build.rs",
+                  "file": "iceoryx2-pal/posix/src/lib.rs",
                   "line": [
-                    143
+                    71,
+                    72
                   ],
-                  "code": "#[path = \"bindgen/linux.rs\"]",
-                  "purpose": "Demonstrates #\\[path\\s*=..."
+                  "code": "#[path = \"qnx/os.rs\"]\nmod os;",
+                  "purpose": "Select QNX Neutrino POSIX implementation for target_os = nto"
                 }
               ],
               "count": 24
@@ -1277,28 +1364,35 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-bb/trait-tests/src/lib.rs",
+              "file": "iceoryx2-bb/elementary/src/lib.rs",
               "line": [
-                13
+                13,
+                14,
+                15,
+                16
               ],
-              "code": "#![no_std]",
-              "purpose": "Demonstrates #!\\[(no_std|no_implicit_prelude)..."
+              "code": "#![no_std]\n#![warn(clippy::alloc_instead_of_core)]\n#![warn(clippy::std_instead_of_alloc)]\n#![warn(clippy::std_instead_of_core)]",
+              "purpose": "no_std crate with lints enforcing proper core/alloc usage"
             },
             {
-              "file": "iceoryx2-bb/elementary-traits/src/lib.rs",
+              "file": "iceoryx2-bb/container/src/lib.rs",
               "line": [
-                13
+                13,
+                14,
+                15,
+                16
               ],
-              "code": "#![no_std]",
-              "purpose": "Demonstrates #!\\[(no_std|no_implicit_prelude)..."
+              "code": "#![no_std]\n#![warn(clippy::alloc_instead_of_core)]\n#![warn(clippy::std_instead_of_alloc)]\n#![warn(clippy::std_instead_of_core)]",
+              "purpose": "Container crate is no_std with lints enforcing proper alloc usage"
             },
             {
               "file": "iceoryx2-services/discovery/src/lib.rs",
               "line": [
-                20
+                20,
+                21
               ],
-              "code": "#![no_std]",
-              "purpose": "Demonstrates #!\\[(no_std|no_implicit_prelude)..."
+              "code": "#![no_std]\n#![warn(missing_docs)]",
+              "purpose": "Discovery service supports no_std for embedded IPC discovery"
             }
           ],
           "subsections": {
@@ -1331,26 +1425,35 @@
                 {
                   "file": "iceoryx2-log/types/src/lib.rs",
                   "line": [
-                    13
+                    13,
+                    14,
+                    15,
+                    16
                   ],
-                  "code": "#![no_std]",
-                  "purpose": "Demonstrates #!\\[no_std\\]..."
+                  "code": "#![no_std]\n\n/// Log levels from least to most severe\n#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]",
+                  "purpose": "Log types crate is no_std for embedded logging support"
                 },
                 {
-                  "file": "iceoryx2-bb/trait-tests/src/lib.rs",
+                  "file": "iceoryx2-bb/elementary/src/lib.rs",
                   "line": [
-                    13
+                    13,
+                    14,
+                    15,
+                    16
                   ],
-                  "code": "#![no_std]",
-                  "purpose": "Demonstrates #!\\[no_std\\]..."
+                  "code": "#![no_std]\n#![warn(clippy::alloc_instead_of_core)]\n#![warn(clippy::std_instead_of_alloc)]\n#![warn(clippy::std_instead_of_core)]",
+                  "purpose": "Elementary building blocks are no_std with lints for embedded"
                 },
                 {
-                  "file": "examples/nostd/posix/rust/publish-subscribe/src/publisher.rs",
+                  "file": "iceoryx2-bb/linux/src/lib.rs",
                   "line": [
-                    13
+                    13,
+                    14,
+                    15,
+                    16
                   ],
-                  "code": "#![no_std]",
-                  "purpose": "Demonstrates #!\\[no_std\\]..."
+                  "code": "#![no_std]\n\n#[cfg(target_os = \"linux\")]\npub mod epoll;",
+                  "purpose": "Linux-specific primitives are no_std for bare-metal Linux"
                 }
               ],
               "count": 23
@@ -1364,36 +1467,12 @@
             "fls_nbbvukrdngev"
           ],
           "description": "Runtime Attributes",
-          "status": "demonstrated",
+          "status": "not_used",
           "findings": {
-            "description": "Runtime attributes used in bare-metal examples."
+            "description": "Runtime attributes (#[global_allocator], #[panic_handler]) are only used in examples directory, not in production library code. Production crates use default allocator and panic behavior."
           },
-          "samples": [
-            {
-              "file": "examples/nostd/posix/rust/publish-subscribe/src/subscriber.rs",
-              "line": [
-                83
-              ],
-              "code": "#[panic_handler]",
-              "purpose": "Demonstrates #\\[(global_allocator|panic_handler|windows_subsyst..."
-            },
-            {
-              "file": "examples/nostd/posix/rust/_common/src/global_allocator.rs",
-              "line": [
-                45
-              ],
-              "code": "#[global_allocator]",
-              "purpose": "Demonstrates #\\[(global_allocator|panic_handler|windows_subsyst..."
-            },
-            {
-              "file": "examples/nostd/bare-metal/rust/_common/src/global_allocator.rs",
-              "line": [
-                67
-              ],
-              "code": "#[global_allocator]",
-              "purpose": "Demonstrates #\\[(global_allocator|panic_handler|windows_subsyst..."
-            }
-          ],
+          "samples": [],
+          "count": 0,
           "subsections": {
             "attribute_global_allocator": {
               "fls_section": "13.2.11.1",
@@ -1401,35 +1480,12 @@
                 "fls_fs0lcfllamj"
               ],
               "description": "Attribute ``global_allocator``",
-              "status": "demonstrated",
+              "status": "not_used",
               "findings": {
-                "description": "Custom allocators in bare-metal examples."
+                "description": "#[global_allocator] is only used in examples (nostd examples), not in production library code. Production code uses the default allocator."
               },
-              "samples": [
-                {
-                  "file": "examples/nostd/posix/rust/_common/src/global_allocator.rs",
-                  "line": [
-                    45
-                  ],
-                  "code": "#[global_allocator]",
-                  "purpose": "Demonstrates #\\[global_allocator\\]..."
-                },
-                {
-                  "file": "examples/nostd/bare-metal/rust/_common/src/global_allocator.rs",
-                  "line": [
-                    67
-                  ],
-                  "code": "#[global_allocator]",
-                  "purpose": "Demonstrates #\\[global_allocator\\]..."
-                }
-              ],
-              "count": 2,
-              "samples_waiver": {
-                "reason": "insufficient_patterns",
-                "explanation": "Only 2 instance(s) found in codebase, fewer than 3 required samples",
-                "approved_by": "automated",
-                "date": "2025-12-30"
-              }
+              "samples": [],
+              "count": 0
             },
             "attribute_panic_handler": {
               "fls_section": "13.2.11.2",
@@ -1437,37 +1493,12 @@
                 "fls_ls5eryuoxlp9"
               ],
               "description": "Attribute ``panic_handler``",
-              "status": "demonstrated",
+              "status": "not_used",
               "findings": {
-                "description": "Custom panic handlers in no_std examples."
+                "description": "#[panic_handler] is only used in examples (nostd examples), not in production library code. Production code uses default panic behavior."
               },
-              "samples": [
-                {
-                  "file": "examples/nostd/posix/rust/publish-subscribe/src/publisher.rs",
-                  "line": [
-                    90
-                  ],
-                  "code": "#[panic_handler]",
-                  "purpose": "Demonstrates #\\[panic_handler\\]..."
-                },
-                {
-                  "file": "examples/nostd/posix/rust/event/src/notifier.rs",
-                  "line": [
-                    73
-                  ],
-                  "code": "#[panic_handler]",
-                  "purpose": "Demonstrates #\\[panic_handler\\]..."
-                },
-                {
-                  "file": "examples/nostd/posix/rust/publish-subscribe/src/subscriber.rs",
-                  "line": [
-                    83
-                  ],
-                  "code": "#[panic_handler]",
-                  "purpose": "Demonstrates #\\[panic_handler\\]..."
-                }
-              ],
-              "count": 5
+              "samples": [],
+              "count": 0
             },
             "attribute_windows_subsystem": {
               "fls_section": "13.2.11.3",
@@ -1491,38 +1522,15 @@
             "fls_riyi0gy48fxw"
           ],
           "description": "Testing Attributes",
-          "status": "demonstrated",
+          "status": "not_applicable",
           "findings": {
             "test": 960,
             "should_panic": 36,
-            "ignore": 5
+            "ignore": 5,
+            "description": "Testing attributes (#[test], #[should_panic], #[ignore]) are by definition only used in test code, not production code. Statistics reflect test suite coverage."
           },
-          "samples": [
-            {
-              "file": "iceoryx2/conformance-tests/src/subscriber.rs",
-              "line": [
-                84
-              ],
-              "code": "#[should_panic]",
-              "purpose": "Demonstrates #\\[(test|should_panic|ignore)..."
-            },
-            {
-              "file": "iceoryx2-userland/record-and-replay/tests/hex_conversion_tests.rs",
-              "line": [
-                20
-              ],
-              "code": "#[test]",
-              "purpose": "Demonstrates #\\[(test|should_panic|ignore)..."
-            },
-            {
-              "file": "iceoryx2-userland/record-and-replay/tests/recorder_replayer_tests.rs",
-              "line": [
-                129
-              ],
-              "code": "#[test]",
-              "purpose": "Demonstrates #\\[(test|should_panic|ignore)..."
-            }
-          ],
+          "samples": [],
+          "count": 0,
           "subsections": {
             "attribute_ignore": {
               "fls_section": "13.2.12.1",
@@ -1530,38 +1538,13 @@
                 "fls_x849a4u7h82j"
               ],
               "description": "Attribute ``ignore``",
-              "status": "demonstrated",
+              "status": "not_applicable",
               "findings": {
                 "count": 5,
-                "description": "Skips tests that require special conditions."
+                "description": "#[ignore] is a testing attribute only used in test code, not production code."
               },
-              "samples": [
-                {
-                  "file": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
-                  "line": [
-                    237
-                  ],
-                  "code": "#[ignore]",
-                  "purpose": "Demonstrates #\\[ignore..."
-                },
-                {
-                  "file": "iceoryx2-cal/conformance-tests/src/zero_copy_connection_trait.rs",
-                  "line": [
-                    1792
-                  ],
-                  "code": "#[ignore] // TODO: iox2-671 enable this test when the concurrency issue is fixed.",
-                  "purpose": "Demonstrates #\\[ignore..."
-                },
-                {
-                  "file": "iceoryx2-cal/conformance-tests/src/dynamic_storage_trait.rs",
-                  "line": [
-                    426
-                  ],
-                  "code": "#[ignore] // TODO: iox2-671 enable this test when the concurrency issue is fixed.",
-                  "purpose": "Demonstrates #\\[ignore..."
-                }
-              ],
-              "count": 5
+              "samples": [],
+              "count": 0
             },
             "attribute_should_panic": {
               "fls_section": "13.2.12.2",
@@ -1569,38 +1552,13 @@
                 "fls_aes2d94g12b9"
               ],
               "description": "Attribute ``should_panic``",
-              "status": "demonstrated",
+              "status": "not_applicable",
               "findings": {
                 "count": 36,
-                "description": "Tests expected panic conditions."
+                "description": "#[should_panic] is a testing attribute only used in test code, not production code."
               },
-              "samples": [
-                {
-                  "file": "iceoryx2-bb/container/tests/flatmap_tests.rs",
-                  "line": [
-                    215
-                  ],
-                  "code": "#[should_panic]",
-                  "purpose": "Demonstrates #\\[should_panic..."
-                },
-                {
-                  "file": "iceoryx2-bb/lock-free/tests/bitset_tests.rs",
-                  "line": [
-                    107
-                  ],
-                  "code": "#[should_panic]",
-                  "purpose": "Demonstrates #\\[should_panic..."
-                },
-                {
-                  "file": "iceoryx2-bb/container/tests/relocatable_vec_tests.rs",
-                  "line": [
-                    20
-                  ],
-                  "code": "#[should_panic]",
-                  "purpose": "Demonstrates #\\[should_panic..."
-                }
-              ],
-              "count": 36
+              "samples": [],
+              "count": 0
             },
             "attribute_test": {
               "fls_section": "13.2.12.3",
@@ -1608,38 +1566,13 @@
                 "fls_dv2j1fvvnk1t"
               ],
               "description": "Attribute ``test``",
-              "status": "demonstrated",
+              "status": "not_applicable",
               "findings": {
                 "count": 960,
-                "description": "Marks unit test functions."
+                "description": "#[test] is a testing attribute only used in test code, not production code."
               },
-              "samples": [
-                {
-                  "file": "iceoryx2-bb/trait-tests/tests/semantic_string_tests.rs",
-                  "line": [
-                    24
-                  ],
-                  "code": "#[test]",
-                  "purpose": "Demonstrates #\\[test\\]..."
-                },
-                {
-                  "file": "iceoryx2-bb/trait-tests/tests/relocatable_container_tests.rs",
-                  "line": [
-                    44
-                  ],
-                  "code": "#[test]",
-                  "purpose": "Demonstrates #\\[test\\]..."
-                },
-                {
-                  "file": "iceoryx2-bb/threadsafe/tests/trigger_queue_tests.rs",
-                  "line": [
-                    31
-                  ],
-                  "code": "#[test]",
-                  "purpose": "Demonstrates #\\[test\\]..."
-                }
-              ],
-              "count": 960
+              "samples": [],
+              "count": 0
             }
           },
           "count": 1001
@@ -1658,18 +1591,34 @@
             {
               "file": "iceoryx2/src/config.rs",
               "line": [
-                130
+                129,
+                130,
+                131,
+                132
               ],
-              "code": "#[non_exhaustive]",
-              "purpose": "Demonstrates #\\[non_exhaustive\\]..."
+              "code": "/// All configurable settings of a [`Service`](crate::service::Service).\n#[non_exhaustive]\n#[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]\n#[serde(rename_all = \"kebab-case\")]",
+              "purpose": "Mark Service config as non_exhaustive for future extensibility"
             },
             {
               "file": "iceoryx2/src/service/static_config/messaging_pattern.rs",
               "line": [
-                32
+                32,
+                33,
+                34
               ],
-              "code": "#[non_exhaustive]",
-              "purpose": "Demonstrates #\\[non_exhaustive\\]..."
+              "code": "#[non_exhaustive]\n#[derive(Debug, Clone, Eq, Hash, PartialEq, ZeroCopySend, Serialize, Deserialize)]\n#[repr(C)]",
+              "purpose": "Mark MessagingPattern enum non_exhaustive for adding new patterns"
+            },
+            {
+              "file": "iceoryx2/src/config.rs",
+              "line": [
+                172,
+                173,
+                174,
+                175
+              ],
+              "code": "/// All configurable settings of a [`Node`](crate::node::Node).\n#[non_exhaustive]\n#[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]\n#[serde(rename_all = \"kebab-case\")]",
+              "purpose": "Mark Node config as non_exhaustive for future expansion"
             }
           ],
           "subsections": {
@@ -1688,18 +1637,33 @@
                 {
                   "file": "iceoryx2/src/service/static_config/messaging_pattern.rs",
                   "line": [
-                    32
+                    32,
+                    33,
+                    34
                   ],
-                  "code": "#[non_exhaustive]",
-                  "purpose": "Demonstrates #\\[non_exhaustive\\]..."
+                  "code": "#[non_exhaustive]\n#[derive(Debug, Clone, Eq, Hash, PartialEq, ZeroCopySend, Serialize, Deserialize)]\n#[repr(C)]",
+                  "purpose": "Mark MessagingPattern enum non_exhaustive to allow adding patterns"
                 },
                 {
                   "file": "iceoryx2/src/config.rs",
                   "line": [
-                    130
+                    129,
+                    130,
+                    131
                   ],
-                  "code": "#[non_exhaustive]",
-                  "purpose": "Demonstrates #\\[non_exhaustive\\]..."
+                  "code": "/// All configurable settings of a [`Service`](crate::service::Service).\n#[non_exhaustive]\n#[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]",
+                  "purpose": "Mark Service config struct non_exhaustive for backwards compatibility"
+                },
+                {
+                  "file": "iceoryx2/src/config.rs",
+                  "line": [
+                    209,
+                    210,
+                    211,
+                    212
+                  ],
+                  "code": "/// The global settings\n#[non_exhaustive]\n#[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]\n#[serde(rename_all = \"kebab-case\")]",
+                  "purpose": "Mark Global config struct non_exhaustive for future additions"
                 }
               ],
               "count": 10,

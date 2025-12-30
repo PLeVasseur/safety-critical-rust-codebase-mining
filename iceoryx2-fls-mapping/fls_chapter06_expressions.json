@@ -61,28 +61,28 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-services/discovery/tests/service_discovery_tracker_tests.rs",
+              "file": "iceoryx2/src/port/details/channel_management.rs",
               "line": [
-                32
+                33
               ],
-              "code": "const NUMBER_OF_SERVICES_ADDED: usize = 8;",
-              "purpose": "Demonstrates \\w+\\s*=\\s*[^=]..."
+              "code": "let disconnect_hint_state = expected_state | DISCONNECT_HINT_BIT;",
+              "purpose": "Local variable assignment for computing disconnect hint state in channel management"
             },
             {
-              "file": "iceoryx2-services/discovery/tests/service_discovery_service_tests.rs",
+              "file": "iceoryx2/src/waitset.rs",
               "line": [
-                35
+                500
               ],
-              "code": "const NUMBER_OF_SERVICES_ADDED: usize = 5;",
-              "purpose": "Demonstrates \\w+\\s*=\\s*[^=]..."
+              "code": "let msg = \"Unable to create WaitSet\";",
+              "purpose": "Error message variable assignment used in WaitSet creation failure handling"
             },
             {
-              "file": "iceoryx2-userland/record-and-replay/tests/hex_conversion_tests.rs",
+              "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
               "line": [
-                22
+                283, 284, 285
               ],
-              "code": "let sut = \"don't stop me now\";",
-              "purpose": "Demonstrates \\w+\\s*=\\s*[^=]..."
+              "code": "capacity: capacity as u32,\nhead: AtomicU64::new(0),\nis_memory_initialized: AtomicBool::new(false),",
+              "purpose": "Field assignments initializing struct members for lock-free unique index set"
             }
           ],
           "count": 24780
@@ -104,28 +104,28 @@
           },
           "samples": [
             {
-              "file": "examples/rust/service_variant_customization/subscriber.rs",
+              "file": "iceoryx2/src/constants.rs",
               "line": [
-                24
+                14
               ],
-              "code": "const CYCLE_TIME: Duration = Duration::from_secs(1);",
-              "purpose": "Demonstrates const\\s+\\w+.*=..."
+              "code": "pub const MAX_SERVICE_NAME_LENGTH: usize = 255;",
+              "purpose": "Compile-time constant defining maximum length for service names"
             },
             {
-              "file": "examples/rust/service_variant_customization/publisher.rs",
+              "file": "iceoryx2/src/service/builder/mod.rs",
               "line": [
-                25
+                66
               ],
-              "code": "const CYCLE_TIME: Duration = Duration::from_secs(1);",
-              "purpose": "Demonstrates const\\s+\\w+.*=..."
+              "code": "const RETRY_LIMIT: usize = 5;",
+              "purpose": "Compile-time constant for service builder retry limit"
             },
             {
-              "file": "examples/rust/service_types/local_pubsub.rs",
+              "file": "iceoryx2/src/port/details/channel_management.rs",
               "line": [
-                25
+                17, 18
               ],
-              "code": "const CYCLE_TIME: Duration = Duration::from_secs(1);",
-              "purpose": "Demonstrates const\\s+\\w+.*=..."
+              "code": "pub(crate) const INVALID_CHANNEL_STATE: u64 = u64::MAX;\nconst DISCONNECT_HINT_BIT: u64 = 1u64 << 63;",
+              "purpose": "Compile-time constants with arithmetic expressions for channel state management"
             }
           ],
           "count": 3964
@@ -145,28 +145,28 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/src/service/builder/request_response.rs",
+              "file": "iceoryx2-bb/posix/src/scheduler.rs",
               "line": [
-                329
+                59, 60, 61
               ],
-              "code": "fatal_panic!(from self, \"This should never happen! Accessing wrong messaging pattern in RequestResponse builder!\");",
-              "purpose": "Demonstrates panic!|unreachable!|todo!|unimplemented!..."
+              "code": "-1 => {\n                fatal_panic!(\"This should never happen! Unable to acquire minimum priority for scheduler {:#?}.\", self);\n            }",
+              "purpose": "Diverging expression handling impossible error case when acquiring scheduler priority"
             },
             {
-              "file": "iceoryx2/src/service/builder/publish_subscribe.rs",
+              "file": "iceoryx2-bb/posix/src/process_state.rs",
               "line": [
-                295
+                568, 569, 570
               ],
-              "code": "fatal_panic!(from self, \"This should never happen! Accessing wrong messaging pattern in PublishSubscribe builder!\");",
-              "purpose": "Demonstrates panic!|unreachable!|todo!|unimplemented!..."
+              "code": "None => {\n                unreachable!()\n            }",
+              "purpose": "Unreachable diverging expression for path that should never be taken"
             },
             {
-              "file": "iceoryx2/src/service/builder/mod.rs",
+              "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
               "line": [
-                372
+                291
               ],
-              "code": "let node_handle = fatal_panic!(from self,",
-              "purpose": "Demonstrates panic!|unreachable!|todo!|unimplemented!..."
+              "code": "fatal_panic!(from self, \"Memory already initialized. Initializing it twice may lead to undefined behavior.\");",
+              "purpose": "Fatal panic to prevent double initialization which would cause undefined behavior"
             }
           ],
           "count": 607
@@ -233,26 +233,28 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            31
-          ],
-          "code": "test.raw_memory[i] = 255;"
-        },
-        {
           "file": "iceoryx2-bb/container/src/string/utils.rs",
           "line": [
-            40
+            40, 41, 42
           ],
-          "code": "b'\\t' => vec![b'\\\\', b't'].into_iter(),"
+          "code": "b'\\t' => vec![b'\\\\', b't'].into_iter(),\nb'\\r' => vec![b'\\\\', b'r'].into_iter(),\nb'\\n' => vec![b'\\\\', b'n'].into_iter(),",
+          "purpose": "Byte character literals for escape sequence handling in string utilities"
         },
         {
-          "file": "iceoryx2-bb/posix/tests/users_tests.rs",
+          "file": "iceoryx2/src/constants.rs",
           "line": [
-            1
+            14, 18
           ],
-          "code": "// Copyright (c) 2023 Contributors to the Eclipse Foundation",
-          "purpose": "Demonstrates \"\\w|true|false|\\d+..."
+          "code": "pub const MAX_SERVICE_NAME_LENGTH: usize = 255;\npub const MAX_ATTRIBUTES: usize = 8;",
+          "purpose": "Numeric literals defining configuration limits for services and attributes"
+        },
+        {
+          "file": "iceoryx2/src/service/service_name.rs",
+          "line": [
+            41
+          ],
+          "code": "pub const INTERNAL_SERVICE_PREFIX: &str = \"iox2://\";",
+          "purpose": "String literal defining the internal service name prefix"
         }
       ],
       "count": 51054
@@ -269,26 +271,28 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
+          "file": "iceoryx2-bb/system-types/src/path.rs",
           "line": [
-            50
+            87
           ],
-          "code": "core::cmp::max(size, align)"
+          "code": "let mut n = if let Some(&PATH_SEPARATOR) = value.first() {",
+          "purpose": "Path expression accessing module constant PATH_SEPARATOR for path normalization"
         },
         {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
+          "file": "iceoryx2-cal/src/shared_memory/posix.rs",
           "line": [
-            54
+            15, 16, 17
           ],
-          "code": "FixedSizePoolAllocator::<512>::new("
+          "code": "pub type Memory<Allocator> = crate::shared_memory::common::details::Memory<\n    Allocator,\n    crate::dynamic_storage::posix_shared_memory::Storage<AllocatorDetails<Allocator>>,\n>;",
+          "purpose": "Qualified path expressions for type alias with nested module paths"
         },
         {
-          "file": "iceoryx2/conformance-tests/tests/writer_tests.rs",
+          "file": "iceoryx2-bb/posix/src/scheduler.rs",
           "line": [
-            13
+            77, 78, 79
           ],
-          "code": "use iceoryx2_bb_testing::instantiate_conformance_tests_with_module;",
-          "purpose": "Demonstrates \\w+::\\w+..."
+          "code": "posix::SCHED_FIFO => Ok(Scheduler::Fifo),\nposix::SCHED_RR => Ok(Scheduler::RoundRobin),\nposix::SCHED_OTHER => Ok(Scheduler::Other),",
+          "purpose": "Path expressions referencing POSIX scheduler constants in match arms"
         }
       ],
       "count": 39291
@@ -305,28 +309,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-pal/testing/src/assert.rs",
-          "line": [
-            259
-          ],
-          "code": "\"assertion failed: {}expr: {} any_of {} ({:?});  contents: {:?}{}\",",
-          "purpose": "Demonstrates \\{[^}]+\\}..."
+          "file": "iceoryx2-bb/memory/src/bump_allocator.rs",
+          "line": [48, 49, 50, 51, 52, 53, 54],
+          "code": "pub fn new(ptr: NonNull<u8>, size: usize) -> Self {\n    Self {\n        start: ptr.as_ptr() as usize,\n        size,\n        current_position: AtomicUsize::new(0),\n    }\n}",
+          "purpose": "Block expression initializing BumpAllocator struct with field assignments for memory management"
         },
         {
-          "file": "iceoryx2-pal/posix/tests/win32_select_tests.rs",
-          "line": [
-            15
-          ],
-          "code": "use iceoryx2_pal_posix::posix::{settings::FD_SET_CAPACITY, *};",
-          "purpose": "Demonstrates \\{[^}]+\\}..."
+          "file": "iceoryx2-cal/src/dynamic_storage/posix_shared_memory.rs",
+          "line": [207, 208, 209, 210],
+          "code": "let shm = loop {\n    match SharedMemoryBuilder::new(&full_name).open_existing(AccessMode::ReadWrite) {\n        Ok(v) => break v,",
+          "purpose": "Block expression with loop returning shared memory handle through break expression"
         },
         {
-          "file": "iceoryx2-pal/posix/src/windows/win32_udp_port_to_uds_name.rs",
-          "line": [
-            15
-          ],
-          "code": "Foundation::{CloseHandle, ERROR_ALREADY_EXISTS, HANDLE},",
-          "purpose": "Demonstrates \\{[^}]+\\}..."
+          "file": "iceoryx2/src/waitset.rs",
+          "line": [594, 595, 596, 597, 598, 599],
+          "code": "let call = |idx: DeadlineQueueIndex| -> CallbackProgression {\n    let progression = if let Some(reactor_idx) = deadline_to_attachment.get(&idx) {\n        fn_call(WaitSetAttachmentId::deadline(self, *reactor_idx, idx))\n    } else {\n        fn_call(WaitSetAttachmentId::tick(self, idx))\n    };",
+          "purpose": "Block expression in closure handling deadline queue callbacks for waitset event processing"
         }
       ],
       "subsections": {
@@ -531,28 +529,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-ffi/python/src/writer.rs",
-              "line": [
-                1
-              ],
-              "code": "// Copyright (c) 2025 Contributors to the Eclipse Foundation",
-              "purpose": "Demonstrates \\+\\s*\\w|\\-\\s*\\w|\\*\\s*\\w|/\\s*\\w|%\\s*\\w..."
+              "file": "iceoryx2-bb/memory/src/bump_allocator.rs",
+              "line": [87],
+              "code": "aligned_position = align(self.start + current_position, layout.align()) - self.start;",
+              "purpose": "Arithmetic addition and subtraction for memory alignment calculation in bump allocator"
             },
             {
-              "file": "iceoryx2-ffi/python/src/waitset_run_result.rs",
-              "line": [
-                1
-              ],
-              "code": "// Copyright (c) 2025 Contributors to the Eclipse Foundation",
-              "purpose": "Demonstrates \\+\\s*\\w|\\-\\s*\\w|\\*\\s*\\w|/\\s*\\w|%\\s*\\w..."
+              "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+              "line": [296],
+              "code": "core::mem::size_of::<u32>() * (self.capacity + 1) as usize,",
+              "purpose": "Arithmetic multiplication for calculating memory size of unique index set"
             },
             {
-              "file": "iceoryx2-ffi/python/src/waitset_guard.rs",
-              "line": [
-                1
-              ],
-              "code": "// Copyright (c) 2025 Contributors to the Eclipse Foundation",
-              "purpose": "Demonstrates \\+\\s*\\w|\\-\\s*\\w|\\*\\s*\\w|/\\s*\\w|%\\s*\\w..."
+              "file": "iceoryx2-bb/elementary/src/math.rs",
+              "line": [61, 62],
+              "code": "remainder = quotient % 64;\nquotient /= 64;",
+              "purpose": "Modulo and division for base64 encoding conversion"
             }
           ],
           "count": 43589
@@ -569,28 +561,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-userland/record-and-replay/tests/replayer_tests.rs",
-              "line": [
-                31
-              ],
-              "code": "let result = ReplayerOpener::new(&file_name).open();",
-              "purpose": "Demonstrates &\\s*\\w|\\|\\s*\\w|\\^\\s*\\w|<<|>>..."
+              "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+              "line": [261, 262, 263],
+              "code": "head: ((value >> 40) as u32) & 0xffffff,\naba: (value >> 24) as u16,\nborrowed_indices: (value as u32) & 0xffffff,",
+              "purpose": "Right shift and bitwise AND for extracting packed fields from 64-bit head details"
             },
             {
-              "file": "iceoryx2-log/types/src/lib.rs",
-              "line": [
-                31
-              ],
-              "code": "&self,",
-              "purpose": "Demonstrates &\\s*\\w|\\|\\s*\\w|\\^\\s*\\w|<<|>>..."
+              "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+              "line": [268, 269, 270],
+              "code": "(((self.head & 0x00ffffff) as u64) << 40)\n    | ((self.aba as u64) << 24)\n    | ((self.borrowed_indices & 0x00ffffff) as u64)",
+              "purpose": "Left shift and bitwise OR for packing head, aba counter, and borrowed indices into u64"
             },
             {
-              "file": "iceoryx2/src/request_mut.rs",
-              "line": [
-                18
-              ],
-              "code": "//! # fn main() -> Result<(), Box<dyn core::error::Error>> {",
-              "purpose": "Demonstrates &\\s*\\w|\\|\\s*\\w|\\^\\s*\\w|<<|>>..."
+              "file": "iceoryx2-cal/src/shm_allocator/pointer_offset.rs",
+              "line": [72, 73],
+              "code": "self.0 &= !((1u64 << SegmentIdUnderlyingType::BITS) - 1);\nself.0 |= value.0 as u64;",
+              "purpose": "Bitwise AND-NOT and OR for setting segment ID in pointer offset encoding"
             }
           ],
           "count": 15747
@@ -607,28 +593,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/tests/service_static_config_tests.rs",
-              "line": [
-                25
-              ],
-              "code": "let sut = TypeDetail::new::<Tmp>(TypeVariant::FixedSize);",
-              "purpose": "Demonstrates ==|!=|<=|>=|<[^<]|>[^>]..."
+              "file": "iceoryx2-bb/memory/src/bump_allocator.rs",
+              "line": [88],
+              "code": "if aligned_position + layout.size() > self.size {",
+              "purpose": "Greater-than comparison checking if allocation would exceed available memory"
             },
             {
-              "file": "iceoryx2/src/waitset.rs",
-              "line": [
-                49
-              ],
-              "code": "//! # fn main() -> Result<(), Box<dyn core::error::Error>> {",
-              "purpose": "Demonstrates ==|!=|<=|>=|<[^<]|>[^>]..."
+              "file": "iceoryx2-bb/system-types/src/ipv4_address.rs",
+              "line": [62, 63],
+              "code": "if counter != 4 {\n    fail!(from origin, with Ipv4AddressParseError::WrongFormat,",
+              "purpose": "Not-equal comparison validating IPv4 address has exactly 4 octets"
             },
             {
-              "file": "iceoryx2/src/testing.rs",
-              "line": [
-                26
-              ],
-              "code": "pub fn generate_service_name() -> ServiceName {",
-              "purpose": "Demonstrates ==|!=|<=|>=|<[^<]|>[^>]..."
+              "file": "iceoryx2-cal/src/dynamic_storage/posix_shared_memory.rs",
+              "line": [246],
+              "code": "if package_version.to_u64() == 0 {",
+              "purpose": "Equality comparison checking if dynamic storage version is uninitialized"
             }
           ],
           "count": 39847
@@ -645,28 +625,22 @@
           },
           "samples": [
             {
-              "file": "benchmarks/request-response/src/main.rs",
-              "line": [
-                69
-              ],
-              "code": ".spawn(|| {",
-              "purpose": "Demonstrates &&|\\|\\|..."
+              "file": "iceoryx2-bb/system-types/src/ipv4_address.rs",
+              "line": [97, 98, 99, 100],
+              "code": "pub const fn is_private(&self) -> bool {\n    self.compare([10, 0, 0, 0], 8)\n        || self.compare([192, 168, 0, 0], 16)\n        || self.compare([172, 16, 0, 0], 12)\n}",
+              "purpose": "Lazy OR evaluation for checking if IPv4 address is in any private range"
             },
             {
-              "file": "iceoryx2-cli/iox2-service/src/command/notify.rs",
-              "line": [
-                44
-              ],
-              "code": "let notify = || -> Result<()> {",
-              "purpose": "Demonstrates &&|\\|\\|..."
+              "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+              "line": [343, 344, 345],
+              "code": "let new_flags = match value {\n    true => current_flags | posix::O_NONBLOCK,\n    false => current_flags & !posix::O_NONBLOCK,\n};",
+              "purpose": "Boolean match for setting or clearing non-blocking flag on socket"
             },
             {
-              "file": "benchmarks/queue/src/main.rs",
-              "line": [
-                77
-              ],
-              "code": ".spawn(|| {",
-              "purpose": "Demonstrates &&|\\|\\|..."
+              "file": "iceoryx2-bb/memory/src/pool_allocator.rs",
+              "line": [176, 177, 178],
+              "code": "!(position < self.start\n    || position > self.start + self.size\n    || (position - self.start) % self.bucket_size != 0)",
+              "purpose": "Lazy OR evaluation checking if pointer is outside allocator bounds or misaligned"
             }
           ],
           "count": 602
@@ -708,28 +682,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-cal/tests/zero_copy_connection_posix_shared_memory_tests.rs",
-              "line": [
-                39
-              ],
-              "code": "let file_name = <Sut as NamedConceptMgmt>::Configuration::default()",
-              "purpose": "Demonstrates \\bas\\s+..."
+              "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+              "line": [364, 365],
+              "code": "(value as *const T) as *const posix::void,\ncore::mem::size_of::<T>() as u32,",
+              "purpose": "Type cast for pointer conversion and size conversion in socket option setting"
             },
             {
-              "file": "iceoryx2-cal/tests/static_storage_file_tests.rs",
-              "line": [
-                46
-              ],
-              "code": "let content_len = content.len() as u64;",
-              "purpose": "Demonstrates \\bas\\s+..."
+              "file": "iceoryx2-bb/memory/src/pool_allocator.rs",
+              "line": [185, 186, 187],
+              "code": "let position = ptr.as_ptr() as usize;\n\n((position - self.start) / self.bucket_size) as u32",
+              "purpose": "Type cast converting calculated bucket index to u32 after pointer arithmetic"
             },
             {
-              "file": "iceoryx2-cal/tests/shm_allocator_pool_allocator_tests.rs",
-              "line": [
-                66
-              ],
-              "code": "assert_that!(test_context.sut.number_of_buckets() as usize, eq PAYLOAD_SIZE / 2);",
-              "purpose": "Demonstrates \\bas\\s+..."
+              "file": "iceoryx2-bb/system-types/src/ipv4_address.rs",
+              "line": [72, 73],
+              "code": "pub const fn new(a: u8, b: u8, c: u8, d: u8) -> Self {\n    Self(((a as u32) << 24) | ((b as u32) << 16) | ((c as u32) << 8) | d as u32)",
+              "purpose": "Type cast converting u8 octets to u32 for IPv4 address packing"
             }
           ],
           "count": 5278
@@ -746,28 +714,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-services/discovery/tests/service_discovery_tracker_tests.rs",
-              "line": [
-                32
-              ],
-              "code": "const NUMBER_OF_SERVICES_ADDED: usize = 8;",
-              "purpose": "Demonstrates \\w+\\s*=\\s*[^=]..."
+              "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+              "line": [349],
+              "code": "self.is_non_blocking.store(value, Ordering::Relaxed);",
+              "purpose": "Assignment storing non-blocking flag value in atomic boolean"
             },
             {
-              "file": "iceoryx2-services/discovery/tests/service_discovery_service_tests.rs",
-              "line": [
-                35
-              ],
-              "code": "const NUMBER_OF_SERVICES_ADDED: usize = 5;",
-              "purpose": "Demonstrates \\w+\\s*=\\s*[^=]..."
+              "file": "iceoryx2-bb/memory/src/bump_allocator.rs",
+              "line": [87],
+              "code": "aligned_position = align(self.start + current_position, layout.align()) - self.start;",
+              "purpose": "Assignment of calculated aligned memory position for allocation"
             },
             {
-              "file": "iceoryx2-services/discovery/src/service_discovery/tracker.rs",
-              "line": [
-                45
-              ],
-              "code": "ServiceListError::InsufficientPermissions => Self::InsufficientPermissions,",
-              "purpose": "Demonstrates \\w+\\s*=\\s*[^=]..."
+              "file": "iceoryx2-bb/container/src/vec.rs",
+              "line": [186, 187, 188, 189],
+              "code": ".write(MaybeUninit::new(value))\n};\n\nself.len += 1;",
+              "purpose": "Assignment incrementing vector length after pushing element via MaybeUninit"
             }
           ],
           "subsections": {
@@ -826,28 +788,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/src/port/notifier.rs",
-              "line": [
-                476
-              ],
-              "code": "number_of_triggered_listeners += 1;",
-              "purpose": "Demonstrates \\+=|-=|\\*=|/=|%=|&=|\\|=|\\^=|<<=|>>=..."
+              "file": "iceoryx2-bb/system-types/src/ipv4_address.rs",
+              "line": [57, 58, 59],
+              "code": "ipv4[n] = fail!(from origin, when value.parse::<u8>(),\n                \"{msg} \\\"{input}\\\" since some entries are not an u8 number.\");\ncounter += 1;",
+              "purpose": "Compound addition assignment incrementing counter after parsing IPv4 octet"
             },
             {
-              "file": "examples/rust/service_variant_customization/publisher.rs",
-              "line": [
-                41
-              ],
-              "code": "counter += 1;",
-              "purpose": "Demonstrates \\+=|-=|\\*=|/=|%=|&=|\\|=|\\^=|<<=|>>=..."
+              "file": "iceoryx2-bb/posix/src/socket_ancillary.rs",
+              "line": [385, 386],
+              "code": "self.file_descriptors.push(fd);\n}\n\ni += SIZE_OF_FD;",
+              "purpose": "Compound addition advancing index by file descriptor size when extracting from ancillary data"
             },
             {
-              "file": "examples/rust/service_types/local_pubsub.rs",
-              "line": [
-                79
-              ],
-              "code": "counter += 1;",
-              "purpose": "Demonstrates \\+=|-=|\\*=|/=|%=|&=|\\|=|\\^=|<<=|>>=..."
+              "file": "iceoryx2-cal/src/shm_allocator/pointer_offset.rs",
+              "line": [72, 73],
+              "code": "self.0 &= !((1u64 << SegmentIdUnderlyingType::BITS) - 1);\nself.0 |= value.0 as u64;",
+              "purpose": "Compound AND-assign and OR-assign for updating segment ID bits in pointer offset"
             }
           ],
           "count": 278
@@ -874,28 +830,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-ffi/python/src/writer.rs",
-          "line": [
-            49
-          ],
-          "code": "_ => fatal_panic!(from \"Writer::id()\",",
-          "purpose": "Demonstrates \\b_\\b..."
+          "file": "iceoryx2-bb/posix/src/directory.rs",
+          "line": [292],
+          "code": "let _ = Directory::remove(path);",
+          "purpose": "Underscore expression discarding Result from cleanup operation during error handling"
         },
         {
-          "file": "iceoryx2/conformance-tests/src/writer.rs",
-          "line": [
-            202
-          ],
-          "code": "for _ in 0..number_of_threads {",
-          "purpose": "Demonstrates \\b_\\b..."
+          "file": "iceoryx2/src/port/notifier.rs",
+          "line": [142, 143],
+          "code": "for _ in 0..size {\n    new_self.connections.push(UnsafeCell::new(None))",
+          "purpose": "Underscore pattern in for loop ignoring iteration index when initializing connections"
         },
         {
-          "file": "iceoryx2/conformance-tests/src/waitset.rs",
-          "line": [
-            54
-          ],
-          "code": "let _ = path.add_path_entry(",
-          "purpose": "Demonstrates \\b_\\b..."
+          "file": "iceoryx2/src/port/details/channel_management.rs",
+          "line": [35],
+          "code": "let _ = self.channel_state(channel_id).compare_exchange(",
+          "purpose": "Underscore discarding compare_exchange result in channel state transition"
         }
       ],
       "count": 4533
@@ -912,27 +862,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            50
-          ],
-          "code": "(TestFixture::memory_size() / core::cmp::max(size, align)) as u32 - 1"
+          "file": "iceoryx2-bb/memory/src/pool_allocator.rs",
+          "line": [170],
+          "code": "(ptr.as_ptr() as usize + size - adjusted_start) / bucket_size",
+          "purpose": "Parenthesized expression grouping arithmetic for bucket count calculation"
         },
         {
-          "file": "iceoryx2-cli/iox2/tests/commands_tests.rs",
-          "line": [
-            1
-          ],
-          "code": "// Copyright (c) 2024 Contributors to the Eclipse Foundation",
-          "purpose": "Demonstrates \\(\\s*\\w+\\s*\\)..."
+          "file": "iceoryx2-cal/src/shm_allocator/pointer_offset.rs",
+          "line": [57],
+          "code": "Self(((offset as u64) << (SegmentIdUnderlyingType::BITS)) | segment_id.value() as u64)",
+          "purpose": "Nested parentheses for bit shift precedence in pointer offset construction"
         },
         {
-          "file": "iceoryx2-cli/iox2/src/main.rs",
-          "line": [
-            1
-          ],
-          "code": "// Copyright (c) 2024 Contributors to the Eclipse Foundation",
-          "purpose": "Demonstrates \\(\\s*\\w+\\s*\\)..."
+          "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+          "line": [268],
+          "code": "(((self.head & 0x00ffffff) as u64) << 40)",
+          "purpose": "Multiple parentheses ensuring correct evaluation order for bit packing"
         }
       ],
       "count": 15399
@@ -949,25 +894,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            21
-          ],
-          "code": "raw_memory: [u8; TestFixture::memory_size()],"
-        },
-        {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            27
-          ],
-          "code": "raw_memory: [0; TestFixture::memory_size()],"
-        },
-        {
           "file": "iceoryx2-bb/container/src/vector/static_vec.rs",
-          "line": [
-            160
-          ],
-          "code": "data: [const { MaybeUninit::uninit() }; CAPACITY],"
+          "line": [160],
+          "code": "data: [const { MaybeUninit::uninit() }; CAPACITY],",
+          "purpose": "Array repeat expression with const block initializing StaticVec storage"
+        },
+        {
+          "file": "iceoryx2-bb/posix/src/socket_ancillary.rs",
+          "line": [254, 255],
+          "code": "message_buffer: [0u8; BUFFER_CAPACITY],\niovec_buffer: [0u8; IOVEC_BUFFER_CAPACITY],",
+          "purpose": "Array repeat expressions initializing zero-filled buffers for socket ancillary data"
+        },
+        {
+          "file": "iceoryx2-bb/posix/src/user.rs",
+          "line": [226],
+          "code": "let mut buffer: [posix::c_char; PASSWD_BUFFER_SIZE] = [0; PASSWD_BUFFER_SIZE];",
+          "purpose": "Array repeat expression creating zero-initialized password buffer"
         }
       ],
       "count": 489
@@ -984,28 +926,25 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            31
-          ],
-          "code": "test.raw_memory[i] = 255;"
+          "file": "iceoryx2-bb/system-types/src/path.rs",
+          "line": [103, 104],
+          "code": "raw_path[n] = PATH_SEPARATOR;\nn += 1;",
+          "purpose": "Array indexing for writing path separator during path normalization"
         },
         {
-          "file": "iceoryx2-bb/memory/tests/heap_allocator_tests.rs",
-          "line": [
-            31
-          ],
-          "code": "unsafe { memory.as_mut()[i] = 255 };"
+          "file": "iceoryx2-bb/system-types/src/path.rs",
+          "line": [108],
+          "code": "raw_path[n..new_n].copy_from_slice(entry);",
+          "purpose": "Range indexing for copying path entry bytes into buffer"
+        },
+        {
+          "file": "iceoryx2-bb/system-types/src/file_path.rs",
+          "line": [146],
+          "code": "if 0 < buffer_len && path.as_bytes_const()[buffer_len - 1] != PATH_SEPARATOR {",
+          "purpose": "Array indexing to check if path ends with separator"
         }
       ],
-      "count": null,
-      "count_methodology": "Pattern not defined for this section",
-      "samples_waiver": {
-        "reason": "conceptual_section",
-        "explanation": "This section describes an abstract concept not directly mappable to concrete code patterns",
-        "approved_by": "automated",
-        "date": "2025-12-30"
-      }
+      "count": 8943
     },
     "tuple_expressions": {
       "fls_section": "6.10",
@@ -1019,27 +958,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/lock-free/tests/mpmc_container_tests.rs",
-          "line": [
-            79
-          ],
-          "code": "let mut contained_values: Vec<(u32, usize)> = vec![];"
+          "file": "iceoryx2-bb/lock-free/src/mpmc/container.rs",
+          "line": [132, 133, 134, 135, 136, 137],
+          "code": "Self {\n    container_id,\n    current_change_counter: 0,\n    data: vec![MaybeUninit::uninit(); capacity],\n    active_index: vec![0; capacity],\n}",
+          "purpose": "Struct expression initializing ContainerState with id and capacity"
         },
         {
-          "file": "iceoryx2/tests/service_publish_subscribe_thread_safety_tests.rs",
-          "line": [
-            73
-          ],
-          "code": "assert_that!(n, eq number_of_publisher_threads);",
-          "purpose": "Demonstrates \\(\\s*\\w+\\s*,\\s*\\w+..."
+          "file": "iceoryx2-bb/posix/src/socket_ancillary.rs",
+          "line": [399, 400, 401, 402],
+          "code": "self.credentials = Some(SocketCred {\n    pid: ProcessId::new(raw_cred.pid),\n    uid: Uid::new_from_native(raw_cred.uid),\n    gid: Gid::new_from_native(raw_cred.gid),\n});",
+          "purpose": "Tuple-like credentials struct constructed from raw POSIX credential data"
         },
         {
-          "file": "iceoryx2/tests/node_name_tests.rs",
-          "line": [
-            22
-          ],
-          "code": "assert_that!(sut, eq value);",
-          "purpose": "Demonstrates \\(\\s*\\w+\\s*,\\s*\\w+..."
+          "file": "iceoryx2-bb/posix/src/memory_mapping.rs",
+          "line": [226],
+          "code": "File((FilePath, AccessMode)),",
+          "purpose": "Tuple variant in enum for file-backed memory mapping with path and access mode"
         }
       ],
       "count": 4677
@@ -1057,27 +991,21 @@
       "samples": [
         {
           "file": "iceoryx2-bb/memory/src/bump_allocator.rs",
-          "line": [
-            48,
-            49
-          ],
-          "code": "pub fn new(ptr: NonNull<u8>, size: usize) -> Self {\n    Self {"
+          "line": [48, 49, 50, 51, 52, 53],
+          "code": "pub fn new(ptr: NonNull<u8>, size: usize) -> Self {\n    Self {\n        start: ptr.as_ptr() as usize,\n        size,\n        current_position: AtomicUsize::new(0),\n    }\n}",
+          "purpose": "Struct expression constructing BumpAllocator with field initializers"
         },
         {
-          "file": "iceoryx2-pal/testing/src/watchdog.rs",
-          "line": [
-            51
-          ],
-          "code": "eprintln!(\"Killing test since timeout of {timeout:?} was hit.\");",
-          "purpose": "Demonstrates \\w+\\s*\\{\\s*\\w+\\s*:..."
+          "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+          "line": [259, 260, 261, 262, 263, 264],
+          "code": "fn from(value: u64) -> Self {\n    Self {\n        head: ((value >> 40) as u32) & 0xffffff,\n        aba: (value >> 24) as u16,\n        borrowed_indices: (value as u32) & 0xffffff,\n    }\n}",
+          "purpose": "Struct expression constructing HeadDetails from packed u64 value"
         },
         {
-          "file": "iceoryx2-pal/testing/src/memory.rs",
-          "line": [
-            84
-          ],
-          "code": "unsafe { core::slice::from_raw_parts(self.memory.cast(), core::mem::size_of::<T>()) }",
-          "purpose": "Demonstrates \\w+\\s*\\{\\s*\\w+\\s*:..."
+          "file": "iceoryx2-bb/posix/src/memory_mapping.rs",
+          "line": [241, 242, 243, 244, 245, 246],
+          "code": "fn new() -> Self {\n    Self {\n        initial_permission: MappingPermission::ReadWrite,\n        mapping_address_hint: 0,\n        enforce_mapping_address_hint: false,\n        size: 0,\n        offset: 0,\n    }\n}",
+          "purpose": "Struct expression initializing MemoryMappingBuilder with default values"
         }
       ],
       "count": 583
@@ -1092,18 +1020,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            70
-          ],
-          "code": "sut.bucket_size()"
+          "file": "iceoryx2-bb/system-types/src/path.rs",
+          "line": [114],
+          "code": "unsafe { Path::new_unchecked(&raw_path[0..n]) }",
+          "purpose": "Unsafe function call constructing Path from normalized raw bytes"
         },
         {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            42
-          ],
-          "code": "self.raw_memory.as_mut_ptr()"
+          "file": "iceoryx2-bb/system-types/src/ipv4_address.rs",
+          "line": [67],
+          "code": "Ok(Self::new(ipv4[0], ipv4[1], ipv4[2], ipv4[3]))",
+          "purpose": "Associated function call constructing Ipv4Address from parsed octets"
+        },
+        {
+          "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+          "line": [409, 410],
+          "code": "let mut socket_address = posix::sockaddr_un::new_zeroed();\nsocket_address.sun_family = posix::AF_UNIX;",
+          "purpose": "Function call creating zero-initialized socket address structure"
         }
       ],
       "subsections": {
@@ -1123,28 +1055,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-services/discovery/tests/service_discovery_tracker_tests.rs",
-              "line": [
-                1
-              ],
-              "code": "// Copyright (c) 2025 Contributors to the Eclipse Foundation",
-              "purpose": "Demonstrates \\w+\\s*\\(..."
+              "file": "iceoryx2-bb/memory/src/bump_allocator.rs",
+              "line": [87],
+              "code": "aligned_position = align(self.start + current_position, layout.align()) - self.start;",
+              "purpose": "Function call to align() for calculating aligned memory position"
             },
             {
-              "file": "iceoryx2-services/discovery/tests/service_discovery_service_tests.rs",
-              "line": [
-                1
-              ],
-              "code": "// Copyright (c) 2025 Contributors to the Eclipse Foundation",
-              "purpose": "Demonstrates \\w+\\s*\\(..."
+              "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+              "line": [327],
+              "code": "core::mem::size_of::<UnsafeCell<u32>>() * (capacity + 1) + core::mem::align_of::<u32>() - 1",
+              "purpose": "Calls to size_of and align_of for calculating memory requirements"
             },
             {
-              "file": "iceoryx2-services/discovery/src/service_discovery/tracker.rs",
-              "line": [
-                1
-              ],
-              "code": "// Copyright (c) 2025 Contributors to the Eclipse Foundation",
-              "purpose": "Demonstrates \\w+\\s*\\(..."
+              "file": "iceoryx2-cal/src/dynamic_storage/posix_shared_memory.rs",
+              "line": [208],
+              "code": "match SharedMemoryBuilder::new(&full_name).open_existing(AccessMode::ReadWrite) {",
+              "purpose": "Chained call expressions for building and opening shared memory"
             }
           ],
           "count": 75389
@@ -1163,28 +1089,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2-bb/trait-tests/tests/semantic_string_tests.rs",
-              "line": [
-                39
-              ],
-              "code": "let sut = sut.unwrap();",
-              "purpose": "Demonstrates \\.\\w+\\s*\\(..."
+              "file": "iceoryx2-bb/memory/src/bump_allocator.rs",
+              "line": [83, 84, 85],
+              "code": "let mut current_position = self\n    .current_position\n    .load(core::sync::atomic::Ordering::Relaxed);",
+              "purpose": "Method call loading atomic position value with relaxed ordering"
             },
             {
-              "file": "iceoryx2-bb/trait-tests/tests/relocatable_container_tests.rs",
-              "line": [
-                39
-              ],
-              "code": "NonNull::new(memory.as_mut_ptr() as *mut u8).unwrap(),",
-              "purpose": "Demonstrates \\.\\w+\\s*\\(..."
+              "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+              "line": [338, 339, 340, 341, 342],
+              "code": "let current_flags = self.fcntl(\n    posix::F_GETFL,\n    0,\n    \"Unable to acquire current socket filedescriptor flags\",\n)?;",
+              "purpose": "Method call to fcntl for getting socket file descriptor flags"
             },
             {
-              "file": "iceoryx2-bb/threadsafe/tests/trigger_queue_tests.rs",
-              "line": [
-                39
-              ],
-              "code": "assert_that!(!sut.is_full(), eq true);",
-              "purpose": "Demonstrates \\.\\w+\\s*\\(..."
+              "file": "iceoryx2-bb/system-types/src/ipv4_address.rs",
+              "line": [57, 58],
+              "code": "ipv4[n] = fail!(from origin, when value.parse::<u8>(),\n                \"{msg} \\\"{input}\\\" since some entries are not an u8 number.\");",
+              "purpose": "Method call parse::<u8>() for converting string to IPv4 octet"
             }
           ],
           "count": 36467
@@ -1229,27 +1149,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            31
-          ],
-          "code": "test.raw_memory[i] = 255;"
+          "file": "iceoryx2-bb/memory/src/pool_allocator.rs",
+          "line": [69, 70],
+          "code": "bucket_size: usize,\nbucket_alignment: usize,",
+          "purpose": "Field access expressions reading bucket configuration from PoolAllocator"
         },
         {
-          "file": "iceoryx2/tests/service_static_config_tests.rs",
-          "line": [
-            7
-          ],
-          "code": "// terms of the Apache Software License 2.0 which is available at",
-          "purpose": "Demonstrates \\.\\w+[^(]..."
+          "file": "iceoryx2-bb/memory/src/bump_allocator.rs",
+          "line": [56, 57],
+          "code": "pub fn start_address(&self) -> usize {\n    self.start\n}",
+          "purpose": "Field access returning start address of bump allocator memory region"
         },
         {
-          "file": "iceoryx2/tests/service_request_response_thread_safety_tests.rs",
-          "line": [
-            7
-          ],
-          "code": "// terms of the Apache Software License 2.0 which is available at",
-          "purpose": "Demonstrates \\.\\w+[^(]..."
+          "file": "iceoryx2-bb/lock-free/src/mpmc/container.rs",
+          "line": [115, 116, 117],
+          "code": "pub fn index(&self) -> u32 {\n    self.index\n}",
+          "purpose": "Field access returning underlying index from ContainerHandle"
         }
       ],
       "count": 52244
@@ -1267,26 +1182,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
-          "line": [
-            168,
-            169
-          ],
-          "code": "thread::scope(|s| {\n    let t = s.spawn(|| {"
+          "file": "iceoryx2/src/waitset.rs",
+          "line": [594, 595, 596, 597, 598],
+          "code": "let call = |idx: DeadlineQueueIndex| -> CallbackProgression {\n    let progression = if let Some(reactor_idx) = deadline_to_attachment.get(&idx) {\n        fn_call(WaitSetAttachmentId::deadline(self, *reactor_idx, idx))\n    } else {\n        fn_call(WaitSetAttachmentId::tick(self, idx))\n    };",
+          "purpose": "Closure expression handling deadline queue events with typed parameter and return"
         },
         {
-          "file": "iceoryx2-bb/posix/tests/signal_tests.rs",
-          "line": [
-            56
-          ],
-          "code": "|| { COUNTER.load(Ordering::SeqCst) },"
+          "file": "iceoryx2-bb/elementary/src/math.rs",
+          "line": [46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57],
+          "code": "let remainder_to_char = |value| -> char {\n    if value < 10 {\n        ((48 + value) as u8) as char\n    } else if value < 26 + 10 {\n        ((65 + value - 10) as u8) as char\n    } else if value < 62 {\n        ((97 + value - 10 - 26) as u8) as char\n    } else if value == 62 {\n        45 as char\n    } else {\n        95 as char\n    }\n};",
+          "purpose": "Closure converting remainder to base64 character for encoding"
         },
         {
-          "file": "iceoryx2-bb/memory/src/pool_allocator.rs",
-          "line": [
-            343
-          ],
-          "code": "next_free_index: core::array::from_fn(|i| UnsafeCell::new(i as u32 + 1)),"
+          "file": "iceoryx2/src/port/server.rs",
+          "line": [390, 391],
+          "code": "connections: (0..client_list.capacity())\n    .map(|_| UnsafeCell::new(None))\n    .collect(),",
+          "purpose": "Closure in map creating UnsafeCell for each connection slot"
         }
       ],
       "count": 1617
@@ -1307,26 +1218,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/posix/src/directory.rs",
-          "line": [
-            455
-          ],
-          "code": "continue;"
+          "file": "iceoryx2-bb/memory/src/bump_allocator.rs",
+          "line": [86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102],
+          "code": "loop {\n    aligned_position = align(self.start + current_position, layout.align()) - self.start;\n    if aligned_position + layout.size() > self.size {\n        fail!(from self, with AllocationError::OutOfMemory,\n            \"{} {:?} since there is not enough memory available.\", msg, layout);\n    }\n\n    match self.current_position.compare_exchange_weak(\n        current_position,\n        aligned_position + layout.size(),\n        core::sync::atomic::Ordering::Relaxed,\n        core::sync::atomic::Ordering::Relaxed,\n    ) {\n        Ok(_) => break,\n        Err(v) => current_position = v,\n    }\n}",
+          "purpose": "Loop expression for lock-free allocation with compare-exchange retry"
         },
         {
-          "file": "iceoryx2-bb/posix/src/socket_ancillary.rs",
-          "line": [
-            348
-          ],
-          "code": "continue;"
+          "file": "iceoryx2-cal/src/dynamic_storage/posix_shared_memory.rs",
+          "line": [207, 208, 209],
+          "code": "let shm = loop {\n    match SharedMemoryBuilder::new(&full_name).open_existing(AccessMode::ReadWrite) {\n        Ok(v) => break v,",
+          "purpose": "Loop expression returning shared memory handle through value-carrying break"
         },
         {
-          "file": "iceoryx2-cli/iox2-service/src/command/record.rs",
-          "line": [
-            52
-          ],
-          "code": "'node_loop: loop {",
-          "purpose": "Demonstrates \\bloop\\s*\\{..."
+          "file": "iceoryx2/src/waitset.rs",
+          "line": [760, 761, 762, 763],
+          "code": "loop {\n    match self.wait_and_process_once(&mut fn_call) {\n        Ok(WaitSetRunResult::AllEventsHandled) => (),\n        Ok(v) => return Ok(v),",
+          "purpose": "Infinite loop for waitset event processing with callback-driven termination"
         }
       ],
       "subsections": {
@@ -1453,28 +1360,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/tests/service_event_thread_safety_tests.rs",
-              "line": [
-                75
-              ],
-              "code": "break;",
-              "purpose": "Demonstrates \\bbreak\\b..."
-            },
-            {
-              "file": "iceoryx2-cal/src/event/common.rs",
-              "line": [
-                382
-              ],
-              "code": "Ok(_) => break,",
-              "purpose": "Demonstrates \\bbreak\\b..."
+              "file": "iceoryx2-bb/memory/src/bump_allocator.rs",
+              "line": [98, 99, 100],
+              "code": ") {\n    Ok(_) => break,\n    Err(v) => current_position = v,",
+              "purpose": "Break exiting allocation loop after successful compare-exchange"
             },
             {
               "file": "iceoryx2-cal/src/dynamic_storage/posix_shared_memory.rs",
-              "line": [
-                209
-              ],
-              "code": "Ok(v) => break v,",
-              "purpose": "Demonstrates \\bbreak\\b..."
+              "line": [208, 209, 210],
+              "code": "match SharedMemoryBuilder::new(&full_name).open_existing(AccessMode::ReadWrite) {\n    Ok(v) => break v,\n    Err(SharedMemoryCreationError::DoesNotExist) => {",
+              "purpose": "Break with value returning opened shared memory from loop expression"
+            },
+            {
+              "file": "iceoryx2-bb/elementary/src/math.rs",
+              "line": [66, 67],
+              "code": "if quotient == 0 {\n    break;\n}",
+              "purpose": "Break exiting base64 encoding loop when quotient reaches zero"
             }
           ],
           "count": 128
@@ -1492,28 +1393,22 @@
           },
           "samples": [
             {
-              "file": "iceoryx2/src/waitset.rs",
-              "line": [
-                715
-              ],
-              "code": "/// The provided callback must return [`CallbackProgression::Continue`] to continue the event",
-              "purpose": "Demonstrates \\bcontinue\\b..."
+              "file": "iceoryx2/src/pending_response.rs",
+              "line": [314, 315, 316],
+              "code": "if response.header().request_id != self.request.header().request_id {\n    continue;\n}",
+              "purpose": "Continue skipping responses with non-matching request IDs"
             },
             {
-              "file": "iceoryx2/src/pending_response.rs",
-              "line": [
-                315
-              ],
-              "code": "continue;",
-              "purpose": "Demonstrates \\bcontinue\\b..."
+              "file": "iceoryx2-bb/posix/src/socket_ancillary.rs",
+              "line": [354, 355, 356, 357],
+              "code": "if unsafe { (*cmsghdr).cmsg_level != CMSG_SOCKET_LEVEL } {\n    warn!(from receiver, \"A cmsghdr with the wrong cmsg_level was received...\");\n    continue;\n}",
+              "purpose": "Continue to next cmsghdr when cmsg_level doesn't match expected socket level"
             },
             {
               "file": "iceoryx2/src/service/builder/request_response.rs",
-              "line": [
-                844
-              ],
-              "code": "continue;",
-              "purpose": "Demonstrates \\bcontinue\\b..."
+              "line": [840, 841, 842, 843, 844],
+              "code": "\"{} since the dynamic service information could not be opened ({:?}).\",\nmsg, e);\n}\n\ncontinue;",
+              "purpose": "Continue to retry service creation loop after handling open error"
             }
           ],
           "count": 66
@@ -1533,25 +1428,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
-          "line": [
-            30
-          ],
-          "code": "for i in 0..TestFixture::memory_size() {"
+          "file": "iceoryx2/src/port/publisher.rs",
+          "line": [259],
+          "code": "for i in history_start..history.len() {",
+          "purpose": "Exclusive range expression iterating over sample history for delivery"
         },
         {
-          "file": "iceoryx2/conformance-tests/src/service_event.rs",
-          "line": [
-            720
-          ],
-          "code": "for i in 0..=EVENT_ID_MAX_VALUE {"
+          "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+          "line": [301],
+          "code": "for i in 0..self.capacity + 1 {",
+          "purpose": "Range expression initializing index set data with sequential values"
         },
         {
-          "file": "iceoryx2-bb/container/src/semantic_string.rs",
-          "line": [
-            44
-          ],
-          "code": "matches!(string[0], b'-' | b'0'..=b'9')"
+          "file": "iceoryx2-bb/system-types/src/user_name.rs",
+          "line": [52],
+          "code": "matches!(string[0], b'-' | b'0'..=b'9')",
+          "purpose": "Inclusive range pattern in match checking for invalid username start characters"
         }
       ],
       "count": 1158
@@ -1568,11 +1460,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs",
-          "line": [
-            153
-          ],
-          "code": "if let Some(v) = sut_consumer.pop() {"
+          "file": "iceoryx2-bb/memory/src/bump_allocator.rs",
+          "line": [88, 89, 90],
+          "code": "if aligned_position + layout.size() > self.size {\n    fail!(from self, with AllocationError::OutOfMemory,\n        \"{} {:?} since there is not enough memory available.\", msg, layout);",
+          "purpose": "If expression checking allocation would exceed available memory"
+        },
+        {
+          "file": "iceoryx2/src/waitset.rs",
+          "line": [595, 596, 597, 598],
+          "code": "let progression = if let Some(reactor_idx) = deadline_to_attachment.get(&idx) {\n    fn_call(WaitSetAttachmentId::deadline(self, *reactor_idx, idx))\n} else {\n    fn_call(WaitSetAttachmentId::tick(self, idx))\n};",
+          "purpose": "If-let expression distinguishing deadline vs tick attachments in waitset"
+        },
+        {
+          "file": "iceoryx2-cal/src/dynamic_storage/posix_shared_memory.rs",
+          "line": [246, 247, 248],
+          "code": "if package_version.to_u64() == 0 {\n    if elapsed_time >= self.timeout {\n        fail!(from self, with DynamicStorageOpenError::InitializationNotYetFinalized,",
+          "purpose": "Nested if expressions checking initialization state and timeout"
         }
       ],
       "subsections": {
@@ -1589,28 +1492,22 @@
           },
           "samples": [
             {
-              "file": "component-tests/rust/src/test_containers.rs",
-              "line": [
-                178
-              ],
-              "code": "if (response.container_type_sequence != request.container_type_sequence)",
-              "purpose": "Demonstrates \\bif\\s+..."
+              "file": "iceoryx2-bb/memory/src/bump_allocator.rs",
+              "line": [78, 79, 80],
+              "code": "if layout.size() == 0 {\n    fail!(from self, with AllocationError::SizeIsZero,\n        \"{} {:?} since the requested size was zero.\", msg, layout);",
+              "purpose": "If expression validating allocation size is non-zero"
             },
             {
-              "file": "component-tests/rust/src/test_container_mutation.rs",
-              "line": [
-                116
-              ],
-              "code": "if !check_response(response.payload()) {",
-              "purpose": "Demonstrates \\bif\\s+..."
+              "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+              "line": [334, 335, 336],
+              "code": "if self.is_non_blocking.load(Ordering::Relaxed) == value {\n    return Ok(());\n}",
+              "purpose": "If expression for early return when non-blocking mode unchanged"
             },
             {
-              "file": "component-tests/rust/src/common.rs",
-              "line": [
-                51
-              ],
-              "code": "if node.wait(cycle_time).is_err() {",
-              "purpose": "Demonstrates \\bif\\s+..."
+              "file": "iceoryx2-bb/system-types/src/ipv4_address.rs",
+              "line": [62, 63, 64],
+              "code": "if counter != 4 {\n    fail!(from origin, with Ipv4AddressParseError::WrongFormat,\n        \"{msg} \\\"{input}\\\" since the address is incomplete.\");",
+              "purpose": "If expression validating IPv4 address has all four octets"
             }
           ],
           "count": 2448
@@ -1633,27 +1530,21 @@
           "samples": [
             {
               "file": "iceoryx2-bb/system-types/src/path.rs",
-              "line": [
-                87
-              ],
-              "code": "let mut n = if let Some(&PATH_SEPARATOR) = value.first() {",
-              "purpose": "Demonstrates if\\s+let\\s+..."
+              "line": [87, 88, 89],
+              "code": "let mut n = if let Some(&PATH_SEPARATOR) = value.first() {\n    raw_path[0] = PATH_SEPARATOR;\n    1",
+              "purpose": "If-let expression checking if path starts with separator for normalization"
             },
             {
-              "file": "iceoryx2-bb/posix/tests/thread_tests.rs",
-              "line": [
-                306
-              ],
-              "code": "if let Err(error) = spawn_result {",
-              "purpose": "Demonstrates if\\s+let\\s+..."
+              "file": "iceoryx2/src/waitset.rs",
+              "line": [595, 596, 597],
+              "code": "let progression = if let Some(reactor_idx) = deadline_to_attachment.get(&idx) {\n    fn_call(WaitSetAttachmentId::deadline(self, *reactor_idx, idx))\n} else {",
+              "purpose": "If-let expression extracting reactor index from deadline attachment map"
             },
             {
-              "file": "iceoryx2-bb/posix/tests/ownership_tests.rs",
-              "line": [
-                31
-              ],
-              "code": "let group = if let Ok(group) = Group::from_name(&root) {",
-              "purpose": "Demonstrates if\\s+let\\s+..."
+              "file": "iceoryx2-bb/posix/src/file.rs",
+              "line": [621],
+              "code": "if let Some(v) = file_descriptor {",
+              "purpose": "If-let expression checking for valid file descriptor before use"
             }
           ],
           "count": 337
@@ -1681,26 +1572,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/lock-free/tests/mpmc_container_tests.rs",
-          "line": [
-            416
-          ],
-          "code": "match unsafe { sut.add(value.into()) } {"
-        },
-        {
           "file": "iceoryx2-bb/lock-free/src/mpmc/container.rs",
-          "line": [
-            98
-          ],
-          "code": "match value {"
+          "line": [97, 98, 99, 100, 101, 102],
+          "code": "fn from(value: UniqueIndexSetAcquireFailure) -> Self {\n    match value {\n        UniqueIndexSetAcquireFailure::IsLocked => ContainerAddFailure::IsLocked,\n        UniqueIndexSetAcquireFailure::OutOfIndices => ContainerAddFailure::OutOfSpace,\n    }\n}",
+          "purpose": "Match expression converting index set failure to container add failure"
         },
         {
-          "file": "iceoryx2-ffi/python/src/writer.rs",
-          "line": [
-            46
-          ],
-          "code": "match &*self.value.lock() {",
-          "purpose": "Demonstrates \\bmatch\\s+..."
+          "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+          "line": [343, 344, 345, 346],
+          "code": "let new_flags = match value {\n    true => current_flags | posix::O_NONBLOCK,\n    false => current_flags & !posix::O_NONBLOCK,\n};",
+          "purpose": "Match expression setting or clearing non-blocking socket flag"
+        },
+        {
+          "file": "iceoryx2-cal/src/dynamic_storage/posix_shared_memory.rs",
+          "line": [208, 209, 210, 211, 212],
+          "code": "match SharedMemoryBuilder::new(&full_name).open_existing(AccessMode::ReadWrite) {\n    Ok(v) => break v,\n    Err(SharedMemoryCreationError::DoesNotExist) => {\n        fail!(from self, with DynamicStorageOpenError::DoesNotExist,\n        \"{} since a shared memory with that name does not exists.\", msg);",
+          "purpose": "Match expression handling shared memory open result with error variants"
         }
       ],
       "count": 1657
@@ -1717,26 +1604,22 @@
       },
       "samples": [
         {
-          "file": "iceoryx2-bb/posix/tests/directory_tests.rs",
-          "line": [
-            267
-          ],
-          "code": "return true;"
+          "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+          "line": [320, 321, 322],
+          "code": "if result >= 0 {\n    return Ok(result);\n}",
+          "purpose": "Early return with successful fcntl result when operation succeeds"
         },
         {
-          "file": "iceoryx2-bb/posix/src/process_state.rs",
-          "line": [
-            378
-          ],
-          "code": "return Ok(());"
+          "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+          "line": [334, 335, 336],
+          "code": "if self.is_non_blocking.load(Ordering::Relaxed) == value {\n    return Ok(());\n}",
+          "purpose": "Early return when non-blocking mode is already set to desired value"
         },
         {
-          "file": "iceoryx2-log/loggers/src/console.rs",
-          "line": [
-            74
-          ],
-          "code": "return Duration::from_secs(current_time.tv_sec as u64)",
-          "purpose": "Demonstrates \\breturn\\b..."
+          "file": "iceoryx2/src/pending_response.rs",
+          "line": [318],
+          "code": "return Ok(Some(response));",
+          "purpose": "Return expression yielding received response matching request ID"
         }
       ],
       "count": 960
