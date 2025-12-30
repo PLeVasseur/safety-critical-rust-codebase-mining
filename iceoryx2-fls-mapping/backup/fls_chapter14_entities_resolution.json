@@ -1,0 +1,183 @@
+{
+  "chapter": 14,
+  "title": "Entities and Resolution",
+  "fls_url": "https://rust-lang.github.io/fls/entities-and-resolution.html",
+  "codebase": "iceoryx2",
+  "version": "0.8.0",
+  "analysis_date": "2025-12-30",
+  "version_changes": {
+    "from_version": "0.7.0",
+    "to_version": "0.8.0",
+    "summary": "Significant growth in module organization and imports. use statements increased 88% (2874->5399), crate:: paths increased 46% (3525->5145), pub(crate) increased 45% (671->974), pub(super) dramatically increased (49->248).",
+    "key_changes": [
+      "Directory structure changed: iceoryx2-bb-*-0.7.0/ -> iceoryx2-bb/*/",
+      "use statements increased from 2874 to 5399 (+88%)",
+      "pub use re-exports increased from 232 to 434 (+87%)",
+      "crate:: paths increased from 3525 to 5145 (+46%)",
+      "super:: paths increased from 180 to 354 (+97%)",
+      "pub(crate) items increased from 671 to 974 (+45%)",
+      "pub(super) items increased from 49 to 248 (+406%)",
+      "pub mod declarations increased significantly (670 instances)",
+      "use crate:: imports (1153 instances)",
+      "use super:: imports (243 instances)"
+    ]
+  },
+  "summary": "FLS Chapter 14 defines entities, visibility, paths, scopes, namespaces, preludes, use imports, shadowing, and resolution. iceoryx2 v0.8.0 demonstrates comprehensive use of these concepts with expanded module organization due to the restructured crate layout and new FFI layer.",
+
+  "statistics": {
+    "use_imports": 5399,
+    "pub_use_re_exports": 434,
+    "mod_declarations": 321,
+    "pub_mod_declarations": 670,
+    "crate_paths": 5145,
+    "super_paths": 354,
+    "self_paths": 11,
+    "core_paths": 15,
+    "pub_crate_items": 974,
+    "pub_super_items": 248,
+    "use_crate_imports": 1153,
+    "use_super_imports": 243
+  },
+
+  "sections": {
+    "14.1": "Entities",
+    "14.2": "Visibility",
+    "14.3": "Paths",
+    "14.4": "Scopes",
+    "14.5": "Namespaces",
+    "14.6": "Preludes",
+    "14.7": "Use Imports",
+    "14.8": "Shadowing",
+    "14.9": "Resolution"
+  },
+
+  "entities": {
+    "section": "14.1",
+    "rules": {
+      "14.1:1_to_14.1:3": {
+        "rule": "An entity is a construct that can be referred to. A name is an identifier that refers to an entity. A declaration introduces a name for an entity.",
+        "status": "demonstrated"
+      },
+      "14.1:4_to_14.1:21": {
+        "rule": "Explicitly declared entities include: associated items, bindings, constants, declarative macros, enum types, enum variants, fields, functions, generic parameters, implementations, labels, modules, statics, struct types, traits, type aliases, union types.",
+        "status": "demonstrated"
+      }
+    }
+  },
+
+  "visibility": {
+    "section": "14.2",
+    "rules": {
+      "14.2:1": {
+        "rule": "Visibility is a property of fields and items that determines which modules can refer to the name.",
+        "status": "demonstrated"
+      },
+      "14.2:2_14.2:10": {
+        "rule": "Public visibility allows name reference from arbitrary modules; simple public modifier (pub) grants public visibility.",
+        "status": "demonstrated"
+      },
+      "14.2:5": {
+        "rule": "Crate public modifier pub(crate) grants public visibility within current crate only.",
+        "count": 974,
+        "change_from_v0_7_0": "+303 (+45%)"
+      },
+      "14.2:11": {
+        "rule": "Super public modifier pub(super) grants public visibility within parent module only.",
+        "count": 248,
+        "change_from_v0_7_0": "+199 (+406%)"
+      }
+    }
+  },
+
+  "paths": {
+    "section": "14.3",
+    "rules": {
+      "14.3:1_to_14.3:3": {
+        "rule": "A path is a sequence of path segments separated by :: that resolves to an entity.",
+        "status": "demonstrated"
+      }
+    },
+    "path_types": {
+      "crate_paths": {
+        "count": 5145,
+        "change_from_v0_7_0": "+1620 (+46%)",
+        "description": "Paths starting with crate:: for absolute references within current crate"
+      },
+      "super_paths": {
+        "count": 354,
+        "change_from_v0_7_0": "+174 (+97%)",
+        "description": "Paths using super:: to reference parent module"
+      },
+      "self_paths": {
+        "count": 11,
+        "description": "Paths using self:: for current module references"
+      },
+      "core_paths": {
+        "count": 15,
+        "description": "Paths using ::core:: for core library references"
+      }
+    }
+  },
+
+  "use_imports": {
+    "section": "14.7",
+    "rules": {
+      "14.7:1": {
+        "rule": "A use import brings entities in scope within the block expression or module.",
+        "status": "demonstrated",
+        "count": 5399,
+        "change_from_v0_7_0": "+2525 (+88%)"
+      }
+    },
+    "import_types": {
+      "use_crate": {
+        "count": 1153,
+        "description": "use crate::... imports"
+      },
+      "use_super": {
+        "count": 243,
+        "description": "use super::... imports"
+      }
+    },
+    "re_exports": {
+      "description": "pub use statements for re-exporting items",
+      "count": 434,
+      "change_from_v0_7_0": "+202 (+87%)"
+    }
+  },
+
+  "module_organization": {
+    "mod_declarations": 321,
+    "pub_mod_declarations": 670,
+    "notes": "Significant module restructuring in v0.8.0 with flattened crate hierarchy"
+  },
+
+  "design_patterns": {
+    "visibility_layering": {
+      "description": "Strategic use of visibility modifiers for API design",
+      "pattern": "pub for API, pub(crate) for internal, pub(super) for submodule sharing, private for implementation",
+      "pub_crate_count": 974,
+      "pub_super_count": 248
+    },
+    "module_organization": {
+      "description": "Hierarchical module structure with clear visibility boundaries",
+      "mod_count": 321,
+      "pub_mod_count": 670
+    },
+    "re_export_patterns": {
+      "description": "Re-exporting types from dependencies for API convenience",
+      "count": 434
+    }
+  },
+
+  "cross_chapter_references": {
+    "chapter_3": "Items - entity declarations",
+    "chapter_4": "Types and Traits - type namespace entities",
+    "chapter_6": "Expressions - path expressions, method calls, field access",
+    "chapter_10": "Associated Items - associated item resolution",
+    "chapter_11": "Implementations - inherent and trait implementation resolution",
+    "chapter_12": "Generics - generic parameter scopes",
+    "chapter_13": "Attributes - attribute resolution in macro namespace",
+    "chapter_20": "Macros - macro namespace and textual macro scope"
+  }
+}

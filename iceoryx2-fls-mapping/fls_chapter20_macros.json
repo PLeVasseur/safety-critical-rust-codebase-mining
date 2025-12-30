@@ -2,6 +2,8 @@
   "chapter": 20,
   "title": "Macros",
   "fls_url": "https://rust-lang.github.io/fls/macros.html",
+  "fls_id": "fls_83182bfa9uqb",
+  "repository": "eclipse-iceoryx/iceoryx2",
   "version": "0.8.0",
   "analysis_date": "2025-12-30",
   "version_changes": {
@@ -9,13 +11,13 @@
     "to_version": "0.8.0",
     "summary": "Logging system restructured to iceoryx2-log crate. New proc-macro crates added for FFI and conformance testing.",
     "key_changes": [
-      "Declarative macros: 16 → 28 (+75%)",
-      "Procedural macros: 2 → 6 (+200%)",
-      "Proc-macro crates: 1 → 3 (derive-macros, ffi-macros, conformance-test-macros)",
-      "#[macro_export]: 12 → 20 (+67%)",
-      "ZeroCopySend derives: 138 → 166 (+20%)",
-      "PlacementDefault derives: 11 → 20 (+82%)",
-      "assert_that! invocations: 4,571 → 5,283 (+16%)",
+      "Declarative macros: 16 \u2192 28 (+75%)",
+      "Procedural macros: 2 \u2192 6 (+200%)",
+      "Proc-macro crates: 1 \u2192 3 (derive-macros, ffi-macros, conformance-test-macros)",
+      "#[macro_export]: 12 \u2192 20 (+67%)",
+      "ZeroCopySend derives: 138 \u2192 166 (+20%)",
+      "PlacementDefault derives: 11 \u2192 20 (+82%)",
+      "assert_that! invocations: 4,571 \u2192 5,283 (+16%)",
       "Logging macros moved to iceoryx2-log/log/src/log.rs",
       "fail! macro moved to iceoryx2-log/log/src/fail.rs",
       "New CStrRepr derive macro for FFI",
@@ -23,7 +25,6 @@
     ]
   },
   "summary": "FLS Chapter 20 covers declarative macros (macro_rules!), procedural macros (derive, attribute, function-like), macro invocation, expansion, and hygiene. iceoryx2 v0.8.0 defines 28 declarative macros and 6 procedural macros across 3 proc-macro crates (PlacementDefault, ZeroCopySend, CStrRepr derives; iceoryx2_crate, implement_conformance_test attributes). The logging system was restructured to iceoryx2-log with fail!, trace!, debug!, info!, warn!, error!, and fatal_panic! macros. All public macros use #[macro_export(local_inner_macros)] and $crate for proper hygiene.",
-
   "statistics": {
     "declarative_macros_defined": 28,
     "procedural_macros_defined": 6,
@@ -40,325 +41,419 @@
     "zero_copy_send_derives": 166,
     "assert_that_invocations": 5283
   },
-
   "sections": {
-    "20.1": "Declarative Macros",
-    "20.1.1": "Metavariables",
-    "20.1.2": "Repetition",
-    "20.2": "Procedural Macros",
-    "20.2.1": "Function-like Macros",
-    "20.2.2": "Derive Macros",
-    "20.2.3": "Attribute Macros",
-    "20.3": "Macro Invocation",
-    "20.4": "Macro Expansion",
-    "20.5": "Hygiene"
-  },
-
-  "declarative_macros": {
-    "section": "20.1",
-    "count": 28,
-    "categories": {
-      "logging": {
-        "location": "iceoryx2-log/log/src/",
-        "macros": [
-          {
-            "name": "fail!",
-            "file": "iceoryx2-log/log/src/fail.rs",
-            "line": 55,
-            "exported": true,
-            "purpose": "Combines error handling with logging - fails and returns error with debug message"
-          },
-          {
-            "name": "trace!",
-            "file": "iceoryx2-log/log/src/log.rs",
-            "line": 39,
-            "exported": true,
-            "purpose": "Logs trace-level messages"
-          },
-          {
-            "name": "debug!",
-            "file": "iceoryx2-log/log/src/log.rs",
-            "line": 80,
-            "exported": true,
-            "purpose": "Logs debug-level messages"
-          },
-          {
-            "name": "info!",
-            "file": "iceoryx2-log/log/src/log.rs",
-            "line": 121,
-            "exported": true,
-            "purpose": "Logs info-level messages"
-          },
-          {
-            "name": "warn!",
-            "file": "iceoryx2-log/log/src/log.rs",
-            "line": 162,
-            "exported": true,
-            "purpose": "Logs warning-level messages"
-          },
-          {
-            "name": "error!",
-            "file": "iceoryx2-log/log/src/log.rs",
-            "line": 203,
-            "exported": true,
-            "purpose": "Logs error-level messages"
-          },
-          {
-            "name": "fatal_panic!",
-            "file": "iceoryx2-log/log/src/log.rs",
-            "line": 244,
-            "exported": true,
-            "purpose": "Logs fatal message then panics - for invariant violations"
-          },
-          {
-            "name": "cout!",
-            "file": "iceoryx2-log/log/src/lib.rs",
-            "line": 276,
-            "exported": true,
-            "purpose": "Writes to stdout"
-          },
-          {
-            "name": "cerr!",
-            "file": "iceoryx2-log/log/src/lib.rs",
-            "line": 283,
-            "exported": true,
-            "purpose": "Writes to stderr"
-          }
-        ]
-      },
-      "code_generation": {
-        "macros": [
-          {
-            "name": "enum_gen!",
-            "file": "iceoryx2-bb/elementary/src/enum_gen.rs",
-            "line": 172,
-            "invocations": 63,
-            "exported": true,
-            "purpose": "Generates error enums with automatic From implementations"
-          },
-          {
-            "name": "semantic_string!",
-            "file": "iceoryx2-bb/container/src/semantic_string.rs",
-            "line": 389,
-            "invocations": 11,
-            "exported": true,
-            "purpose": "Generates semantic string types with validation"
-          },
-          {
-            "name": "generate_id!",
-            "file": "iceoryx2/src/port/port_identifiers.rs",
-            "line": 20,
-            "exported": false,
-            "purpose": "Generates port identifier types"
-          }
-        ]
-      },
-      "platform": {
-        "macros": [
-          {
-            "name": "win32call!",
-            "file": "iceoryx2-pal/posix/src/windows/win32_call.rs",
-            "line": 100,
-            "exported": true,
-            "purpose": "Windows API call wrapper with error handling"
-          },
-          {
-            "name": "handle_errno!",
-            "file": "iceoryx2-bb/posix/src/handle_errno.rs",
-            "line": 17,
-            "exported": true,
-            "purpose": "Maps errno values to error enums"
-          },
-          {
-            "name": "define_signals!",
-            "file": "iceoryx2-bb/posix/src/signal.rs",
-            "line": 85,
-            "exported": false,
-            "purpose": "Defines signal constants"
-          },
-          {
-            "name": "ErrnoEnumGenerator!",
-            "file": "iceoryx2-pal/posix/src/common/error_enum_generator.rs",
-            "line": 14,
-            "exported": true,
-            "purpose": "Generates errno enums for POSIX compatibility"
-          }
-        ]
-      },
-      "testing": {
-        "macros": [
-          {
-            "name": "assert_that!",
-            "file": "iceoryx2-pal/testing/src/assert.rs",
-            "line": 14,
-            "invocations": 5283,
-            "exported": true,
-            "purpose": "Fluent assertion macro for testing"
-          },
-          {
-            "name": "test_requires!",
-            "file": "iceoryx2-pal/testing/src/lib.rs",
-            "line": 25,
-            "exported": true,
-            "purpose": "Conditional test execution"
-          },
-          {
-            "name": "test_fail!",
-            "file": "iceoryx2-pal/testing/src/lib.rs",
-            "line": 32,
-            "exported": true,
-            "purpose": "Test failure macro"
-          },
-          {
-            "name": "instantiate_conformance_tests!",
-            "file": "iceoryx2-bb/testing/src/instantiate_conformance_tests_macro.rs",
-            "line": 31,
-            "exported": true,
-            "purpose": "Instantiates conformance test suites"
-          }
-        ]
-      },
-      "internal_helpers": {
-        "macros": [
-          {
-            "name": "Impl!",
-            "file": "iceoryx2-bb/concurrency/src/atomic.rs",
-            "line": 65,
-            "purpose": "Helper for atomic type implementations"
-          },
-          {
-            "name": "Impl!",
-            "file": "iceoryx2-bb/elementary-traits/src/placement_default.rs",
-            "line": 65,
-            "purpose": "Helper for PlacementDefault implementations"
-          },
-          {
-            "name": "add_to_ace_string!",
-            "file": "iceoryx2-pal/posix/src/windows/win32_security_attributes.rs",
-            "line": 113,
-            "purpose": "Builds Windows ACE strings"
-          }
-        ]
-      }
-    }
-  },
-
-  "procedural_macros": {
-    "section": "20.2",
-    "crates": {
-      "iceoryx2-bb/derive-macros": {
-        "macros": [
-          {
-            "name": "PlacementDefault",
-            "type": "derive",
-            "file": "iceoryx2-bb/derive-macros/src/lib.rs",
-            "line": 56,
-            "invocations": 20,
-            "purpose": "Generates PlacementDefault trait impl for in-place initialization",
-            "description": "Recursively calls PlacementDefault::placement_default on each field"
-          },
-          {
-            "name": "ZeroCopySend",
-            "type": "derive",
-            "file": "iceoryx2-bb/derive-macros/src/lib.rs",
-            "line": 156,
-            "invocations": 166,
-            "purpose": "Marks types as safe for IPC/shared memory transfer",
-            "helper_attributes": ["type_name"]
-          }
-        ]
-      },
-      "iceoryx2-ffi/ffi-macros": {
-        "description": "NEW in v0.8.0 - FFI macro support",
-        "macros": [
-          {
-            "name": "iceoryx2_crate",
-            "type": "attribute",
-            "file": "iceoryx2-ffi/ffi-macros/src/lib.rs",
-            "line": 25,
-            "purpose": "Marks FFI crate entry points"
-          },
-          {
-            "name": "CStrRepr",
-            "type": "derive",
-            "file": "iceoryx2-ffi/ffi-macros/src/lib.rs",
-            "line": 251,
-            "purpose": "Generates C string representation for FFI enums",
-            "helper_attributes": ["CStr"]
-          }
-        ]
-      },
-      "iceoryx2-bb/conformance-test-macros": {
-        "description": "NEW in v0.8.0 - Conformance testing macros",
-        "macros": [
-          {
-            "name": "implement_conformance_test",
-            "type": "attribute",
-            "file": "iceoryx2-bb/conformance-test-macros/src/lib.rs",
-            "line": 35,
-            "purpose": "Marks functions as conformance tests"
-          },
-          {
-            "name": "generate_conformance_test_macro",
-            "type": "attribute",
-            "file": "iceoryx2-bb/conformance-test-macros/src/lib.rs",
-            "line": 48,
-            "purpose": "Generates conformance test macro invocations"
-          }
-        ]
-      }
+    "20.1": {
+      "fls_section": "20.1",
+      "fls_ids": [],
+      "description": "Declarative Macros",
+      "status": "MUST_BE_FILLED"
     },
-    "dependencies": ["proc_macro", "quote", "syn"]
-  },
-
-  "metavariables": {
-    "section": "20.1.1",
-    "fragment_specifiers_used": {
-      "expr": "Expression matching - used in logging and fail macros",
-      "ident": "Identifier matching - used in enum and type generation",
-      "meta": "Attribute meta matching - used in documentation",
-      "ty": "Type matching - used in generic macros",
-      "tt": "Token tree matching - used for flexible patterns"
-    }
-  },
-
-  "repetition": {
-    "section": "20.1.2",
-    "operators_used": {
-      "*": "Zero or more - used in logging macros for variadic messages",
-      "+": "One or more - used in enum_gen for entries",
-      "?": "Optional - used for optional errno suffixes"
-    }
-  },
-
-  "macro_invocation": {
-    "section": "20.3",
-    "high_frequency_custom": {
-      "assert_that!": 5283,
-      "fail!": 131,
-      "enum_gen!": 63,
-      "semantic_string!": 11
+    "20.1.1": {
+      "fls_section": "20.1.1",
+      "fls_ids": [],
+      "description": "Metavariables",
+      "status": "MUST_BE_FILLED"
     },
-    "derive_invocations": {
-      "ZeroCopySend": 166,
-      "PlacementDefault": 20
-    }
-  },
-
-  "hygiene": {
-    "section": "20.5",
-    "crate_metavariable": {
-      "usage_count": 24,
-      "purpose": "Refers to the crate the macro was defined in",
-      "sample": "$crate::__internal_print_log_msg($crate::LogLevel::Trace, ...)"
+    "20.1.2": {
+      "fls_section": "20.1.2",
+      "fls_ids": [],
+      "description": "Repetition",
+      "status": "MUST_BE_FILLED"
     },
-    "local_inner_macros": {
-      "usage_count": 20,
-      "purpose": "Allows exported macros to call other macros from the same crate",
-      "pattern": "#[macro_export(local_inner_macros)]"
+    "20.2": {
+      "fls_section": "20.2",
+      "fls_ids": [],
+      "description": "Procedural Macros",
+      "status": "MUST_BE_FILLED"
+    },
+    "20.2.1": {
+      "fls_section": "20.2.1",
+      "fls_ids": [],
+      "description": "Function-like Macros",
+      "status": "MUST_BE_FILLED"
+    },
+    "20.2.2": {
+      "fls_section": "20.2.2",
+      "fls_ids": [],
+      "description": "Derive Macros",
+      "status": "MUST_BE_FILLED"
+    },
+    "20.2.3": {
+      "fls_section": "20.2.3",
+      "fls_ids": [],
+      "description": "Attribute Macros",
+      "status": "MUST_BE_FILLED"
+    },
+    "20.3": {
+      "fls_section": "20.3",
+      "fls_ids": [],
+      "description": "Macro Invocation",
+      "status": "MUST_BE_FILLED"
+    },
+    "20.4": {
+      "fls_section": "20.4",
+      "fls_ids": [],
+      "description": "Macro Expansion",
+      "status": "MUST_BE_FILLED"
+    },
+    "20.5": {
+      "fls_section": "20.5",
+      "fls_ids": [],
+      "description": "Hygiene",
+      "status": "MUST_BE_FILLED"
+    },
+    "declarative_macros": {
+      "fls_section": "20.1",
+      "fls_ids": [
+        "fls_xa7lp0zg1ol2"
+      ],
+      "description": "Declarative Macros",
+      "status": "MUST_BE_FILLED",
+      "findings": {
+        "declarative_macros": {
+          "section": "20.1",
+          "count": 28,
+          "categories": {
+            "logging": {
+              "location": "iceoryx2-log/log/src/",
+              "macros": [
+                {
+                  "name": "fail!",
+                  "file": "iceoryx2-log/log/src/fail.rs",
+                  "line": 55,
+                  "exported": true,
+                  "purpose": "Combines error handling with logging - fails and returns error with debug message"
+                },
+                {
+                  "name": "trace!",
+                  "file": "iceoryx2-log/log/src/log.rs",
+                  "line": 39,
+                  "exported": true,
+                  "purpose": "Logs trace-level messages"
+                },
+                {
+                  "name": "debug!",
+                  "file": "iceoryx2-log/log/src/log.rs",
+                  "line": 80,
+                  "exported": true,
+                  "purpose": "Logs debug-level messages"
+                },
+                {
+                  "name": "info!",
+                  "file": "iceoryx2-log/log/src/log.rs",
+                  "line": 121,
+                  "exported": true,
+                  "purpose": "Logs info-level messages"
+                },
+                {
+                  "name": "warn!",
+                  "file": "iceoryx2-log/log/src/log.rs",
+                  "line": 162,
+                  "exported": true,
+                  "purpose": "Logs warning-level messages"
+                },
+                {
+                  "name": "error!",
+                  "file": "iceoryx2-log/log/src/log.rs",
+                  "line": 203,
+                  "exported": true,
+                  "purpose": "Logs error-level messages"
+                },
+                {
+                  "name": "fatal_panic!",
+                  "file": "iceoryx2-log/log/src/log.rs",
+                  "line": 244,
+                  "exported": true,
+                  "purpose": "Logs fatal message then panics - for invariant violations"
+                },
+                {
+                  "name": "cout!",
+                  "file": "iceoryx2-log/log/src/lib.rs",
+                  "line": 276,
+                  "exported": true,
+                  "purpose": "Writes to stdout"
+                },
+                {
+                  "name": "cerr!",
+                  "file": "iceoryx2-log/log/src/lib.rs",
+                  "line": 283,
+                  "exported": true,
+                  "purpose": "Writes to stderr"
+                }
+              ]
+            },
+            "code_generation": {
+              "macros": [
+                {
+                  "name": "enum_gen!",
+                  "file": "iceoryx2-bb/elementary/src/enum_gen.rs",
+                  "line": 172,
+                  "invocations": 63,
+                  "exported": true,
+                  "purpose": "Generates error enums with automatic From implementations"
+                },
+                {
+                  "name": "semantic_string!",
+                  "file": "iceoryx2-bb/container/src/semantic_string.rs",
+                  "line": 389,
+                  "invocations": 11,
+                  "exported": true,
+                  "purpose": "Generates semantic string types with validation"
+                },
+                {
+                  "name": "generate_id!",
+                  "file": "iceoryx2/src/port/port_identifiers.rs",
+                  "line": 20,
+                  "exported": false,
+                  "purpose": "Generates port identifier types"
+                }
+              ]
+            },
+            "platform": {
+              "macros": [
+                {
+                  "name": "win32call!",
+                  "file": "iceoryx2-pal/posix/src/windows/win32_call.rs",
+                  "line": 100,
+                  "exported": true,
+                  "purpose": "Windows API call wrapper with error handling"
+                },
+                {
+                  "name": "handle_errno!",
+                  "file": "iceoryx2-bb/posix/src/handle_errno.rs",
+                  "line": 17,
+                  "exported": true,
+                  "purpose": "Maps errno values to error enums"
+                },
+                {
+                  "name": "define_signals!",
+                  "file": "iceoryx2-bb/posix/src/signal.rs",
+                  "line": 85,
+                  "exported": false,
+                  "purpose": "Defines signal constants"
+                },
+                {
+                  "name": "ErrnoEnumGenerator!",
+                  "file": "iceoryx2-pal/posix/src/common/error_enum_generator.rs",
+                  "line": 14,
+                  "exported": true,
+                  "purpose": "Generates errno enums for POSIX compatibility"
+                }
+              ]
+            },
+            "testing": {
+              "macros": [
+                {
+                  "name": "assert_that!",
+                  "file": "iceoryx2-pal/testing/src/assert.rs",
+                  "line": 14,
+                  "invocations": 5283,
+                  "exported": true,
+                  "purpose": "Fluent assertion macro for testing"
+                },
+                {
+                  "name": "test_requires!",
+                  "file": "iceoryx2-pal/testing/src/lib.rs",
+                  "line": 25,
+                  "exported": true,
+                  "purpose": "Conditional test execution"
+                },
+                {
+                  "name": "test_fail!",
+                  "file": "iceoryx2-pal/testing/src/lib.rs",
+                  "line": 32,
+                  "exported": true,
+                  "purpose": "Test failure macro"
+                },
+                {
+                  "name": "instantiate_conformance_tests!",
+                  "file": "iceoryx2-bb/testing/src/instantiate_conformance_tests_macro.rs",
+                  "line": 31,
+                  "exported": true,
+                  "purpose": "Instantiates conformance test suites"
+                }
+              ]
+            },
+            "internal_helpers": {
+              "macros": [
+                {
+                  "name": "Impl!",
+                  "file": "iceoryx2-bb/concurrency/src/atomic.rs",
+                  "line": 65,
+                  "purpose": "Helper for atomic type implementations"
+                },
+                {
+                  "name": "Impl!",
+                  "file": "iceoryx2-bb/elementary-traits/src/placement_default.rs",
+                  "line": 65,
+                  "purpose": "Helper for PlacementDefault implementations"
+                },
+                {
+                  "name": "add_to_ace_string!",
+                  "file": "iceoryx2-pal/posix/src/windows/win32_security_attributes.rs",
+                  "line": 113,
+                  "purpose": "Builds Windows ACE strings"
+                }
+              ]
+            }
+          }
+        },
+        "metavariables": {
+          "section": "20.1.1",
+          "fragment_specifiers_used": {
+            "expr": "Expression matching - used in logging and fail macros",
+            "ident": "Identifier matching - used in enum and type generation",
+            "meta": "Attribute meta matching - used in documentation",
+            "ty": "Type matching - used in generic macros",
+            "tt": "Token tree matching - used for flexible patterns"
+          }
+        },
+        "repetition": {
+          "section": "20.1.2",
+          "operators_used": {
+            "*": "Zero or more - used in logging macros for variadic messages",
+            "+": "One or more - used in enum_gen for entries",
+            "?": "Optional - used for optional errno suffixes"
+          }
+        }
+      },
+      "samples": []
+    },
+    "procedural_macros": {
+      "fls_section": "20.2",
+      "fls_ids": [
+        "fls_wn1i6hzg2ff7"
+      ],
+      "description": "Procedural Macros",
+      "status": "MUST_BE_FILLED",
+      "findings": {
+        "procedural_macros": {
+          "section": "20.2",
+          "crates": {
+            "iceoryx2-bb/derive-macros": {
+              "macros": [
+                {
+                  "name": "PlacementDefault",
+                  "type": "derive",
+                  "file": "iceoryx2-bb/derive-macros/src/lib.rs",
+                  "line": 56,
+                  "invocations": 20,
+                  "purpose": "Generates PlacementDefault trait impl for in-place initialization",
+                  "description": "Recursively calls PlacementDefault::placement_default on each field"
+                },
+                {
+                  "name": "ZeroCopySend",
+                  "type": "derive",
+                  "file": "iceoryx2-bb/derive-macros/src/lib.rs",
+                  "line": 156,
+                  "invocations": 166,
+                  "purpose": "Marks types as safe for IPC/shared memory transfer",
+                  "helper_attributes": [
+                    "type_name"
+                  ]
+                }
+              ]
+            },
+            "iceoryx2-ffi/ffi-macros": {
+              "description": "NEW in v0.8.0 - FFI macro support",
+              "macros": [
+                {
+                  "name": "iceoryx2_crate",
+                  "type": "attribute",
+                  "file": "iceoryx2-ffi/ffi-macros/src/lib.rs",
+                  "line": 25,
+                  "purpose": "Marks FFI crate entry points"
+                },
+                {
+                  "name": "CStrRepr",
+                  "type": "derive",
+                  "file": "iceoryx2-ffi/ffi-macros/src/lib.rs",
+                  "line": 251,
+                  "purpose": "Generates C string representation for FFI enums",
+                  "helper_attributes": [
+                    "CStr"
+                  ]
+                }
+              ]
+            },
+            "iceoryx2-bb/conformance-test-macros": {
+              "description": "NEW in v0.8.0 - Conformance testing macros",
+              "macros": [
+                {
+                  "name": "implement_conformance_test",
+                  "type": "attribute",
+                  "file": "iceoryx2-bb/conformance-test-macros/src/lib.rs",
+                  "line": 35,
+                  "purpose": "Marks functions as conformance tests"
+                },
+                {
+                  "name": "generate_conformance_test_macro",
+                  "type": "attribute",
+                  "file": "iceoryx2-bb/conformance-test-macros/src/lib.rs",
+                  "line": 48,
+                  "purpose": "Generates conformance test macro invocations"
+                }
+              ]
+            }
+          },
+          "dependencies": [
+            "proc_macro",
+            "quote",
+            "syn"
+          ]
+        }
+      },
+      "samples": []
+    },
+    "macro_invocation": {
+      "fls_section": "20.3",
+      "fls_ids": [
+        "fls_vnvt40pa48n8"
+      ],
+      "description": "Macro Invocation",
+      "status": "MUST_BE_FILLED",
+      "findings": {
+        "macro_invocation": {
+          "section": "20.3",
+          "high_frequency_custom": {
+            "assert_that!": 5283,
+            "fail!": 131,
+            "enum_gen!": 63,
+            "semantic_string!": 11
+          },
+          "derive_invocations": {
+            "ZeroCopySend": 166,
+            "PlacementDefault": 20
+          }
+        }
+      },
+      "samples": []
+    },
+    "hygiene": {
+      "fls_section": "20.5",
+      "fls_ids": [
+        "fls_xlfo7di0gsqz"
+      ],
+      "description": "Hygiene",
+      "status": "MUST_BE_FILLED",
+      "findings": {
+        "hygiene": {
+          "section": "20.5",
+          "crate_metavariable": {
+            "usage_count": 24,
+            "purpose": "Refers to the crate the macro was defined in",
+            "sample": "$crate::__internal_print_log_msg($crate::LogLevel::Trace, ...)"
+          },
+          "local_inner_macros": {
+            "usage_count": 20,
+            "purpose": "Allows exported macros to call other macros from the same crate",
+            "pattern": "#[macro_export(local_inner_macros)]"
+          }
+        }
+      },
+      "samples": []
     }
   },
-
   "design_patterns": {
     "error_handling_with_logging": {
       "description": "fail! macro combines Result error handling with debug logging",
@@ -389,7 +484,6 @@
       "benefit": "Proper hygiene when macros call other macros"
     }
   },
-
   "cross_chapter_references": {
     "chapter_13": "Attributes - #[macro_export], #[proc_macro_derive], #[proc_macro_attribute]",
     "chapter_18": "Program Structure - proc-macro crate type",

@@ -2,8 +2,7 @@
   "chapter": 13,
   "title": "Attributes",
   "fls_url": "https://rust-lang.github.io/fls/attributes.html",
-  "fls_id": "fls_gvwd0kf72jt",
-  "repository": "eclipse-iceoryx/iceoryx2",
+  "codebase": "iceoryx2",
   "version": "0.8.0",
   "analysis_date": "2025-12-30",
   "version_changes": {
@@ -26,6 +25,7 @@
     ]
   },
   "summary": "FLS Chapter 13 defines attributes as general, free-form metadata interpreted based on name, convention, language, and tool. iceoryx2 v0.8.0 makes extensive use of built-in attributes with major increases due to the FFI layer. Key additions include #[no_mangle] (602 instances) for C bindings and expanded #[repr(C)] usage (393 instances) for FFI type compatibility.",
+
   "statistics": {
     "derive_attributes": 998,
     "cfg_attributes": 360,
@@ -44,98 +44,145 @@
     "ignore_attributes": 5,
     "macro_export_attributes": 5
   },
+
   "sections": {
-    "13.1": {
-      "fls_section": "13.1",
-      "fls_ids": [],
-      "description": "Attribute Properties",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2": {
-      "fls_section": "13.2",
-      "fls_ids": [],
-      "description": "Built-in Attributes",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2.1": {
-      "fls_section": "13.2.1",
-      "fls_ids": [],
-      "description": "Code Generation Attributes",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2.2": {
-      "fls_section": "13.2.2",
-      "fls_ids": [],
-      "description": "Conditional Compilation Attributes",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2.3": {
-      "fls_section": "13.2.3",
-      "fls_ids": [],
-      "description": "Derivation Attributes",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2.4": {
-      "fls_section": "13.2.4",
-      "fls_ids": [],
-      "description": "Diagnostics Attributes",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2.5": {
-      "fls_section": "13.2.5",
-      "fls_ids": [],
-      "description": "Documentation Attributes",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2.6": {
-      "fls_section": "13.2.6",
-      "fls_ids": [],
-      "description": "Foreign Function Interface Attributes",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2.7": {
-      "fls_section": "13.2.7",
-      "fls_ids": [],
-      "description": "Limits Attributes",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2.8": {
-      "fls_section": "13.2.8",
-      "fls_ids": [],
-      "description": "Macros Attributes",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2.9": {
-      "fls_section": "13.2.9",
-      "fls_ids": [],
-      "description": "Modules Attributes",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2.10": {
-      "fls_section": "13.2.10",
-      "fls_ids": [],
-      "description": "Prelude Attributes",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2.11": {
-      "fls_section": "13.2.11",
-      "fls_ids": [],
-      "description": "Runtime Attributes",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2.12": {
-      "fls_section": "13.2.12",
-      "fls_ids": [],
-      "description": "Testing Attributes",
-      "status": "MUST_BE_FILLED"
-    },
-    "13.2.13": {
-      "fls_section": "13.2.13",
-      "fls_ids": [],
-      "description": "Type Attributes",
-      "status": "MUST_BE_FILLED"
+    "13.1": "Attribute Properties",
+    "13.2": "Built-in Attributes",
+    "13.2.1": "Code Generation Attributes",
+    "13.2.2": "Conditional Compilation Attributes",
+    "13.2.3": "Derivation Attributes",
+    "13.2.4": "Diagnostics Attributes",
+    "13.2.5": "Documentation Attributes",
+    "13.2.6": "Foreign Function Interface Attributes",
+    "13.2.7": "Limits Attributes",
+    "13.2.8": "Macros Attributes",
+    "13.2.9": "Modules Attributes",
+    "13.2.10": "Prelude Attributes",
+    "13.2.11": "Runtime Attributes",
+    "13.2.12": "Testing Attributes",
+    "13.2.13": "Type Attributes"
+  },
+
+  "code_generation_attributes": {
+    "section": "13.2.1",
+    "inline": {
+      "rule_ref": "13.2.1.2",
+      "rule": "Attribute inline marks function as inlined; hints: always, never.",
+      "count": 32,
+      "change_from_v0_7_0": "+9 (+39%)"
     }
   },
+
+  "conditional_compilation_attributes": {
+    "section": "13.2.2",
+    "cfg": {
+      "rule_ref": "13.2.2.1",
+      "rule": "Attribute cfg enables conditional compilation based on configuration predicates.",
+      "count": 360,
+      "change_from_v0_7_0": "+210 (+140%)"
+    }
+  },
+
+  "derivation_attributes": {
+    "section": "13.2.3",
+    "derive": {
+      "rule_ref": "13.2.3.2",
+      "rule": "Attribute derive lists derive macros for automatic trait implementation.",
+      "count": 998,
+      "change_from_v0_7_0": "+340 (+52%)"
+    }
+  },
+
+  "diagnostics_attributes": {
+    "section": "13.2.4",
+    "allow": {
+      "count": 142,
+      "change_from_v0_7_0": "+80 (+129%)"
+    },
+    "must_use": {
+      "count": 8
+    }
+  },
+
+  "documentation_attributes": {
+    "section": "13.2.5",
+    "doc": {
+      "rule_ref": "13.2.5.1",
+      "count": 156,
+      "change_from_v0_7_0": "+69 (+79%)"
+    }
+  },
+
+  "ffi_attributes": {
+    "section": "13.2.6",
+    "repr": {
+      "rule_ref": "13.2.6.11",
+      "rule": "Attribute repr indicates the type representation.",
+      "count": 512,
+      "change_from_v0_7_0": "+315 (+160%)",
+      "representation_kinds": {
+        "C": 393,
+        "transparent": 35
+      }
+    },
+    "no_mangle": {
+      "rule_ref": "13.2.6.10",
+      "rule": "Attribute no_mangle indicates the function or static symbol should not have its name mangled.",
+      "count": 602,
+      "status": "NEW in v0.8.0",
+      "notes": "Massive addition for FFI layer - all C API functions use #[no_mangle]"
+    }
+  },
+
+  "macros_attributes": {
+    "section": "13.2.8",
+    "macro_export": {
+      "rule_ref": "13.2.8.2",
+      "count": 5
+    },
+    "proc_macro_derive": {
+      "rule_ref": "13.2.8.6",
+      "count": 2,
+      "macros": ["PlacementDefault", "ZeroCopySend"]
+    }
+  },
+
+  "prelude_attributes": {
+    "section": "13.2.10",
+    "no_std": {
+      "rule_ref": "13.2.10.2",
+      "rule": "Attribute no_std prevents import of standard library prelude.",
+      "count": 23,
+      "change_from_v0_7_0": "+21 (+1050%)",
+      "notes": "Major increase for no_std support across the codebase"
+    }
+  },
+
+  "testing_attributes": {
+    "section": "13.2.12",
+    "test": {
+      "rule_ref": "13.2.12.3",
+      "count": 960,
+      "change_from_v0_7_0": "-503 (-34%)"
+    },
+    "should_panic": {
+      "rule_ref": "13.2.12.2",
+      "count": 36
+    },
+    "ignore": {
+      "rule_ref": "13.2.12.1",
+      "count": 5
+    }
+  },
+
+  "type_attributes": {
+    "section": "13.2.13",
+    "non_exhaustive": {
+      "rule_ref": "13.2.13.1",
+      "count": 10
+    }
+  },
+
   "design_patterns": {
     "repr_c_for_ffi": {
       "description": "#[repr(C)] ensures predictable layout for FFI types",
@@ -164,6 +211,7 @@
       "count": 998
     }
   },
+
   "cross_chapter_references": {
     "chapter_3": "Attributes apply to items",
     "chapter_4": "repr attribute affects type representation",

@@ -1,33 +1,29 @@
 {
-  "fls_chapter": "5. Patterns",
-  "fls_reference": "https://rust-lang.github.io/fls/patterns.html",
-  "codebase": "iceoryx2",
+  "chapter": 5,
+  "title": "Patterns",
+  "fls_url": "https://rust-lang.github.io/fls/patterns.html",
+  "fls_id": "fls_xgqh0ju6bmbn",
+  "repository": "eclipse-iceoryx/iceoryx2",
   "version": "0.8.0",
-  "analysis_date": "2024-12",
+  "analysis_date": "2024-12-30",
   "version_changes": {
     "from_version": "0.7.0",
+    "to_version": "0.8.0",
     "summary": "Pattern usage expanded proportionally with codebase growth, path updates for new directory structure",
-    "notable_changes": [
+    "key_changes": [
       "match expressions increased with FFI layer",
       "if let usage expanded",
       "while let usage increased for async-free event processing"
     ]
   },
-  "overview": {
-    "description": "FLS Chapter 5 defines patterns - constructs that match values satisfying pattern criteria. Patterns are used in let bindings, match expressions, if let, while let, function parameters, and for loops.",
-    "pattern_syntax": "Pattern ::= |? PatternWithoutAlternation (| PatternWithoutAlternation)*",
-    "statistics": {
-      "match_expressions": 1663,
-      "if_let_expressions": 337,
-      "while_let_expressions": 70,
-      "let_mut_bindings": 2338,
-      "ref_mut_patterns": 99,
-      "matches_macro": 11
-    }
-  },
+  "summary": "FLS Chapter 5 defines patterns - constructs that match values satisfying pattern criteria. Patterns are used in let bindings, match expressions, if let, while let, function parameters, and for loops.",
+  "statistics": {},
   "sections": {
-    "5.1_refutability": {
+    "refutability": {
       "fls_section": "5.1 Refutability",
+      "fls_ids": [
+        "fls_uh76pw6ykd57"
+      ],
       "description": "Refutability expresses the ability to match all possible values of a type. Irrefutable patterns always match; refutable patterns may fail to match.",
       "findings": {
         "irrefutable_patterns": "let bindings use irrefutable patterns (identifier, underscore)",
@@ -43,11 +39,41 @@
         "ref_patterns": "99 ref mut patterns for borrowing in patterns"
       },
       "samples": [
-        {"path": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs", "lines": "22", "code": "let sut = FixedSizeIndexQueue::<CAPACITY>::new();"},
-        {"path": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs", "lines": "29", "code": "let mut sut_producer = sut.acquire_producer().unwrap();"},
-        {"path": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs", "lines": "138", "code": "let mut counter: usize = 0;"},
-        {"path": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs", "lines": "251", "code": "FdHandleEntry::SharedMemory(ref mut handle) => {"},
-        {"path": "iceoryx2/src/service/static_config/mod.rs", "lines": "160", "code": "MessagingPattern::RequestResponse(ref mut v) => v,"}
+        {
+          "file": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs",
+          "line": [
+            22
+          ],
+          "code": "let sut = FixedSizeIndexQueue::<CAPACITY>::new();"
+        },
+        {
+          "file": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs",
+          "line": [
+            29
+          ],
+          "code": "let mut sut_producer = sut.acquire_producer().unwrap();"
+        },
+        {
+          "file": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs",
+          "line": [
+            138
+          ],
+          "code": "let mut counter: usize = 0;"
+        },
+        {
+          "file": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs",
+          "line": [
+            251
+          ],
+          "code": "FdHandleEntry::SharedMemory(ref mut handle) => {"
+        },
+        {
+          "file": "iceoryx2/src/service/static_config/mod.rs",
+          "line": [
+            160
+          ],
+          "code": "MessagingPattern::RequestResponse(ref mut v) => v,"
+        }
       ]
     },
     "5.1.2_literal_patterns": {
@@ -59,11 +85,41 @@
         "usage": "Error code matching, state machine transitions"
       },
       "samples": [
-        {"path": "iceoryx2-pal/posix/src/linux/stat.rs", "lines": "22", "code": "0 => {"},
-        {"path": "iceoryx2-pal/posix/src/stub/win32_call.rs", "lines": "62", "code": "0 => Errno::set(Errno::ESUCCES),"},
-        {"path": "iceoryx2-bb/container/src/byte_string.rs", "lines": "274", "code": "b'\\t' => vec![b'\\\\', b't'].into_iter(),"},
-        {"path": "iceoryx2-bb/container/src/byte_string.rs", "lines": "275", "code": "b'\\r' => vec![b'\\\\', b'r'].into_iter(),"},
-        {"path": "iceoryx2-bb/container/src/byte_string.rs", "lines": "276", "code": "b'\\n' => vec![b'\\\\', b'n'].into_iter(),"}
+        {
+          "file": "iceoryx2-pal/posix/src/linux/stat.rs",
+          "line": [
+            22
+          ],
+          "code": "0 => {"
+        },
+        {
+          "file": "iceoryx2-pal/posix/src/stub/win32_call.rs",
+          "line": [
+            62
+          ],
+          "code": "0 => Errno::set(Errno::ESUCCES),"
+        },
+        {
+          "file": "iceoryx2-bb/container/src/byte_string.rs",
+          "line": [
+            274
+          ],
+          "code": "b'\\t' => vec![b'\\\\', b't'].into_iter(),"
+        },
+        {
+          "file": "iceoryx2-bb/container/src/byte_string.rs",
+          "line": [
+            275
+          ],
+          "code": "b'\\r' => vec![b'\\\\', b'r'].into_iter(),"
+        },
+        {
+          "file": "iceoryx2-bb/container/src/byte_string.rs",
+          "line": [
+            276
+          ],
+          "code": "b'\\n' => vec![b'\\\\', b'n'].into_iter(),"
+        }
       ]
     },
     "5.1.3_parenthesized_patterns": {
@@ -81,10 +137,34 @@
         "custom_variants": "Custom enum variants for error handling and state"
       },
       "samples": [
-        {"path": "iceoryx2-bb/lock-free/tests/mpmc_container_tests.rs", "lines": "417", "code": "Ok(index) => {"},
-        {"path": "iceoryx2-bb/lock-free/tests/mpmc_container_tests.rs", "lines": "425", "code": "Err(ContainerAddFailure::OutOfSpace) => {"},
-        {"path": "iceoryx2-bb/lock-free/tests/mpmc_unique_index_set_tests.rs", "lines": "221", "code": "Err(UniqueIndexSetAcquireFailure::OutOfIndices) => {"},
-        {"path": "iceoryx2-bb/lock-free/tests/bitset_tests.rs", "lines": "119", "code": "assert_that!(sut.reset_next(), eq None);"}
+        {
+          "file": "iceoryx2-bb/lock-free/tests/mpmc_container_tests.rs",
+          "line": [
+            417
+          ],
+          "code": "Ok(index) => {"
+        },
+        {
+          "file": "iceoryx2-bb/lock-free/tests/mpmc_container_tests.rs",
+          "line": [
+            425
+          ],
+          "code": "Err(ContainerAddFailure::OutOfSpace) => {"
+        },
+        {
+          "file": "iceoryx2-bb/lock-free/tests/mpmc_unique_index_set_tests.rs",
+          "line": [
+            221
+          ],
+          "code": "Err(UniqueIndexSetAcquireFailure::OutOfIndices) => {"
+        },
+        {
+          "file": "iceoryx2-bb/lock-free/tests/bitset_tests.rs",
+          "line": [
+            119
+          ],
+          "code": "assert_that!(sut.reset_next(), eq None);"
+        }
       ]
     },
     "5.1.5_range_patterns": {
@@ -95,11 +175,41 @@
         "usage": "Character classification, numeric ranges, priority matching"
       },
       "samples": [
-        {"path": "iceoryx2-bb/posix/src/unix_datagram_socket.rs", "lines": "961", "code": "1..=isize::MAX => {"},
-        {"path": "iceoryx2-bb/container/src/byte_string.rs", "lines": "277", "code": "b'\\x20'..=b'\\x7e' => vec![*c].into_iter(),"},
-        {"path": "iceoryx2-bb/system-types/src/path.rs", "lines": "57", "code": "1..=31 => return true,"},
-        {"path": "iceoryx2-bb/system-types/src/user_name.rs", "lines": "52", "code": "matches!(string[0], b'-' | b'0'..=b'9')"},
-        {"path": "iceoryx2-bb/system-types/src/user_name.rs", "lines": "57", "code": "b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'-' | b'_' => (),"}
+        {
+          "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+          "line": [
+            961
+          ],
+          "code": "1..=isize::MAX => {"
+        },
+        {
+          "file": "iceoryx2-bb/container/src/byte_string.rs",
+          "line": [
+            277
+          ],
+          "code": "b'\\x20'..=b'\\x7e' => vec![*c].into_iter(),"
+        },
+        {
+          "file": "iceoryx2-bb/system-types/src/path.rs",
+          "line": [
+            57
+          ],
+          "code": "1..=31 => return true,"
+        },
+        {
+          "file": "iceoryx2-bb/system-types/src/user_name.rs",
+          "line": [
+            52
+          ],
+          "code": "matches!(string[0], b'-' | b'0'..=b'9')"
+        },
+        {
+          "file": "iceoryx2-bb/system-types/src/user_name.rs",
+          "line": [
+            57
+          ],
+          "code": "b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'-' | b'_' => (),"
+        }
       ]
     },
     "5.1.6_reference_patterns": {
@@ -123,8 +233,11 @@
         "usage": "Limited explicit use"
       }
     },
-    "5.2_struct_patterns": {
+    "struct_patterns": {
       "fls_section": "5.2 Struct Patterns",
+      "fls_ids": [
+        "fls_7dbd5t2750ce"
+      ],
       "description": "Struct pattern matches enum values, struct values, or union values.",
       "findings": {
         "enum_matching": "Extensive use for Result and Option",
@@ -139,10 +252,34 @@
         "shorthand_deconstructor": "ref mut handle pattern for mutable borrowing"
       },
       "samples": [
-        {"path": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs", "lines": "251", "code": "FdHandleEntry::SharedMemory(ref mut handle) => {"},
-        {"path": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs", "lines": "266", "code": "FdHandleEntry::File(ref mut handle) => {"},
-        {"path": "iceoryx2/src/service/static_config/mod.rs", "lines": "180", "code": "MessagingPattern::Event(ref mut v) => v,"},
-        {"path": "iceoryx2/src/service/static_config/mod.rs", "lines": "200", "code": "MessagingPattern::PublishSubscribe(ref mut v) => v,"}
+        {
+          "file": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs",
+          "line": [
+            251
+          ],
+          "code": "FdHandleEntry::SharedMemory(ref mut handle) => {"
+        },
+        {
+          "file": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs",
+          "line": [
+            266
+          ],
+          "code": "FdHandleEntry::File(ref mut handle) => {"
+        },
+        {
+          "file": "iceoryx2/src/service/static_config/mod.rs",
+          "line": [
+            180
+          ],
+          "code": "MessagingPattern::Event(ref mut v) => v,"
+        },
+        {
+          "file": "iceoryx2/src/service/static_config/mod.rs",
+          "line": [
+            200
+          ],
+          "code": "MessagingPattern::PublishSubscribe(ref mut v) => v,"
+        }
       ]
     },
     "5.2.2_tuple_struct_patterns": {
@@ -153,10 +290,34 @@
         "result_patterns": "Ok(x), Err(e) for error handling"
       },
       "samples": [
-        {"path": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs", "lines": "151", "code": "if let Some(v) = sut_consumer.pop() {"},
-        {"path": "iceoryx2-bb/lock-free/tests/spsc_safely_overflowing_index_queue_tests.rs", "lines": "148", "code": "if let Some(s) = sut_producer.push(counter) {"},
-        {"path": "iceoryx2-bb/lock-free/tests/mpmc_container_tests.rs", "lines": "417", "code": "Ok(index) => {"},
-        {"path": "iceoryx2-bb/lock-free/tests/mpmc_unique_index_set_tests.rs", "lines": "217", "code": "Ok(e) => {"}
+        {
+          "file": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs",
+          "line": [
+            151
+          ],
+          "code": "if let Some(v) = sut_consumer.pop() {"
+        },
+        {
+          "file": "iceoryx2-bb/lock-free/tests/spsc_safely_overflowing_index_queue_tests.rs",
+          "line": [
+            148
+          ],
+          "code": "if let Some(s) = sut_producer.push(counter) {"
+        },
+        {
+          "file": "iceoryx2-bb/lock-free/tests/mpmc_container_tests.rs",
+          "line": [
+            417
+          ],
+          "code": "Ok(index) => {"
+        },
+        {
+          "file": "iceoryx2-bb/lock-free/tests/mpmc_unique_index_set_tests.rs",
+          "line": [
+            217
+          ],
+          "code": "Ok(e) => {"
+        }
       ]
     },
     "5.2.3_tuple_patterns": {
@@ -166,7 +327,13 @@
         "usage": "Limited explicit tuple destructuring - more common with struct types"
       },
       "samples": [
-        {"path": "iceoryx2-bb/lock-free/tests/mpmc_container_tests.rs", "lines": "79", "code": "let mut contained_values: Vec<(u32, usize)> = vec![];"}
+        {
+          "file": "iceoryx2-bb/lock-free/tests/mpmc_container_tests.rs",
+          "line": [
+            79
+          ],
+          "code": "let mut contained_values: Vec<(u32, usize)> = vec![];"
+        }
       ]
     },
     "5.2.4_underscore_patterns": {
@@ -176,14 +343,41 @@
         "usage": "Wildcard binding, ignoring values, catch-all match arms"
       },
       "samples": [
-        {"path": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs", "lines": "90", "code": "let _consumer = sut.acquire_consumer().unwrap();"},
-        {"path": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs", "lines": "106", "code": "let _producer = sut.acquire_producer().unwrap();"},
-        {"path": "iceoryx2-bb/lock-free/tests/bitset_tests.rs", "lines": "149", "code": "let _watchdog = Watchdog::new_with_timeout(Duration::from_secs(60));"},
-        {"path": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs", "lines": "34", "code": "Err(_) => panic!(\"Out of indices\"),"}
+        {
+          "file": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs",
+          "line": [
+            90
+          ],
+          "code": "let _consumer = sut.acquire_consumer().unwrap();"
+        },
+        {
+          "file": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs",
+          "line": [
+            106
+          ],
+          "code": "let _producer = sut.acquire_producer().unwrap();"
+        },
+        {
+          "file": "iceoryx2-bb/lock-free/tests/bitset_tests.rs",
+          "line": [
+            149
+          ],
+          "code": "let _watchdog = Watchdog::new_with_timeout(Duration::from_secs(60));"
+        },
+        {
+          "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+          "line": [
+            34
+          ],
+          "code": "Err(_) => panic!(\"Out of indices\"),"
+        }
       ]
     },
-    "5.3_binding_modes": {
+    "binding_modes": {
       "fls_section": "5.3 Binding Modes",
+      "fls_ids": [
+        "fls_qssijtofa9i8"
+      ],
       "description": "Binding modes determine how matched values are bound: by value, by reference, or by mutable reference.",
       "findings": {
         "by_value": "Default binding mode - moves or copies value",
@@ -191,13 +385,34 @@
         "by_mutable_reference": "99 ref mut patterns for mutable borrow"
       },
       "samples": [
-        {"path": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs", "lines": "358", "code": "if let FdHandleEntry::UdsDatagramSocket(ref mut s) = *self.fd2handle[fd as usize].get()"},
-        {"path": "iceoryx2-pal/posix/src/macos/pthread.rs", "lines": "119", "code": "if let Some(ref mut v) = *state.get() {"},
-        {"path": "iceoryx2/src/service/builder/publish_subscribe.rs", "lines": "290", "code": "MessagingPattern::PublishSubscribe(ref mut v) => v,"}
+        {
+          "file": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs",
+          "line": [
+            358
+          ],
+          "code": "if let FdHandleEntry::UdsDatagramSocket(ref mut s) = *self.fd2handle[fd as usize].get()"
+        },
+        {
+          "file": "iceoryx2-pal/posix/src/macos/pthread.rs",
+          "line": [
+            119
+          ],
+          "code": "if let Some(ref mut v) = *state.get() {"
+        },
+        {
+          "file": "iceoryx2/src/service/builder/publish_subscribe.rs",
+          "line": [
+            290
+          ],
+          "code": "MessagingPattern::PublishSubscribe(ref mut v) => v,"
+        }
       ]
     },
-    "5.4_pattern_matching": {
+    "pattern_matching": {
       "fls_section": "5.4 Pattern Matching",
+      "fls_ids": [
+        "fls_jm6l7b90h6wa"
+      ],
       "description": "Pattern matching process involving a pattern and a context value.",
       "findings": {
         "match_expressions": "1663 match expressions (primary pattern matching construct)",
@@ -221,144 +436,39 @@
     },
     "5.4.3_parenthesized_pattern_matching": {
       "fls_section": "5.4.3 Parenthesized Pattern Matching",
-      "description": "Parenthesized pattern matching performs pattern matching with subpattern.",
-      "findings": {}
+      "description": "Parenthesized pattern matching performs pattern matching with subpattern."
     },
     "5.4.4_path_pattern_matching": {
       "fls_section": "5.4.4 Path Pattern Matching",
-      "description": "Path pattern matching compares constant/enum variant with context value.",
-      "findings": {}
+      "description": "Path pattern matching compares constant/enum variant with context value."
     },
     "5.4.5_range_pattern_matching": {
       "fls_section": "5.4.5 Range Pattern Matching",
-      "description": "Range pattern matching checks if context value falls within range bounds.",
-      "findings": {}
+      "description": "Range pattern matching checks if context value falls within range bounds."
     },
     "5.4.6_reference_pattern_matching": {
       "fls_section": "5.4.6 Reference Pattern Matching",
-      "description": "Reference pattern matching dereferences context value and matches subpattern.",
-      "findings": {}
+      "description": "Reference pattern matching dereferences context value and matches subpattern."
     },
     "5.4.7_slice_pattern_matching": {
       "fls_section": "5.4.7 Slice Pattern Matching",
-      "description": "Slice pattern matching matches array/slice elements against subpatterns.",
-      "findings": {}
+      "description": "Slice pattern matching matches array/slice elements against subpatterns."
     },
     "5.4.8_record_struct_pattern_matching": {
       "fls_section": "5.4.8 Record Struct Pattern Matching",
-      "description": "Record struct pattern matching matches struct fields against subpatterns.",
-      "findings": {}
+      "description": "Record struct pattern matching matches struct fields against subpatterns."
     },
     "5.4.9_tuple_struct_pattern_matching": {
       "fls_section": "5.4.9 Tuple Struct Pattern Matching",
-      "description": "Tuple struct pattern matching matches tuple struct fields against subpatterns.",
-      "findings": {}
+      "description": "Tuple struct pattern matching matches tuple struct fields against subpatterns."
     },
     "5.4.10_tuple_pattern_matching": {
       "fls_section": "5.4.10 Tuple Pattern Matching",
-      "description": "Tuple pattern matching matches tuple fields against subpatterns.",
-      "findings": {}
+      "description": "Tuple pattern matching matches tuple fields against subpatterns."
     },
     "5.4.11_underscore_pattern_matching": {
       "fls_section": "5.4.11 Underscore Pattern Matching",
-      "description": "Underscore pattern matching matches context value unconditionally.",
-      "findings": {}
-    }
-  },
-  "pattern_contexts_summary": {
-    "let_bindings": {
-      "description": "Irrefutable patterns in let statements",
-      "count": "2338+ (let mut alone)",
-      "findings": {
-        "usage": "Primary variable binding mechanism"
-      },
-      "samples": [
-        {"path": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs", "lines": "22", "code": "let sut = FixedSizeIndexQueue::<CAPACITY>::new();"},
-        {"path": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs", "lines": "29", "code": "let mut sut_producer = sut.acquire_producer().unwrap();"}
-      ]
-    },
-    "match_expressions": {
-      "description": "Refutable patterns in match arms",
-      "count": 1663,
-      "findings": {
-        "usage": "Exhaustive pattern matching on enums and values"
-      },
-      "samples": [
-        {"path": "iceoryx2-bb/lock-free/tests/mpmc_container_tests.rs", "lines": "416", "code": "match unsafe { sut.add(value.into()) } {"},
-        {"path": "iceoryx2-bb/lock-free/src/mpmc/container.rs", "lines": "89", "code": "match value {"}
-      ]
-    },
-    "if_let_expressions": {
-      "description": "Refutable patterns in if let for conditional binding",
-      "count": 337,
-      "findings": {
-        "usage": "Option/Result handling without exhaustive matching"
-      },
-      "samples": [
-        {"path": "iceoryx2-bb/lock-free/tests/spsc_index_queue_tests.rs", "lines": "151", "code": "if let Some(v) = sut_consumer.pop() {"},
-        {"path": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs", "lines": "358", "code": "if let FdHandleEntry::UdsDatagramSocket(ref mut s) = *self.fd2handle[fd as usize].get()"},
-        {"path": "iceoryx2-pal/posix/src/stub/win32_security_attributes.rs", "lines": "362", "code": "if let Ok(hex_val) = u32::from_str_radix(hex_str, 16) {"}
-      ]
-    },
-    "while_let_expressions": {
-      "description": "Refutable patterns in while let for iterative matching",
-      "count": 70,
-      "findings": {
-        "usage": "Processing streams, queues, and iterators - critical for async-free event processing"
-      },
-      "samples": [
-        {"path": "iceoryx2/tests/service_request_response_thread_safety_tests.rs", "lines": "111", "code": "while let Ok(Some(request)) = server.receive() {"},
-        {"path": "iceoryx2/tests/service_publish_subscribe_thread_safety_tests.rs", "lines": "113", "code": "while let Ok(Some(sample)) = subscriber.receive() {"},
-        {"path": "iceoryx2/tests/server_tests.rs", "lines": "380", "code": "while let Some(request) = sut.receive().unwrap() {"},
-        {"path": "iceoryx2/tests/service_event_tests.rs", "lines": "562", "code": "while let Some(event) = listener.try_wait_one().unwrap() {"}
-      ]
-    },
-    "or_patterns": {
-      "description": "Alternation patterns using | for multiple match options",
-      "findings": {
-        "usage": "Error code grouping, character class matching"
-      },
-      "samples": [
-        {"path": "iceoryx2-pal/posix/src/stub/win32_call.rs", "lines": "37", "code": "ERROR_FILE_NOT_FOUND | ERROR_PATH_NOT_FOUND => Errno::set(Errno::ENOENT),"},
-        {"path": "iceoryx2-pal/posix/src/stub/win32_call.rs", "lines": "38", "code": "ERROR_TOO_MANY_OPEN_FILES | ERROR_SHARING_BUFFER_EXCEEDED => Errno::set(Errno::EMFILE),"},
-        {"path": "iceoryx2-pal/posix/src/stub/win32_call.rs", "lines": "48", "code": "ERROR_INVALID_ACCESS | ERROR_INVALID_DATA => Errno::set(Errno::EINVAL),"},
-        {"path": "iceoryx2-bb/system-types/src/user_name.rs", "lines": "52", "code": "matches!(string[0], b'-' | b'0'..=b'9')"}
-      ]
-    },
-    "matches_macro": {
-      "description": "matches! macro for boolean pattern matching without binding",
-      "count": 11,
-      "findings": {
-        "usage": "Conditional checks on pattern match results"
-      },
-      "samples": [
-        {"path": "iceoryx2/src/port/details/data_segment.rs", "lines": "265", "code": "matches!(&self.memory, MemoryViewType::Dynamic(_))"},
-        {"path": "iceoryx2-bb/posix/src/deadline_queue.rs", "lines": "270", "code": "if matches!("},
-        {"path": "iceoryx2-bb/system-types/src/file_name.rs", "lines": "62", "code": "matches!(value, b\"\" | b\".\" | b\"..\")"}
-      ]
-    },
-    "match_guards": {
-      "description": "Match arms with if guards for additional conditions",
-      "findings": {
-        "usage": "Limited use - additional runtime conditions on patterns"
-      },
-      "samples": [
-        {"path": "iceoryx2-bb/system-types/src/file_path.rs", "lines": "136", "code": "Some(p) if !p.is_empty() => p,"}
-      ]
-    }
-  },
-  "patterns_not_used": {
-    "bound_patterns": {
-      "description": "@ patterns for binding while matching",
-      "status": "NOT USED"
-    },
-    "slice_patterns_explicit": {
-      "description": "[a, b, ..] slice destructuring patterns",
-      "status": "NOT USED"
-    },
-    "rest_patterns_explicit": {
-      "description": ".. rest patterns in struct/tuple contexts",
-      "status": "LIMITED USE"
+      "description": "Underscore pattern matching matches context value unconditionally."
     }
   },
   "safety_critical_summary": {
@@ -378,9 +488,21 @@
       "move_by_default": "Non-Copy types moved by default"
     },
     "version_comparison": {
-      "match_expressions": {"v0_7_0": "~800", "v0_8_0": 1663, "change": "+863 (~108% increase)"},
-      "if_let_expressions": {"v0_7_0": "~150", "v0_8_0": 337, "change": "+187 (~125% increase)"},
-      "while_let_expressions": {"v0_7_0": "~30", "v0_8_0": 70, "change": "+40 (~133% increase)"}
+      "match_expressions": {
+        "v0_7_0": "~800",
+        "v0_8_0": 1663,
+        "change": "+863 (~108% increase)"
+      },
+      "if_let_expressions": {
+        "v0_7_0": "~150",
+        "v0_8_0": 337,
+        "change": "+187 (~125% increase)"
+      },
+      "while_let_expressions": {
+        "v0_7_0": "~30",
+        "v0_8_0": 70,
+        "change": "+40 (~133% increase)"
+      }
     }
   }
 }

@@ -1,0 +1,408 @@
+============================================================
+FLS MAPPING VALIDATION REPORT
+============================================================
+
+Files validated: 20
+Schema valid: 20/20
+MUST_BE_FILLED markers: 137
+Path errors: 56
+
+------------------------------------------------------------
+FILE: fls_chapter02_lexical_elements.json
+------------------------------------------------------------
+  MUST_BE_FILLED (4):
+    - fls_url
+    - summary
+    - sections.lexical_elements_separators_punctuation.fls_section
+    - sections.lexical_elements_separators_punctuation.description
+  PATH ERRORS (14):
+    - sections.lexical_elements_separators_punctuation.findings.punctuator_categories.arithmetic_operators.modulo.samples[0]: File not found: iceoryx2-bb/lock-free/src/mpmc/queue.rs
+    - sections.lexical_elements_separators_punctuation.findings.punctuator_categories.bitwise_operators.right_shift.samples[1]: Line 144 exceeds file length (67): iceoryx2-pal/posix/src/stub/mman.rs
+    - sections.lexical_elements_separators_punctuation.findings.punctuator_categories.range_operators.inclusive_range.samples[4]: File not found: iceoryx2-bb/container/src/byte_string.rs
+    - sections.literals.findings.subsection_2_4_4_numeric_literals.integer_literals.hexadecimal_literals.samples[2]: File not found: iceoryx2-pal/posix/src/stub/win32_security_attributes.rs
+    - sections.literals.findings.subsection_2_4_4_numeric_literals.integer_literals.integer_suffixes.u32_suffix.samples[1]: Line 207 exceeds file length (47): iceoryx2-pal/posix/src/stub/fcntl.rs
+    ... and 9 more
+
+------------------------------------------------------------
+FILE: fls_chapter03_items.json
+------------------------------------------------------------
+  PATH ERRORS (25):
+    - sections.modules.samples[0]: File not found: iceoryx2-bb/traits/src/lib.rs
+    - sections.modules.samples[1]: File not found: iceoryx2-bb/traits/src/lib.rs
+    - sections.structs.samples[8]: File not found: iceoryx2-bb/container/src/vector.rs
+    - sections.structs.samples[9]: File not found: iceoryx2-bb/container/src/string.rs
+    - sections.enums.samples[0]: File not found: iceoryx2-bb/traits/src/allocator.rs
+    ... and 20 more
+
+------------------------------------------------------------
+FILE: fls_chapter04_types_and_traits.json
+------------------------------------------------------------
+  PATH ERRORS (11):
+    - sections.sequence_types.findings.4.4.1_array_types.samples[4]: File not found: iceoryx2-bb/container/src/vector.rs
+    - sections.sequence_types.findings.4.4.2_slice_types.samples[3]: File not found: iceoryx2-pal/posix/src/stub/win32_security_attributes.rs
+    - sections.sequence_types.findings.4.4.3_str_type.samples[2]: File not found: iceoryx2/tests/node_tests.rs
+    - sections.sequence_types.findings.4.4.3_str_type.samples[4]: File not found: iceoryx2-bb/container/src/string.rs
+    - sections.abstract_data_types.findings.4.5.2_struct_types.samples[1]: File not found: iceoryx2-bb/traits/src/owning_pointer.rs
+    ... and 6 more
+
+------------------------------------------------------------
+FILE: fls_chapter05_patterns.json
+------------------------------------------------------------
+  PATH ERRORS (5):
+    - sections.5.1.2_literal_patterns.samples[1]: File not found: iceoryx2-pal/posix/src/stub/win32_call.rs
+    - sections.5.1.2_literal_patterns.samples[2]: File not found: iceoryx2-bb/container/src/byte_string.rs
+    - sections.5.1.2_literal_patterns.samples[3]: File not found: iceoryx2-bb/container/src/byte_string.rs
+    - sections.5.1.2_literal_patterns.samples[4]: File not found: iceoryx2-bb/container/src/byte_string.rs
+    - sections.5.1.5_range_patterns.samples[1]: File not found: iceoryx2-bb/container/src/byte_string.rs
+
+------------------------------------------------------------
+FILE: fls_chapter06_expressions.json
+------------------------------------------------------------
+  MUST_BE_FILLED (26):
+    - sections.expression_classification.subsections.6.1.1_assignee_expressions.fls_section
+    - sections.expression_classification.subsections.6.1.2_constant_expressions.fls_section
+    - sections.expression_classification.subsections.6.1.3_diverging_expressions.fls_section
+    - sections.expression_classification.subsections.6.1.4_place_expressions.fls_section
+    - sections.expression_classification.subsections.6.1.5_value_expressions.fls_section
+    - sections.block_expressions.subsections.6.4.1_async_blocks.fls_section
+    - sections.block_expressions.subsections.6.4.2_const_blocks.fls_section
+    - sections.block_expressions.subsections.6.4.3_named_blocks.fls_section
+    - sections.block_expressions.subsections.6.4.4_unsafe_blocks.fls_section
+    - sections.operator_expressions.subsections.6.5.1_borrow_expression.fls_section
+    ... and 16 more
+  PATH ERRORS (1):
+    - sections.literal_expressions.samples[1]: File not found: iceoryx2-bb/container/src/byte_string.rs
+
+------------------------------------------------------------
+FILE: fls_chapter07_values.json
+------------------------------------------------------------
+  MUST_BE_FILLED (5):
+    - sections.constants.subsections.unnamed_constants.fls_section
+    - sections.constants.subsections.associated_constants.fls_section
+    - sections.constants.subsections.const_fn.fls_section
+    - sections.constants.subsections.const_generics.fls_section
+    - sections.variables.subsections.7.4.1_constant_promotion.fls_section
+
+------------------------------------------------------------
+FILE: fls_chapter08_statements.json
+------------------------------------------------------------
+  MUST_BE_FILLED (3):
+    - sections.item_statements.fls_section
+    - sections.macro_statements.fls_section
+    - sections.empty_statements.fls_section
+
+------------------------------------------------------------
+FILE: fls_chapter09_functions.json
+------------------------------------------------------------
+  OK - No issues found
+
+------------------------------------------------------------
+FILE: fls_chapter10_associated_items.json
+------------------------------------------------------------
+  OK - No issues found
+
+------------------------------------------------------------
+FILE: fls_chapter11_implementations.json
+------------------------------------------------------------
+  OK - No issues found
+
+------------------------------------------------------------
+FILE: fls_chapter12_generics.json
+------------------------------------------------------------
+  MUST_BE_FILLED (4):
+    - sections.12.1.status
+    - sections.12.2.status
+    - sections.12.3.status
+    - sections.12.4.status
+
+------------------------------------------------------------
+FILE: fls_chapter13_attributes.json
+------------------------------------------------------------
+  MUST_BE_FILLED (15):
+    - sections.13.1.status
+    - sections.13.2.status
+    - sections.13.2.1.status
+    - sections.13.2.2.status
+    - sections.13.2.3.status
+    - sections.13.2.4.status
+    - sections.13.2.5.status
+    - sections.13.2.6.status
+    - sections.13.2.7.status
+    - sections.13.2.8.status
+    ... and 5 more
+
+------------------------------------------------------------
+FILE: fls_chapter14_entities_resolution.json
+------------------------------------------------------------
+  MUST_BE_FILLED (9):
+    - sections.14.1.status
+    - sections.14.2.status
+    - sections.14.3.status
+    - sections.14.4.status
+    - sections.14.5.status
+    - sections.14.6.status
+    - sections.14.7.status
+    - sections.14.8.status
+    - sections.14.9.status
+
+------------------------------------------------------------
+FILE: fls_chapter15_ownership_destruction.json
+------------------------------------------------------------
+  MUST_BE_FILLED (18):
+    - sections.15.1.status
+    - sections.15.2.status
+    - sections.15.3.status
+    - sections.15.4.status
+    - sections.15.5.status
+    - sections.15.6.status
+    - sections.15.7.status
+    - sections.15.8.status
+    - sections.15.9.status
+    - sections.ownership.status
+    ... and 8 more
+
+------------------------------------------------------------
+FILE: fls_chapter17_concurrency.json
+------------------------------------------------------------
+  MUST_BE_FILLED (6):
+    - sections.17.1.status
+    - sections.17.2.status
+    - sections.17.3.status
+    - sections.send_and_sync.status
+    - sections.atomics.status
+    - sections.asynchronous_computation.status
+
+------------------------------------------------------------
+FILE: fls_chapter18_program_structure.json
+------------------------------------------------------------
+  MUST_BE_FILLED (14):
+    - sections.18.1.status
+    - sections.18.2.status
+    - sections.18.3.status
+    - sections.18.4.status
+    - sections.18.5.status
+    - sections.18.6.status
+    - sections.18.7.status
+    - sections.source_files.status
+    - sections.modules.status
+    - sections.crates.status
+    ... and 4 more
+
+------------------------------------------------------------
+FILE: fls_chapter19_unsafety.json
+------------------------------------------------------------
+  MUST_BE_FILLED (3):
+    - sections.unsafe_operations.fls_section
+    - sections.unsafe_operations.description
+    - sections.unsafe_operations.status
+
+------------------------------------------------------------
+FILE: fls_chapter20_macros.json
+------------------------------------------------------------
+  MUST_BE_FILLED (14):
+    - sections.20.1.status
+    - sections.20.1.1.status
+    - sections.20.1.2.status
+    - sections.20.2.status
+    - sections.20.2.1.status
+    - sections.20.2.2.status
+    - sections.20.2.3.status
+    - sections.20.3.status
+    - sections.20.4.status
+    - sections.20.5.status
+    ... and 4 more
+
+------------------------------------------------------------
+FILE: fls_chapter21_ffi.json
+------------------------------------------------------------
+  MUST_BE_FILLED (7):
+    - sections.21.1.status
+    - sections.21.2.status
+    - sections.21.3.status
+    - sections.21.4.status
+    - sections.abi.status
+    - sections.external_functions.status
+    - sections.external_blocks.status
+
+------------------------------------------------------------
+FILE: fls_chapter22_inline_assembly.json
+------------------------------------------------------------
+  MUST_BE_FILLED (9):
+    - sections.22.1.status
+    - sections.22.2.status
+    - sections.22.3.status
+    - sections.22.4.status
+    - sections.22.5.status
+    - sections.22.6.status
+    - sections.22.7.status
+    - sections.22.8.status
+    - sections.macros_asm_globalasm_and_nakedasm.status
+
+============================================================
+MUST_BE_FILLED INVENTORY
+============================================================
+
+fls_chapter02_lexical_elements.json:
+  - fls_url
+  - summary
+  - sections.lexical_elements_separators_punctuation.fls_section
+  - sections.lexical_elements_separators_punctuation.description
+
+fls_chapter06_expressions.json:
+  - sections.expression_classification.subsections.6.1.1_assignee_expressions.fls_section
+  - sections.expression_classification.subsections.6.1.2_constant_expressions.fls_section
+  - sections.expression_classification.subsections.6.1.3_diverging_expressions.fls_section
+  - sections.expression_classification.subsections.6.1.4_place_expressions.fls_section
+  - sections.expression_classification.subsections.6.1.5_value_expressions.fls_section
+  - sections.block_expressions.subsections.6.4.1_async_blocks.fls_section
+  - sections.block_expressions.subsections.6.4.2_const_blocks.fls_section
+  - sections.block_expressions.subsections.6.4.3_named_blocks.fls_section
+  - sections.block_expressions.subsections.6.4.4_unsafe_blocks.fls_section
+  - sections.operator_expressions.subsections.6.5.1_borrow_expression.fls_section
+  - sections.operator_expressions.subsections.6.5.2_dereference_expression.fls_section
+  - sections.operator_expressions.subsections.6.5.3_error_propagation_expression.fls_section
+  - sections.operator_expressions.subsections.6.5.4_negation_expression.fls_section
+  - sections.operator_expressions.subsections.6.5.5_arithmetic_expressions.fls_section
+  - sections.operator_expressions.subsections.6.5.6_bit_expressions.fls_section
+  - sections.operator_expressions.subsections.6.5.7_comparison_expressions.fls_section
+  - sections.operator_expressions.subsections.6.5.8_lazy_boolean_expressions.fls_section
+  - sections.operator_expressions.subsections.6.5.9_raw_borrow_expression.fls_section
+  - sections.operator_expressions.subsections.6.5.10_type_cast_expression.fls_section
+  - sections.operator_expressions.subsections.6.5.11_assignment_expression.fls_section
+  - sections.operator_expressions.subsections.6.5.12_compound_assignment_expression.fls_section
+  - sections.loop_expression.subsections.6.10.1_for_loop.fls_section
+  - sections.loop_expression.subsections.6.10.2_infinite_loop.fls_section
+  - sections.loop_expression.subsections.6.10.3_while_loop.fls_section
+  - sections.loop_expression.subsections.6.10.4_while_let_loop.fls_section
+  - sections.loop_expression.subsections.6.10.5_loop_labels.fls_section
+
+fls_chapter07_values.json:
+  - sections.constants.subsections.unnamed_constants.fls_section
+  - sections.constants.subsections.associated_constants.fls_section
+  - sections.constants.subsections.const_fn.fls_section
+  - sections.constants.subsections.const_generics.fls_section
+  - sections.variables.subsections.7.4.1_constant_promotion.fls_section
+
+fls_chapter08_statements.json:
+  - sections.item_statements.fls_section
+  - sections.macro_statements.fls_section
+  - sections.empty_statements.fls_section
+
+fls_chapter12_generics.json:
+  - sections.12.1.status
+  - sections.12.2.status
+  - sections.12.3.status
+  - sections.12.4.status
+
+fls_chapter13_attributes.json:
+  - sections.13.1.status
+  - sections.13.2.status
+  - sections.13.2.1.status
+  - sections.13.2.2.status
+  - sections.13.2.3.status
+  - sections.13.2.4.status
+  - sections.13.2.5.status
+  - sections.13.2.6.status
+  - sections.13.2.7.status
+  - sections.13.2.8.status
+  - sections.13.2.9.status
+  - sections.13.2.10.status
+  - sections.13.2.11.status
+  - sections.13.2.12.status
+  - sections.13.2.13.status
+
+fls_chapter14_entities_resolution.json:
+  - sections.14.1.status
+  - sections.14.2.status
+  - sections.14.3.status
+  - sections.14.4.status
+  - sections.14.5.status
+  - sections.14.6.status
+  - sections.14.7.status
+  - sections.14.8.status
+  - sections.14.9.status
+
+fls_chapter15_ownership_destruction.json:
+  - sections.15.1.status
+  - sections.15.2.status
+  - sections.15.3.status
+  - sections.15.4.status
+  - sections.15.5.status
+  - sections.15.6.status
+  - sections.15.7.status
+  - sections.15.8.status
+  - sections.15.9.status
+  - sections.ownership.status
+  - sections.initialization.status
+  - sections.references.status
+  - sections.borrowing.status
+  - sections.passing_conventions.status
+  - sections.destruction.status
+  - sections.destructors.status
+  - sections.drop_scopes.status
+  - sections.drop_order.status
+
+fls_chapter17_concurrency.json:
+  - sections.17.1.status
+  - sections.17.2.status
+  - sections.17.3.status
+  - sections.send_and_sync.status
+  - sections.atomics.status
+  - sections.asynchronous_computation.status
+
+fls_chapter18_program_structure.json:
+  - sections.18.1.status
+  - sections.18.2.status
+  - sections.18.3.status
+  - sections.18.4.status
+  - sections.18.5.status
+  - sections.18.6.status
+  - sections.18.7.status
+  - sections.source_files.status
+  - sections.modules.status
+  - sections.crates.status
+  - sections.crate_imports.status
+  - sections.compilation_roots.status
+  - sections.conditional_compilation.status
+  - sections.program_entry_point.status
+
+fls_chapter19_unsafety.json:
+  - sections.unsafe_operations.fls_section
+  - sections.unsafe_operations.description
+  - sections.unsafe_operations.status
+
+fls_chapter20_macros.json:
+  - sections.20.1.status
+  - sections.20.1.1.status
+  - sections.20.1.2.status
+  - sections.20.2.status
+  - sections.20.2.1.status
+  - sections.20.2.2.status
+  - sections.20.2.3.status
+  - sections.20.3.status
+  - sections.20.4.status
+  - sections.20.5.status
+  - sections.declarative_macros.status
+  - sections.procedural_macros.status
+  - sections.macro_invocation.status
+  - sections.hygiene.status
+
+fls_chapter21_ffi.json:
+  - sections.21.1.status
+  - sections.21.2.status
+  - sections.21.3.status
+  - sections.21.4.status
+  - sections.abi.status
+  - sections.external_functions.status
+  - sections.external_blocks.status
+
+fls_chapter22_inline_assembly.json:
+  - sections.22.1.status
+  - sections.22.2.status
+  - sections.22.3.status
+  - sections.22.4.status
+  - sections.22.5.status
+  - sections.22.6.status
+  - sections.22.7.status
+  - sections.22.8.status
+  - sections.macros_asm_globalasm_and_nakedasm.status

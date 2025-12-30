@@ -1,0 +1,257 @@
+{
+  "chapter": 22,
+  "title": "Inline Assembly",
+  "fls_url": "https://rust-lang.github.io/fls/inline-assembly.html",
+  "version": "0.8.0",
+  "analysis_date": "2025-12-30",
+  "version_changes": {
+    "from_version": "0.7.0",
+    "to_version": "0.8.0",
+    "summary": "Still NO inline assembly in core library. One global_asm! in bare-metal example for ARM startup. Fence usage slightly decreased as atomics restructured.",
+    "key_changes": [
+      "asm! macro: 0 → 0 (unchanged)",
+      "global_asm! macro: 0 → 1 (bare-metal example only)",
+      "naked_asm! macro: 0 → 0 (unchanged)",
+      "fence() usage: 12 → 11 (-8%)",
+      "compiler_fence() usage: 8 → 8 (unchanged)",
+      "Atomic wrapper types restructured in iceoryx2-bb/concurrency",
+      "Memory ordering total: 816 → 848 (+4%)"
+    ]
+  },
+  "summary": "FLS Chapter 22 covers inline assembly (asm!, global_asm!, naked_asm! macros). iceoryx2 v0.8.0 deliberately DOES NOT USE inline assembly in its core library - zero asm!/naked_asm! instances. One global_asm! exists in a bare-metal ARM startup example (examples/nostd/bare-metal). The library achieves low-level operations through Rust's atomics (806 atomic usages), fence()/compiler_fence() for memory barriers (19 uses), and POSIX APIs via FFI. This portability-first design enables support across 5 platforms and 4+ architectures without architecture-specific assembly.",
+
+  "statistics": {
+    "asm_macro_usage": 0,
+    "global_asm_macro_usage": 1,
+    "naked_asm_macro_usage": 0,
+    "core_arch_usage": 1,
+    "total_inline_assembly_in_library": 0,
+    "fence_usage": 11,
+    "compiler_fence_usage": 8,
+    "atomic_operations": 806,
+    "memory_ordering_total": 848
+  },
+
+  "sections": {
+    "22.1": "Registers",
+    "22.2": "Register Classes",
+    "22.3": "Register Arguments",
+    "22.4": "Assembly Instructions",
+    "22.5": "ABI Clobbers",
+    "22.6": "Assembly Options",
+    "22.7": "Macros asm, global_asm, and naked_asm",
+    "22.8": "Label block"
+  },
+
+  "rules_mapping": {
+    "22:1-2": {
+      "rule": "Inline assembly is hand-written assembly wrapped in asm!/global_asm!/naked_asm! macros.",
+      "status": "NOT_USED_IN_LIBRARY",
+      "note": "Only 1 global_asm! in bare-metal example, not in library code"
+    },
+    "22:3-7": {
+      "rule": "Inline assembly available on AArch64, ARM, RISC-V, x86/x86-64.",
+      "status": "NOT_APPLICABLE",
+      "note": "iceoryx2 supports all these architectures via portable Rust code"
+    },
+    "22.1-22.6": {
+      "rule": "Register specifications, classes, arguments, instructions, clobbers, options.",
+      "status": "NOT_USED_IN_LIBRARY"
+    },
+    "22.7:1-12": {
+      "rule": "Assembly code blocks embedded via core::arch macros.",
+      "global_asm_count": 1,
+      "asm_count": 0,
+      "naked_asm_count": 0,
+      "note": "global_asm! used only in example for ARM bare-metal startup"
+    }
+  },
+
+  "global_asm_usage": {
+    "count": 1,
+    "location": "examples/nostd/bare-metal/rust/publish-subscribe/src/startup.rs",
+    "purpose": "ARM bare-metal startup code for no_std example",
+    "architecture": "ARM",
+    "description": "Startup vector table and initialization for bare-metal ARM environment",
+    "contents": [
+      "_vectors: Reset vector definition",
+      "_start: Stack pointer setup",
+      "VFP coprocessor access enablement",
+      "Jump to kmain"
+    ],
+    "not_in_library": true
+  },
+
+  "design_decision": {
+    "approach": "NO_INLINE_ASSEMBLY_IN_LIBRARY",
+    "rationale": [
+      "Maximum portability across platforms",
+      "Rust's std atomics compile to optimal CPU instructions",
+      "POSIX APIs provide platform abstraction",
+      "Reduced maintenance burden",
+      "Better compiler optimization opportunities",
+      "Safety certification friendliness (Ferrocene/safety-critical)"
+    ],
+    "supported_architectures": [
+      "x86",
+      "x86_64",
+      "ARM",
+      "AArch64",
+      "RISC-V (via Rust stdlib)"
+    ],
+    "supported_platforms": [
+      "Linux",
+      "macOS",
+      "FreeBSD",
+      "Windows",
+      "QNX"
+    ]
+  },
+
+  "alternatives_used": {
+    "atomics": {
+      "description": "Rust atomic wrapper types instead of asm for atomic operations",
+      "count": 806,
+      "location": "iceoryx2-bb/concurrency/src/atomic.rs",
+      "types": [
+        "AtomicBool",
+        "AtomicU8",
+        "AtomicU16",
+        "AtomicU32",
+        "AtomicU64",
+        "AtomicI8",
+        "AtomicI16",
+        "AtomicI32",
+        "AtomicI64",
+        "AtomicUsize"
+      ],
+      "note": "Wrapper types ensure ZeroCopySend compatibility for IPC"
+    },
+    "memory_barriers": {
+      "description": "fence() and compiler_fence() instead of asm memory barriers",
+      "fence_count": 11,
+      "compiler_fence_count": 8,
+      "total": 19,
+      "fence_locations": [
+        {
+          "file": "iceoryx2-pal/concurrency-sync/src/atomic.rs",
+          "count": 8,
+          "purpose": "Atomic operation ordering"
+        },
+        {
+          "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+          "count": 2,
+          "purpose": "Lock-free index set synchronization"
+        }
+      ],
+      "compiler_fence_locations": [
+        {
+          "file": "iceoryx2/src/port/server.rs",
+          "line": 447
+        },
+        {
+          "file": "iceoryx2/src/port/publisher.rs",
+          "line": 490
+        },
+        {
+          "file": "iceoryx2/src/port/subscriber.rs",
+          "line": 245
+        },
+        {
+          "file": "iceoryx2/src/port/client.rs",
+          "line": 518
+        },
+        {
+          "file": "iceoryx2/src/port/listener.rs",
+          "line": 193
+        },
+        {
+          "file": "iceoryx2/src/port/notifier.rs",
+          "line": 372
+        },
+        {
+          "file": "iceoryx2/src/port/writer.rs",
+          "line": 149
+        },
+        {
+          "file": "iceoryx2/src/port/reader.rs",
+          "line": 173
+        }
+      ]
+    },
+    "memory_ordering": {
+      "description": "Memory ordering via Ordering enum instead of asm memory fence instructions",
+      "distribution": {
+        "Relaxed": 729,
+        "Acquire": 41,
+        "Release": 21,
+        "AcqRel": 6,
+        "SeqCst": 48
+      },
+      "total": 848
+    },
+    "ffi_posix": {
+      "description": "Platform-specific operations via POSIX FFI instead of asm",
+      "functions": [
+        "pthread_* (threading)",
+        "sem_* (semaphores)",
+        "mmap/munmap (memory mapping)",
+        "shm_open/shm_unlink (shared memory)"
+      ]
+    }
+  },
+
+  "fence_samples": {
+    "hardware_fence": {
+      "file": "iceoryx2-pal/concurrency-sync/src/atomic.rs",
+      "line": 262,
+      "code": "fence(Ordering::SeqCst);",
+      "purpose": "Full memory barrier for atomic operations"
+    },
+    "compiler_fence": {
+      "file": "iceoryx2/src/port/subscriber.rs",
+      "line": 245,
+      "code": "core::sync::atomic::compiler_fence(Ordering::SeqCst);",
+      "purpose": "Prevent compiler reordering in IPC port operations"
+    }
+  },
+
+  "why_no_inline_assembly": {
+    "portability": {
+      "description": "Same code runs on x86, ARM, RISC-V without modification",
+      "benefit": "Single codebase for 5 platforms"
+    },
+    "safety": {
+      "description": "No undefined behavior from incorrect asm",
+      "benefit": "Rust compiler ensures memory safety"
+    },
+    "maintainability": {
+      "description": "No architecture-specific code paths to maintain",
+      "benefit": "Reduced testing and validation burden"
+    },
+    "optimization": {
+      "description": "Rust/LLVM can optimize atomic operations",
+      "benefit": "Better codegen than hand-written asm in many cases"
+    },
+    "certification": {
+      "description": "Inline asm complicates safety certification",
+      "benefit": "Easier path to automotive/safety-critical use"
+    }
+  },
+
+  "bare_metal_example": {
+    "location": "examples/nostd/bare-metal/rust/publish-subscribe/",
+    "description": "Example showing iceoryx2 usage on bare-metal ARM without OS",
+    "files": {
+      "startup.rs": "ARM startup assembly via global_asm!",
+      "publish-subscribe.rs": "Main application logic"
+    },
+    "note": "Assembly is for startup only, not iceoryx2 functionality"
+  },
+
+  "cross_chapter_references": {
+    "chapter_17": "Concurrency - Atomics section covers atomic wrapper types",
+    "chapter_19": "Unsafety - Documents 0 asm! usage in library",
+    "chapter_21": "FFI - POSIX APIs used instead of asm for platform operations"
+  }
+}

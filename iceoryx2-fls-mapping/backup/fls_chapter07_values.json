@@ -1,0 +1,336 @@
+{
+  "fls_chapter": "7. Values",
+  "fls_reference": "https://rust-lang.github.io/fls/values.html",
+  "codebase": "iceoryx2",
+  "version": "0.8.0",
+  "analysis_date": "2025-12-30",
+  "version_changes": {
+    "from_version": "0.7.0",
+    "to_version": "0.8.0",
+    "summary": "Significant increase in value-related constructs due to expanded FFI layer, no_std support, and new container types. static mut increased 367% (3->14) for logger restructuring. ManuallyDrop introduced (541 uses) for FFI ownership management.",
+    "key_changes": [
+      "Directory structure changed: iceoryx2-bb-*-0.7.0/ -> iceoryx2-bb/*/",
+      "const declarations increased from 3025 to 3968 (+31%)",
+      "static declarations increased from 52 to 85 (+63%)",
+      "static mut increased from 3 to 14 (+367%) for logger split",
+      "let bindings increased from 10877 to 14557 (+34%)",
+      "let mut bindings increased from 1683 to 2338 (+39%)",
+      "MaybeUninit usage increased from 146 to 219 (+50%)",
+      "UnsafeCell usage increased from 189 to 231 (+22%)",
+      "ManuallyDrop introduced (541 uses) for FFI ownership",
+      "const fn increased significantly (113 instances)",
+      "impl Drop increased from ~20 to 41 for FFI types"
+    ]
+  },
+  "overview": {
+    "description": "FLS Chapter 7 defines values - literals or computation results stored in memory locations and interpreted based on type. Covers constants, statics, temporaries, variables, and constant promotion.",
+    "key_concepts": [
+      "Values and allocated objects",
+      "Constants (compile-time evaluated)",
+      "Statics (fixed memory location)",
+      "Variables (stack-allocated)",
+      "Temporaries (anonymous variables)",
+      "Constant promotion"
+    ]
+  },
+  "value_counts": {
+    "const_declarations": 3968,
+    "static_declarations": 85,
+    "static_mut": 14,
+    "let_bindings": 14557,
+    "let_mut_bindings": 2338,
+    "unsafe_cell_usage": 231,
+    "maybe_uninit_usage": 219,
+    "manually_drop_usage": 541,
+    "non_null_usage": 175,
+    "const_fn_count": 113,
+    "impl_drop_count": 41
+  },
+  "trait_usage": {
+    "Default": 250,
+    "Clone": 604,
+    "Copy": 544,
+    "Drop": 98
+  },
+  "literal_counts": {
+    "true": 1427,
+    "false": 1184,
+    "None": 678,
+    "Some": 1294,
+    "Ok": 2059,
+    "Err": 918
+  },
+  "sections": {
+    "7.0_values_overview": {
+      "fls_section": "7. Values",
+      "description": "A value is either a literal or computation result, stored in memory and interpreted by type.",
+      "legality_rules": {
+        "7:1": "A value is either a literal or the result of a computation",
+        "7:2": "An allocated object is a value stored at some memory address",
+        "7:3": "Base address is the memory address where object is stored",
+        "7:4": "Memory size is bytes spanned from base address"
+      },
+      "undefined_behavior": {
+        "7:10": "Creating value from uninitialized memory (except union)",
+        "7:11": "Creating allocated object at null base address",
+        "7:12": "Creating object where base + size > usize::MAX",
+        "7:13": "Creating object where size > isize::MAX"
+      },
+      "findings": {
+        "null_checks": "NonNull<T> used extensively (175 uses) to prevent null pointers",
+        "uninitialized_handling": "MaybeUninit<T> used (219 uses) for safe uninitialized memory",
+        "ptr_null_usage": "ptr::null (24) and ptr::null_mut (141) for FFI interop"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs", "lines": "56", "code": "NonNull::new(self.get_mut_memory()).unwrap()"},
+        {"path": "iceoryx2-bb/memory/src/bump_allocator.rs", "lines": "48", "code": "pub fn new(ptr: NonNull<u8>, size: usize) -> Self {"}
+      ]
+    },
+    "7.1_constants": {
+      "fls_section": "7.1 Constants",
+      "syntax": "ConstantDeclaration ::= const (Name | _) TypeAscription ConstantInitializer? ;",
+      "description": "A constant is an immutable value expression whose uses are substituted by the value.",
+      "legality_rules": {
+        "7.1:1": "Constant is immutable value expression, uses substituted by value",
+        "7.1:3": "Type specification shall have 'static lifetime",
+        "7.1:4": "Type shall implement core::marker::Sized",
+        "7.1:7": "Expression of constant initializer shall be constant expression"
+      },
+      "findings": {
+        "count": 3968,
+        "change_from_v0_7_0": "+943 (+31%)",
+        "usage_patterns": [
+          "Configuration values (timeouts, sizes, limits)",
+          "Numeric constants (buffer sizes, capacities)",
+          "Duration constants for timing",
+          "Permission bit flags",
+          "Test fixture constants",
+          "FFI constants for C interop"
+        ]
+      },
+      "samples": [
+        {"path": "iceoryx2-bb/posix/src/config.rs", "lines": "32", "code": "pub const EINTR_REPETITIONS: u64 = 10;"},
+        {"path": "iceoryx2-bb/posix/src/config.rs", "lines": "34", "code": "pub const MAX_THREAD_NAME_LENGTH: usize = 16;"},
+        {"path": "iceoryx2-bb/posix/src/config.rs", "lines": "37", "code": "pub const ADAPTIVE_WAIT_YIELD_REPETITIONS: u64 = 10000;"},
+        {"path": "iceoryx2-bb/posix/src/config.rs", "lines": "38", "code": "pub const ADAPTIVE_WAIT_INITIAL_REPETITIONS: u64 = 100 + ADAPTIVE_WAIT_YIELD_REPETITIONS;"},
+        {"path": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs", "lines": "65-66", "code": "const BUCKET_SIZE: usize = 128;\nconst BUCKET_ALIGNMENT: usize = 1;"}
+      ],
+      "subsections": {
+        "unnamed_constants": {
+          "description": "Constants declared with underscore (const _: Type = ...)",
+          "findings": {},
+          "status": "NOT USED"
+        },
+        "associated_constants": {
+          "description": "Constants defined within impl blocks",
+          "findings": {
+            "usage": "Permission flags, capacity limits"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb/posix/src/permission.rs", "lines": "29-30", "code": "pub const OWNER_READ: Self = Self(0o0400);\npub const OWNER_WRITE: Self = Self(0o0200);"}
+          ]
+        },
+        "const_fn": {
+          "description": "Functions callable at compile time",
+          "findings": {
+            "count": 113,
+            "usage": "Constructors, utility functions evaluated at compile time"
+          },
+          "samples": [
+            {"path": "iceoryx2-bb/posix/src/file_descriptor_set.rs", "lines": "220", "code": "pub const fn capacity() -> usize {"},
+            {"path": "iceoryx2-pal/posix/src/windows/pthread.rs", "lines": "69", "code": "const fn new() -> Self {"},
+            {"path": "iceoryx2-bb/elementary/src/static_assert.rs", "lines": "53", "code": "pub const fn static_assert_eq<const L: usize, const R: usize>() {"}
+          ]
+        },
+        "const_generics": {
+          "description": "Generic parameters that are constants",
+          "findings": {
+            "usage": "Array sizes, capacity parameters, StaticVec/StaticString"
+          },
+          "samples": [
+            {"path": "iceoryx2-pal/posix/src/windows/win32_udp_port_to_uds_name.rs", "lines": "34", "code": "struct Entries<const N: usize> {"},
+            {"path": "iceoryx2-bb/elementary/src/static_assert.rs", "lines": "57", "code": "struct AssertEq<const L: usize, const R: usize>;"},
+            {"path": "iceoryx2-bb/elementary-traits/src/placement_default.rs", "lines": "115", "code": "impl<T: PlacementDefault, const CAPACITY: usize> PlacementDefault for [T; CAPACITY] {"}
+          ]
+        }
+      }
+    },
+    "7.2_statics": {
+      "fls_section": "7.2 Statics",
+      "syntax": "StaticDeclaration ::= ItemSafety? static mut? Name TypeAscription StaticInitializer? ;",
+      "description": "A static is a value associated with a specific memory location.",
+      "legality_rules": {
+        "7.2:1": "Static is value associated with specific memory location",
+        "7.2:3": "Type specification shall have 'static lifetime",
+        "7.2:6": "Mutable static is static with mut keyword, value can be modified",
+        "7.2:7": "Access to mutable static requires unsafe context",
+        "7.2:9": "Immutable static type shall implement core::marker::Sync",
+        "7.2:12": "Static initializer expression shall be constant expression"
+      },
+      "undefined_behavior": {
+        "7.2:18": "Mutating immutable static not subject to interior mutability"
+      },
+      "findings": {
+        "immutable_statics": 71,
+        "mutable_statics": 14,
+        "change_from_v0_7_0": "static mut increased from 3 to 14 (+367%)",
+        "with_atomics": "Primary pattern for thread-safe global state"
+      },
+      "samples": {
+        "immutable_statics": [
+          {"path": "iceoryx2-bb/posix/tests/signal_tests.rs", "lines": "28-30", "code": "static COUNTER: AtomicUsize = AtomicUsize::new(0);\nstatic SIGNAL: AtomicUsize = AtomicUsize::new(posix::MAX_SIGNAL_VALUE);\nstatic LOCK: Mutex<i32> = Mutex::new(0);"},
+          {"path": "iceoryx2/src/node/mod.rs", "lines": "536", "code": "static IN_CLEANUP_SECTION: AtomicBool = AtomicBool::new(false);"},
+          {"path": "iceoryx2-pal/posix/src/linux/errno.rs", "lines": "162", "code": "static IS_LOCKED: AtomicBool = AtomicBool::new(false);"},
+          {"path": "examples/rust/service_types/local_pubsub.rs", "lines": "24", "code": "static KEEP_RUNNING: AtomicBool = AtomicBool::new(true);"}
+        ],
+        "mutable_statics": [
+          {"path": "iceoryx2-pal/posix/src/windows/socket.rs", "lines": "51-52", "code": "static mut WSA_INSTANCE: OnceCell<GlobalWsaInitializer> = OnceCell::new();\nstatic mut INITIALIZATION_STATE: AtomicU8 = AtomicU8::new(0);"},
+          {"path": "iceoryx2-log/log/src/lib.rs", "lines": "144", "code": "static mut LOGGER: Option<&'static dyn Log> = None;"},
+          {"path": "iceoryx2-ffi/c/src/api/log.rs", "lines": "79", "code": "static mut LOGGER: Option<CLogger> = None;"}
+        ],
+        "lazy_static": [
+          {"path": "iceoryx2-cal/src/static_storage/process_local.rs", "lines": "71", "code": "lazy_static! {"},
+          {"path": "iceoryx2-cal/src/communication_channel/process_local.rs", "lines": "55", "code": "lazy_static! {"}
+        ]
+      },
+      "safety_patterns": {
+        "atomics_for_sync": "AtomicUsize, AtomicBool, AtomicU8 for thread-safe state",
+        "mutex_for_complex": "Mutex<T> for complex shared state",
+        "oncecell_for_init": "OnceCell for one-time initialization",
+        "lazy_static": "lazy_static! for complex initialization"
+      }
+    },
+    "7.3_temporaries": {
+      "fls_section": "7.3 Temporaries",
+      "description": "A temporary is an anonymous variable produced by intermediate computation.",
+      "findings": {
+        "usage": "Implicit in method chains, expression evaluation"
+      },
+      "samples": [
+        {"path": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs", "lines": "50", "code": "(TestFixture::memory_size() / core::cmp::max(size, align)) as u32 - 1"}
+      ]
+    },
+    "7.4_variables": {
+      "fls_section": "7.4 Variables",
+      "description": "A variable is a placeholder for a value allocated on the stack.",
+      "legality_rules": {
+        "7.4:1": "Variable is placeholder for value allocated on stack",
+        "7.4:2": "Variables are bindings or temporaries",
+        "7.4:5": "Variable shall be used only after initialized through all reachable paths",
+        "7.4:6": "Variable is not initialized when allocated"
+      },
+      "findings": {
+        "let_bindings": 14557,
+        "let_mut_bindings": 2338,
+        "ratio": "16.1% of bindings are mutable",
+        "change_from_v0_7_0": "+3680 let bindings (+34%), +655 let mut bindings (+39%)"
+      },
+      "samples": {
+        "immutable_bindings": [
+          {"path": "iceoryx2-bb/elementary-traits/src/allocator.rs", "lines": "56", "code": "let memory = self.allocate(layout)?;"},
+          {"path": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs", "lines": "68", "code": "let sut = test.create_pool_allocator(BUCKET_SIZE, BUCKET_ALIGNMENT);"}
+        ],
+        "mutable_bindings": [
+          {"path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs", "lines": "36", "code": "let mut file = FileName::new(b\"unix_datagram_socket_tests\").unwrap();"},
+          {"path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs", "lines": "110", "code": "let mut receive_data: Vec<u8> = vec![0; 6];"}
+        ]
+      },
+      "subsections": {
+        "7.4.1_constant_promotion": {
+          "description": "Process of converting value expression into constant with 'static lifetime.",
+          "legality_rules": {
+            "7.4.1:1": "Constant promotion converts value expression into constant",
+            "7.4.1:3": "Value expression must be constant expression",
+            "7.4.1:4": "Type must not have destructor",
+            "7.4.1:5": "Must not construct UnsafeCell",
+            "7.4.1:7": "Must be operand of immutable borrow expression"
+          },
+          "findings": {
+            "usage": "Implicit promotion of literal references to 'static"
+          },
+          "samples": []
+        }
+      }
+    }
+  },
+  "interior_mutability": {
+    "description": "Types allowing mutation through shared references",
+    "fls_reference": "Interior mutability allows mutation of immutable statics",
+    "findings": {
+      "unsafe_cell": 231,
+      "cell": 12,
+      "refcell": 23,
+      "atomic_types": "Primary pattern for thread-safe interior mutability"
+    },
+    "samples": [
+      {"path": "iceoryx2-bb/posix/src/mutex.rs", "lines": "429-430", "code": "clock_type: UnsafeCell<ClockType>,\nvalue: UnsafeCell<Option<T>>,"},
+      {"path": "iceoryx2-bb/posix/src/deadline_queue.rs", "lines": "159", "code": "attachments: RefCell<Vec<Attachment>>,"},
+      {"path": "iceoryx2-pal/posix/src/windows/pthread.rs", "lines": "61", "code": "states: [UnsafeCell<Option<ThreadState>>; MAX_NUMBER_OF_THREADS],"}
+    ]
+  },
+  "uninitialized_memory": {
+    "description": "Safe handling of potentially uninitialized memory",
+    "fls_reference": "7:10 - UB to create value from uninitialized memory (except union)",
+    "findings": {
+      "maybe_uninit_count": 219,
+      "change_from_v0_7_0": "+73 (+50%)",
+      "usage": "Safe wrapper for uninitialized data in FFI, allocators, StaticVec"
+    },
+    "samples": [
+      {"path": "iceoryx2-bb/container/src/vector/static_vec.rs", "lines": "55", "code": "data: [MaybeUninit<T>; CAPACITY],"},
+      {"path": "iceoryx2-bb/container/src/vector/static_vec.rs", "lines": "160", "code": "data: [const { MaybeUninit::uninit() }; CAPACITY],"},
+      {"path": "iceoryx2-cal/src/shared_memory/common.rs", "lines": "241", "code": "allocator: MaybeUninit::uninit(),"}
+    ]
+  },
+  "manually_drop": {
+    "description": "Wrapper to inhibit compiler from calling destructor",
+    "fls_reference": "ManuallyDrop<T> prevents automatic Drop for ownership transfer to FFI",
+    "findings": {
+      "count": 541,
+      "status": "NEW in v0.8.0 - used extensively in FFI layer",
+      "usage": "FFI ownership management, preventing double-free"
+    },
+    "samples": [
+      {"path": "iceoryx2-ffi/c/src/api/attribute_specifier.rs", "lines": "31", "code": "pub(crate) struct AttributeSpecifierType(pub(crate) ManuallyDrop<AttributeSpecifier>);"},
+      {"path": "iceoryx2-ffi/c/src/api/attribute_specifier.rs", "lines": "35", "code": "Self(ManuallyDrop::new(AttributeSpecifier::new()))"},
+      {"path": "iceoryx2-ffi/c/src/api/attribute_specifier.rs", "lines": "149", "code": "ManuallyDrop::drop(&mut attribute_specifier.value.as_mut().0);"}
+    ]
+  },
+  "safety_critical_patterns": {
+    "null_pointer_prevention": {
+      "description": "Using NonNull<T> to ensure pointers are never null",
+      "fls_reference": "7:11 - UB to create allocated object at null base address",
+      "count": 175,
+      "samples": [
+        {"path": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs", "lines": "56", "code": "NonNull::new(self.get_mut_memory()).unwrap()"},
+        {"path": "iceoryx2-bb/memory/src/bump_allocator.rs", "lines": "74", "code": "fn allocate(&self, layout: core::alloc::Layout) -> Result<NonNull<[u8]>, AllocationError> {"}
+      ]
+    },
+    "static_initialization": {
+      "description": "Patterns for safe static initialization",
+      "patterns": [
+        "Atomics for simple counters/flags",
+        "Mutex for complex state",
+        "OnceCell/OnceLock for lazy initialization",
+        "lazy_static! for complex expressions"
+      ]
+    },
+    "mutable_static_safety": {
+      "description": "Mutable statics require unsafe and careful synchronization",
+      "count": 14,
+      "change_from_v0_7_0": "+11 (+367%)",
+      "reason": "Logger restructuring split into iceoryx2-log/log and iceoryx2-ffi/c",
+      "mitigation": "Prefer atomics or interior mutability types"
+    },
+    "drop_implementation": {
+      "description": "Custom Drop implementations for resource cleanup",
+      "count": 41,
+      "change_from_v0_7_0": "Increased significantly for FFI types",
+      "usage": "RAII pattern for file handles, sockets, shared memory"
+    }
+  },
+  "expressions_not_used": {
+    "unnamed_constants": "const _: Type = value; pattern not found",
+    "external_statics": "extern static not found (no C FFI statics imported)"
+  }
+}

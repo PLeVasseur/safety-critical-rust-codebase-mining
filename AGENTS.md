@@ -22,6 +22,8 @@ Next update required when iceoryx2 v0.9.0 or later is released.
 ```
 eclipse-iceoryx2-actionanable-safety-certification/
 ├── iceoryx2-fls-mapping/           # FLS chapter mapping JSON files
+│   ├── schema.json                 # JSON Schema for all mapping files
+│   ├── backup/                     # Backup of original files before normalization
 │   ├── fls_chapter02_lexical_elements.json
 │   ├── fls_chapter03_items.json
 │   ├── fls_chapter04_types_and_traits.json
@@ -47,8 +49,102 @@ eclipse-iceoryx2-actionanable-safety-certification/
 │   └── v0.8.0/
 ├── cache/repos/fls/                # FLS specification source
 └── tools/                          # Helper scripts
-    └── clone_iceoryx2.py           # Script to clone specific versions
+    ├── clone_iceoryx2.py           # Script to clone specific versions
+    ├── fls_section_mapping.json    # FLS section names extracted from .rst files
+    ├── normalize_fls_json.py       # Normalize JSON files to consistent schema
+    └── validate_fls_json.py        # Validate JSON files against schema
 ```
+
+## JSON Schema
+
+All FLS mapping JSON files conform to the schema defined in `iceoryx2-fls-mapping/schema.json`. The schema enforces consistent structure across all chapters.
+
+### Required Top-Level Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `chapter` | integer | FLS chapter number (1-25) |
+| `title` | string | Chapter title from FLS |
+| `fls_url` | string (URI) | URL to FLS chapter specification |
+| `fls_id` | string | FLS chapter identifier (e.g., `fls_jep7p27kaqlp`) |
+| `repository` | string | Always `"eclipse-iceoryx/iceoryx2"` |
+| `version` | string | Semver version analyzed (e.g., `"0.8.0"`) |
+| `analysis_date` | string | ISO 8601 date (YYYY-MM-DD) |
+| `version_changes` | object | Changes from previous version |
+| `summary` | string | Executive summary of findings |
+| `statistics` | object | Quantitative counts of language constructs |
+| `sections` | object | FLS section mappings keyed by semantic name |
+
+### Section Structure
+
+Each section uses semantic keys (not numbered keys) and includes:
+
+```json
+{
+  "sections": {
+    "ownership": {
+      "fls_section": "15.1",
+      "fls_paragraphs": ["15.1:1", "15.1:2", "15.1:3"],
+      "fls_ids": ["fls_svkx6szhr472"],
+      "description": "Ownership is a property of values...",
+      "status": "demonstrated",
+      "findings": { ... },
+      "samples": [ ... ],
+      "safety_notes": [ ... ],
+      "subsections": { ... }
+    }
+  }
+}
+```
+
+### Code Sample Format
+
+All code samples use a consistent format with line numbers as arrays:
+
+```json
+{
+  "file": "iceoryx2-bb/posix/src/mutex.rs",
+  "line": [186, 187, 188],
+  "code": "pub struct MutexGuard<'a, T> { ... }",
+  "purpose": "RAII guard for mutex unlock"
+}
+```
+
+### MUST_BE_FILLED Markers
+
+Fields requiring data that couldn't be automatically determined are marked with `"MUST_BE_FILLED"`. Run the validation script to find these:
+
+```bash
+python tools/validate_fls_json.py
+```
+
+### Validation
+
+To validate all JSON files against the schema:
+
+```bash
+pip install jsonschema
+python tools/validate_fls_json.py
+```
+
+The validation script checks:
+- Schema compliance
+- `MUST_BE_FILLED` marker inventory
+- Sample file path existence in cached iceoryx2 repo
+
+### Normalization
+
+To normalize JSON files to the schema (after manual edits):
+
+```bash
+python tools/normalize_fls_json.py
+```
+
+This script:
+- Renames inconsistent fields (`fls_chapter` → `chapter`, etc.)
+- Normalizes line numbers to arrays
+- Restructures sections using FLS semantic names
+- Merges orphan fields into appropriate sections
 
 ## Update Workflow
 

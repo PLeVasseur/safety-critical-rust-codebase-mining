@@ -2,6 +2,8 @@
   "chapter": 21,
   "title": "FFI",
   "fls_url": "https://rust-lang.github.io/fls/ffi.html",
+  "fls_id": "fls_osd6c4utyjb3",
+  "repository": "eclipse-iceoryx/iceoryx2",
   "version": "0.8.0",
   "analysis_date": "2025-12-30",
   "version_changes": {
@@ -9,10 +11,10 @@
     "to_version": "0.8.0",
     "summary": "MASSIVE FFI expansion - new iceoryx2-ffi/c crate provides complete C API with 585 #[no_mangle] functions, 42 union types, and comprehensive type bindings.",
     "key_changes": [
-      "extern C fn: 17 → 630 (+3606%)",
-      "#[no_mangle]: ~0 → 602 (NEW - C API exports)",
-      "#[repr(C)]: 160 → 393 (+146%)",
-      "union types: 0 → 42 (NEW - FFI discriminated unions)",
+      "extern C fn: 17 \u2192 630 (+3606%)",
+      "#[no_mangle]: ~0 \u2192 602 (NEW - C API exports)",
+      "#[repr(C)]: 160 \u2192 393 (+146%)",
+      "union types: 0 \u2192 42 (NEW - FFI discriminated unions)",
       "New crate: iceoryx2-ffi/c with 83 API modules",
       "New crate: iceoryx2-ffi/ffi-macros with iceoryx2_ffi attribute",
       "New crate: iceoryx2-ffi/python for Python bindings",
@@ -22,7 +24,6 @@
     ]
   },
   "summary": "FLS Chapter 21 covers Foreign Function Interface including ABI, external blocks, external functions, and external statics. iceoryx2 v0.8.0 demonstrates MASSIVE FFI expansion with the new iceoryx2-ffi/c crate providing a complete C API: 630 extern C functions, 602 #[no_mangle] exports, 393 #[repr(C)] types, and 42 union types for IPC/Local service variants. The Platform Abstraction Layer (iceoryx2-pal-posix) continues to provide POSIX APIs across 5 platforms. New ffi-macros crate with iceoryx2_ffi attribute and CStrRepr derive simplify FFI boilerplate generation.",
-
   "statistics": {
     "extern_c_fn": 630,
     "extern_system_usage": 2,
@@ -39,234 +40,268 @@
     "platforms_supported": 5,
     "platform_modules": 27
   },
-
   "sections": {
-    "21.1": "ABI",
-    "21.2": "External Blocks",
-    "21.3": "External Functions",
-    "21.4": "External Statics"
-  },
-
-  "rules_mapping": {
-    "21:1": {
-      "rule": "FFI employs ABI, attributes, external blocks, external functions, linkage, and type layout.",
-      "status": "extensively_demonstrated",
-      "implementation": "Full C API layer (iceoryx2-ffi/c) + POSIX abstraction layer"
+    "21.1": {
+      "fls_section": "21.1",
+      "fls_ids": [],
+      "description": "ABI",
+      "status": "MUST_BE_FILLED"
     },
-    "21:2-7": {
-      "rule": "FFI-affecting attributes: export_name, link, link_section, no_mangle, used.",
-      "no_mangle": 602,
-      "link_attribute": 1,
-      "link_name_attribute": 4,
-      "note": "Massive increase in no_mangle for C API exports"
+    "21.2": {
+      "fls_section": "21.2",
+      "fls_ids": [],
+      "description": "External Blocks",
+      "status": "MUST_BE_FILLED"
     },
-    "21.1:1-10": {
-      "rule": "ABI specifies how data crosses language boundaries.",
-      "abis_used": {
-        "extern_C": 630,
-        "extern_system": 2
+    "21.3": {
+      "fls_section": "21.3",
+      "fls_ids": [],
+      "description": "External Functions",
+      "status": "MUST_BE_FILLED"
+    },
+    "21.4": {
+      "fls_section": "21.4",
+      "fls_ids": [],
+      "description": "External Statics",
+      "status": "MUST_BE_FILLED"
+    },
+    "abi": {
+      "fls_section": "21.1",
+      "fls_ids": [
+        "fls_usgd0xlijoxv"
+      ],
+      "description": "ABI",
+      "status": "MUST_BE_FILLED",
+      "findings": {
+        "abi_usage": {
+          "section": "21.1",
+          "extern_c": {
+            "count": 630,
+            "purposes": [
+              "C API export functions (#[no_mangle] extern \"C\" fn)",
+              "External blocks for POSIX function declarations",
+              "Callback functions for threads and signals",
+              "Function pointer types for C compatibility"
+            ]
+          },
+          "extern_system": {
+            "count": 2,
+            "purpose": "Windows-specific callbacks using Windows calling convention"
+          }
+        },
+        "repr_c_types": {
+          "count": 393,
+          "change": "+146% from v0.7.0",
+          "categories": {
+            "ffi_c_api": {
+              "count": 200,
+              "purpose": "C API types for language bindings"
+            },
+            "shared_memory": {
+              "count": 100,
+              "purpose": "IPC types with stable memory layout"
+            },
+            "containers": {
+              "count": 50,
+              "purpose": "Container types for shared memory"
+            },
+            "posix_bindings": {
+              "count": 43,
+              "purpose": "POSIX type compatibility"
+            }
+          }
+        },
+        "union_types": {
+          "count": 42,
+          "purpose": "Discriminated unions for IPC/Local service variants in C API",
+          "pattern": "Each union contains ipc/local variants wrapped in ManuallyDrop",
+          "destruction_pattern": "ManuallyDrop::drop() called explicitly in iox2_*_drop functions"
+        }
       },
-      "note": "extern C dominant for C API; extern system for Windows callbacks"
-    },
-    "21.2:1-5": {
-      "rule": "External block provides declarations of external functions and statics.",
-      "external_blocks": 11
-    },
-    "21.3:1-8": {
-      "rule": "External function is unchecked import of foreign function.",
-      "external_functions": 630,
-      "note": "Includes both imports (POSIX) and exports (C API)"
-    },
-    "21.4:1-5": {
-      "rule": "External static is import of foreign variable.",
-      "note": "No direct external statics - functions used for errno access"
-    }
-  },
-
-  "ffi_c_crate": {
-    "crate": "iceoryx2-ffi/c",
-    "description": "NEW in v0.8.0 - Complete C language API for iceoryx2",
-    "modules": 83,
-    "statistics": {
-      "no_mangle_functions": 585,
-      "extern_c_functions": 600,
-      "union_types": 42,
-      "repr_c_types": 200
-    },
-    "api_categories": {
-      "core_types": [
-        "node.rs - Node creation and management",
-        "service.rs - Service discovery and creation",
-        "config.rs - Configuration management"
-      ],
-      "messaging": [
-        "publisher.rs - Publish-subscribe publisher",
-        "subscriber.rs - Publish-subscribe subscriber",
-        "sample.rs - Sample handling",
-        "sample_mut.rs - Mutable sample handling"
-      ],
-      "events": [
-        "notifier.rs - Event notification",
-        "listener.rs - Event listening",
-        "waitset.rs - Wait set management"
-      ],
-      "request_response": [
-        "client.rs - Request-response client",
-        "server.rs - Request-response server",
-        "request_mut.rs - Request handling",
-        "response.rs - Response handling"
-      ],
-      "identifiers": [
-        "unique_publisher_id.rs",
-        "unique_subscriber_id.rs",
-        "unique_notifier_id.rs",
-        "unique_listener_id.rs",
-        "unique_client_id.rs",
-        "unique_server_id.rs"
-      ],
-      "builders": [
-        "service_builder.rs",
-        "port_factory_*.rs (8 modules)"
-      ]
-    },
-    "naming_convention": {
-      "types": "iox2_*_t (handles), iox2_*_h (pointers), iox2_*_e (enums)",
-      "functions": "iox2_*_new, iox2_*_drop, iox2_*_<operation>",
       "samples": [
-        "iox2_publisher_t - Publisher handle type",
-        "iox2_publisher_h - Publisher pointer",
-        "iox2_send_error_e - Send error enum"
-      ]
-    }
-  },
-
-  "union_types": {
-    "count": 42,
-    "purpose": "Discriminated unions for IPC/Local service variants in C API",
-    "pattern": "Each union contains ipc/local variants wrapped in ManuallyDrop",
-    "samples": [
-      {
-        "name": "PublisherUnion",
-        "file": "iceoryx2-ffi/c/src/api/publisher.rs",
-        "code": "pub(super) union PublisherUnion { ipc: ManuallyDrop<Publisher<IpcService, ...>>, local: ManuallyDrop<Publisher<LocalService, ...>> }"
-      },
-      {
-        "name": "SubscriberUnion",
-        "file": "iceoryx2-ffi/c/src/api/subscriber.rs"
-      },
-      {
-        "name": "ClientUnion",
-        "file": "iceoryx2-ffi/c/src/api/client.rs"
-      },
-      {
-        "name": "ActiveRequestUnion",
-        "file": "iceoryx2-ffi/c/src/api/active_request.rs"
-      }
-    ],
-    "destruction_pattern": "ManuallyDrop::drop() called explicitly in iox2_*_drop functions"
-  },
-
-  "ffi_macros_crate": {
-    "crate": "iceoryx2-ffi/ffi-macros",
-    "description": "NEW in v0.8.0 - Procedural macros for FFI boilerplate generation",
-    "macros": {
-      "iceoryx2_ffi": {
-        "type": "attribute",
-        "invocations": 56,
-        "purpose": "Generates FFI type wrappers and conversion boilerplate",
-        "sample": "#[iceoryx2_ffi(ServiceName)]"
-      },
-      "CStrRepr": {
-        "type": "derive",
-        "purpose": "Generates C string representation for enums",
-        "sample": "#[derive(CStrRepr)]"
-      }
-    }
-  },
-
-  "repr_c_types": {
-    "count": 393,
-    "change": "+146% from v0.7.0",
-    "categories": {
-      "ffi_c_api": {
-        "count": 200,
-        "purpose": "C API types for language bindings"
-      },
-      "shared_memory": {
-        "count": 100,
-        "purpose": "IPC types with stable memory layout"
-      },
-      "containers": {
-        "count": 50,
-        "purpose": "Container types for shared memory"
-      },
-      "posix_bindings": {
-        "count": 43,
-        "purpose": "POSIX type compatibility"
-      }
-    }
-  },
-
-  "abi_usage": {
-    "section": "21.1",
-    "extern_c": {
-      "count": 630,
-      "purposes": [
-        "C API export functions (#[no_mangle] extern \"C\" fn)",
-        "External blocks for POSIX function declarations",
-        "Callback functions for threads and signals",
-        "Function pointer types for C compatibility"
+        {
+          "file": "iceoryx2-ffi/c/src/api/publisher.rs",
+          "line": [],
+          "code": "pub(super) union PublisherUnion { ipc: ManuallyDrop<Publisher<IpcService, ...>>, local: ManuallyDrop<Publisher<LocalService, ...>> }",
+          "name": "PublisherUnion"
+        },
+        {
+          "file": "iceoryx2-ffi/c/src/api/subscriber.rs",
+          "line": [],
+          "name": "SubscriberUnion"
+        },
+        {
+          "file": "iceoryx2-ffi/c/src/api/client.rs",
+          "line": [],
+          "name": "ClientUnion"
+        },
+        {
+          "file": "iceoryx2-ffi/c/src/api/active_request.rs",
+          "line": [],
+          "name": "ActiveRequestUnion"
+        }
       ]
     },
-    "extern_system": {
-      "count": 2,
-      "purpose": "Windows-specific callbacks using Windows calling convention"
-    }
-  },
-
-  "platform_abstraction_layer": {
-    "crate": "iceoryx2-pal/posix",
-    "approach": "Unified POSIX API across platforms",
-    "platforms": {
-      "linux": {
-        "path": "src/linux/",
-        "notes": "Native Linux syscalls and glibc"
+    "external_functions": {
+      "fls_section": "21.3",
+      "fls_ids": [
+        "fls_yztwtek0y34v"
+      ],
+      "description": "External Functions",
+      "status": "MUST_BE_FILLED",
+      "findings": {
+        "ffi_c_crate": {
+          "crate": "iceoryx2-ffi/c",
+          "description": "NEW in v0.8.0 - Complete C language API for iceoryx2",
+          "modules": 83,
+          "statistics": {
+            "no_mangle_functions": 585,
+            "extern_c_functions": 600,
+            "union_types": 42,
+            "repr_c_types": 200
+          },
+          "api_categories": {
+            "core_types": [
+              "node.rs - Node creation and management",
+              "service.rs - Service discovery and creation",
+              "config.rs - Configuration management"
+            ],
+            "messaging": [
+              "publisher.rs - Publish-subscribe publisher",
+              "subscriber.rs - Publish-subscribe subscriber",
+              "sample.rs - Sample handling",
+              "sample_mut.rs - Mutable sample handling"
+            ],
+            "events": [
+              "notifier.rs - Event notification",
+              "listener.rs - Event listening",
+              "waitset.rs - Wait set management"
+            ],
+            "request_response": [
+              "client.rs - Request-response client",
+              "server.rs - Request-response server",
+              "request_mut.rs - Request handling",
+              "response.rs - Response handling"
+            ],
+            "identifiers": [
+              "unique_publisher_id.rs",
+              "unique_subscriber_id.rs",
+              "unique_notifier_id.rs",
+              "unique_listener_id.rs",
+              "unique_client_id.rs",
+              "unique_server_id.rs"
+            ],
+            "builders": [
+              "service_builder.rs",
+              "port_factory_*.rs (8 modules)"
+            ]
+          },
+          "naming_convention": {
+            "types": "iox2_*_t (handles), iox2_*_h (pointers), iox2_*_e (enums)",
+            "functions": "iox2_*_new, iox2_*_drop, iox2_*_<operation>",
+            "samples": [
+              "iox2_publisher_t - Publisher handle type",
+              "iox2_publisher_h - Publisher pointer",
+              "iox2_send_error_e - Send error enum"
+            ]
+          }
+        },
+        "ffi_macros_crate": {
+          "crate": "iceoryx2-ffi/ffi-macros",
+          "description": "NEW in v0.8.0 - Procedural macros for FFI boilerplate generation",
+          "macros": {
+            "iceoryx2_ffi": {
+              "type": "attribute",
+              "invocations": 56,
+              "purpose": "Generates FFI type wrappers and conversion boilerplate",
+              "sample": "#[iceoryx2_ffi(ServiceName)]"
+            },
+            "CStrRepr": {
+              "type": "derive",
+              "purpose": "Generates C string representation for enums",
+              "sample": "#[derive(CStrRepr)]"
+            }
+          }
+        },
+        "python_bindings": {
+          "crate": "iceoryx2-ffi/python",
+          "description": "NEW in v0.8.0 - Python language bindings",
+          "implementation": "Uses pyo3 for Python FFI"
+        },
+        "c_api_error_handling": {
+          "pattern": "Functions return c_int with IOX2_OK (0) for success",
+          "error_enums": {
+            "naming": "iox2_*_error_e",
+            "samples": [
+              "iox2_send_error_e",
+              "iox2_loan_error_e",
+              "iox2_receive_error_e"
+            ]
+          },
+          "trait": "IntoCInt for Rust error to C error code conversion"
+        },
+        "no_mangle_functions": {
+          "count": 602,
+          "distribution": {
+            "iceoryx2-ffi/c": 585,
+            "other_crates": 17
+          },
+          "sample": {
+            "file": "iceoryx2-ffi/c/src/api/publisher.rs",
+            "code": "#[no_mangle] pub unsafe extern \"C\" fn iox2_publisher_send(...) -> c_int"
+          }
+        }
       },
-      "macos": {
-        "path": "src/macos/",
-        "notes": "Darwin-specific APIs, libc++ linking for atomics"
-      },
-      "freebsd": {
-        "path": "src/freebsd/",
-        "notes": "FreeBSD-specific APIs and sysctl"
-      },
-      "windows": {
-        "path": "src/windows/",
-        "modules": 27,
-        "notes": "Win32 API wrappers with POSIX-like interface"
-      },
-      "qnx": {
-        "path": "src/qnx/",
-        "notes": "QNX Neutrino RTOS support"
-      },
-      "libc_fallback": {
-        "path": "src/libc/",
-        "notes": "libc crate fallback for unsupported platforms"
-      }
+      "samples": []
     },
-    "binding_generation": {
-      "tool": "bindgen",
-      "header": "src/c/posix.h",
-      "output": "posix_generated.rs"
+    "external_blocks": {
+      "fls_section": "21.2",
+      "fls_ids": [
+        "fls_tmoh3y9oyqsy"
+      ],
+      "description": "External Blocks",
+      "status": "MUST_BE_FILLED",
+      "findings": {
+        "platform_abstraction_layer": {
+          "crate": "iceoryx2-pal/posix",
+          "approach": "Unified POSIX API across platforms",
+          "platforms": {
+            "linux": {
+              "path": "src/linux/",
+              "notes": "Native Linux syscalls and glibc"
+            },
+            "macos": {
+              "path": "src/macos/",
+              "notes": "Darwin-specific APIs, libc++ linking for atomics"
+            },
+            "freebsd": {
+              "path": "src/freebsd/",
+              "notes": "FreeBSD-specific APIs and sysctl"
+            },
+            "windows": {
+              "path": "src/windows/",
+              "modules": 27,
+              "notes": "Win32 API wrappers with POSIX-like interface"
+            },
+            "qnx": {
+              "path": "src/qnx/",
+              "notes": "QNX Neutrino RTOS support"
+            },
+            "libc_fallback": {
+              "path": "src/libc/",
+              "notes": "libc crate fallback for unsupported platforms"
+            }
+          },
+          "binding_generation": {
+            "tool": "bindgen",
+            "header": "src/c/posix.h",
+            "output": "posix_generated.rs"
+          }
+        }
+      },
+      "samples": []
     }
   },
-
-  "python_bindings": {
-    "crate": "iceoryx2-ffi/python",
-    "description": "NEW in v0.8.0 - Python language bindings",
-    "implementation": "Uses pyo3 for Python FFI"
-  },
-
   "design_patterns": {
     "c_api_layer": {
       "description": "NEW - Complete C API with consistent naming and error handling",
@@ -301,32 +336,6 @@
       "benefit": "Guaranteed stable layout for IPC and C interop"
     }
   },
-
-  "c_api_error_handling": {
-    "pattern": "Functions return c_int with IOX2_OK (0) for success",
-    "error_enums": {
-      "naming": "iox2_*_error_e",
-      "samples": [
-        "iox2_send_error_e",
-        "iox2_loan_error_e",
-        "iox2_receive_error_e"
-      ]
-    },
-    "trait": "IntoCInt for Rust error to C error code conversion"
-  },
-
-  "no_mangle_functions": {
-    "count": 602,
-    "distribution": {
-      "iceoryx2-ffi/c": 585,
-      "other_crates": 17
-    },
-    "sample": {
-      "file": "iceoryx2-ffi/c/src/api/publisher.rs",
-      "code": "#[no_mangle] pub unsafe extern \"C\" fn iox2_publisher_send(...) -> c_int"
-    }
-  },
-
   "cross_chapter_references": {
     "chapter_13": "Attributes - #[no_mangle], #[link], #[link_name], #[repr(C)]",
     "chapter_15": "Ownership - ManuallyDrop for union destruction control",

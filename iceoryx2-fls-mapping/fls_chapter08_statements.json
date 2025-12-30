@@ -1,7 +1,9 @@
 {
-  "fls_chapter": "8. Statements",
-  "fls_reference": "https://spec.ferrocene.dev/statements.html",
-  "codebase": "iceoryx2",
+  "chapter": 8,
+  "title": "Statements",
+  "fls_url": "https://spec.ferrocene.dev/statements.html",
+  "fls_id": "fls_wdicg3sqa98e",
+  "repository": "eclipse-iceoryx/iceoryx2",
   "version": "0.8.0",
   "analysis_date": "2025-12-30",
   "version_changes": {
@@ -22,18 +24,8 @@
       "unimplemented! now used (161 instances)"
     ]
   },
-  "overview": {
-    "description": "FLS Chapter 8 defines statements - the executable units within block expressions. Statements include let statements for introducing bindings, expression statements for side effects, item statements for local declarations, macro statements, and empty statements.",
-    "key_concepts": [
-      "Let statements (binding introduction)",
-      "Expression statements (side effects, result ignored)",
-      "Item statements (local items within functions)",
-      "Macro statements (terminated macro invocations)",
-      "Empty statements (;)"
-    ],
-    "syntax": "Statement ::= ExpressionStatement | Item | LetStatement | TerminatedMacroInvocation | ;"
-  },
-  "statement_counts": {
+  "summary": "FLS Chapter 8 defines statements - the executable units within block expressions. Statements include let statements for introducing bindings, expression statements for side effects, item statements for local declarations, macro statements, and empty statements.",
+  "statistics": {
     "let_statements_total": 13605,
     "let_mut_statements": 2338,
     "let_with_type_ascription": 152,
@@ -58,42 +50,43 @@
     }
   },
   "sections": {
-    "8.0_statements_overview": {
+    "statements_overview": {
       "fls_section": "8. Statements",
       "description": "Statements are the executable components of block expressions.",
-      "legality_rules": {
-        "8:1": "An expression statement is an expression whose result is ignored",
-        "8:2": "An item statement is a statement that is expressed as an item",
-        "8:3": "An empty statement is a statement expressed as character 0x3B (semicolon)",
-        "8:4": "A macro statement is a statement expressed as a terminated macro invocation"
-      },
-      "dynamic_semantics": {
-        "8:5": "Execution is the process by which a statement achieves its runtime effects",
-        "8:6": "The execution of an empty statement has no effect"
-      },
-      "statement_types": {
-        "expression_statement": "Expression whose result is ignored",
-        "item_statement": "Item declared within a block (local scope)",
-        "let_statement": "Introduces new bindings from patterns",
-        "macro_statement": "Terminated macro invocation",
-        "empty_statement": "Single semicolon with no effect"
+      "findings": {
+        "legality_rules": {
+          "8:1": "An expression statement is an expression whose result is ignored",
+          "8:2": "An item statement is a statement that is expressed as an item",
+          "8:3": "An empty statement is a statement expressed as character 0x3B (semicolon)",
+          "8:4": "A macro statement is a statement expressed as a terminated macro invocation"
+        },
+        "dynamic_semantics": {
+          "8:5": "Execution is the process by which a statement achieves its runtime effects",
+          "8:6": "The execution of an empty statement has no effect"
+        },
+        "statement_types": {
+          "expression_statement": "Expression whose result is ignored",
+          "item_statement": "Item declared within a block (local scope)",
+          "let_statement": "Introduces new bindings from patterns",
+          "macro_statement": "Terminated macro invocation",
+          "empty_statement": "Single semicolon with no effect"
+        }
       }
     },
-    "8.1_let_statements": {
+    "let_statements": {
       "fls_section": "8.1 Let Statements",
-      "syntax": {
-        "LetStatement": "OuterAttributeOrDoc* let PatternWithoutAlternation TypeAscription? LetInitializer? ;",
-        "LetInitializer": "= Expression (else BlockExpression)?"
-      },
+      "fls_ids": [
+        "fls_yivm43r5wnp1"
+      ],
       "description": "A let statement introduces new bindings produced by its pattern that are optionally initialized to a value.",
-      "legality_rules": {
-        "8.1:1": "A let statement introduces new bindings produced by its pattern-without-alternation",
-        "8.1:2": "A let initializer provides the value using an expression, or alternatively executes a block expression",
-        "8.1:3": "If a let statement lacks a block expression, then the pattern shall be an irrefutable pattern",
-        "8.1:4": "If a let statement has a block expression, then Expression shall not be LazyBooleanExpression or end with }",
-        "8.1:12": "The type of the block expression of a let statement shall be the never type"
-      },
       "findings": {
+        "legality_rules": {
+          "8.1:1": "A let statement introduces new bindings produced by its pattern-without-alternation",
+          "8.1:2": "A let initializer provides the value using an expression, or alternatively executes a block expression",
+          "8.1:3": "If a let statement lacks a block expression, then the pattern shall be an irrefutable pattern",
+          "8.1:4": "If a let statement has a block expression, then Expression shall not be LazyBooleanExpression or end with }",
+          "8.1:12": "The type of the block expression of a let statement shall be the never type"
+        },
         "total": 13605,
         "mutable": 2338,
         "with_type_ascription": 152,
@@ -105,54 +98,119 @@
       },
       "samples": {
         "simple_let": [
-          {"path": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs", "lines": "68", "code": "let sut = test.create_pool_allocator(BUCKET_SIZE, BUCKET_ALIGNMENT);"},
-          {"path": "iceoryx2-bb/elementary-traits/src/allocator.rs", "lines": "56", "code": "let memory = self.allocate(layout)?;"}
+          {
+            "path": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
+            "lines": "68",
+            "code": "let sut = test.create_pool_allocator(BUCKET_SIZE, BUCKET_ALIGNMENT);"
+          },
+          {
+            "path": "iceoryx2-bb/elementary-traits/src/allocator.rs",
+            "lines": "56",
+            "code": "let memory = self.allocate(layout)?;"
+          }
         ],
         "let_mut": [
-          {"path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs", "lines": "36", "code": "let mut file = FileName::new(b\"unix_datagram_socket_tests\").unwrap();"},
-          {"path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs", "lines": "112", "code": "let mut receive_data: Vec<u8> = vec![0; 6];"}
+          {
+            "path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
+            "lines": "36",
+            "code": "let mut file = FileName::new(b\"unix_datagram_socket_tests\").unwrap();"
+          },
+          {
+            "path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
+            "lines": "112",
+            "code": "let mut receive_data: Vec<u8> = vec![0; 6];"
+          }
         ],
         "let_with_type_ascription": [
-          {"path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs", "lines": "109", "code": "let send_data: Vec<u8> = vec![1u8, 3u8, 3u8, 7u8, 13u8, 37u8];"},
-          {"path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs", "lines": "168", "code": "let send_data: Vec<u8> = vec![1u8, 3u8, 3u8, 7u8, 13u8, 37u8];"}
+          {
+            "path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
+            "lines": "109",
+            "code": "let send_data: Vec<u8> = vec![1u8, 3u8, 3u8, 7u8, 13u8, 37u8];"
+          },
+          {
+            "path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
+            "lines": "168",
+            "code": "let send_data: Vec<u8> = vec![1u8, 3u8, 3u8, 7u8, 13u8, 37u8];"
+          }
         ],
         "let_with_tuple_destructuring": [
-          {"path": "iceoryx2-log/loggers/src/file.rs", "lines": "73", "code": "let (sender, receiver) = channel();"},
-          {"path": "iceoryx2-services/discovery/src/service_discovery/service.rs", "lines": "432", "code": "let (added_ids, removed_services) = self.tracker.sync()?;"}
+          {
+            "path": "iceoryx2-log/loggers/src/file.rs",
+            "lines": "73",
+            "code": "let (sender, receiver) = channel();"
+          },
+          {
+            "path": "iceoryx2-services/discovery/src/service_discovery/service.rs",
+            "lines": "432",
+            "code": "let (added_ids, removed_services) = self.tracker.sync()?;"
+          }
         ],
         "let_without_initializer": [
-          {"path": "iceoryx2-bb/posix/tests/udp_socket_tests.rs", "lines": "86", "code": "let port;"},
-          {"path": "iceoryx2-bb/posix/src/shared_memory.rs", "lines": "269", "code": "let shm_created;"}
+          {
+            "path": "iceoryx2-bb/posix/tests/udp_socket_tests.rs",
+            "lines": "86",
+            "code": "let port;"
+          },
+          {
+            "path": "iceoryx2-bb/posix/src/shared_memory.rs",
+            "lines": "269",
+            "code": "let shm_created;"
+          }
         ],
         "let_mut_without_initializer": [
-          {"path": "iceoryx2-bb/elementary/src/math.rs", "lines": "43", "code": "let mut remainder;"},
-          {"path": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs", "lines": "456", "code": "let mut release_state;"},
-          {"path": "iceoryx2-bb/lock-free/src/spsc/safely_overflowing_index_queue.rs", "lines": "362", "code": "let mut value;"}
+          {
+            "path": "iceoryx2-bb/elementary/src/math.rs",
+            "lines": "43",
+            "code": "let mut remainder;"
+          },
+          {
+            "path": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+            "lines": "456",
+            "code": "let mut release_state;"
+          },
+          {
+            "path": "iceoryx2-bb/lock-free/src/spsc/safely_overflowing_index_queue.rs",
+            "lines": "362",
+            "code": "let mut value;"
+          }
         ],
         "let_with_underscore_pattern": [
-          {"path": "iceoryx2-bb/posix/tests/unique_system_id_tests.rs", "lines": "42", "code": "let _watchdog = Watchdog::new();"},
-          {"path": "iceoryx2-bb/posix/tests/signal_tests.rs", "lines": "70", "code": "let _guard ="}
+          {
+            "path": "iceoryx2-bb/posix/tests/unique_system_id_tests.rs",
+            "lines": "42",
+            "code": "let _watchdog = Watchdog::new();"
+          },
+          {
+            "path": "iceoryx2-bb/posix/tests/signal_tests.rs",
+            "lines": "70",
+            "code": "let _guard ="
+          }
         ],
         "let_else": [
-          {"path": "iceoryx2-bb/container/src/slotmap.rs", "lines": "171", "code": "let previous = if n == 0 { INVALID } else { n - 1 };", "note": "Conditional in initializer, not true let-else"}
+          {
+            "path": "iceoryx2-bb/container/src/slotmap.rs",
+            "lines": "171",
+            "code": "let previous = if n == 0 { INVALID } else { n - 1 };",
+            "note": "Conditional in initializer, not true let-else"
+          }
         ]
       }
     },
-    "8.2_expression_statements": {
+    "expression_statements": {
       "fls_section": "8.2 Expression Statements",
-      "syntax": {
-        "ExpressionStatement": "ExpressionWithBlock ;? | ExpressionWithoutBlock ;"
-      },
+      "fls_ids": [
+        "fls_1pg5ig740tg1"
+      ],
       "description": "An expression statement is an expression whose result is ignored.",
-      "legality_rules": {
-        "8.2:1": "An expression statement is an expression whose result is ignored",
-        "8.2:2": "Expected type of expression statement without semicolon is the unit type"
-      },
-      "dynamic_semantics": {
-        "8.2:3": "The operand is evaluated",
-        "8.2:4-5": "The value of the operand is dropped"
-      },
       "findings": {
+        "legality_rules": {
+          "8.2:1": "An expression statement is an expression whose result is ignored",
+          "8.2:2": "Expected type of expression statement without semicolon is the unit type"
+        },
+        "dynamic_semantics": {
+          "8.2:3": "The operand is evaluated",
+          "8.2:4-5": "The value of the operand is dropped"
+        },
         "total_semicolons": 45398,
         "expression_without_block": {
           "description": "Requires terminating semicolon"
@@ -163,29 +221,50 @@
       },
       "samples": {
         "method_call_statements": [
-          {"path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs", "lines": "80", "code": "self.files.push(file_name);"},
-          {"path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs", "lines": "279", "code": "file_send_content.clear();"}
+          {
+            "path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
+            "lines": "80",
+            "code": "self.files.push(file_name);"
+          },
+          {
+            "path": "iceoryx2-bb/posix/tests/unix_datagram_socket_tests.rs",
+            "lines": "279",
+            "code": "file_send_content.clear();"
+          }
         ],
         "assignment_statements": [
-          {"path": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs", "lines": "31", "code": "test.raw_memory[i] = 255;"}
+          {
+            "path": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
+            "lines": "31",
+            "code": "test.raw_memory[i] = 255;"
+          }
         ]
       }
     },
     "item_statements": {
-      "fls_reference": "8:2",
+      "fls_section": "MUST_BE_FILLED",
       "description": "An item statement is a statement expressed as an item, scoped to the containing block.",
       "findings": {
+        "fls_reference": "8:2",
         "inner_const": "Used extensively in test functions for test-local constants",
         "inner_fn": "Less common, mostly in macro-generated code"
       },
       "samples": [
-        {"path": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs", "lines": "65-66", "code": "const BUCKET_SIZE: usize = 128;\nconst BUCKET_ALIGNMENT: usize = 1;"}
+        {
+          "file": "iceoryx2-bb/memory/tests/pool_allocator_tests.rs",
+          "line": [
+            65,
+            66
+          ],
+          "code": "const BUCKET_SIZE: usize = 128;\nconst BUCKET_ALIGNMENT: usize = 1;"
+        }
       ]
     },
     "macro_statements": {
-      "fls_reference": "8:4",
+      "fls_section": "MUST_BE_FILLED",
       "description": "A macro statement is a statement expressed as a terminated macro invocation.",
       "findings": {
+        "fls_reference": "8:4",
         "assert_that": 5263,
         "fail": 1065,
         "fatal_panic": 320,
@@ -202,66 +281,72 @@
         "change_from_v0_7_0": "+1789 (~28% increase)"
       },
       "samples": [
-        {"path": "iceoryx2-bb/elementary/tests/scope_guard_tests.rs", "lines": "34", "code": "assert_that!(guard, is_ok);"},
-        {"path": "iceoryx2-cal/src/zero_copy_connection/common.rs", "lines": "657", "code": "debug_assert!(channel_id.value() < self.storage.get().channels.capacity());"},
-        {"path": "iceoryx2-cal/src/zero_copy_connection/common.rs", "lines": "688", "code": "debug_assert!(ptr.offset() % sample_size == 0);"}
+        {
+          "file": "iceoryx2-bb/elementary/tests/scope_guard_tests.rs",
+          "line": [
+            34
+          ],
+          "code": "assert_that!(guard, is_ok);"
+        },
+        {
+          "file": "iceoryx2-cal/src/zero_copy_connection/common.rs",
+          "line": [
+            657
+          ],
+          "code": "debug_assert!(channel_id.value() < self.storage.get().channels.capacity());"
+        },
+        {
+          "file": "iceoryx2-cal/src/zero_copy_connection/common.rs",
+          "line": [
+            688
+          ],
+          "code": "debug_assert!(ptr.offset() % sample_size == 0);"
+        }
       ]
     },
     "empty_statements": {
-      "fls_reference": "8:3",
+      "fls_section": "MUST_BE_FILLED",
       "description": "An empty statement is a statement expressed as character 0x3B (semicolon).",
-      "dynamic_semantics": "The execution of an empty statement has no effect.",
       "findings": {
+        "fls_reference": "8:3",
+        "dynamic_semantics": "The execution of an empty statement has no effect.",
         "status": "Rare - typically only appears in specific syntactic contexts"
       }
     }
   },
-  "type_inference": {
-    "description": "Let statement type determination per FLS 8.1:5-8.1:11",
-    "rules": {
-      "no_type_no_init": "Expected type is inferred type (8.1:6)",
-      "no_type_with_init": "Expected type is type of let initializer (8.1:7)",
-      "with_type_ascription": "Expected type is type specified by type ascription (8.1:8)"
-    },
-    "findings": {
-      "explicit_types": 152,
-      "inferred_types": "~13453 (vast majority)",
-      "ratio": "1.1% explicit type annotations",
-      "pattern": "iceoryx2 relies heavily on type inference, explicit annotations mainly for clarity"
-    }
-  },
-  "patterns_used": {
-    "let_else": {
-      "description": "let Pattern = Expr else { diverging_block } - refutable patterns with else",
-      "fls_reference": "8.1:3-4, 8.1:12",
-      "status": "LIMITED USE (6 instances)",
-      "change_from_v0_7_0": "Now in use - was NOT FOUND in v0.7.0",
-      "reason": "iceoryx2 still primarily uses if let / match expressions for refutable pattern handling"
-    }
-  },
-  "cross_chapter_integration": {
-    "chapter_5_patterns": "Let statements use patterns for destructuring (tuple, struct patterns)",
-    "chapter_6_expressions": "Expression statements evaluate expressions and drop results",
-    "chapter_7_values": "Let statements introduce variables (values on stack)",
-    "chapter_15_ownership": "Let statements create drop scopes for bindings"
-  },
-  "safety_patterns": {
-    "uninitialized_variables": {
-      "description": "Variables declared without initializers must be initialized before use",
-      "fls_reference": "8.1:15 - binding is uninitialized if no let initializer",
-      "samples": [
-        {"path": "iceoryx2-bb/posix/tests/udp_socket_tests.rs", "lines": "86", "code": "let port; // Must be assigned before use"},
-        {"path": "iceoryx2-bb/elementary/src/math.rs", "lines": "43", "code": "let mut remainder; // Assigned in loop"}
-      ]
-    },
-    "drop_on_statement": {
-      "description": "Expression statement values are dropped after evaluation",
-      "fls_reference": "8.2:5 - value of operand is dropped"
-    },
-    "debug_assertions": {
-      "description": "debug_assert! for invariant checking in debug builds",
-      "count": 634,
-      "usage": "Validates internal invariants without release build overhead"
+  "safety_critical_summary": {
+    "positive_patterns": {
+      "safety_patterns": {
+        "uninitialized_variables": {
+          "description": "Variables declared without initializers must be initialized before use",
+          "fls_reference": "8.1:15 - binding is uninitialized if no let initializer",
+          "samples": [
+            {
+              "file": "iceoryx2-bb/posix/tests/udp_socket_tests.rs",
+              "line": [
+                86
+              ],
+              "code": "let port; // Must be assigned before use"
+            },
+            {
+              "file": "iceoryx2-bb/elementary/src/math.rs",
+              "line": [
+                43
+              ],
+              "code": "let mut remainder; // Assigned in loop"
+            }
+          ]
+        },
+        "drop_on_statement": {
+          "description": "Expression statement values are dropped after evaluation",
+          "fls_reference": "8.2:5 - value of operand is dropped"
+        },
+        "debug_assertions": {
+          "description": "debug_assert! for invariant checking in debug builds",
+          "count": 634,
+          "usage": "Validates internal invariants without release build overhead"
+        }
+      }
     }
   }
 }

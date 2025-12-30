@@ -1,0 +1,729 @@
+{
+  "1": {
+    "chapter": 1,
+    "file": "general",
+    "title": "General",
+    "fls_id": "fls_48qldfwwh493",
+    "sections": {
+      "scope": {
+        "fls_section": "1.1",
+        "title": "Scope",
+        "fls_id": "fls_fo1c7pg2mw1"
+      },
+      "versioning": {
+        "fls_section": "1.2",
+        "title": "Versioning",
+        "fls_id": "fls_9cd746qe40ag"
+      },
+      "definitions": {
+        "fls_section": "1.3",
+        "title": "Definitions",
+        "fls_id": "fls_ijzgf4h0mp3c"
+      }
+    }
+  },
+  "2": {
+    "chapter": 2,
+    "file": "lexical-elements",
+    "title": "Lexical Elements",
+    "fls_id": "fls_411up5z0b6n6",
+    "sections": {
+      "character_set": {
+        "fls_section": "2.1",
+        "title": "Character Set",
+        "fls_id": "fls_2i089jvv8j5g"
+      },
+      "lexical_elements_separators_and_punctuation": {
+        "fls_section": "2.2",
+        "title": "Lexical Elements, Separators, and Punctuation",
+        "fls_id": "fls_fgnllgz5k3e6"
+      },
+      "identifiers": {
+        "fls_section": "2.3",
+        "title": "Identifiers",
+        "fls_id": "fls_21vnag69kbwe"
+      },
+      "literals": {
+        "fls_section": "2.4",
+        "title": "Literals",
+        "fls_id": "fls_nrkd5wpi64oo"
+      },
+      "comments": {
+        "fls_section": "2.5",
+        "title": "Comments",
+        "fls_id": "fls_q8l2jza7d9xa"
+      },
+      "keywords": {
+        "fls_section": "2.6",
+        "title": "Keywords",
+        "fls_id": "fls_lish33a1naw5"
+      }
+    }
+  },
+  "3": {
+    "chapter": 3,
+    "file": "items",
+    "title": "Items",
+    "fls_id": "fls_wb86edg02t6a",
+    "sections": {}
+  },
+  "4": {
+    "chapter": 4,
+    "file": "types-and-traits",
+    "title": "Types and Traits",
+    "fls_id": "fls_vgb6ev541b2r",
+    "sections": {
+      "types": {
+        "fls_section": "4.1",
+        "title": "Types",
+        "fls_id": null
+      },
+      "type_classification": {
+        "fls_section": "4.2",
+        "title": "Type Classification",
+        "fls_id": "fls_963gsjp2jas2"
+      },
+      "scalar_types": {
+        "fls_section": "4.3",
+        "title": "Scalar Types",
+        "fls_id": "fls_id66vnaqw0zt"
+      },
+      "sequence_types": {
+        "fls_section": "4.4",
+        "title": "Sequence Types",
+        "fls_id": "fls_fbchw64p6n2x"
+      },
+      "abstract_data_types": {
+        "fls_section": "4.5",
+        "title": "Abstract Data Types",
+        "fls_id": "fls_wdec78luqh5b"
+      },
+      "function_types": {
+        "fls_section": "4.6",
+        "title": "Function Types",
+        "fls_id": "fls_hbbek3z4wtcs"
+      },
+      "indirection_types": {
+        "fls_section": "4.7",
+        "title": "Indirection Types",
+        "fls_id": "fls_3i4ou0dq64ny"
+      },
+      "trait_types": {
+        "fls_section": "4.8",
+        "title": "Trait Types",
+        "fls_id": "fls_1ompd93w7c9f"
+      },
+      "other_types": {
+        "fls_section": "4.9",
+        "title": "Other Types",
+        "fls_id": "fls_3pbipk8ki18d"
+      },
+      "type_aliases": {
+        "fls_section": "4.10",
+        "title": "Type Aliases",
+        "fls_id": "fls_kgvleup5mdhq"
+      },
+      "representation": {
+        "fls_section": "4.11",
+        "title": "Representation",
+        "fls_id": "fls_7pby13muw48o"
+      },
+      "type_model": {
+        "fls_section": "4.12",
+        "title": "Type Model",
+        "fls_id": "fls_j02707n615z0"
+      },
+      "traits": {
+        "fls_section": "4.13",
+        "title": "Traits",
+        "fls_id": "fls_85vx1qfa061i"
+      },
+      "trait_and_lifetime_bounds": {
+        "fls_section": "4.14",
+        "title": "Trait and Lifetime Bounds",
+        "fls_id": "fls_jeoas4n6su4"
+      }
+    }
+  },
+  "5": {
+    "chapter": 5,
+    "file": "patterns",
+    "title": "Patterns",
+    "fls_id": "fls_xgqh0ju6bmbn",
+    "sections": {
+      "refutability": {
+        "fls_section": "5.1",
+        "title": "Refutability",
+        "fls_id": "fls_uh76pw6ykd57"
+      },
+      "struct_patterns": {
+        "fls_section": "5.2",
+        "title": "Struct Patterns",
+        "fls_id": "fls_7dbd5t2750ce"
+      },
+      "binding_modes": {
+        "fls_section": "5.3",
+        "title": "Binding Modes",
+        "fls_id": "fls_qssijtofa9i8"
+      },
+      "pattern_matching": {
+        "fls_section": "5.4",
+        "title": "Pattern Matching",
+        "fls_id": "fls_jm6l7b90h6wa"
+      }
+    }
+  },
+  "6": {
+    "chapter": 6,
+    "file": "expressions",
+    "title": "Expressions",
+    "fls_id": "fls_ckvjj4tt1hh2",
+    "sections": {
+      "expression_classification": {
+        "fls_section": "6.1",
+        "title": "Expression Classification",
+        "fls_id": "fls_isyftqu120l"
+      },
+      "literal_expressions": {
+        "fls_section": "6.2",
+        "title": "Literal Expressions",
+        "fls_id": "fls_h0dvogc64tfh"
+      },
+      "path_expressions": {
+        "fls_section": "6.3",
+        "title": "Path Expressions",
+        "fls_id": "fls_6l60b5hwnjbm"
+      },
+      "block_expressions": {
+        "fls_section": "6.4",
+        "title": "Block Expressions",
+        "fls_id": "fls_hndm19t57wby"
+      },
+      "operator_expressions": {
+        "fls_section": "6.5",
+        "title": "Operator Expressions",
+        "fls_id": "fls_izdv9i4spokw"
+      },
+      "underscore_expressions": {
+        "fls_section": "6.6",
+        "title": "Underscore Expressions",
+        "fls_id": "fls_tpwp86mronn2"
+      },
+      "parenthesized_expressions": {
+        "fls_section": "6.7",
+        "title": "Parenthesized Expressions",
+        "fls_id": "fls_g0uyl7qw4c7w"
+      },
+      "array_expressions": {
+        "fls_section": "6.8",
+        "title": "Array Expressions",
+        "fls_id": "fls_xinykul167l"
+      },
+      "indexing_expressions": {
+        "fls_section": "6.9",
+        "title": "Indexing Expressions",
+        "fls_id": "fls_sxcr4aa098i6"
+      },
+      "tuple_expressions": {
+        "fls_section": "6.10",
+        "title": "Tuple Expressions",
+        "fls_id": "fls_k64tfywtn0g8"
+      },
+      "struct_expressions": {
+        "fls_section": "6.11",
+        "title": "Struct Expressions",
+        "fls_id": "fls_8tsynkj2cufj"
+      },
+      "invocation_expressions": {
+        "fls_section": "6.12",
+        "title": "Invocation Expressions",
+        "fls_id": null
+      },
+      "field_access_expressions": {
+        "fls_section": "6.13",
+        "title": "Field Access Expressions",
+        "fls_id": "fls_18k3uajrgq5f"
+      },
+      "closure_expressions": {
+        "fls_section": "6.14",
+        "title": "Closure Expressions",
+        "fls_id": "fls_tjyexqrx0fx5"
+      },
+      "loop_expressions": {
+        "fls_section": "6.15",
+        "title": "Loop Expressions",
+        "fls_id": "fls_rr908hgunja7"
+      },
+      "range_expressions": {
+        "fls_section": "6.16",
+        "title": "Range Expressions",
+        "fls_id": "fls_18swodqqzadj"
+      },
+      "if_and_if_let_expressions": {
+        "fls_section": "6.17",
+        "title": "If and If Let Expressions",
+        "fls_id": "fls_nlzksiu8y3z9"
+      },
+      "match_expressions": {
+        "fls_section": "6.18",
+        "title": "Match Expressions",
+        "fls_id": "fls_e5td0fa92fay"
+      },
+      "return_expressions": {
+        "fls_section": "6.19",
+        "title": "Return Expressions",
+        "fls_id": "fls_8l74abhlxzdl"
+      },
+      "await_expressions": {
+        "fls_section": "6.20",
+        "title": "Await Expressions",
+        "fls_id": "fls_hyrbmfmf6r8g"
+      },
+      "expression_precedence": {
+        "fls_section": "6.21",
+        "title": "Expression Precedence",
+        "fls_id": "fls_kw25194gpael"
+      },
+      "capturing": {
+        "fls_section": "6.22",
+        "title": "Capturing",
+        "fls_id": "fls_jmjn8jkbzujm"
+      },
+      "arithmetic_overflow": {
+        "fls_section": "6.23",
+        "title": "Arithmetic Overflow",
+        "fls_id": null
+      }
+    }
+  },
+  "7": {
+    "chapter": 7,
+    "file": "values",
+    "title": "Values",
+    "fls_id": "fls_94a8v54bufn8",
+    "sections": {
+      "constants": {
+        "fls_section": "7.1",
+        "title": "Constants",
+        "fls_id": "fls_ixjc5jaamx84"
+      },
+      "statics": {
+        "fls_section": "7.2",
+        "title": "Statics",
+        "fls_id": "fls_xdvdl2ssnhlo"
+      },
+      "temporaries": {
+        "fls_section": "7.3",
+        "title": "Temporaries",
+        "fls_id": "fls_cleoffpn5ew6"
+      },
+      "variables": {
+        "fls_section": "7.4",
+        "title": "Variables",
+        "fls_id": "fls_gho955gmob73"
+      }
+    }
+  },
+  "8": {
+    "chapter": 8,
+    "file": "statements",
+    "title": "Statements",
+    "fls_id": "fls_wdicg3sqa98e",
+    "sections": {
+      "let_statements": {
+        "fls_section": "8.1",
+        "title": "Let Statements",
+        "fls_id": "fls_yivm43r5wnp1"
+      },
+      "expression_statements": {
+        "fls_section": "8.2",
+        "title": "Expression Statements",
+        "fls_id": "fls_1pg5ig740tg1"
+      }
+    }
+  },
+  "9": {
+    "chapter": 9,
+    "file": "functions",
+    "title": "Functions",
+    "fls_id": "fls_qcb1n9c0e5hz",
+    "sections": {}
+  },
+  "10": {
+    "chapter": 10,
+    "file": "associated-items",
+    "title": "Associated Items",
+    "fls_id": "fls_l21tjqjkkaa0",
+    "sections": {}
+  },
+  "11": {
+    "chapter": 11,
+    "file": "implementations",
+    "title": "Implementations",
+    "fls_id": "fls_fk2m2irwpeof",
+    "sections": {
+      "implementation_coherence": {
+        "fls_section": "11.1",
+        "title": "Implementation Coherence",
+        "fls_id": "fls_46ork6fz5o2e"
+      },
+      "implementation_conformance": {
+        "fls_section": "11.2",
+        "title": "Implementation Conformance",
+        "fls_id": "fls_e1pgdlv81vul"
+      }
+    }
+  },
+  "12": {
+    "chapter": 12,
+    "file": "generics",
+    "title": "Generics",
+    "fls_id": "fls_y2k5paj8m8ug",
+    "sections": {
+      "generic_parameters": {
+        "fls_section": "12.1",
+        "title": "Generic Parameters",
+        "fls_id": "fls_vhpwge5123cm"
+      },
+      "where_clauses": {
+        "fls_section": "12.2",
+        "title": "Where Clauses",
+        "fls_id": "fls_7nv8ualeaqe3"
+      },
+      "generic_arguments": {
+        "fls_section": "12.3",
+        "title": "Generic Arguments",
+        "fls_id": "fls_utuu8mdbuyxm"
+      },
+      "generic_conformance": {
+        "fls_section": "12.4",
+        "title": "Generic Conformance",
+        "fls_id": "fls_i7g2n7hfg3ch"
+      }
+    }
+  },
+  "13": {
+    "chapter": 13,
+    "file": "attributes",
+    "title": "Attributes",
+    "fls_id": "fls_gvwd0kf72jt",
+    "sections": {
+      "attribute_properties": {
+        "fls_section": "13.1",
+        "title": "Attribute Properties",
+        "fls_id": "fls_i52cujixq9qs"
+      },
+      "builtin_attributes": {
+        "fls_section": "13.2",
+        "title": "Built-in Attributes",
+        "fls_id": "fls_ahmnqhm8anlb"
+      }
+    }
+  },
+  "14": {
+    "chapter": 14,
+    "file": "entities-and-resolution",
+    "title": "Entities and Resolution",
+    "fls_id": "fls_gdeyap4or1db",
+    "sections": {
+      "entities": {
+        "fls_section": "14.1",
+        "title": "Entities",
+        "fls_id": "fls_151r19d7xbgz"
+      },
+      "visibility": {
+        "fls_section": "14.2",
+        "title": "Visibility",
+        "fls_id": "fls_jdknpu3kf865"
+      },
+      "paths": {
+        "fls_section": "14.3",
+        "title": "Paths",
+        "fls_id": "fls_9i5msiuuyihf"
+      },
+      "scopes": {
+        "fls_section": "14.4",
+        "title": "Scopes",
+        "fls_id": "fls_izl8iuhoz9e0"
+      },
+      "namespaces": {
+        "fls_section": "14.5",
+        "title": "Namespaces",
+        "fls_id": "fls_dq403wq5yrs"
+      },
+      "preludes": {
+        "fls_section": "14.6",
+        "title": "Preludes",
+        "fls_id": "fls_ld0ize96cm6m"
+      },
+      "use_imports": {
+        "fls_section": "14.7",
+        "title": "Use Imports",
+        "fls_id": "fls_9gprp17h6t1q"
+      },
+      "shadowing": {
+        "fls_section": "14.8",
+        "title": "Shadowing",
+        "fls_id": "fls_ydmnb7qnmzzq"
+      },
+      "resolution": {
+        "fls_section": "14.9",
+        "title": "Resolution",
+        "fls_id": "fls_40xoego2thsp"
+      }
+    }
+  },
+  "15": {
+    "chapter": 15,
+    "file": "ownership-and-deconstruction",
+    "title": "Ownership and Destruction",
+    "fls_id": "fls_ronnwodjjjsh",
+    "sections": {
+      "ownership": {
+        "fls_section": "15.1",
+        "title": "Ownership",
+        "fls_id": "fls_svkx6szhr472"
+      },
+      "initialization": {
+        "fls_section": "15.2",
+        "title": "Initialization",
+        "fls_id": "fls_3xvm61x0t251"
+      },
+      "references": {
+        "fls_section": "15.3",
+        "title": "References",
+        "fls_id": "fls_v5x85lt5ulva"
+      },
+      "borrowing": {
+        "fls_section": "15.4",
+        "title": "Borrowing",
+        "fls_id": "fls_a14slch83hzn"
+      },
+      "passing_conventions": {
+        "fls_section": "15.5",
+        "title": "Passing Conventions",
+        "fls_id": "fls_77scxuomlbgs"
+      },
+      "destruction": {
+        "fls_section": "15.6",
+        "title": "Destruction",
+        "fls_id": "fls_4jiw35pan7vn"
+      },
+      "destructors": {
+        "fls_section": "15.7",
+        "title": "Destructors",
+        "fls_id": "fls_u2mzjgiwbkz0"
+      },
+      "drop_scopes": {
+        "fls_section": "15.8",
+        "title": "Drop Scopes",
+        "fls_id": "fls_rm4ncoopcdvj"
+      },
+      "drop_order": {
+        "fls_section": "15.9",
+        "title": "Drop Order",
+        "fls_id": "fls_afafmafz4hf2"
+      }
+    }
+  },
+  "16": {
+    "chapter": 16,
+    "file": "exceptions-and-errors",
+    "title": "Exceptions and Errors",
+    "fls_id": "fls_dzq9cdz4ibsz",
+    "sections": {
+      "panic": {
+        "fls_section": "16.1",
+        "title": "Panic",
+        "fls_id": "fls_k02nt1m5fq1z"
+      },
+      "abort": {
+        "fls_section": "16.2",
+        "title": "Abort",
+        "fls_id": "fls_hi1iz0gbnksi"
+      }
+    }
+  },
+  "17": {
+    "chapter": 17,
+    "file": "concurrency",
+    "title": "Concurrency",
+    "fls_id": "fls_3v733mnewssy",
+    "sections": {
+      "send_and_sync": {
+        "fls_section": "17.1",
+        "title": "Send and Sync",
+        "fls_id": "fls_eiw4by8z75di"
+      },
+      "atomics": {
+        "fls_section": "17.2",
+        "title": "Atomics",
+        "fls_id": "fls_vyc9vcuamlph"
+      },
+      "asynchronous_computation": {
+        "fls_section": "17.3",
+        "title": "Asynchronous Computation",
+        "fls_id": "fls_mtuwzinpfvkl"
+      }
+    }
+  },
+  "18": {
+    "chapter": 18,
+    "file": "program-structure-and-compilation",
+    "title": "Program Structure and Compilation",
+    "fls_id": "fls_hdwwrsyunir",
+    "sections": {
+      "source_files": {
+        "fls_section": "18.1",
+        "title": "Source Files",
+        "fls_id": "fls_s35hob3i7lr"
+      },
+      "modules": {
+        "fls_section": "18.2",
+        "title": "Modules",
+        "fls_id": "fls_e9hwvqsib5d5"
+      },
+      "crates": {
+        "fls_section": "18.3",
+        "title": "Crates",
+        "fls_id": "fls_maw4u1o8q37u"
+      },
+      "crate_imports": {
+        "fls_section": "18.4",
+        "title": "Crate Imports",
+        "fls_id": "fls_gklst7joeo33"
+      },
+      "compilation_roots": {
+        "fls_section": "18.5",
+        "title": "Compilation Roots",
+        "fls_id": "fls_5w50kf83oo1u"
+      },
+      "conditional_compilation": {
+        "fls_section": "18.6",
+        "title": "Conditional Compilation",
+        "fls_id": "fls_u1afezy1ye99"
+      },
+      "program_entry_point": {
+        "fls_section": "18.7",
+        "title": "Program Entry Point",
+        "fls_id": null
+      }
+    }
+  },
+  "19": {
+    "chapter": 19,
+    "file": "unsafety",
+    "title": "Unsafety",
+    "fls_id": "fls_jep7p27kaqlp",
+    "sections": {}
+  },
+  "20": {
+    "chapter": 20,
+    "file": "macros",
+    "title": "Macros",
+    "fls_id": "fls_83182bfa9uqb",
+    "sections": {
+      "declarative_macros": {
+        "fls_section": "20.1",
+        "title": "Declarative Macros",
+        "fls_id": "fls_xa7lp0zg1ol2"
+      },
+      "procedural_macros": {
+        "fls_section": "20.2",
+        "title": "Procedural Macros",
+        "fls_id": "fls_wn1i6hzg2ff7"
+      },
+      "macro_invocation": {
+        "fls_section": "20.3",
+        "title": "Macro Invocation",
+        "fls_id": "fls_vnvt40pa48n8"
+      },
+      "macro_expansion": {
+        "fls_section": "20.4",
+        "title": "Macro Expansion",
+        "fls_id": "fls_wjldgtio5o75"
+      },
+      "hygiene": {
+        "fls_section": "20.5",
+        "title": "Hygiene",
+        "fls_id": "fls_xlfo7di0gsqz"
+      }
+    }
+  },
+  "21": {
+    "chapter": 21,
+    "file": "ffi",
+    "title": "FFI",
+    "fls_id": "fls_osd6c4utyjb3",
+    "sections": {
+      "abi": {
+        "fls_section": "21.1",
+        "title": "ABI",
+        "fls_id": "fls_usgd0xlijoxv"
+      },
+      "external_blocks": {
+        "fls_section": "21.2",
+        "title": "External Blocks",
+        "fls_id": "fls_tmoh3y9oyqsy"
+      },
+      "external_functions": {
+        "fls_section": "21.3",
+        "title": "External Functions",
+        "fls_id": "fls_yztwtek0y34v"
+      },
+      "external_statics": {
+        "fls_section": "21.4",
+        "title": "External Statics",
+        "fls_id": "fls_s4yt19sptl7d"
+      }
+    }
+  },
+  "22": {
+    "chapter": 22,
+    "file": "inline-assembly",
+    "title": "Inline Assembly",
+    "fls_id": "fls_z1il3w9nulzy",
+    "sections": {
+      "registers": {
+        "fls_section": "22.1",
+        "title": "Registers",
+        "fls_id": "fls_j9l8wn6wgm06"
+      },
+      "register_classes": {
+        "fls_section": "22.2",
+        "title": "Register Classes",
+        "fls_id": "fls_pz2ioqchjtym"
+      },
+      "register_arguments": {
+        "fls_section": "22.3",
+        "title": "Register Arguments",
+        "fls_id": "fls_hejgghwzblf"
+      },
+      "assembly_instructions": {
+        "fls_section": "22.4",
+        "title": "Assembly Instructions",
+        "fls_id": "fls_e0896uk0mdyl"
+      },
+      "abi_clobbers": {
+        "fls_section": "22.5",
+        "title": "ABI Clobbers",
+        "fls_id": "fls_a3joqzqp1v9d"
+      },
+      "assembly_options": {
+        "fls_section": "22.6",
+        "title": "Assembly Options",
+        "fls_id": "fls_ylli0ortyegk"
+      },
+      "macros_asm_globalasm_and_nakedasm": {
+        "fls_section": "22.7",
+        "title": "Macros: asm, global_asm, and naked_asm",
+        "fls_id": "fls_qezwyridmjob"
+      },
+      "label_block": {
+        "fls_section": "22.8",
+        "title": "Label block",
+        "fls_id": null
+      }
+    }
+  }
+}

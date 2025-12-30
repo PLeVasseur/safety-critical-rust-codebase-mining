@@ -1,0 +1,622 @@
+{
+  "chapter": 15,
+  "title": "Ownership and Destruction",
+  "fls_url": "https://rust-lang.github.io/fls/ownership-and-deconstruction.html",
+  "version": "0.8.0",
+  "analysis_date": "2025-12-30",
+  "version_changes": {
+    "from_version": "0.7.0",
+    "to_version": "0.8.0",
+    "summary": "Major ownership pattern changes due to FFI layer: ManuallyDrop introduced (0→541), expanded interior mutability for C API, more RAII guards",
+    "key_changes": [
+      "ManuallyDrop usage: 0 → 541 (NEW - for FFI union handling)",
+      "Copy derives: 335 → 553 (+65%)",
+      "Clone derives: 331 → 513 (+55%)",
+      "UnsafeCell usage: ~85 → 231 (+172%)",
+      "Drop implementations: 66 → 41 (-38% - consolidated)",
+      "Guard types: 15 → 19 (+27%)",
+      "PhantomData markers: 222 → 256 (+15%)",
+      "Box usage: 180 → 319 (+77%)",
+      "Arc usage: 50 → 58 (+16%)",
+      "mem::forget: 10 → 52 (+420%)",
+      "Deref implementations: 15 → 23 (+53%)",
+      "DerefMut implementations: 6 → 12 (+100%)",
+      "From implementations: 95 → 143 (+51%)"
+    ]
+  },
+  "summary": "FLS Chapter 15 defines ownership, initialization, references, borrowing, passing conventions, destruction, destructors, drop scopes, and drop order. iceoryx2 v0.8.0 demonstrates comprehensive ownership management with 41 Drop implementations, 553 Copy derives, 19 RAII guard types, 256 PhantomData markers, 254 interior mutability uses (UnsafeCell/RefCell), and extensive reference handling. The new FFI layer introduces 541 ManuallyDrop uses for safe C API memory management.",
+
+  "statistics": {
+    "drop_implementations": 41,
+    "copy_derives": 553,
+    "clone_derives": 513,
+    "clone_implementations": 3,
+    "guard_types": 19,
+    "phantom_data_markers": 256,
+    "interior_mutability_uses": 254,
+    "unsafe_cell_usage": 231,
+    "refcell_usage": 23,
+    "mutable_references": 2110,
+    "lifetime_annotations": 6,
+    "deref_implementations": 23,
+    "deref_mut_implementations": 12,
+    "from_implementations": 143,
+    "try_from_implementations": 2,
+    "box_usage": 319,
+    "arc_usage": 58,
+    "rc_usage": 2,
+    "mem_forget_usage": 52,
+    "manually_drop_usage": 541
+  },
+
+  "sections": {
+    "15.1": "Ownership",
+    "15.2": "Initialization",
+    "15.3": "References",
+    "15.4": "Borrowing",
+    "15.5": "Passing Conventions",
+    "15.6": "Destruction",
+    "15.7": "Destructors",
+    "15.8": "Drop Scopes",
+    "15.9": "Drop Order"
+  },
+
+  "ownership": {
+    "section": "15.1",
+    "rules": {
+      "15.1:1": {
+        "rule": "Ownership is a property of values central to resource management.",
+        "status": "demonstrated"
+      },
+      "15.1:2": {
+        "rule": "An owner is a variable that holds a value.",
+        "status": "demonstrated"
+      },
+      "15.1:3": {
+        "rule": "A value shall have only one owner.",
+        "status": "enforced",
+        "notes": "Rust compiler enforces single ownership; iceoryx2 uses Arc for shared ownership"
+      }
+    },
+    "shared_ownership_patterns": {
+      "arc_count": 58,
+      "samples": [
+        {
+          "file": "iceoryx2/src/service/port_factory/request_response.rs",
+          "line": 74,
+          "code": "pub(crate) service: Arc<ServiceState<Service, NoResource>>",
+          "description": "Shared service state across port factories"
+        },
+        {
+          "file": "iceoryx2/src/port/writer.rs",
+          "line": 77,
+          "code": "service_state: Arc<ServiceState<Service, BlackboardResources<Service>>>",
+          "description": "Shared service state across writer instances"
+        },
+        {
+          "file": "iceoryx2-cal/src/communication_channel/process_local.rs",
+          "line": 52,
+          "code": "content: Arc<Management>",
+          "description": "Shared management for process-local channels"
+        }
+      ]
+    }
+  },
+
+  "initialization": {
+    "section": "15.2",
+    "rules": {
+      "15.2:1": {
+        "rule": "Initialization is the act of supplying an initial value to a variable.",
+        "status": "demonstrated"
+      },
+      "15.2:3": {
+        "rule": "When a variable lacks a value or its value has been passed by move, the variable is uninitialized.",
+        "status": "demonstrated"
+      },
+      "15.2:4": {
+        "rule": "A variable shall be initialized before it is accessed.",
+        "status": "enforced",
+        "notes": "Rust compiler enforces; PlacementDefault custom derive for in-place initialization"
+      }
+    },
+    "placement_default": {
+      "description": "Custom derive for in-place initialization without stack allocation",
+      "file": "iceoryx2-bb/derive-macros/src/lib.rs",
+      "notes": "Addresses large type initialization for IPC shared memory"
+    }
+  },
+
+  "references": {
+    "section": "15.3",
+    "rules": {
+      "15.3:1": {
+        "rule": "A reference is a value of a reference type.",
+        "mutable_reference_count": 2110
+      },
+      "15.3:3": {
+        "rule": "A reference shall point to an initialized referent.",
+        "status": "enforced"
+      },
+      "15.3:4": {
+        "rule": "The lifetime of a referent shall be at least as long as the lifetime of its reference.",
+        "status": "enforced"
+      },
+      "15.3:8": {
+        "rule": "An immutable reference prevents mutation of its referent.",
+        "status": "demonstrated"
+      },
+      "15.3:9": {
+        "rule": "A mutable reference allows mutation of its referent.",
+        "status": "demonstrated"
+      },
+      "15.3:10": {
+        "rule": "Referent of immutable reference shall be mutated only with interior mutability.",
+        "interior_mutability_count": 254
+      }
+    },
+    "interior_mutability": {
+      "unsafe_cell_usage": {
+        "description": "Core interior mutability primitive - major increase for FFI and concurrency",
+        "count": 231,
+        "samples": [
+          {
+            "file": "iceoryx2-bb/posix/src/ipc_capable.rs",
+            "line": 31,
+            "code": "handle: UnsafeCell<T>",
+            "purpose": "IPC-capable handle with interior mutability"
+          },
+          {
+            "file": "iceoryx2-bb/posix/src/thread.rs",
+            "line": 602,
+            "code": "name: UnsafeCell<ThreadName>",
+            "purpose": "Thread name storage with interior mutability"
+          },
+          {
+            "file": "iceoryx2-bb/posix/src/file_descriptor_set.rs",
+            "line": 113,
+            "code": "internals: UnsafeCell<Internals>",
+            "purpose": "File descriptor set internals"
+          }
+        ]
+      },
+      "refcell_usage": {
+        "description": "Runtime borrow checking",
+        "count": 23,
+        "samples": [
+          {
+            "file": "iceoryx2/src/waitset.rs",
+            "code": "attachment_to_deadline: RefCell<HashMap<i32, DeadlineQueueIndex>>",
+            "purpose": "WaitSet internal bookkeeping"
+          }
+        ]
+      }
+    }
+  },
+
+  "borrowing": {
+    "section": "15.4",
+    "rules": {
+      "15.4:1": {
+        "rule": "Borrowing is temporarily associating a reference with a value without transferring ownership.",
+        "status": "demonstrated"
+      },
+      "15.4:12": {
+        "rule": "An immutable borrow is an immutable reference produced by borrowing.",
+        "status": "demonstrated"
+      },
+      "15.4:13": {
+        "rule": "A mutable borrow is a mutable reference produced by borrowing.",
+        "status": "demonstrated"
+      }
+    },
+    "lifetime_patterns": {
+      "samples": [
+        {
+          "file": "iceoryx2-bb/posix/src/read_write_mutex.rs",
+          "line": 215,
+          "code": "pub struct MutexReadGuard<'handle, T: Debug>",
+          "description": "Guard lifetime tied to mutex handle"
+        },
+        {
+          "file": "iceoryx2-bb/posix/src/file_lock.rs",
+          "line": 126,
+          "code": "pub struct FileLockWriteGuard<'handle, 'b, T: FileDescriptorBased + Debug>",
+          "description": "Guard lifetime tied to lock handle"
+        }
+      ]
+    },
+    "phantom_data_usage": {
+      "count": 256,
+      "purpose": "Lifetime and ownership markers",
+      "samples": [
+        {
+          "file": "iceoryx2-cli/iox2/src/command/mod.rs",
+          "line": 113,
+          "code": "_phantom: core::marker::PhantomData<E>",
+          "purpose": "Type parameter ownership marker"
+        },
+        {
+          "file": "iceoryx2-tunnel/zenoh/src/backend.rs",
+          "line": 41,
+          "code": "_phantom: core::marker::PhantomData<S>",
+          "purpose": "Service type marker for tunnel backend"
+        }
+      ]
+    }
+  },
+
+  "passing_conventions": {
+    "section": "15.5",
+    "rules": {
+      "15.5:2_15.5:3": {
+        "rule": "A copy type implements Copy trait; values passed by copy don't change owner.",
+        "copy_derives": 553,
+        "samples": [
+          {
+            "file": "iceoryx2-bb/posix/src/clock.rs",
+            "code": "#[derive(Debug, Clone, Copy, Eq, Hash, PartialEq)]",
+            "type": "ClockType"
+          }
+        ]
+      },
+      "15.5:4_15.5:5": {
+        "rule": "A move type implements Sized but not Copy; values passed by move change owner.",
+        "status": "demonstrated",
+        "notes": "Most iceoryx2 types are move types for ownership clarity"
+      }
+    },
+    "clone_patterns": {
+      "derive_count": 513,
+      "impl_count": 3,
+      "samples": [
+        {
+          "file": "iceoryx2/src/raw_sample.rs",
+          "code": "impl<Header, UserHeader, Payload> Clone for RawSample<Header, UserHeader, Payload>",
+          "description": "Manual Clone for sample references"
+        }
+      ]
+    }
+  },
+
+  "destruction": {
+    "section": "15.6",
+    "rules": {
+      "15.6:1": {
+        "rule": "Destruction is the process of recovering resources as a value goes out of scope.",
+        "status": "demonstrated"
+      }
+    }
+  },
+
+  "destructors": {
+    "section": "15.7",
+    "rules": {
+      "15.7:1": {
+        "rule": "A drop type is a type that implements Drop trait or contains a field with drop type.",
+        "drop_implementations": 41
+      },
+      "15.7:2": {
+        "rule": "A destructor is a function invoked immediately before destruction of a drop type value.",
+        "status": "demonstrated"
+      },
+      "15.7:4": {
+        "rule": "An uninitialized variable is not dropped.",
+        "status": "demonstrated",
+        "notes": "mem::forget used in tests to simulate node death without cleanup"
+      }
+    },
+    "drop_categories": {
+      "resource_cleanup": {
+        "description": "POSIX resource cleanup",
+        "samples": [
+          {
+            "type": "UnixDatagramSender",
+            "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+            "line": 546,
+            "action": "close socket descriptor"
+          },
+          {
+            "type": "UnixDatagramReceiver",
+            "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+            "line": 812,
+            "action": "close socket descriptor"
+          },
+          {
+            "type": "Thread",
+            "file": "iceoryx2-bb/posix/src/thread.rs",
+            "line": 746,
+            "action": "join or detach thread"
+          }
+        ]
+      },
+      "guard_release": {
+        "description": "RAII guard release",
+        "samples": [
+          {
+            "type": "DeadlineQueueGuard",
+            "file": "iceoryx2-bb/posix/src/deadline_queue.rs",
+            "line": 86,
+            "action": "release deadline queue attachment"
+          },
+          {
+            "type": "FileDescriptorSetGuard",
+            "file": "iceoryx2-bb/posix/src/file_descriptor_set.rs",
+            "line": 104,
+            "action": "release file descriptor set"
+          },
+          {
+            "type": "SignalGuard",
+            "file": "iceoryx2-bb/posix/src/signal.rs",
+            "line": 271,
+            "action": "restore signal handler"
+          },
+          {
+            "type": "EpollGuard",
+            "file": "iceoryx2-bb/linux/src/epoll.rs",
+            "line": 232,
+            "action": "remove from epoll set"
+          }
+        ]
+      },
+      "ipc_cleanup": {
+        "description": "IPC resource deregistration",
+        "samples": [
+          {
+            "type": "Storage",
+            "file": "iceoryx2-cal/src/static_storage/process_local.rs",
+            "line": 183,
+            "action": "cleanup process-local storage"
+          },
+          {
+            "type": "Duplex",
+            "file": "iceoryx2-cal/src/communication_channel/process_local.rs",
+            "line": 248,
+            "action": "cleanup duplex channel"
+          },
+          {
+            "type": "Listener",
+            "file": "iceoryx2-cal/src/event/process_local_socketpair.rs",
+            "line": 302,
+            "action": "cleanup event listener"
+          }
+        ]
+      },
+      "ffi_cleanup": {
+        "description": "FFI resource cleanup for C API",
+        "samples": [
+          {
+            "type": "Logger",
+            "file": "iceoryx2-log/loggers/src/file.rs",
+            "line": 99,
+            "action": "close file logger"
+          }
+        ]
+      }
+    }
+  },
+
+  "drop_scopes": {
+    "section": "15.8",
+    "rules": {
+      "15.8:1": {
+        "rule": "A drop scope is a region of program text that governs dropping of values.",
+        "status": "demonstrated"
+      },
+      "15.8:2_to_15.8:6": {
+        "rule": "Drop constructs include expressions, functions, match arms, statements.",
+        "status": "demonstrated"
+      }
+    }
+  },
+
+  "drop_order": {
+    "section": "15.9",
+    "rules": {
+      "15.9:1": {
+        "rule": "Drop order is the order by which values are dropped when a drop scope is left.",
+        "status": "demonstrated"
+      },
+      "15.9:3": {
+        "rule": "Bindings are dropped in reverse declaration order.",
+        "status": "demonstrated"
+      },
+      "15.9:5": {
+        "rule": "Function parameters are dropped from right to left.",
+        "status": "demonstrated"
+      }
+    }
+  },
+
+  "raii_guards": {
+    "description": "RAII guard types that release resources on drop",
+    "count": 19,
+    "types": [
+      {
+        "name": "ScopeGuard",
+        "file": "iceoryx2-bb/elementary/src/scope_guard.rs",
+        "line": 101,
+        "purpose": "Generic cleanup on scope exit"
+      },
+      {
+        "name": "SignalGuard",
+        "file": "iceoryx2-bb/posix/src/signal.rs",
+        "line": 267,
+        "purpose": "Signal handler restoration"
+      },
+      {
+        "name": "MutexGuard",
+        "file": "iceoryx2-bb/posix/src/mutex.rs",
+        "line": 186,
+        "purpose": "Mutex unlock on scope exit"
+      },
+      {
+        "name": "MutexReadGuard",
+        "file": "iceoryx2-bb/posix/src/read_write_mutex.rs",
+        "line": 215,
+        "purpose": "Read lock release"
+      },
+      {
+        "name": "MutexWriteGuard",
+        "file": "iceoryx2-bb/posix/src/read_write_mutex.rs",
+        "line": 242,
+        "purpose": "Write lock release"
+      },
+      {
+        "name": "FileLockWriteGuard",
+        "file": "iceoryx2-bb/posix/src/file_lock.rs",
+        "line": 126,
+        "purpose": "File write lock release"
+      },
+      {
+        "name": "FileLockReadGuard",
+        "file": "iceoryx2-bb/posix/src/file_lock.rs",
+        "line": 159,
+        "purpose": "File read lock release"
+      },
+      {
+        "name": "FileDescriptorSetGuard",
+        "file": "iceoryx2-bb/posix/src/file_descriptor_set.rs",
+        "line": 93,
+        "purpose": "File descriptor set cleanup"
+      },
+      {
+        "name": "DeadlineQueueGuard",
+        "file": "iceoryx2-bb/posix/src/deadline_queue.rs",
+        "line": 67,
+        "purpose": "Deadline queue detachment"
+      },
+      {
+        "name": "ProcessGuard",
+        "file": "iceoryx2-bb/posix/src/process_state.rs",
+        "line": 509,
+        "purpose": "Process state monitoring"
+      },
+      {
+        "name": "WaitSetGuard",
+        "file": "iceoryx2/src/waitset.rs",
+        "line": 457,
+        "purpose": "WaitSet attachment cleanup"
+      },
+      {
+        "name": "EpollGuard",
+        "file": "iceoryx2-bb/linux/src/epoll.rs",
+        "line": 220,
+        "purpose": "Epoll attachment cleanup"
+      },
+      {
+        "name": "SpinLockGuard",
+        "file": "iceoryx2-bb/concurrency/src/spin_lock.rs",
+        "line": 91,
+        "purpose": "Spin lock release"
+      },
+      {
+        "name": "Guard (arc_sync_policy::mutex_protected)",
+        "file": "iceoryx2-cal/src/arc_sync_policy/mutex_protected.rs",
+        "line": 25,
+        "purpose": "Mutex-protected Arc guard"
+      },
+      {
+        "name": "Guard (arc_sync_policy::single_threaded)",
+        "file": "iceoryx2-cal/src/arc_sync_policy/single_threaded.rs",
+        "line": 18,
+        "purpose": "Single-threaded Arc guard"
+      }
+    ]
+  },
+
+  "manually_drop_usage": {
+    "description": "ManuallyDrop for FFI union memory management - NEW in v0.8.0",
+    "count": 541,
+    "purpose": "Safe handling of union types in C FFI layer without automatic Drop",
+    "samples": [
+      {
+        "file": "iceoryx2-ffi/c/src/api/client.rs",
+        "line": 46,
+        "code": "ipc: ManuallyDrop<...>",
+        "purpose": "Union variant for IPC client without automatic drop"
+      },
+      {
+        "file": "iceoryx2-ffi/c/src/api/client.rs",
+        "line": 456,
+        "code": "ManuallyDrop::drop(&mut client.value.as_mut().ipc);",
+        "purpose": "Explicit drop when FFI client is released"
+      },
+      {
+        "file": "iceoryx2-ffi/c/src/api/entry_handle.rs",
+        "line": 28,
+        "code": "ipc: ManuallyDrop<__InternalEntryHandle<crate::IpcService>>",
+        "purpose": "Union variant for entry handle"
+      }
+    ],
+    "rationale": "C API uses unions with ManuallyDrop to prevent automatic Rust drop semantics, allowing explicit control over when FFI resources are released"
+  },
+
+  "mem_forget_usage": {
+    "description": "Intentional memory leak via mem::forget for testing and resource control",
+    "count": 52,
+    "purpose": "Simulating node death without cleanup for testing recovery, and FFI resource transfer",
+    "samples": [
+      {
+        "file": "iceoryx2-cal/conformance-tests/src/event_trait.rs",
+        "line": 421,
+        "code": "core::mem::forget(...)",
+        "purpose": "Simulate crash for recovery testing"
+      },
+      {
+        "file": "iceoryx2-cal/conformance-tests/src/dynamic_storage_trait.rs",
+        "line": 586,
+        "code": "core::mem::forget(suts);",
+        "purpose": "Simulate orphaned resources"
+      },
+      {
+        "file": "iceoryx2-cal/conformance-tests/src/resizable_shared_memory_trait.rs",
+        "line": 635,
+        "code": "core::mem::forget(sut);",
+        "purpose": "Test shared memory cleanup on crash"
+      }
+    ]
+  },
+
+  "design_patterns": {
+    "raii_pattern": {
+      "description": "Resource Acquisition Is Initialization pattern for safe resource management",
+      "guard_count": 19,
+      "notes": "All synchronization primitives use RAII guards"
+    },
+    "ownership_transfer_via_from": {
+      "description": "From trait implementations for ownership-transferring conversions",
+      "count": 143
+    },
+    "shared_ownership_with_arc": {
+      "description": "Arc for sharing ownership across service instances and threads",
+      "count": 58,
+      "rationale": "Services and nodes need shared state across multiple ports"
+    },
+    "interior_mutability_for_ipc": {
+      "description": "UnsafeCell for shared memory access patterns",
+      "count": 231,
+      "rationale": "IPC requires mutable access through shared references"
+    },
+    "phantom_data_for_variance": {
+      "description": "PhantomData to encode ownership/lifetime relationships",
+      "count": 256,
+      "rationale": "Type-safe lifetime tracking without runtime cost"
+    },
+    "manually_drop_for_ffi": {
+      "description": "ManuallyDrop for explicit control in FFI unions - NEW",
+      "count": 541,
+      "rationale": "C API needs explicit resource lifetime control, not automatic Rust drop"
+    }
+  },
+
+  "cross_chapter_references": {
+    "chapter_4": "Types and Traits - Copy, Clone, Drop, Deref traits",
+    "chapter_7": "Values - value semantics and temporaries",
+    "chapter_11": "Implementations - Drop impl rules",
+    "chapter_12": "Generics - lifetime parameters",
+    "chapter_17": "Concurrency - Send/Sync with ownership",
+    "chapter_19": "Unsafety - UnsafeCell and raw pointer ownership",
+    "chapter_21": "FFI - ManuallyDrop for C API unions"
+  }
+}

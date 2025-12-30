@@ -2,7 +2,8 @@
   "chapter": 14,
   "title": "Entities and Resolution",
   "fls_url": "https://rust-lang.github.io/fls/entities-and-resolution.html",
-  "codebase": "iceoryx2",
+  "fls_id": "fls_gdeyap4or1db",
+  "repository": "eclipse-iceoryx/iceoryx2",
   "version": "0.8.0",
   "analysis_date": "2025-12-30",
   "version_changes": {
@@ -23,7 +24,6 @@
     ]
   },
   "summary": "FLS Chapter 14 defines entities, visibility, paths, scopes, namespaces, preludes, use imports, shadowing, and resolution. iceoryx2 v0.8.0 demonstrates comprehensive use of these concepts with expanded module organization due to the restructured crate layout and new FFI layer.",
-
   "statistics": {
     "use_imports": 5399,
     "pub_use_re_exports": 434,
@@ -38,120 +38,62 @@
     "use_crate_imports": 1153,
     "use_super_imports": 243
   },
-
   "sections": {
-    "14.1": "Entities",
-    "14.2": "Visibility",
-    "14.3": "Paths",
-    "14.4": "Scopes",
-    "14.5": "Namespaces",
-    "14.6": "Preludes",
-    "14.7": "Use Imports",
-    "14.8": "Shadowing",
-    "14.9": "Resolution"
-  },
-
-  "entities": {
-    "section": "14.1",
-    "rules": {
-      "14.1:1_to_14.1:3": {
-        "rule": "An entity is a construct that can be referred to. A name is an identifier that refers to an entity. A declaration introduces a name for an entity.",
-        "status": "demonstrated"
-      },
-      "14.1:4_to_14.1:21": {
-        "rule": "Explicitly declared entities include: associated items, bindings, constants, declarative macros, enum types, enum variants, fields, functions, generic parameters, implementations, labels, modules, statics, struct types, traits, type aliases, union types.",
-        "status": "demonstrated"
-      }
-    }
-  },
-
-  "visibility": {
-    "section": "14.2",
-    "rules": {
-      "14.2:1": {
-        "rule": "Visibility is a property of fields and items that determines which modules can refer to the name.",
-        "status": "demonstrated"
-      },
-      "14.2:2_14.2:10": {
-        "rule": "Public visibility allows name reference from arbitrary modules; simple public modifier (pub) grants public visibility.",
-        "status": "demonstrated"
-      },
-      "14.2:5": {
-        "rule": "Crate public modifier pub(crate) grants public visibility within current crate only.",
-        "count": 974,
-        "change_from_v0_7_0": "+303 (+45%)"
-      },
-      "14.2:11": {
-        "rule": "Super public modifier pub(super) grants public visibility within parent module only.",
-        "count": 248,
-        "change_from_v0_7_0": "+199 (+406%)"
-      }
-    }
-  },
-
-  "paths": {
-    "section": "14.3",
-    "rules": {
-      "14.3:1_to_14.3:3": {
-        "rule": "A path is a sequence of path segments separated by :: that resolves to an entity.",
-        "status": "demonstrated"
-      }
+    "14.1": {
+      "fls_section": "14.1",
+      "fls_ids": [],
+      "description": "Entities",
+      "status": "MUST_BE_FILLED"
     },
-    "path_types": {
-      "crate_paths": {
-        "count": 5145,
-        "change_from_v0_7_0": "+1620 (+46%)",
-        "description": "Paths starting with crate:: for absolute references within current crate"
-      },
-      "super_paths": {
-        "count": 354,
-        "change_from_v0_7_0": "+174 (+97%)",
-        "description": "Paths using super:: to reference parent module"
-      },
-      "self_paths": {
-        "count": 11,
-        "description": "Paths using self:: for current module references"
-      },
-      "core_paths": {
-        "count": 15,
-        "description": "Paths using ::core:: for core library references"
-      }
+    "14.2": {
+      "fls_section": "14.2",
+      "fls_ids": [],
+      "description": "Visibility",
+      "status": "MUST_BE_FILLED"
+    },
+    "14.3": {
+      "fls_section": "14.3",
+      "fls_ids": [],
+      "description": "Paths",
+      "status": "MUST_BE_FILLED"
+    },
+    "14.4": {
+      "fls_section": "14.4",
+      "fls_ids": [],
+      "description": "Scopes",
+      "status": "MUST_BE_FILLED"
+    },
+    "14.5": {
+      "fls_section": "14.5",
+      "fls_ids": [],
+      "description": "Namespaces",
+      "status": "MUST_BE_FILLED"
+    },
+    "14.6": {
+      "fls_section": "14.6",
+      "fls_ids": [],
+      "description": "Preludes",
+      "status": "MUST_BE_FILLED"
+    },
+    "14.7": {
+      "fls_section": "14.7",
+      "fls_ids": [],
+      "description": "Use Imports",
+      "status": "MUST_BE_FILLED"
+    },
+    "14.8": {
+      "fls_section": "14.8",
+      "fls_ids": [],
+      "description": "Shadowing",
+      "status": "MUST_BE_FILLED"
+    },
+    "14.9": {
+      "fls_section": "14.9",
+      "fls_ids": [],
+      "description": "Resolution",
+      "status": "MUST_BE_FILLED"
     }
   },
-
-  "use_imports": {
-    "section": "14.7",
-    "rules": {
-      "14.7:1": {
-        "rule": "A use import brings entities in scope within the block expression or module.",
-        "status": "demonstrated",
-        "count": 5399,
-        "change_from_v0_7_0": "+2525 (+88%)"
-      }
-    },
-    "import_types": {
-      "use_crate": {
-        "count": 1153,
-        "description": "use crate::... imports"
-      },
-      "use_super": {
-        "count": 243,
-        "description": "use super::... imports"
-      }
-    },
-    "re_exports": {
-      "description": "pub use statements for re-exporting items",
-      "count": 434,
-      "change_from_v0_7_0": "+202 (+87%)"
-    }
-  },
-
-  "module_organization": {
-    "mod_declarations": 321,
-    "pub_mod_declarations": 670,
-    "notes": "Significant module restructuring in v0.8.0 with flattened crate hierarchy"
-  },
-
   "design_patterns": {
     "visibility_layering": {
       "description": "Strategic use of visibility modifiers for API design",
@@ -169,7 +111,6 @@
       "count": 434
     }
   },
-
   "cross_chapter_references": {
     "chapter_3": "Items - entity declarations",
     "chapter_4": "Types and Traits - type namespace entities",

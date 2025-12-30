@@ -1,0 +1,449 @@
+{
+  "chapter": 17,
+  "title": "Concurrency",
+  "fls_url": "https://rust-lang.github.io/fls/concurrency.html",
+  "version": "0.8.0",
+  "analysis_date": "2025-12-30",
+  "version_changes": {
+    "from_version": "0.7.0",
+    "to_version": "0.8.0",
+    "summary": "Atomic system restructured: IoxAtomic replaced with wrapper types in iceoryx2-bb/concurrency. Significant increase in synchronization primitives for FFI layer.",
+    "key_changes": [
+      "Atomic type system restructured: IoxAtomic* → wrapper types in iceoryx2-bb/concurrency/atomic.rs",
+      "unsafe impl Send: 107 → 25 (-77% - consolidated)",
+      "unsafe impl Sync: 51 → 18 (-65% - consolidated)", 
+      "Memory ordering total: 824 → 848 (+3%)",
+      "Ordering::SeqCst: 32 → 48 (+50%)",
+      "Mutex usage: 66 → 398 (+503% - FFI layer)",
+      "Semaphore usage: 230 → 75 (-67% - refactored)",
+      "Barrier usage: 215 → 250 (+16%)",
+      "SpinLock added: 0 → 42 (NEW)",
+      "ReadWriteMutex/RwLock: 58 → 127 (+119%)",
+      "Send bounds: 147 → 338 (+130%)",
+      "Sync bounds: 23 → 223 (+869%)"
+    ]
+  },
+  "summary": "FLS Chapter 17 covers Send/Sync traits for thread safety, atomic types for shared-memory communication, and async computation. iceoryx2 v0.8.0 demonstrates extensive concurrency support with restructured atomic wrappers, 25 unsafe impl Send, 18 unsafe impl Sync, 848 memory ordering operations, custom lock-free data structures (SPSC/SPMC/MPMC queues), SpinLock for FFI, and four service threading models. No async/await is used - synchronous IPC is the design choice.",
+
+  "statistics": {
+    "unsafe_impl_send": 25,
+    "unsafe_impl_sync": 18,
+    "send_bounds": 338,
+    "sync_bounds": 223,
+    "atomic_usage": 806,
+    "iox_atomic_usage": 12,
+    "memory_ordering_total": 848,
+    "ordering_relaxed": 729,
+    "ordering_acquire": 41,
+    "ordering_release": 21,
+    "ordering_acqrel": 6,
+    "ordering_seqcst": 48,
+    "barrier_usage": 250,
+    "semaphore_usage": 75,
+    "mutex_usage": 398,
+    "rwlock_usage": 127,
+    "spinlock_usage": 42,
+    "thread_spawn": 4,
+    "async_fn": 0,
+    "await_usage": 0
+  },
+
+  "sections": {
+    "17.1": "Send and Sync",
+    "17.2": "Atomics",
+    "17.3": "Asynchronous Computation"
+  },
+
+  "send_and_sync": {
+    "section": "17.1",
+    "rules": {
+      "17.1:1": {
+        "rule": "Rust provides core::marker::Send and core::marker::Sync traits for preventing data races.",
+        "status": "extensively_demonstrated"
+      },
+      "17.1:2_17.1:3": {
+        "rule": "A send type implements Send; abstract data types auto-implement if all fields are send.",
+        "unsafe_impl_count": 25
+      },
+      "17.1:4": {
+        "rule": "Send type values are safe to transfer across thread boundaries.",
+        "status": "demonstrated"
+      },
+      "17.1:5_17.1:6": {
+        "rule": "A sync type implements Sync; abstract data types auto-implement if all fields are sync.",
+        "unsafe_impl_count": 18
+      },
+      "17.1:7": {
+        "rule": "Sync type values can be shared across threads without data races.",
+        "status": "demonstrated"
+      }
+    },
+    "custom_traits": {
+      "zero_copy_send": {
+        "file": "iceoryx2-bb/elementary-traits/src/zero_copy_send.rs",
+        "description": "Marker trait for types safe to send across process boundaries in shared memory",
+        "safety_requirements": [
+          "Types must be self-contained (no pointers to external resources)",
+          "No references or pointer members",
+          "Must have #[repr(C)] for uniform memory representation"
+        ],
+        "implemented_for": [
+          "Primitive types (usize, u8-u128, i8-i128, f32, f64, char, bool)",
+          "Atomic types from iceoryx2-bb/concurrency",
+          "Arrays and slices of ZeroCopySend types",
+          "Option<T> and Result<T, E> where T, E: ZeroCopySend",
+          "UnsafeCell<T>, MaybeUninit<T>",
+          "Tuples up to 3 elements"
+        ]
+      }
+    },
+    "send_implementations": {
+      "samples": [
+        {
+          "type": "BarrierHandle",
+          "file": "iceoryx2-bb/posix/src/barrier.rs",
+          "line": 162
+        },
+        {
+          "type": "Barrier",
+          "file": "iceoryx2-bb/posix/src/barrier.rs",
+          "line": 204
+        },
+        {
+          "type": "SignalHandler",
+          "file": "iceoryx2-bb/posix/src/signal.rs",
+          "line": 297
+        },
+        {
+          "type": "DegradationCallback",
+          "file": "iceoryx2/src/port/mod.rs",
+          "line": 70
+        },
+        {
+          "type": "HandleTranslator",
+          "file": "iceoryx2-pal/posix/src/windows/win32_handle_translator.rs",
+          "line": 149
+        }
+      ]
+    },
+    "sync_implementations": {
+      "samples": [
+        {
+          "type": "UniqueIndexSet",
+          "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+          "line": 247
+        },
+        {
+          "type": "NamedSemaphore",
+          "file": "iceoryx2-bb/posix/src/semaphore.rs",
+          "line": 406
+        },
+        {
+          "type": "UnnamedSemaphoreHandle",
+          "file": "iceoryx2-bb/posix/src/semaphore.rs",
+          "line": 673
+        },
+        {
+          "type": "UnnamedSemaphore",
+          "file": "iceoryx2-bb/posix/src/semaphore.rs",
+          "line": 744
+        },
+        {
+          "type": "RegisteredServices",
+          "file": "iceoryx2/src/node/mod.rs",
+          "line": 750
+        }
+      ]
+    }
+  },
+
+  "atomics": {
+    "section": "17.2",
+    "rules": {
+      "17.2:1": {
+        "rule": "Atomic types are defined in core::sync::atomic and provide shared-memory communication.",
+        "status": "extensively_demonstrated",
+        "usage_count": 806
+      }
+    },
+    "atomic_wrapper_types": {
+      "description": "Wrapper types providing ZeroCopySend-safe atomics - RESTRUCTURED in v0.8.0",
+      "file": "iceoryx2-bb/concurrency/src/atomic.rs",
+      "types": {
+        "AtomicBool": "Wrapper around core::sync::atomic::AtomicBool",
+        "AtomicUsize": "Wrapper around core::sync::atomic::AtomicUsize",
+        "AtomicU8": "Wrapper around core::sync::atomic::AtomicU8",
+        "AtomicU16": "Wrapper around core::sync::atomic::AtomicU16",
+        "AtomicU32": "Wrapper around core::sync::atomic::AtomicU32",
+        "AtomicU64": "Wrapper around core::sync::atomic::AtomicU64",
+        "AtomicI8": "Wrapper around core::sync::atomic::AtomicI8",
+        "AtomicI16": "Wrapper around core::sync::atomic::AtomicI16",
+        "AtomicI32": "Wrapper around core::sync::atomic::AtomicI32",
+        "AtomicI64": "Wrapper around core::sync::atomic::AtomicI64"
+      },
+      "features": [
+        "#[repr(transparent)] for zero-cost abstraction",
+        "Implements PlacementDefault and ZeroCopySend",
+        "Deref/DerefMut to underlying atomic type"
+      ],
+      "rationale": "Ensures atomics are safe for IPC shared memory while maintaining performance"
+    },
+    "legacy_iox_atomic": {
+      "description": "IoxAtomic types still present in PAL layer for low-level primitives",
+      "file": "iceoryx2-pal/concurrency-sync/src/",
+      "usage_count": 12,
+      "samples": [
+        {
+          "file": "iceoryx2-bb/elementary/src/lazy_singleton.rs",
+          "line": 73,
+          "code": "is_initialized: IoxAtomicBool::new(false)"
+        },
+        {
+          "file": "iceoryx2-pal/concurrency-sync/src/mutex.rs",
+          "line": 41,
+          "code": "state: IoxAtomicU32::new(0)"
+        }
+      ]
+    },
+    "memory_ordering": {
+      "total_usage": 848,
+      "breakdown": {
+        "Relaxed": {
+          "count": 729,
+          "percentage": "86%",
+          "usage": "Most atomic operations where ordering isn't critical"
+        },
+        "Acquire": {
+          "count": 41,
+          "percentage": "4.8%",
+          "usage": "Loading data after synchronization point"
+        },
+        "Release": {
+          "count": 21,
+          "percentage": "2.5%",
+          "usage": "Storing data before synchronization point"
+        },
+        "AcqRel": {
+          "count": 6,
+          "percentage": "0.7%",
+          "usage": "Combined acquire-release for read-modify-write"
+        },
+        "SeqCst": {
+          "count": 48,
+          "percentage": "5.7%",
+          "usage": "Strictest ordering for critical synchronization - increased from v0.7.0"
+        }
+      }
+    },
+    "atomic_usage_samples": [
+      {
+        "type": "AtomicU64",
+        "file": "iceoryx2-bb/elementary/src/unique_id.rs",
+        "line": 82,
+        "code": "static COUNTER: std::sync::LazyLock<IoxAtomicU64>",
+        "purpose": "Unique ID generation counter"
+      },
+      {
+        "type": "IoxAtomicBool",
+        "file": "iceoryx2-bb/elementary/src/lazy_singleton.rs",
+        "line": 73,
+        "code": "is_initialized: IoxAtomicBool::new(false)",
+        "purpose": "Double-checked locking for lazy initialization"
+      },
+      {
+        "type": "AtomicBool",
+        "file": "iceoryx2/conformance-tests/src/service_publish_subscribe.rs",
+        "line": 1243,
+        "code": "let keep_running = AtomicBool::new(true);",
+        "purpose": "Thread coordination flag"
+      }
+    ]
+  },
+
+  "asynchronous_computation": {
+    "section": "17.3",
+    "rules": {
+      "17.3:1": {
+        "rule": "Rust provides async computation through core::task and Future trait.",
+        "status": "not_used"
+      },
+      "17.3:2": {
+        "rule": "A future represents a value that may not have finished computing.",
+        "status": "not_used"
+      }
+    },
+    "design_rationale": {
+      "no_async": true,
+      "reason": "iceoryx2 uses synchronous IPC with polling/waiting patterns for deterministic behavior",
+      "alternatives_used": [
+        "WaitSet for multiplexed waiting",
+        "Deadline queues for timed operations",
+        "Polling-based message reception",
+        "Reactor pattern (epoll-based)"
+      ]
+    }
+  },
+
+  "lock_free_data_structures": {
+    "location": "iceoryx2-bb/lock-free/src/",
+    "categories": {
+      "spsc": {
+        "description": "Single-Producer Single-Consumer",
+        "location": "iceoryx2-bb/lock-free/src/spsc/",
+        "structures": [
+          "IndexQueue - Lock-free index queue",
+          "SafelyOverflowingIndexQueue - Index queue allowing overflow",
+          "Queue<T, CAPACITY> - Fixed-size value queue"
+        ]
+      },
+      "spmc": {
+        "description": "Single-Producer Multi-Consumer",
+        "location": "iceoryx2-bb/lock-free/src/spmc/",
+        "structures": [
+          "UnrestrictedAtomic<T> - Atomic value with producer/consumer split"
+        ]
+      },
+      "mpmc": {
+        "description": "Multi-Producer Multi-Consumer",
+        "location": "iceoryx2-bb/lock-free/src/mpmc/",
+        "structures": [
+          "BitSet - Lock-free bit set",
+          "Container<T> - Lock-free container with handles",
+          "UniqueIndexSet - Set providing unique indices"
+        ]
+      }
+    },
+    "implementation_pattern": "All use Atomic types with appropriate memory ordering"
+  },
+
+  "spinlock": {
+    "description": "NEW in v0.8.0 - SpinLock for low-latency synchronization",
+    "file": "iceoryx2-bb/concurrency/src/spin_lock.rs",
+    "line": 91,
+    "usage_count": 42,
+    "features": [
+      "RAII guard (SpinLockGuard)",
+      "Configurable spin behavior",
+      "Used in FFI layer for minimal latency"
+    ]
+  },
+
+  "service_threading_models": {
+    "description": "Four service variants with different threading and IPC characteristics",
+    "variants": [
+      {
+        "name": "ipc::Service",
+        "file": "iceoryx2/src/service/ipc.rs",
+        "scope": "Inter-process",
+        "thread_safety": "Single-threaded per port",
+        "arc_policy": "SingleThreaded<T>",
+        "use_case": "Most efficient when ports are not shared across threads"
+      },
+      {
+        "name": "ipc_threadsafe::Service",
+        "file": "iceoryx2/src/service/ipc_threadsafe.rs",
+        "scope": "Inter-process",
+        "thread_safety": "Thread-safe ports",
+        "arc_policy": "MutexProtected<T>",
+        "use_case": "When ports need to be shared across threads"
+      },
+      {
+        "name": "local::Service",
+        "file": "iceoryx2/src/service/local.rs",
+        "scope": "Single process",
+        "thread_safety": "Single-threaded per port",
+        "arc_policy": "SingleThreaded<T>",
+        "use_case": "Intra-process communication, single-threaded"
+      },
+      {
+        "name": "local_threadsafe::Service",
+        "file": "iceoryx2/src/service/local_threadsafe.rs",
+        "scope": "Single process",
+        "thread_safety": "Thread-safe ports",
+        "arc_policy": "MutexProtected<T>",
+        "use_case": "Intra-process communication, multi-threaded"
+      }
+    ]
+  },
+
+  "synchronization_primitives": {
+    "posix_wrappers": {
+      "location": "iceoryx2-bb/posix/src/",
+      "primitives": {
+        "mutex.rs": {
+          "types": ["Mutex", "MutexHandle", "MutexGuard"],
+          "description": "POSIX mutex with RAII guard"
+        },
+        "read_write_mutex.rs": {
+          "types": ["ReadWriteMutex", "MutexReadGuard", "MutexWriteGuard"],
+          "description": "Reader-writer lock"
+        },
+        "semaphore.rs": {
+          "types": ["NamedSemaphore", "UnnamedSemaphore", "UnnamedSemaphoreHandle"],
+          "description": "POSIX semaphores"
+        },
+        "barrier.rs": {
+          "types": ["Barrier", "BarrierHandle"],
+          "description": "Thread barrier synchronization"
+        },
+        "file_lock.rs": {
+          "types": ["FileLock", "FileLockReadGuard", "FileLockWriteGuard"],
+          "description": "File-based locking"
+        }
+      }
+    },
+    "pal_primitives": {
+      "location": "iceoryx2-pal/concurrency-sync/src/",
+      "primitives": {
+        "mutex.rs": "Low-level mutex implementation",
+        "rwlock.rs": "Low-level reader-writer lock",
+        "once.rs": "Once cell for initialization",
+        "condition_variable.rs": "Condition variable support"
+      }
+    },
+    "concurrency_primitives": {
+      "location": "iceoryx2-bb/concurrency/src/",
+      "primitives": {
+        "spin_lock.rs": "SpinLock with RAII guard - NEW",
+        "atomic.rs": "Atomic wrapper types - RESTRUCTURED",
+        "cell.rs": "UnsafeCell wrappers"
+      }
+    }
+  },
+
+  "design_patterns": {
+    "atomic_wrapper_abstraction": {
+      "description": "Wrapper types for atomics ensuring IPC safety",
+      "benefit": "ZeroCopySend compliance while maintaining atomic semantics"
+    },
+    "lock_free_ipc": {
+      "description": "Lock-free data structures for high-performance IPC",
+      "structures": "SPSC/SPMC/MPMC queues using atomics"
+    },
+    "service_threading_choice": {
+      "description": "Four service variants allow users to choose performance vs flexibility",
+      "single_threaded": "SingleThreaded policy - no locking overhead",
+      "thread_safe": "MutexProtected policy - safe cross-thread sharing"
+    },
+    "zero_copy_send": {
+      "description": "Custom trait for IPC-safe types across process boundaries",
+      "stricter_than_send": "Forbids pointers, references, handles"
+    },
+    "relaxed_ordering_preference": {
+      "description": "86% of atomic ops use Relaxed ordering",
+      "rationale": "Performance optimization where strict ordering isn't required"
+    },
+    "spinlock_for_ffi": {
+      "description": "SpinLock used in FFI layer for minimal latency - NEW",
+      "rationale": "Avoids system call overhead for short critical sections"
+    }
+  },
+
+  "cross_chapter_references": {
+    "chapter_4": "Types and Traits - Send, Sync auto-trait behavior",
+    "chapter_11": "Implementations - unsafe impl for Send/Sync",
+    "chapter_15": "Ownership - Arc for shared ownership across threads",
+    "chapter_19": "Unsafety - unsafe impl required for manual Send/Sync",
+    "chapter_21": "FFI - SpinLock and atomics for C API thread safety"
+  }
+}

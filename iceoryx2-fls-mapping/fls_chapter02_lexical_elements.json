@@ -1,1107 +1,1648 @@
 {
-  "fls_chapter": 2,
-  "chapter_title": "Lexical Elements",
+  "chapter": 2,
+  "title": "Lexical Elements",
+  "fls_url": "MUST_BE_FILLED",
+  "fls_id": "fls_411up5z0b6n6",
   "repository": "eclipse-iceoryx/iceoryx2",
   "version": "0.8.0",
-  "analysis_date": "2024-12",
+  "analysis_date": "2024-12-30",
   "version_changes": {
     "from_version": "0.7.0",
+    "to_version": "0.8.0",
     "summary": "Directory structure reorganized (iceoryx2-bb-* -> iceoryx2-bb/*), MSRV increased to 1.83, union types now supported in ZeroCopySend",
-    "notable_changes": [
+    "key_changes": [
       "Union keyword now used in FFI layer for C bindings",
       "C string literals usage expanded",
       "no_std support added - explicit core/alloc imports"
     ]
   },
-
-  "section_2_1_character_set": {
-    "fls_paragraphs": ["2.1:1", "2.1:2", "2.1:3-14", "2.1:15", "2.1:16", "2.1:17"],
-    "summary": "Program text uses Unicode; defines whitespace and ASCII characters",
-    
-    "unicode_usage": {
-      "non_ascii_identifiers": {
-        "used": false,
-        "note": "All identifiers in iceoryx2 are ASCII-only"
-      },
-      "unicode_escapes_in_strings": {
-        "used": false,
-        "note": "No \\u{...} escape sequences found in production code"
-      }
-    },
-    
-    "ascii_restriction_compliance": {
-      "fls_paragraph": "2.3:10-15",
-      "note": "iceoryx2 uses ASCII-only identifiers throughout",
-      "contexts_satisfied": [
-        "Crate imports",
-        "External crate names in paths",
-        "Outline module names",
-        "Items with #[no_mangle]",
-        "Items in external blocks"
-      ]
-    },
-
-    "safety_relevance": "LOW"
-  },
-
-  "section_2_2_lexical_elements_separators_punctuation": {
-    "fls_paragraphs": ["2.2:1-6", "2.2:7", "2.2:8", "2.2:9-11", "2.2:12-64"],
-    "summary": "Defines punctuators, separators, and delimiters",
-
-    "punctuator_categories": {
-      "arithmetic_operators": {
-        "division": {
-          "symbol": "/",
-          "fls_name": "Slash (2.2:17)",
-          "safety_note": "REVIEW - potential panic on zero divisor",
-          "modules": ["iceoryx2-bb/elementary", "iceoryx2-cal", "iceoryx2-bb/lock-free"],
-          "samples": [
-            {
-              "path": "iceoryx2-bb/elementary/src/math.rs",
-              "lines": "various",
-              "line_fragment": "value / divisor"
-            }
-          ]
-        },
-        "modulo": {
-          "symbol": "%",
-          "fls_name": "Percent (2.2:18)",
-          "safety_note": "REVIEW - potential panic on zero divisor",
-          "modules": ["iceoryx2-bb/lock-free", "iceoryx2-cal"],
-          "samples": [
-            {
-              "path": "iceoryx2-bb/lock-free/src/mpmc/queue.rs",
-              "lines": "181",
-              "line_fragment": "current_write_pos % (CAPACITY as u64)"
-            }
-          ]
-        }
-      },
-
-      "bitwise_operators": {
-        "and_mask": {
-          "symbol": "&",
-          "fls_name": "And (2.2:21)",
-          "modules": ["iceoryx2-bb/lock-free", "iceoryx2-pal/posix"],
-          "samples": [
-            {
-              "path": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
-              "lines": "249",
-              "line_fragment": "((value >> 40) as u32) & 0xffffff"
-            },
-            {
-              "path": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
-              "lines": "256",
-              "line_fragment": "(self.head & 0x00ffffff) as u64"
-            }
-          ]
-        },
-        "left_shift": {
-          "symbol": "<<",
-          "fls_name": "Shift left (2.2:25)",
-          "modules": ["iceoryx2", "iceoryx2-pal/posix"],
-          "samples": [
-            {
-              "path": "iceoryx2/src/port/details/channel_management.rs",
-              "lines": "18",
-              "line_fragment": "const DISCONNECT_HINT_BIT: u64 = 1u64 << 63;"
-            },
-            {
-              "path": "iceoryx2-pal/posix/src/macos/select.rs",
-              "lines": "92",
-              "line_fragment": "(*set).fds_bits[fd / BITS] |= 1i32 << (fd % BITS);"
-            }
-          ]
-        },
-        "right_shift": {
-          "symbol": ">>",
-          "fls_name": "Shift right (2.2:26)",
-          "modules": ["iceoryx2-bb/lock-free", "iceoryx2-pal/posix"],
-          "samples": [
-            {
-              "path": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
-              "lines": "249",
-              "line_fragment": "(value >> 40) as u32"
-            },
-            {
-              "path": "iceoryx2-pal/posix/src/stub/mman.rs",
-              "lines": "144",
-              "line_fragment": "(MAX_SUPPORTED_SHM_SIZE >> 32) & 0xFFFFFFFF"
-            }
-          ]
-        }
-      },
-
-      "range_operators": {
-        "inclusive_range": {
-          "symbol": "..=",
-          "fls_name": "Dot dot equals (2.2:49)",
-          "modules": ["iceoryx2-bb/system-types", "iceoryx2-bb/posix", "iceoryx2-bb/container"],
-          "samples": [
-            {
-              "path": "iceoryx2-bb/system-types/src/user_name.rs",
-              "lines": "47",
-              "line_fragment": "matches!(string[0], b'-' | b'0'..=b'9')"
-            },
-            {
-              "path": "iceoryx2-bb/system-types/src/user_name.rs",
-              "lines": "52",
-              "line_fragment": "b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'-' | b'_' => (),"
-            },
-            {
-              "path": "iceoryx2-bb/system-types/src/file_path.rs",
-              "lines": "79",
-              "line_fragment": "1..=31 => return true,"
-            },
-            {
-              "path": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
-              "lines": "961",
-              "line_fragment": "1..=isize::MAX => {"
-            },
-            {
-              "path": "iceoryx2-bb/container/src/byte_string.rs",
-              "lines": "277",
-              "line_fragment": "b'\\x20'..=b'\\x7e' => vec![*c].into_iter(),"
-            }
-          ]
-        },
-        "exclusive_range": {
-          "symbol": "..",
-          "fls_name": "Dot dot (2.2:47)",
-          "note": "Used in struct update syntax and slicing"
-        }
-      },
-
-      "question_mark": {
-        "symbol": "?",
-        "fls_name": "Question mark (2.2:58)",
-        "occurrences": 3443,
-        "modules": ["all crates"],
-        "samples": [
-          {
-            "path": "iceoryx2-bb/posix/src/memory.rs",
-            "lines": "117",
-            "line_fragment": "check_precondition(msg, layout)?;"
-          },
-          {
-            "path": "iceoryx2-bb/posix/src/process_state.rs",
-            "lines": "519",
-            "line_fragment": "owner_lock_path.push_bytes(OWNER_LOCK_SUFFIX)?;"
-          }
-        ]
-      }
-    },
-
-    "safety_relevance": "MEDIUM - Division and modulo require zero-divisor review"
-  },
-
-  "section_2_3_identifiers": {
-    "fls_paragraphs": ["2.3:1-2", "2.3:3-9", "2.3:10-15", "2.3:16-18"],
-    "summary": "Identifier syntax, Unicode normalization, raw identifiers",
-
-    "raw_identifiers": {
-      "fls_syntax": "r#keyword",
-      "used": false,
-      "note": "No r# raw identifiers found in iceoryx2"
-    },
-
-    "underscore_patterns": {
-      "discard_pattern": {
-        "syntax": "let _ = expr",
-        "purpose": "Explicitly discard return values",
-        "modules": ["iceoryx2", "iceoryx2-pal/concurrency-sync"],
-        "samples": [
-          {
-            "path": "iceoryx2/src/port/details/channel_management.rs",
-            "lines": "35",
-            "line_fragment": "let _ = self.channel_state(channel_id).compare_exchange("
-          },
-          {
-            "path": "iceoryx2/src/port/details/channel_management.rs",
-            "lines": "65",
-            "line_fragment": "let _ = self.channel_state(channel_id).compare_exchange("
-          },
-          {
-            "path": "iceoryx2-pal/concurrency-sync/src/rwlock.rs",
-            "lines": "300",
-            "line_fragment": "let _ = self.state.compare_exchange("
-          }
-        ]
-      },
-      "suppress_warning": {
-        "syntax": "let _name = expr",
-        "purpose": "Suppress unused variable warnings, keep binding for RAII",
-        "modules": ["iceoryx2-bb/posix"],
-        "samples": [
-          {
-            "path": "iceoryx2-bb/posix/src/udp_socket.rs",
-            "lines": "288",
-            "line_fragment": "let _guard = fatal_panic!(from self, when fd_set.add(&self.socket),"
-          },
-          {
-            "path": "iceoryx2-bb/posix/src/signal.rs",
-            "lines": "376",
-            "line_fragment": "let _sighandle = Self::instance();"
-          },
-          {
-            "path": "iceoryx2-bb/posix/src/directory.rs",
-            "lines": "391",
-            "line_fragment": "let _memory_cleanup_guard = ScopeGuardBuilder::new(namelist)"
-          },
-          {
-            "path": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
-            "lines": "419",
-            "line_fragment": "let _mask = ScopeGuardBuilder::new(0 as posix::mode_t)"
-          }
-        ]
-      }
-    },
-
-    "safety_relevance": "LOW"
-  },
-
-  "section_2_4_literals": {
-    "fls_paragraphs": ["2.4:1"],
-
-    "subsection_2_4_1_byte_literals": {
-      "fls_paragraphs": ["2.4.1:1", "2.4.1:2", "2.4.1:3"],
-      "type": "u8",
-      "modules": ["iceoryx2-bb/posix", "iceoryx2-bb/system-types", "iceoryx2"],
-      "samples": [
-        {
-          "path": "iceoryx2-bb/posix/src/file.rs",
-          "lines": "694",
-          "line_fragment": "if buffer[0] == b'\\n' {"
-        },
-        {
-          "path": "iceoryx2-bb/posix/src/directory.rs",
-          "lines": "424",
-          "line_fragment": "const DOT: posix::c_char = b'.' as _;"
-        },
-        {
-          "path": "iceoryx2/src/service/naming_scheme.rs",
-          "lines": "28",
-          "line_fragment": "file.push(b'_').unwrap();"
-        },
-        {
-          "path": "iceoryx2-bb/system-types/src/user_name.rs",
-          "lines": "47",
-          "line_fragment": "matches!(string[0], b'-' | b'0'..=b'9')"
-        },
-        {
-          "path": "iceoryx2-bb/system-types/src/file_path.rs",
-          "lines": "62",
-          "line_fragment": "string.get(string.len() - 2..string.len()).unwrap() == [PATH_SEPARATOR, b'.']"
-        },
-        {
-          "path": "iceoryx2-bb/system-types/src/file_path.rs",
-          "lines": "80-85",
-          "line_fragment": "b'<' => return true, b'>' => return true, b'\"' => return true, ..."
-        },
-        {
-          "path": "iceoryx2-bb/system-types/src/base64url.rs",
-          "lines": "36",
-          "line_fragment": "*c == b'-' || *c == b'_'"
-        }
+  "summary": "MUST_BE_FILLED",
+  "statistics": {},
+  "sections": {
+    "character_set": {
+      "fls_section": "2.1",
+      "fls_paragraphs": [
+        "2.1:1",
+        "2.1:2",
+        "2.1:3-14",
+        "2.1:15",
+        "2.1:16",
+        "2.1:17"
       ],
-      "escape_sequences": {
-        "backslash_n": {
-          "sample": {"path": "iceoryx2-bb/posix/src/file.rs", "lines": "694", "line_fragment": "b'\\n'"}
-        },
-        "backslash_t": {
-          "sample": {"path": "iceoryx2-bb/container/src/byte_string.rs", "lines": "274", "line_fragment": "b'\\t'"}
-        },
-        "backslash_r": {
-          "sample": {"path": "iceoryx2-bb/container/src/byte_string.rs", "lines": "275", "line_fragment": "b'\\r'"}
-        },
-        "backslash_0": {
-          "sample": {"path": "iceoryx2-pal/posix/src/stub/win32_security_attributes.rs", "lines": "97", "line_fragment": "if data[i] == b'\\0'"}
-        },
-        "backslash_x": {
-          "sample": {"path": "iceoryx2-bb/container/src/byte_string.rs", "lines": "277", "line_fragment": "b'\\x20'..=b'\\x7e'"}
-        }
-      }
-    },
-
-    "subsection_2_4_2_byte_string_literals": {
-      "fls_paragraphs": ["2.4.2:1", "2.4.2:2"],
-      
-      "simple_byte_strings": {
-        "fls_paragraphs": ["2.4.2.1:1-3"],
-        "type": "&'static [u8; N]",
-        "modules": ["iceoryx2-bb/posix", "iceoryx2", "iceoryx2-bb/system-types", "iceoryx2-pal/configuration"],
-        "samples": [
-          {
-            "path": "iceoryx2-bb/posix/src/process_state.rs",
-            "lines": "515",
-            "line_fragment": "const OWNER_LOCK_SUFFIX: &[u8] = b\"_owner_lock\";"
+      "fls_ids": [
+        "fls_2i089jvv8j5g"
+      ],
+      "description": "Character Set",
+      "findings": {
+        "summary": "Program text uses Unicode; defines whitespace and ASCII characters",
+        "unicode_usage": {
+          "non_ascii_identifiers": {
+            "used": false,
+            "note": "All identifiers in iceoryx2 are ASCII-only"
           },
-          {
-            "path": "iceoryx2-bb/posix/src/semaphore.rs",
-            "lines": "460",
-            "line_fragment": "FilePath::from_path_and_file(&Path::new(b\"/\").unwrap(), &self.name).unwrap();"
-          },
-          {
-            "path": "iceoryx2/src/node/mod.rs",
-            "lines": "333",
-            "line_fragment": "const FALLBACK_EXEC: &[u8] = b\"undefined\";"
-          },
-          {
-            "path": "iceoryx2/src/node/mod.rs",
-            "lines": "1095",
-            "line_fragment": "&FileName::new(b\"node\").unwrap(),"
-          },
-          {
-            "path": "iceoryx2/src/config.rs",
-            "lines": "91",
-            "line_fragment": "const DEFAULT_CONFIG_FILE_NAME: &[u8] = b\"iceoryx2.toml\";"
-          },
-          {
-            "path": "iceoryx2/src/config.rs",
-            "lines": "92-93",
-            "line_fragment": "const RELATIVE_LOCAL_CONFIG_PATH: &[u8] = b\"config\"; const RELATIVE_CONFIG_FILE_PATH: &[u8] = b\"iceoryx2\";"
-          },
-          {
-            "path": "iceoryx2/src/config.rs",
-            "lines": "156-164",
-            "line_fragment": "directory: Path::new(b\"services\").unwrap(), ... connection_suffix: FileName::new(b\".connection\").unwrap(),"
-          },
-          {
-            "path": "iceoryx2/src/config.rs",
-            "lines": "225",
-            "line_fragment": "prefix: FileName::new(b\"iox2_\").unwrap(),"
-          },
-          {
-            "path": "iceoryx2-bb/system-types/src/file_path.rs",
-            "lines": "50-52",
-            "line_fragment": "b\"\" => return true, b\".\" => return true, b\"..\" => return true,"
-          },
-          {
-            "path": "iceoryx2-pal/configuration/src/lib.rs",
-            "lines": "17",
-            "line_fragment": "pub const GLOBAL_CONFIG_PATH: &[u8] = b\"/etc\";"
+          "unicode_escapes_in_strings": {
+            "used": false,
+            "note": "No \\u{...} escape sequences found in production code"
           }
-        ]
-      },
-
-      "raw_byte_strings": {
-        "fls_paragraphs": ["2.4.2.2:1-2"],
-        "syntax": "br\"...\" or br#\"...\"#",
-        "used": false
-      }
-    },
-
-    "subsection_2_4_3_c_string_literals": {
-      "fls_paragraphs": ["2.4.3:1-2"],
-      "type": "&'static core::ffi::CStr",
-      
-      "simple_c_strings": {
-        "fls_paragraphs": ["2.4.3.1:1-3"],
-        "modules": ["iceoryx2-pal/posix", "iceoryx2-ffi/ffi-macros"],
-        "samples": [
-          {
-            "path": "iceoryx2-pal/posix/src/windows/win32_udp_port_to_uds_name.rs",
-            "lines": "32",
-            "line_fragment": "const SHM_SEGMENT_NAME: &CStr = c\"/port_to_uds_name_map\";"
-          },
-          {
-            "path": "iceoryx2-pal/posix/src/linux/unistd.rs",
-            "lines": "23",
-            "line_fragment": "c\"/proc/self/exe\".to_owned()"
-          },
-          {
-            "path": "iceoryx2-pal/posix/src/qnx/unistd.rs",
-            "lines": "23",
-            "line_fragment": "c\"/proc/self/exefile\".to_owned()"
-          },
-          {
-            "path": "iceoryx2-pal/posix/src/libc/unistd.rs",
-            "lines": "23",
-            "line_fragment": "c\"/proc/self/exe\".to_owned()"
-          },
-          {
-            "path": "iceoryx2-ffi/ffi-macros/src/lib.rs",
-            "lines": "246",
-            "line_fragment": "assert_eq!(v1.as_const_cstr(), c\"custom variant one\");"
-          }
-        ]
-      },
-
-      "raw_c_strings": {
-        "fls_paragraphs": ["2.4.3.2:1-2"],
-        "syntax": "cr\"...\"",
-        "used": false
-      }
-    },
-
-    "subsection_2_4_4_numeric_literals": {
-      "fls_paragraphs": ["2.4.4:1"],
-
-      "integer_literals": {
-        "fls_paragraphs": ["2.4.4.1:1-25"],
-        
-        "binary_literals": {
-          "fls_paragraph": "2.4.4.1:2",
-          "prefix": "0b",
-          "modules": ["iceoryx2-cal"],
-          "samples": [
-            {
-              "path": "iceoryx2-cal/src/zero_copy_connection/common.rs",
-              "lines": "115",
-              "line_fragment": "None = 0b00000000,"
-            },
-            {
-              "path": "iceoryx2-cal/src/zero_copy_connection/common.rs",
-              "lines": "116",
-              "line_fragment": "Sender = 0b00000001,"
-            },
-            {
-              "path": "iceoryx2-cal/src/zero_copy_connection/common.rs",
-              "lines": "117",
-              "line_fragment": "Receiver = 0b00000010,"
-            }
-          ],
-          "purpose": "Bit flags with clear positional meaning for port state"
         },
-
-        "octal_literals": {
-          "fls_paragraph": "2.4.4.1:5",
-          "prefix": "0o",
-          "modules": ["iceoryx2-bb/posix", "iceoryx2-pal/posix"],
-          "samples": [
-            {
-              "path": "iceoryx2-bb/posix/src/permission.rs",
-              "lines": "29",
-              "line_fragment": "pub const OWNER_READ: Self = Self(0o0400);"
-            },
-            {
-              "path": "iceoryx2-bb/posix/src/permission.rs",
-              "lines": "30",
-              "line_fragment": "pub const OWNER_WRITE: Self = Self(0o0200);"
-            },
-            {
-              "path": "iceoryx2-bb/posix/src/permission.rs",
-              "lines": "31",
-              "line_fragment": "pub const OWNER_EXEC: Self = Self(0o0100);"
-            },
-            {
-              "path": "iceoryx2-bb/posix/src/permission.rs",
-              "lines": "32",
-              "line_fragment": "pub const OWNER_ALL: Self = Self(0o0700);"
-            },
-            {
-              "path": "iceoryx2-bb/posix/src/permission.rs",
-              "lines": "34-42",
-              "line_fragment": "GROUP_READ: 0o0040, GROUP_WRITE: 0o0020, ... OTHERS_ALL: 0o0007"
-            },
-            {
-              "path": "iceoryx2-bb/posix/src/permission.rs",
-              "lines": "44-50",
-              "line_fragment": "ALL: 0o0777, SET_UID: 0o4000, SET_GID: 0o2000, STICKY_BIT: 0o1000, MASK: 0o7777"
-            },
-            {
-              "path": "iceoryx2-pal/posix/src/stub/constants.rs",
-              "lines": "169-176",
-              "line_fragment": "S_IFMT: 0o0170000, S_IFIFO: 0o0010000, ... S_IFSOCK: 0o0140000"
-            },
-            {
-              "path": "iceoryx2-pal/posix/src/stub/constants.rs",
-              "lines": "178-194",
-              "line_fragment": "S_ISUID: 0o04000, S_ISGID: 0o02000, S_ISVTX: 0o01000, S_IXUSR: 0o0100, ..."
-            }
-          ],
-          "purpose": "POSIX permission bits (traditional octal representation)"
-        },
-
-        "hexadecimal_literals": {
-          "fls_paragraph": "2.4.4.1:4",
-          "prefix": "0x",
-          "modules": ["iceoryx2-bb/posix", "iceoryx2-pal/posix", "iceoryx2-bb/lock-free"],
-          "samples": [
-            {
-              "path": "iceoryx2-bb/posix/src/permission.rs",
-              "lines": "51",
-              "line_fragment": "pub const UNKNOWN: Self = Self(0xFFFF);"
-            },
-            {
-              "path": "iceoryx2-pal/posix/src/libc/constants.rs",
-              "lines": "69",
-              "line_fragment": "pub const SCM_CREDENTIALS: int = 0x02;"
-            },
-            {
-              "path": "iceoryx2-pal/posix/src/stub/win32_security_attributes.rs",
-              "lines": "85-90",
-              "line_fragment": "FILE_READ_DATA_HEX: 0x1, FILE_WRITE_DATA_HEX: 0x2, FILE_EXECUTE_HEX: 0x20, ..."
-            },
-            {
-              "path": "iceoryx2-pal/posix/src/windows/win32_udp_port_to_uds_name.rs",
-              "lines": "28",
-              "line_fragment": "const IS_INITIALIZED: u64 = 0xaffedeadbeef;"
-            },
-            {
-              "path": "iceoryx2-pal/posix/src/windows/win32_udp_port_to_uds_name.rs",
-              "lines": "29",
-              "line_fragment": "const INITIALIZATION_IN_PROGRESS: u64 = 0xbebebebebebebebe;"
-            },
-            {
-              "path": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
-              "lines": "238",
-              "line_fragment": "const LOCK_ACQUIRE: u32 = 0x00ffffff;"
-            },
-            {
-              "path": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
-              "lines": "249-258",
-              "line_fragment": "& 0xffffff (bit field extraction), (self.head & 0x00ffffff) << 40 (bit packing)"
-            }
+        "ascii_restriction_compliance": {
+          "fls_paragraph": "2.3:10-15",
+          "note": "iceoryx2 uses ASCII-only identifiers throughout",
+          "contexts_satisfied": [
+            "Crate imports",
+            "External crate names in paths",
+            "Outline module names",
+            "Items with #[no_mangle]",
+            "Items in external blocks"
           ]
         },
-
-        "integer_suffixes": {
-          "fls_paragraphs": ["2.4.4.1:6-21"],
-          
-          "i8_suffix": {
-            "fls_paragraph": "2.4.4.1:10",
-            "modules": ["iceoryx2-pal/posix"],
+        "safety_relevance": "LOW"
+      }
+    },
+    "lexical_elements_separators_punctuation": {
+      "fls_section": "MUST_BE_FILLED",
+      "fls_paragraphs": [
+        "2.2:1-6",
+        "2.2:7",
+        "2.2:8",
+        "2.2:9-11",
+        "2.2:12-64"
+      ],
+      "description": "MUST_BE_FILLED",
+      "findings": {
+        "summary": "Defines punctuators, separators, and delimiters",
+        "punctuator_categories": {
+          "arithmetic_operators": {
+            "division": {
+              "symbol": "/",
+              "fls_name": "Slash (2.2:17)",
+              "safety_note": "REVIEW - potential panic on zero divisor",
+              "modules": [
+                "iceoryx2-bb/elementary",
+                "iceoryx2-cal",
+                "iceoryx2-bb/lock-free"
+              ],
+              "samples": [
+                {
+                  "file": "iceoryx2-bb/elementary/src/math.rs",
+                  "line": [],
+                  "code": "value / divisor"
+                }
+              ]
+            },
+            "modulo": {
+              "symbol": "%",
+              "fls_name": "Percent (2.2:18)",
+              "safety_note": "REVIEW - potential panic on zero divisor",
+              "modules": [
+                "iceoryx2-bb/lock-free",
+                "iceoryx2-cal"
+              ],
+              "samples": [
+                {
+                  "file": "iceoryx2-bb/lock-free/src/mpmc/queue.rs",
+                  "line": [
+                    181
+                  ],
+                  "code": "current_write_pos % (CAPACITY as u64)"
+                }
+              ]
+            }
+          },
+          "bitwise_operators": {
+            "and_mask": {
+              "symbol": "&",
+              "fls_name": "And (2.2:21)",
+              "modules": [
+                "iceoryx2-bb/lock-free",
+                "iceoryx2-pal/posix"
+              ],
+              "samples": [
+                {
+                  "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+                  "line": [
+                    249
+                  ],
+                  "code": "((value >> 40) as u32) & 0xffffff"
+                },
+                {
+                  "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+                  "line": [
+                    256
+                  ],
+                  "code": "(self.head & 0x00ffffff) as u64"
+                }
+              ]
+            },
+            "left_shift": {
+              "symbol": "<<",
+              "fls_name": "Shift left (2.2:25)",
+              "modules": [
+                "iceoryx2",
+                "iceoryx2-pal/posix"
+              ],
+              "samples": [
+                {
+                  "file": "iceoryx2/src/port/details/channel_management.rs",
+                  "line": [
+                    18
+                  ],
+                  "code": "const DISCONNECT_HINT_BIT: u64 = 1u64 << 63;"
+                },
+                {
+                  "file": "iceoryx2-pal/posix/src/macos/select.rs",
+                  "line": [
+                    92
+                  ],
+                  "code": "(*set).fds_bits[fd / BITS] |= 1i32 << (fd % BITS);"
+                }
+              ]
+            },
+            "right_shift": {
+              "symbol": ">>",
+              "fls_name": "Shift right (2.2:26)",
+              "modules": [
+                "iceoryx2-bb/lock-free",
+                "iceoryx2-pal/posix"
+              ],
+              "samples": [
+                {
+                  "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+                  "line": [
+                    249
+                  ],
+                  "code": "(value >> 40) as u32"
+                },
+                {
+                  "file": "iceoryx2-pal/posix/src/stub/mman.rs",
+                  "line": [
+                    144
+                  ],
+                  "code": "(MAX_SUPPORTED_SHM_SIZE >> 32) & 0xFFFFFFFF"
+                }
+              ]
+            }
+          },
+          "range_operators": {
+            "inclusive_range": {
+              "symbol": "..=",
+              "fls_name": "Dot dot equals (2.2:49)",
+              "modules": [
+                "iceoryx2-bb/system-types",
+                "iceoryx2-bb/posix",
+                "iceoryx2-bb/container"
+              ],
+              "samples": [
+                {
+                  "file": "iceoryx2-bb/system-types/src/user_name.rs",
+                  "line": [
+                    47
+                  ],
+                  "code": "matches!(string[0], b'-' | b'0'..=b'9')"
+                },
+                {
+                  "file": "iceoryx2-bb/system-types/src/user_name.rs",
+                  "line": [
+                    52
+                  ],
+                  "code": "b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'-' | b'_' => (),"
+                },
+                {
+                  "file": "iceoryx2-bb/system-types/src/file_path.rs",
+                  "line": [
+                    79
+                  ],
+                  "code": "1..=31 => return true,"
+                },
+                {
+                  "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+                  "line": [
+                    961
+                  ],
+                  "code": "1..=isize::MAX => {"
+                },
+                {
+                  "file": "iceoryx2-bb/container/src/byte_string.rs",
+                  "line": [
+                    277
+                  ],
+                  "code": "b'\\x20'..=b'\\x7e' => vec![*c].into_iter(),"
+                }
+              ]
+            },
+            "exclusive_range": {
+              "symbol": "..",
+              "fls_name": "Dot dot (2.2:47)",
+              "note": "Used in struct update syntax and slicing"
+            }
+          },
+          "question_mark": {
+            "symbol": "?",
+            "fls_name": "Question mark (2.2:58)",
+            "occurrences": 3443,
+            "modules": [
+              "all crates"
+            ],
             "samples": [
               {
-                "path": "iceoryx2-pal/posix/src/libc/mman.rs",
-                "lines": "54",
-                "line_fragment": "let mut temp = [0i8; 256];"
+                "file": "iceoryx2-bb/posix/src/memory.rs",
+                "line": [
+                  117
+                ],
+                "code": "check_precondition(msg, layout)?;"
               },
               {
-                "path": "iceoryx2-pal/posix/src/freebsd/mman.rs",
-                "lines": "63",
-                "line_fragment": "if *(name.add(i)) == 0i8 {"
-              },
-              {
-                "path": "iceoryx2-pal/posix/src/freebsd/mman.rs",
-                "lines": "174",
-                "line_fragment": "let mut shm_name = [0i8; 256];"
-              },
-              {
-                "path": "iceoryx2-pal/posix/src/qnx/mman.rs",
-                "lines": "59",
-                "line_fragment": "let mut temp = [0i8; 256];"
-              },
-              {
-                "path": "iceoryx2-pal/posix/src/macos/mman.rs",
-                "lines": "66",
-                "line_fragment": "if *(name.add(i)) == 0i8 {"
+                "file": "iceoryx2-bb/posix/src/process_state.rs",
+                "line": [
+                  519
+                ],
+                "code": "owner_lock_path.push_bytes(OWNER_LOCK_SUFFIX)?;"
               }
             ]
-          },
-          
-          "i32_suffix": {
-            "fls_paragraph": "2.4.4.1:12",
-            "modules": ["iceoryx2-pal/posix"],
-            "samples": [
-              {
-                "path": "iceoryx2-pal/posix/src/macos/select.rs",
-                "lines": "80",
-                "line_fragment": "(*set).fds_bits[fd / BITS] &= !(1i32 << (fd % BITS));"
-              },
-              {
-                "path": "iceoryx2-pal/posix/src/macos/select.rs",
-                "lines": "86",
-                "line_fragment": "(*set).fds_bits[fd / BITS] & (1i32 << (fd % BITS)) != 0"
-              },
-              {
-                "path": "iceoryx2-pal/posix/src/macos/select.rs",
-                "lines": "92",
-                "line_fragment": "(*set).fds_bits[fd / BITS] |= 1i32 << (fd % BITS);"
-              }
-            ]
-          },
-
-          "u8_suffix": {
-            "fls_paragraph": "2.4.4.1:16",
-            "modules": ["iceoryx2-bb/posix"],
-            "samples": [
-              {
-                "path": "iceoryx2-bb/posix/src/process.rs",
-                "lines": "175",
-                "line_fragment": "let mut buffer = [0u8; FilePath::max_len()];"
-              },
-              {
-                "path": "iceoryx2-bb/posix/src/file.rs",
-                "lines": "686",
-                "line_fragment": "let mut buffer = [0u8; 1];"
-              }
-            ]
-          },
-
-          "u16_suffix": {
-            "fls_paragraph": "2.4.4.1:17",
-            "modules": ["iceoryx2-pal/posix"],
-            "samples": [
-              {
-                "path": "iceoryx2-pal/posix/src/common/string_operations.rs",
-                "lines": "27",
-                "line_fragment": "if *value.add(i) == 0u16 {"
-              }
-            ]
-          },
-
-          "u32_suffix": {
-            "fls_paragraph": "2.4.4.1:18",
-            "modules": ["iceoryx2-bb/posix", "iceoryx2-pal/posix", "iceoryx2-bb/lock-free"],
-            "samples": [
-              {
-                "path": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
-                "lines": "828",
-                "line_fragment": "new_socket.socket.set_socket_option(\"...\", &1u32, posix::SO_PASSCRED)"
-              },
-              {
-                "path": "iceoryx2-pal/posix/src/stub/fcntl.rs",
-                "lines": "207",
-                "line_fragment": "let mut mode = if arg & O_NONBLOCK != 0 { 1u32 } else { 0u32 };"
-              },
-              {
-                "path": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
-                "lines": "632",
-                "line_fragment": "head: 2u32.pow(24) - 1,"
-              }
-            ]
-          },
-
-          "u64_suffix": {
-            "fls_paragraph": "2.4.4.1:19",
-            "modules": ["iceoryx2", "iceoryx2-pal/posix", "iceoryx2-cal"],
-            "samples": [
-              {
-                "path": "iceoryx2/src/port/details/channel_management.rs",
-                "lines": "18",
-                "line_fragment": "const DISCONNECT_HINT_BIT: u64 = 1u64 << 63;"
-              },
-              {
-                "path": "iceoryx2-pal/posix/src/macos/pthread.rs",
-                "lines": "555",
-                "line_fragment": "let mut id = 0u64;"
-              },
-              {
-                "path": "iceoryx2-cal/src/shared_memory_directory/reference_counter.rs",
-                "lines": "34-36",
-                "line_fragment": "let to_be_removed = if self.to_be_removed { 1u64 } else { 0u64 }; ..."
-              }
-            ]
-          },
-
-          "usize_suffix": {
-            "fls_paragraph": "2.4.4.1:21",
-            "modules": ["iceoryx2-bb/lock-free"],
-            "samples": [
-              {
-                "path": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
-                "lines": "265",
-                "line_fragment": "capacity < 2usize.pow(24) - 1,"
-              }
-            ]
-          },
-
-          "not_used": ["i16", "i64", "i128", "isize", "u128"]
+          }
         },
-
-        "underscore_separators": {
-          "fls_syntax": "1_000_000",
+        "safety_relevance": "MEDIUM - Division and modulo require zero-divisor review"
+      }
+    },
+    "identifiers": {
+      "fls_section": "2.3",
+      "fls_paragraphs": [
+        "2.3:1-2",
+        "2.3:3-9",
+        "2.3:10-15",
+        "2.3:16-18"
+      ],
+      "fls_ids": [
+        "fls_21vnag69kbwe"
+      ],
+      "description": "Identifiers",
+      "findings": {
+        "summary": "Identifier syntax, Unicode normalization, raw identifiers",
+        "raw_identifiers": {
+          "fls_syntax": "r#keyword",
           "used": false,
-          "note": "No underscore digit separators found in production code"
+          "note": "No r# raw identifiers found in iceoryx2"
+        },
+        "underscore_patterns": {
+          "discard_pattern": {
+            "syntax": "let _ = expr",
+            "purpose": "Explicitly discard return values",
+            "modules": [
+              "iceoryx2",
+              "iceoryx2-pal/concurrency-sync"
+            ],
+            "samples": [
+              {
+                "file": "iceoryx2/src/port/details/channel_management.rs",
+                "line": [
+                  35
+                ],
+                "code": "let _ = self.channel_state(channel_id).compare_exchange("
+              },
+              {
+                "file": "iceoryx2/src/port/details/channel_management.rs",
+                "line": [
+                  65
+                ],
+                "code": "let _ = self.channel_state(channel_id).compare_exchange("
+              },
+              {
+                "file": "iceoryx2-pal/concurrency-sync/src/rwlock.rs",
+                "line": [
+                  300
+                ],
+                "code": "let _ = self.state.compare_exchange("
+              }
+            ]
+          },
+          "suppress_warning": {
+            "syntax": "let _name = expr",
+            "purpose": "Suppress unused variable warnings, keep binding for RAII",
+            "modules": [
+              "iceoryx2-bb/posix"
+            ],
+            "samples": [
+              {
+                "file": "iceoryx2-bb/posix/src/udp_socket.rs",
+                "line": [
+                  288
+                ],
+                "code": "let _guard = fatal_panic!(from self, when fd_set.add(&self.socket),"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/signal.rs",
+                "line": [
+                  376
+                ],
+                "code": "let _sighandle = Self::instance();"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/directory.rs",
+                "line": [
+                  391
+                ],
+                "code": "let _memory_cleanup_guard = ScopeGuardBuilder::new(namelist)"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+                "line": [
+                  419
+                ],
+                "code": "let _mask = ScopeGuardBuilder::new(0 as posix::mode_t)"
+              }
+            ]
+          }
+        },
+        "safety_relevance": "LOW"
+      }
+    },
+    "literals": {
+      "fls_section": "2.4",
+      "fls_paragraphs": [
+        "2.4:1"
+      ],
+      "fls_ids": [
+        "fls_nrkd5wpi64oo"
+      ],
+      "description": "Literals",
+      "findings": {
+        "subsection_2_4_1_byte_literals": {
+          "fls_paragraphs": [
+            "2.4.1:1",
+            "2.4.1:2",
+            "2.4.1:3"
+          ],
+          "type": "u8",
+          "modules": [
+            "iceoryx2-bb/posix",
+            "iceoryx2-bb/system-types",
+            "iceoryx2"
+          ],
+          "samples": [
+            {
+              "file": "iceoryx2-bb/posix/src/file.rs",
+              "line": [
+                694
+              ],
+              "code": "if buffer[0] == b'\\n' {"
+            },
+            {
+              "file": "iceoryx2-bb/posix/src/directory.rs",
+              "line": [
+                424
+              ],
+              "code": "const DOT: posix::c_char = b'.' as _;"
+            },
+            {
+              "file": "iceoryx2/src/service/naming_scheme.rs",
+              "line": [
+                28
+              ],
+              "code": "file.push(b'_').unwrap();"
+            },
+            {
+              "file": "iceoryx2-bb/system-types/src/user_name.rs",
+              "line": [
+                47
+              ],
+              "code": "matches!(string[0], b'-' | b'0'..=b'9')"
+            },
+            {
+              "file": "iceoryx2-bb/system-types/src/file_path.rs",
+              "line": [
+                62
+              ],
+              "code": "string.get(string.len() - 2..string.len()).unwrap() == [PATH_SEPARATOR, b'.']"
+            },
+            {
+              "file": "iceoryx2-bb/system-types/src/file_path.rs",
+              "line": [
+                80,
+                81,
+                82,
+                83,
+                84,
+                85
+              ],
+              "code": "b'<' => return true, b'>' => return true, b'\"' => return true, ..."
+            },
+            {
+              "file": "iceoryx2-bb/system-types/src/base64url.rs",
+              "line": [
+                36
+              ],
+              "code": "*c == b'-' || *c == b'_'"
+            }
+          ],
+          "escape_sequences": {
+            "backslash_n": {
+              "sample": {
+                "path": "iceoryx2-bb/posix/src/file.rs",
+                "lines": "694",
+                "line_fragment": "b'\\n'"
+              }
+            },
+            "backslash_t": {
+              "sample": {
+                "path": "iceoryx2-bb/container/src/byte_string.rs",
+                "lines": "274",
+                "line_fragment": "b'\\t'"
+              }
+            },
+            "backslash_r": {
+              "sample": {
+                "path": "iceoryx2-bb/container/src/byte_string.rs",
+                "lines": "275",
+                "line_fragment": "b'\\r'"
+              }
+            },
+            "backslash_0": {
+              "sample": {
+                "path": "iceoryx2-pal/posix/src/stub/win32_security_attributes.rs",
+                "lines": "97",
+                "line_fragment": "if data[i] == b'\\0'"
+              }
+            },
+            "backslash_x": {
+              "sample": {
+                "path": "iceoryx2-bb/container/src/byte_string.rs",
+                "lines": "277",
+                "line_fragment": "b'\\x20'..=b'\\x7e'"
+              }
+            }
+          }
+        },
+        "subsection_2_4_2_byte_string_literals": {
+          "fls_paragraphs": [
+            "2.4.2:1",
+            "2.4.2:2"
+          ],
+          "simple_byte_strings": {
+            "fls_paragraphs": [
+              "2.4.2.1:1-3"
+            ],
+            "type": "&'static [u8; N]",
+            "modules": [
+              "iceoryx2-bb/posix",
+              "iceoryx2",
+              "iceoryx2-bb/system-types",
+              "iceoryx2-pal/configuration"
+            ],
+            "samples": [
+              {
+                "file": "iceoryx2-bb/posix/src/process_state.rs",
+                "line": [
+                  515
+                ],
+                "code": "const OWNER_LOCK_SUFFIX: &[u8] = b\"_owner_lock\";"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/semaphore.rs",
+                "line": [
+                  460
+                ],
+                "code": "FilePath::from_path_and_file(&Path::new(b\"/\").unwrap(), &self.name).unwrap();"
+              },
+              {
+                "file": "iceoryx2/src/node/mod.rs",
+                "line": [
+                  333
+                ],
+                "code": "const FALLBACK_EXEC: &[u8] = b\"undefined\";"
+              },
+              {
+                "file": "iceoryx2/src/node/mod.rs",
+                "line": [
+                  1095
+                ],
+                "code": "&FileName::new(b\"node\").unwrap(),"
+              },
+              {
+                "file": "iceoryx2/src/config.rs",
+                "line": [
+                  91
+                ],
+                "code": "const DEFAULT_CONFIG_FILE_NAME: &[u8] = b\"iceoryx2.toml\";"
+              },
+              {
+                "file": "iceoryx2/src/config.rs",
+                "line": [
+                  92,
+                  93
+                ],
+                "code": "const RELATIVE_LOCAL_CONFIG_PATH: &[u8] = b\"config\"; const RELATIVE_CONFIG_FILE_PATH: &[u8] = b\"iceoryx2\";"
+              },
+              {
+                "file": "iceoryx2/src/config.rs",
+                "line": [
+                  156,
+                  157,
+                  158,
+                  159,
+                  160,
+                  161,
+                  162,
+                  163,
+                  164
+                ],
+                "code": "directory: Path::new(b\"services\").unwrap(), ... connection_suffix: FileName::new(b\".connection\").unwrap(),"
+              },
+              {
+                "file": "iceoryx2/src/config.rs",
+                "line": [
+                  225
+                ],
+                "code": "prefix: FileName::new(b\"iox2_\").unwrap(),"
+              },
+              {
+                "file": "iceoryx2-bb/system-types/src/file_path.rs",
+                "line": [
+                  50,
+                  51,
+                  52
+                ],
+                "code": "b\"\" => return true, b\".\" => return true, b\"..\" => return true,"
+              },
+              {
+                "file": "iceoryx2-pal/configuration/src/lib.rs",
+                "line": [
+                  17
+                ],
+                "code": "pub const GLOBAL_CONFIG_PATH: &[u8] = b\"/etc\";"
+              }
+            ]
+          },
+          "raw_byte_strings": {
+            "fls_paragraphs": [
+              "2.4.2.2:1-2"
+            ],
+            "syntax": "br\"...\" or br#\"...\"#",
+            "used": false
+          }
+        },
+        "subsection_2_4_3_c_string_literals": {
+          "fls_paragraphs": [
+            "2.4.3:1-2"
+          ],
+          "type": "&'static core::ffi::CStr",
+          "simple_c_strings": {
+            "fls_paragraphs": [
+              "2.4.3.1:1-3"
+            ],
+            "modules": [
+              "iceoryx2-pal/posix",
+              "iceoryx2-ffi/ffi-macros"
+            ],
+            "samples": [
+              {
+                "file": "iceoryx2-pal/posix/src/windows/win32_udp_port_to_uds_name.rs",
+                "line": [
+                  32
+                ],
+                "code": "const SHM_SEGMENT_NAME: &CStr = c\"/port_to_uds_name_map\";"
+              },
+              {
+                "file": "iceoryx2-pal/posix/src/linux/unistd.rs",
+                "line": [
+                  23
+                ],
+                "code": "c\"/proc/self/exe\".to_owned()"
+              },
+              {
+                "file": "iceoryx2-pal/posix/src/qnx/unistd.rs",
+                "line": [
+                  23
+                ],
+                "code": "c\"/proc/self/exefile\".to_owned()"
+              },
+              {
+                "file": "iceoryx2-pal/posix/src/libc/unistd.rs",
+                "line": [
+                  23
+                ],
+                "code": "c\"/proc/self/exe\".to_owned()"
+              },
+              {
+                "file": "iceoryx2-ffi/ffi-macros/src/lib.rs",
+                "line": [
+                  246
+                ],
+                "code": "assert_eq!(v1.as_const_cstr(), c\"custom variant one\");"
+              }
+            ]
+          },
+          "raw_c_strings": {
+            "fls_paragraphs": [
+              "2.4.3.2:1-2"
+            ],
+            "syntax": "cr\"...\"",
+            "used": false
+          }
+        },
+        "subsection_2_4_4_numeric_literals": {
+          "fls_paragraphs": [
+            "2.4.4:1"
+          ],
+          "integer_literals": {
+            "fls_paragraphs": [
+              "2.4.4.1:1-25"
+            ],
+            "binary_literals": {
+              "fls_paragraph": "2.4.4.1:2",
+              "prefix": "0b",
+              "modules": [
+                "iceoryx2-cal"
+              ],
+              "samples": [
+                {
+                  "file": "iceoryx2-cal/src/zero_copy_connection/common.rs",
+                  "line": [
+                    115
+                  ],
+                  "code": "None = 0b00000000,"
+                },
+                {
+                  "file": "iceoryx2-cal/src/zero_copy_connection/common.rs",
+                  "line": [
+                    116
+                  ],
+                  "code": "Sender = 0b00000001,"
+                },
+                {
+                  "file": "iceoryx2-cal/src/zero_copy_connection/common.rs",
+                  "line": [
+                    117
+                  ],
+                  "code": "Receiver = 0b00000010,"
+                }
+              ],
+              "purpose": "Bit flags with clear positional meaning for port state"
+            },
+            "octal_literals": {
+              "fls_paragraph": "2.4.4.1:5",
+              "prefix": "0o",
+              "modules": [
+                "iceoryx2-bb/posix",
+                "iceoryx2-pal/posix"
+              ],
+              "samples": [
+                {
+                  "file": "iceoryx2-bb/posix/src/permission.rs",
+                  "line": [
+                    29
+                  ],
+                  "code": "pub const OWNER_READ: Self = Self(0o0400);"
+                },
+                {
+                  "file": "iceoryx2-bb/posix/src/permission.rs",
+                  "line": [
+                    30
+                  ],
+                  "code": "pub const OWNER_WRITE: Self = Self(0o0200);"
+                },
+                {
+                  "file": "iceoryx2-bb/posix/src/permission.rs",
+                  "line": [
+                    31
+                  ],
+                  "code": "pub const OWNER_EXEC: Self = Self(0o0100);"
+                },
+                {
+                  "file": "iceoryx2-bb/posix/src/permission.rs",
+                  "line": [
+                    32
+                  ],
+                  "code": "pub const OWNER_ALL: Self = Self(0o0700);"
+                },
+                {
+                  "file": "iceoryx2-bb/posix/src/permission.rs",
+                  "line": [
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42
+                  ],
+                  "code": "GROUP_READ: 0o0040, GROUP_WRITE: 0o0020, ... OTHERS_ALL: 0o0007"
+                },
+                {
+                  "file": "iceoryx2-bb/posix/src/permission.rs",
+                  "line": [
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50
+                  ],
+                  "code": "ALL: 0o0777, SET_UID: 0o4000, SET_GID: 0o2000, STICKY_BIT: 0o1000, MASK: 0o7777"
+                },
+                {
+                  "file": "iceoryx2-pal/posix/src/stub/constants.rs",
+                  "line": [
+                    169,
+                    170,
+                    171,
+                    172,
+                    173,
+                    174,
+                    175,
+                    176
+                  ],
+                  "code": "S_IFMT: 0o0170000, S_IFIFO: 0o0010000, ... S_IFSOCK: 0o0140000"
+                },
+                {
+                  "file": "iceoryx2-pal/posix/src/stub/constants.rs",
+                  "line": [
+                    178,
+                    179,
+                    180,
+                    181,
+                    182,
+                    183,
+                    184,
+                    185,
+                    186,
+                    187,
+                    188,
+                    189,
+                    190,
+                    191,
+                    192,
+                    193,
+                    194
+                  ],
+                  "code": "S_ISUID: 0o04000, S_ISGID: 0o02000, S_ISVTX: 0o01000, S_IXUSR: 0o0100, ..."
+                }
+              ],
+              "purpose": "POSIX permission bits (traditional octal representation)"
+            },
+            "hexadecimal_literals": {
+              "fls_paragraph": "2.4.4.1:4",
+              "prefix": "0x",
+              "modules": [
+                "iceoryx2-bb/posix",
+                "iceoryx2-pal/posix",
+                "iceoryx2-bb/lock-free"
+              ],
+              "samples": [
+                {
+                  "file": "iceoryx2-bb/posix/src/permission.rs",
+                  "line": [
+                    51
+                  ],
+                  "code": "pub const UNKNOWN: Self = Self(0xFFFF);"
+                },
+                {
+                  "file": "iceoryx2-pal/posix/src/libc/constants.rs",
+                  "line": [
+                    69
+                  ],
+                  "code": "pub const SCM_CREDENTIALS: int = 0x02;"
+                },
+                {
+                  "file": "iceoryx2-pal/posix/src/stub/win32_security_attributes.rs",
+                  "line": [
+                    85,
+                    86,
+                    87,
+                    88,
+                    89,
+                    90
+                  ],
+                  "code": "FILE_READ_DATA_HEX: 0x1, FILE_WRITE_DATA_HEX: 0x2, FILE_EXECUTE_HEX: 0x20, ..."
+                },
+                {
+                  "file": "iceoryx2-pal/posix/src/windows/win32_udp_port_to_uds_name.rs",
+                  "line": [
+                    28
+                  ],
+                  "code": "const IS_INITIALIZED: u64 = 0xaffedeadbeef;"
+                },
+                {
+                  "file": "iceoryx2-pal/posix/src/windows/win32_udp_port_to_uds_name.rs",
+                  "line": [
+                    29
+                  ],
+                  "code": "const INITIALIZATION_IN_PROGRESS: u64 = 0xbebebebebebebebe;"
+                },
+                {
+                  "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+                  "line": [
+                    238
+                  ],
+                  "code": "const LOCK_ACQUIRE: u32 = 0x00ffffff;"
+                },
+                {
+                  "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+                  "line": [
+                    249,
+                    250,
+                    251,
+                    252,
+                    253,
+                    254,
+                    255,
+                    256,
+                    257,
+                    258
+                  ],
+                  "code": "& 0xffffff (bit field extraction), (self.head & 0x00ffffff) << 40 (bit packing)"
+                }
+              ]
+            },
+            "integer_suffixes": {
+              "fls_paragraphs": [
+                "2.4.4.1:6-21"
+              ],
+              "i8_suffix": {
+                "fls_paragraph": "2.4.4.1:10",
+                "modules": [
+                  "iceoryx2-pal/posix"
+                ],
+                "samples": [
+                  {
+                    "file": "iceoryx2-pal/posix/src/libc/mman.rs",
+                    "line": [
+                      54
+                    ],
+                    "code": "let mut temp = [0i8; 256];"
+                  },
+                  {
+                    "file": "iceoryx2-pal/posix/src/freebsd/mman.rs",
+                    "line": [
+                      63
+                    ],
+                    "code": "if *(name.add(i)) == 0i8 {"
+                  },
+                  {
+                    "file": "iceoryx2-pal/posix/src/freebsd/mman.rs",
+                    "line": [
+                      174
+                    ],
+                    "code": "let mut shm_name = [0i8; 256];"
+                  },
+                  {
+                    "file": "iceoryx2-pal/posix/src/qnx/mman.rs",
+                    "line": [
+                      59
+                    ],
+                    "code": "let mut temp = [0i8; 256];"
+                  },
+                  {
+                    "file": "iceoryx2-pal/posix/src/macos/mman.rs",
+                    "line": [
+                      66
+                    ],
+                    "code": "if *(name.add(i)) == 0i8 {"
+                  }
+                ]
+              },
+              "i32_suffix": {
+                "fls_paragraph": "2.4.4.1:12",
+                "modules": [
+                  "iceoryx2-pal/posix"
+                ],
+                "samples": [
+                  {
+                    "file": "iceoryx2-pal/posix/src/macos/select.rs",
+                    "line": [
+                      80
+                    ],
+                    "code": "(*set).fds_bits[fd / BITS] &= !(1i32 << (fd % BITS));"
+                  },
+                  {
+                    "file": "iceoryx2-pal/posix/src/macos/select.rs",
+                    "line": [
+                      86
+                    ],
+                    "code": "(*set).fds_bits[fd / BITS] & (1i32 << (fd % BITS)) != 0"
+                  },
+                  {
+                    "file": "iceoryx2-pal/posix/src/macos/select.rs",
+                    "line": [
+                      92
+                    ],
+                    "code": "(*set).fds_bits[fd / BITS] |= 1i32 << (fd % BITS);"
+                  }
+                ]
+              },
+              "u8_suffix": {
+                "fls_paragraph": "2.4.4.1:16",
+                "modules": [
+                  "iceoryx2-bb/posix"
+                ],
+                "samples": [
+                  {
+                    "file": "iceoryx2-bb/posix/src/process.rs",
+                    "line": [
+                      175
+                    ],
+                    "code": "let mut buffer = [0u8; FilePath::max_len()];"
+                  },
+                  {
+                    "file": "iceoryx2-bb/posix/src/file.rs",
+                    "line": [
+                      686
+                    ],
+                    "code": "let mut buffer = [0u8; 1];"
+                  }
+                ]
+              },
+              "u16_suffix": {
+                "fls_paragraph": "2.4.4.1:17",
+                "modules": [
+                  "iceoryx2-pal/posix"
+                ],
+                "samples": [
+                  {
+                    "file": "iceoryx2-pal/posix/src/common/string_operations.rs",
+                    "line": [
+                      27
+                    ],
+                    "code": "if *value.add(i) == 0u16 {"
+                  }
+                ]
+              },
+              "u32_suffix": {
+                "fls_paragraph": "2.4.4.1:18",
+                "modules": [
+                  "iceoryx2-bb/posix",
+                  "iceoryx2-pal/posix",
+                  "iceoryx2-bb/lock-free"
+                ],
+                "samples": [
+                  {
+                    "file": "iceoryx2-bb/posix/src/unix_datagram_socket.rs",
+                    "line": [
+                      828
+                    ],
+                    "code": "new_socket.socket.set_socket_option(\"...\", &1u32, posix::SO_PASSCRED)"
+                  },
+                  {
+                    "file": "iceoryx2-pal/posix/src/stub/fcntl.rs",
+                    "line": [
+                      207
+                    ],
+                    "code": "let mut mode = if arg & O_NONBLOCK != 0 { 1u32 } else { 0u32 };"
+                  },
+                  {
+                    "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+                    "line": [
+                      632
+                    ],
+                    "code": "head: 2u32.pow(24) - 1,"
+                  }
+                ]
+              },
+              "u64_suffix": {
+                "fls_paragraph": "2.4.4.1:19",
+                "modules": [
+                  "iceoryx2",
+                  "iceoryx2-pal/posix",
+                  "iceoryx2-cal"
+                ],
+                "samples": [
+                  {
+                    "file": "iceoryx2/src/port/details/channel_management.rs",
+                    "line": [
+                      18
+                    ],
+                    "code": "const DISCONNECT_HINT_BIT: u64 = 1u64 << 63;"
+                  },
+                  {
+                    "file": "iceoryx2-pal/posix/src/macos/pthread.rs",
+                    "line": [
+                      555
+                    ],
+                    "code": "let mut id = 0u64;"
+                  },
+                  {
+                    "file": "iceoryx2-cal/src/shared_memory_directory/reference_counter.rs",
+                    "line": [
+                      34,
+                      35,
+                      36
+                    ],
+                    "code": "let to_be_removed = if self.to_be_removed { 1u64 } else { 0u64 }; ..."
+                  }
+                ]
+              },
+              "usize_suffix": {
+                "fls_paragraph": "2.4.4.1:21",
+                "modules": [
+                  "iceoryx2-bb/lock-free"
+                ],
+                "samples": [
+                  {
+                    "file": "iceoryx2-bb/lock-free/src/mpmc/unique_index_set.rs",
+                    "line": [
+                      265
+                    ],
+                    "code": "capacity < 2usize.pow(24) - 1,"
+                  }
+                ]
+              },
+              "not_used": [
+                "i16",
+                "i64",
+                "i128",
+                "isize",
+                "u128"
+              ]
+            },
+            "underscore_separators": {
+              "fls_syntax": "1_000_000",
+              "used": false,
+              "note": "No underscore digit separators found in production code"
+            }
+          },
+          "float_literals": {
+            "fls_paragraphs": [
+              "2.4.4.2:1-11"
+            ],
+            "modules": [
+              "iceoryx2-bb/posix",
+              "iceoryx2-pal/configuration"
+            ],
+            "samples": [
+              {
+                "file": "iceoryx2-bb/posix/src/scheduler.rs",
+                "line": [
+                  95
+                ],
+                "code": ".clamp(0.0, 1.0),"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/scheduler.rs",
+                "line": [
+                  96
+                ],
+                "code": "false => (1.0"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/scheduler.rs",
+                "line": [
+                  113
+                ],
+                "code": "let relative_prio: f32 = (priority as f32 / u8::MAX as f32).clamp(0.0, 1.0);"
+              },
+              {
+                "file": "iceoryx2-pal/configuration/src/lib.rs",
+                "line": [
+                  30
+                ],
+                "code": "pub const AT_LEAST_TIMING_VARIANCE: f32 = 0.25;"
+              },
+              {
+                "file": "iceoryx2-pal/configuration/src/lib.rs",
+                "line": [
+                  32
+                ],
+                "code": "pub const AT_LEAST_TIMING_VARIANCE: f32 = 1.0;"
+              },
+              {
+                "file": "iceoryx2-pal/configuration/src/lib.rs",
+                "line": [
+                  47
+                ],
+                "code": "pub const AT_LEAST_TIMING_VARIANCE: f32 = 0.25;"
+              },
+              {
+                "file": "iceoryx2-pal/configuration/src/lib.rs",
+                "line": [
+                  62
+                ],
+                "code": "pub const AT_LEAST_TIMING_VARIANCE: f32 = 1.0;"
+              }
+            ],
+            "suffixes_used": {
+              "f32": false,
+              "f64": false,
+              "note": "All floats are unsuffixed, type inferred from context"
+            },
+            "exponent_notation": {
+              "used": false
+            },
+            "safety_note": "MINIMAL FLOAT USE - Could be refactored to fixed-point for ASIL B"
+          }
+        },
+        "subsection_2_4_5_character_literals": {
+          "fls_paragraphs": [
+            "2.4.5:1-4"
+          ],
+          "type": "char",
+          "used": false,
+          "note": "char literals not used directly; byte literals (b'x') used instead for ASCII"
+        },
+        "subsection_2_4_6_string_literals": {
+          "fls_paragraphs": [
+            "2.4.6:1-2"
+          ],
+          "simple_strings": {
+            "fls_paragraphs": [
+              "2.4.6.1:1-4"
+            ],
+            "type": "&'static str",
+            "occurrences": "507+",
+            "note": "ELIDED - Ubiquitous for error messages, documentation strings"
+          },
+          "raw_strings": {
+            "fls_paragraphs": [
+              "2.4.6.2:1-2"
+            ],
+            "syntax": "r\"...\" or r#\"...\"#",
+            "used": false
+          }
+        },
+        "subsection_2_4_7_boolean_literals": {
+          "fls_paragraphs": [
+            "2.4.7:1-2"
+          ],
+          "type": "bool",
+          "true_occurrences": 1427,
+          "false_occurrences": 1184,
+          "note": "ELIDED - Ubiquitous"
         }
-      },
-
-      "float_literals": {
-        "fls_paragraphs": ["2.4.4.2:1-11"],
-        "modules": ["iceoryx2-bb/posix", "iceoryx2-pal/configuration"],
-        "samples": [
-          {
-            "path": "iceoryx2-bb/posix/src/scheduler.rs",
-            "lines": "95",
-            "line_fragment": ".clamp(0.0, 1.0),"
+      }
+    },
+    "comments": {
+      "fls_section": "2.5",
+      "fls_paragraphs": [
+        "2.5:1-17"
+      ],
+      "fls_ids": [
+        "fls_q8l2jza7d9xa"
+      ],
+      "description": "Comments",
+      "findings": {
+        "note": "ELIDED - Comments are ubiquitous. Well-documented codebase.",
+        "summary_counts": {
+          "line_comments": 36784,
+          "block_comments": 2,
+          "inner_line_doc": 6017,
+          "outer_line_doc": 16774,
+          "inner_block_doc": 0,
+          "outer_block_doc": 0
+        }
+      }
+    },
+    "keywords": {
+      "fls_section": "2.6",
+      "fls_paragraphs": [
+        "2.6:1-2"
+      ],
+      "fls_ids": [
+        "fls_lish33a1naw5"
+      ],
+      "description": "Keywords",
+      "findings": {
+        "subsection_2_6_1_strict_keywords": {
+          "fls_paragraphs": [
+            "2.6.1:1"
+          ],
+          "async_await": {
+            "keywords": [
+              "async",
+              "await"
+            ],
+            "used": false,
+            "safety_note": "NOT USED - async/await avoided for determinism in safety-critical code"
           },
-          {
-            "path": "iceoryx2-bb/posix/src/scheduler.rs",
-            "lines": "96",
-            "line_fragment": "false => (1.0"
+          "dyn_keyword": {
+            "keyword": "dyn",
+            "fls_note": "Trait objects",
+            "occurrences": 319,
+            "modules": [
+              "iceoryx2-bb/posix",
+              "iceoryx2",
+              "iceoryx2-cal",
+              "iceoryx2-bb/log",
+              "iceoryx2-ffi"
+            ],
+            "samples": [
+              {
+                "file": "iceoryx2-bb/posix/src/signal.rs",
+                "line": [
+                  277
+                ],
+                "code": "registered_signals: [Option<&'static dyn Fn(FetchableSignal)>; posix::MAX_SIGNAL_VALUE],"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/signal.rs",
+                "line": [
+                  549
+                ],
+                "code": ") -> &Option<&'static dyn Fn(FetchableSignal)> {"
+              },
+              {
+                "file": "iceoryx2/src/service/builder/blackboard.rs",
+                "line": [
+                  161
+                ],
+                "code": "value_writer: Box<dyn FnMut(*mut u8)>,"
+              },
+              {
+                "file": "iceoryx2/src/service/builder/blackboard.rs",
+                "line": [
+                  164
+                ],
+                "code": "internal_value_cleanup_callback: Box<dyn FnMut()>,"
+              },
+              {
+                "file": "iceoryx2-cal/src/dynamic_storage/process_local.rs",
+                "line": [
+                  70
+                ],
+                "code": "content: Arc<dyn Any + Send + Sync>,"
+              }
+            ],
+            "safety_note": "Increased usage in v0.8.0 due to expanded FFI layer - mostly for logging, callbacks, and FFI abstraction"
           },
-          {
-            "path": "iceoryx2-bb/posix/src/scheduler.rs",
-            "lines": "113",
-            "line_fragment": "let relative_prio: f32 = (priority as f32 / u8::MAX as f32).clamp(0.0, 1.0);"
+          "move_keyword": {
+            "keyword": "move",
+            "fls_note": "Closure capture",
+            "occurrences": 64,
+            "modules": [
+              "iceoryx2-bb/posix",
+              "iceoryx2",
+              "iceoryx2-bb/log"
+            ],
+            "samples": [
+              {
+                "file": "iceoryx2-bb/posix/src/unique_system_id.rs",
+                "line": [
+                  156
+                ],
+                "code": "std::thread::spawn(move || -> UniqueSystemId { UniqueSystemId::create(pid, now) });"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/unique_system_id.rs",
+                "line": [
+                  158
+                ],
+                "code": "std::thread::spawn(move || -> UniqueSystemId { UniqueSystemId::create(pid, now) });"
+              },
+              {
+                "file": "iceoryx2/src/service/builder/blackboard.rs",
+                "line": [
+                  380
+                ],
+                "code": "value_writer: Box::new(move |mem: *mut u8| {"
+              },
+              {
+                "file": "iceoryx2/src/service/builder/blackboard.rs",
+                "line": [
+                  408
+                ],
+                "code": "value_writer: Box::new(move |mem: *mut u8| {"
+              }
+            ]
           },
-          {
-            "path": "iceoryx2-pal/configuration/src/lib.rs",
-            "lines": "30",
-            "line_fragment": "pub const AT_LEAST_TIMING_VARIANCE: f32 = 0.25;"
+          "extern_keyword": {
+            "keyword": "extern",
+            "occurrences": 976,
+            "modules": [
+              "iceoryx2-bb/derive-macros",
+              "iceoryx2-bb/posix",
+              "iceoryx2",
+              "iceoryx2-pal/posix",
+              "iceoryx2-ffi"
+            ],
+            "samples": [
+              {
+                "file": "iceoryx2-bb/derive-macros/src/lib.rs",
+                "line": [
+                  19
+                ],
+                "code": "extern crate proc_macro;"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/signal.rs",
+                "line": [
+                  303
+                ],
+                "code": "extern \"C\" fn handler(signal: posix::int) {"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/signal.rs",
+                "line": [
+                  310
+                ],
+                "code": "extern \"C\" fn capture_signal(signal: posix::int) {"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/thread.rs",
+                "line": [
+                  408
+                ],
+                "code": "extern \"C\" fn start_routine<'thread, FF, TT>(args: *mut posix::void) -> *mut posix::void"
+              },
+              {
+                "file": "iceoryx2/src/lib.rs",
+                "line": [
+                  513
+                ],
+                "code": "extern crate alloc;"
+              },
+              {
+                "file": "iceoryx2-pal/posix/src/freebsd/select.rs",
+                "line": [
+                  67
+                ],
+                "code": "extern \"C\" {"
+              },
+              {
+                "file": "iceoryx2-ffi/c/src/api/writer.rs",
+                "line": [
+                  151
+                ],
+                "code": "pub unsafe extern \"C\" fn iox2_entry_handle_mut_error_string("
+              }
+            ],
+            "note": "Significant increase from v0.7.0 (48 -> 976) due to expanded C/C++ FFI bindings"
           },
-          {
-            "path": "iceoryx2-pal/configuration/src/lib.rs",
-            "lines": "32",
-            "line_fragment": "pub const AT_LEAST_TIMING_VARIANCE: f32 = 1.0;"
-          },
-          {
-            "path": "iceoryx2-pal/configuration/src/lib.rs",
-            "lines": "47",
-            "line_fragment": "pub const AT_LEAST_TIMING_VARIANCE: f32 = 0.25;"
-          },
-          {
-            "path": "iceoryx2-pal/configuration/src/lib.rs",
-            "lines": "62",
-            "line_fragment": "pub const AT_LEAST_TIMING_VARIANCE: f32 = 1.0;"
+          "unsafe_keyword": {
+            "keyword": "unsafe",
+            "occurrences": 4959,
+            "safety_note": "CRITICAL - requires individual review for each occurrence. Increased from 2437 in v0.7.0 due to expanded FFI layer"
           }
-        ],
-        "suffixes_used": {
-          "f32": false,
-          "f64": false,
-          "note": "All floats are unsuffixed, type inferred from context"
         },
-        "exponent_notation": {
-          "used": false
+        "subsection_2_6_2_reserved_keywords": {
+          "fls_paragraphs": [
+            "2.6.2:1"
+          ],
+          "note": "All reserved keywords verified unused (compliant)",
+          "keywords_checked": [
+            "abstract",
+            "become",
+            "box",
+            "do",
+            "final",
+            "macro",
+            "override",
+            "priv",
+            "try",
+            "typeof",
+            "unsized",
+            "virtual",
+            "yield"
+          ],
+          "status": "COMPLIANT"
         },
-        "safety_note": "MINIMAL FLOAT USE - Could be refactored to fixed-point for ASIL B"
-      }
-    },
-
-    "subsection_2_4_5_character_literals": {
-      "fls_paragraphs": ["2.4.5:1-4"],
-      "type": "char",
-      "used": false,
-      "note": "char literals not used directly; byte literals (b'x') used instead for ASCII"
-    },
-
-    "subsection_2_4_6_string_literals": {
-      "fls_paragraphs": ["2.4.6:1-2"],
-      
-      "simple_strings": {
-        "fls_paragraphs": ["2.4.6.1:1-4"],
-        "type": "&'static str",
-        "occurrences": "507+",
-        "note": "ELIDED - Ubiquitous for error messages, documentation strings"
-      },
-
-      "raw_strings": {
-        "fls_paragraphs": ["2.4.6.2:1-2"],
-        "syntax": "r\"...\" or r#\"...\"#",
-        "used": false
-      }
-    },
-
-    "subsection_2_4_7_boolean_literals": {
-      "fls_paragraphs": ["2.4.7:1-2"],
-      "type": "bool",
-      "true_occurrences": 1427,
-      "false_occurrences": 1184,
-      "note": "ELIDED - Ubiquitous"
-    }
-  },
-
-  "section_2_5_comments": {
-    "fls_paragraphs": ["2.5:1-17"],
-    "note": "ELIDED - Comments are ubiquitous. Well-documented codebase.",
-    
-    "summary_counts": {
-      "line_comments": 36784,
-      "block_comments": 2,
-      "inner_line_doc": 6017,
-      "outer_line_doc": 16774,
-      "inner_block_doc": 0,
-      "outer_block_doc": 0
-    }
-  },
-
-  "section_2_6_keywords": {
-    "fls_paragraphs": ["2.6:1-2"],
-
-    "subsection_2_6_1_strict_keywords": {
-      "fls_paragraphs": ["2.6.1:1"],
-      
-      "async_await": {
-        "keywords": ["async", "await"],
-        "used": false,
-        "safety_note": "NOT USED - async/await avoided for determinism in safety-critical code"
-      },
-
-      "dyn_keyword": {
-        "keyword": "dyn",
-        "fls_note": "Trait objects",
-        "occurrences": 319,
-        "modules": ["iceoryx2-bb/posix", "iceoryx2", "iceoryx2-cal", "iceoryx2-bb/log", "iceoryx2-ffi"],
-        "samples": [
-          {
-            "path": "iceoryx2-bb/posix/src/signal.rs",
-            "lines": "277",
-            "line_fragment": "registered_signals: [Option<&'static dyn Fn(FetchableSignal)>; posix::MAX_SIGNAL_VALUE],"
+        "subsection_2_6_3_weak_keywords": {
+          "fls_paragraphs": [
+            "2.6.3:1-5"
+          ],
+          "macro_rules": {
+            "fls_paragraph": "2.6.3:2",
+            "occurrences": 28,
+            "modules": [
+              "iceoryx2-bb/posix",
+              "iceoryx2",
+              "iceoryx2-bb/elementary",
+              "iceoryx2-pal/posix",
+              "iceoryx2-bb/container",
+              "iceoryx2-bb/log",
+              "iceoryx2-ffi"
+            ],
+            "samples": [
+              {
+                "file": "iceoryx2-bb/posix/src/signal.rs",
+                "line": [
+                  74
+                ],
+                "code": "macro_rules! define_signals {"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/handle_errno.rs",
+                "line": [
+                  17
+                ],
+                "code": "macro_rules! handle_errno {"
+              },
+              {
+                "file": "iceoryx2/src/port/port_identifiers.rs",
+                "line": [
+                  18
+                ],
+                "code": "macro_rules! generate_id {"
+              },
+              {
+                "file": "iceoryx2-bb/elementary/src/enum_gen.rs",
+                "line": [
+                  172
+                ],
+                "code": "macro_rules! enum_gen {"
+              },
+              {
+                "file": "iceoryx2-pal/posix/src/stub/win32_call.rs",
+                "line": [
+                  100
+                ],
+                "code": "macro_rules! win32call {"
+              },
+              {
+                "file": "iceoryx2-bb/container/src/semantic_string.rs",
+                "line": [
+                  381
+                ],
+                "code": "macro_rules! semantic_string {"
+              },
+              {
+                "file": "iceoryx2-bb/log/src/log.rs",
+                "line": [
+                  39
+                ],
+                "code": "macro_rules! trace {"
+              },
+              {
+                "file": "iceoryx2-bb/log/src/log.rs",
+                "line": [
+                  80
+                ],
+                "code": "macro_rules! debug {"
+              },
+              {
+                "file": "iceoryx2-bb/log/src/log.rs",
+                "line": [
+                  121
+                ],
+                "code": "macro_rules! info {"
+              },
+              {
+                "file": "iceoryx2-bb/log/src/log.rs",
+                "line": [
+                  162
+                ],
+                "code": "macro_rules! warn {"
+              },
+              {
+                "file": "iceoryx2-bb/log/src/log.rs",
+                "line": [
+                  203
+                ],
+                "code": "macro_rules! error {"
+              },
+              {
+                "file": "iceoryx2-bb/log/src/log.rs",
+                "line": [
+                  244
+                ],
+                "code": "macro_rules! fatal_panic {"
+              },
+              {
+                "file": "iceoryx2-bb/log/src/fail.rs",
+                "line": [
+                  55
+                ],
+                "code": "macro_rules! fail {"
+              }
+            ]
           },
-          {
-            "path": "iceoryx2-bb/posix/src/signal.rs",
-            "lines": "549",
-            "line_fragment": ") -> &Option<&'static dyn Fn(FetchableSignal)> {"
+          "static_lifetime": {
+            "fls_paragraph": "2.6.3:3",
+            "syntax": "'static",
+            "occurrences": 251,
+            "modules": [
+              "iceoryx2-bb/derive-macros",
+              "iceoryx2-bb/posix",
+              "iceoryx2"
+            ],
+            "samples": [
+              {
+                "file": "iceoryx2-bb/derive-macros/src/lib.rs",
+                "line": [
+                  169
+                ],
+                "code": "unsafe fn type_name() -> &'static str {"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/signal.rs",
+                "line": [
+                  277
+                ],
+                "code": "registered_signals: [Option<&'static dyn Fn(FetchableSignal)>; posix::MAX_SIGNAL_VALUE],"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/signal.rs",
+                "line": [
+                  342
+                ],
+                "code": "callback: &'static F,"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/signal.rs",
+                "line": [
+                  534
+                ],
+                "code": "fn instance() -> MutexGuard<'static, Self> {"
+              },
+              {
+                "file": "iceoryx2-bb/posix/src/clock.rs",
+                "line": [
+                  92
+                ],
+                "code": "pub fn all_supported_clocks() -> &'static [ClockType] {"
+              },
+              {
+                "file": "iceoryx2/src/active_request.rs",
+                "line": [
+                  443
+                ],
+                "code": "ResponsePayload: Debug + Default + ZeroCopySend + 'static,"
+              },
+              {
+                "file": "iceoryx2/src/service/builder/mod.rs",
+                "line": [
+                  192
+                ],
+                "code": "KeyType: Send + Sync + Eq + Clone + Debug + 'static + ZeroCopySend + Hash,"
+              }
+            ]
           },
-          {
-            "path": "iceoryx2/src/service/builder/blackboard.rs",
-            "lines": "161",
-            "line_fragment": "value_writer: Box<dyn FnMut(*mut u8)>,"
+          "union_keyword": {
+            "fls_paragraph": "2.6.3:4",
+            "used": true,
+            "occurrences": 42,
+            "note": "NEW in v0.8.0 - Union types now used primarily in FFI layer for C bindings. ZeroCopySend now supports unions (#1144)",
+            "modules": [
+              "iceoryx2-ffi/c",
+              "iceoryx2-bb/derive-macros"
+            ],
+            "samples": [
+              {
+                "file": "iceoryx2-ffi/c/src/api/static_config.rs",
+                "line": [
+                  31
+                ],
+                "code": "pub union iox2_static_config_details_t {"
+              },
+              {
+                "file": "iceoryx2-bb/derive-macros/src/zero_copy_send_compile_tests.rs",
+                "line": [],
+                "code": "union types for ZeroCopySend tests"
+              }
+            ],
+            "safety_note": "CHANGED - Union types are inherently unsafe to access. Review FFI layer unions for memory safety."
           },
-          {
-            "path": "iceoryx2/src/service/builder/blackboard.rs",
-            "lines": "164",
-            "line_fragment": "internal_value_cleanup_callback: Box<dyn FnMut()>,"
-          },
-          {
-            "path": "iceoryx2-cal/src/dynamic_storage/process_local.rs",
-            "lines": "70",
-            "line_fragment": "content: Arc<dyn Any + Send + Sync>,"
+          "safe_keyword": {
+            "fls_paragraph": "2.6.3:5",
+            "occurrences": 5,
+            "note": "Used for safe extern functions qualifier - minimal"
           }
-        ],
-        "safety_note": "Increased usage in v0.8.0 due to expanded FFI layer - mostly for logging, callbacks, and FFI abstraction"
-      },
-
-      "move_keyword": {
-        "keyword": "move",
-        "fls_note": "Closure capture",
-        "occurrences": 64,
-        "modules": ["iceoryx2-bb/posix", "iceoryx2", "iceoryx2-bb/log"],
-        "samples": [
-          {
-            "path": "iceoryx2-bb/posix/src/unique_system_id.rs",
-            "lines": "156",
-            "line_fragment": "std::thread::spawn(move || -> UniqueSystemId { UniqueSystemId::create(pid, now) });"
-          },
-          {
-            "path": "iceoryx2-bb/posix/src/unique_system_id.rs",
-            "lines": "158",
-            "line_fragment": "std::thread::spawn(move || -> UniqueSystemId { UniqueSystemId::create(pid, now) });"
-          },
-          {
-            "path": "iceoryx2/src/service/builder/blackboard.rs",
-            "lines": "380",
-            "line_fragment": "value_writer: Box::new(move |mem: *mut u8| {"
-          },
-          {
-            "path": "iceoryx2/src/service/builder/blackboard.rs",
-            "lines": "408",
-            "line_fragment": "value_writer: Box::new(move |mem: *mut u8| {"
-          }
-        ]
-      },
-
-      "extern_keyword": {
-        "keyword": "extern",
-        "occurrences": 976,
-        "modules": ["iceoryx2-bb/derive-macros", "iceoryx2-bb/posix", "iceoryx2", "iceoryx2-pal/posix", "iceoryx2-ffi"],
-        "samples": [
-          {
-            "path": "iceoryx2-bb/derive-macros/src/lib.rs",
-            "lines": "19",
-            "line_fragment": "extern crate proc_macro;"
-          },
-          {
-            "path": "iceoryx2-bb/posix/src/signal.rs",
-            "lines": "303",
-            "line_fragment": "extern \"C\" fn handler(signal: posix::int) {"
-          },
-          {
-            "path": "iceoryx2-bb/posix/src/signal.rs",
-            "lines": "310",
-            "line_fragment": "extern \"C\" fn capture_signal(signal: posix::int) {"
-          },
-          {
-            "path": "iceoryx2-bb/posix/src/thread.rs",
-            "lines": "408",
-            "line_fragment": "extern \"C\" fn start_routine<'thread, FF, TT>(args: *mut posix::void) -> *mut posix::void"
-          },
-          {
-            "path": "iceoryx2/src/lib.rs",
-            "lines": "513",
-            "line_fragment": "extern crate alloc;"
-          },
-          {
-            "path": "iceoryx2-pal/posix/src/freebsd/select.rs",
-            "lines": "67",
-            "line_fragment": "extern \"C\" {"
-          },
-          {
-            "path": "iceoryx2-ffi/c/src/api/writer.rs",
-            "lines": "151",
-            "line_fragment": "pub unsafe extern \"C\" fn iox2_entry_handle_mut_error_string("
-          }
-        ],
-        "note": "Significant increase from v0.7.0 (48 -> 976) due to expanded C/C++ FFI bindings"
-      },
-
-      "unsafe_keyword": {
-        "keyword": "unsafe",
-        "occurrences": 4959,
-        "safety_note": "CRITICAL - requires individual review for each occurrence. Increased from 2437 in v0.7.0 due to expanded FFI layer"
-      }
-    },
-
-    "subsection_2_6_2_reserved_keywords": {
-      "fls_paragraphs": ["2.6.2:1"],
-      "note": "All reserved keywords verified unused (compliant)",
-      "keywords_checked": ["abstract", "become", "box", "do", "final", "macro", "override", "priv", "try", "typeof", "unsized", "virtual", "yield"],
-      "status": "COMPLIANT"
-    },
-
-    "subsection_2_6_3_weak_keywords": {
-      "fls_paragraphs": ["2.6.3:1-5"],
-
-      "macro_rules": {
-        "fls_paragraph": "2.6.3:2",
-        "occurrences": 28,
-        "modules": ["iceoryx2-bb/posix", "iceoryx2", "iceoryx2-bb/elementary", "iceoryx2-pal/posix", "iceoryx2-bb/container", "iceoryx2-bb/log", "iceoryx2-ffi"],
-        "samples": [
-          {
-            "path": "iceoryx2-bb/posix/src/signal.rs",
-            "lines": "74",
-            "line_fragment": "macro_rules! define_signals {"
-          },
-          {
-            "path": "iceoryx2-bb/posix/src/handle_errno.rs",
-            "lines": "17",
-            "line_fragment": "macro_rules! handle_errno {"
-          },
-          {
-            "path": "iceoryx2/src/port/port_identifiers.rs",
-            "lines": "18",
-            "line_fragment": "macro_rules! generate_id {"
-          },
-          {
-            "path": "iceoryx2-bb/elementary/src/enum_gen.rs",
-            "lines": "172",
-            "line_fragment": "macro_rules! enum_gen {"
-          },
-          {
-            "path": "iceoryx2-pal/posix/src/stub/win32_call.rs",
-            "lines": "100",
-            "line_fragment": "macro_rules! win32call {"
-          },
-          {
-            "path": "iceoryx2-bb/container/src/semantic_string.rs",
-            "lines": "381",
-            "line_fragment": "macro_rules! semantic_string {"
-          },
-          {
-            "path": "iceoryx2-bb/log/src/log.rs",
-            "lines": "39",
-            "line_fragment": "macro_rules! trace {"
-          },
-          {
-            "path": "iceoryx2-bb/log/src/log.rs",
-            "lines": "80",
-            "line_fragment": "macro_rules! debug {"
-          },
-          {
-            "path": "iceoryx2-bb/log/src/log.rs",
-            "lines": "121",
-            "line_fragment": "macro_rules! info {"
-          },
-          {
-            "path": "iceoryx2-bb/log/src/log.rs",
-            "lines": "162",
-            "line_fragment": "macro_rules! warn {"
-          },
-          {
-            "path": "iceoryx2-bb/log/src/log.rs",
-            "lines": "203",
-            "line_fragment": "macro_rules! error {"
-          },
-          {
-            "path": "iceoryx2-bb/log/src/log.rs",
-            "lines": "244",
-            "line_fragment": "macro_rules! fatal_panic {"
-          },
-          {
-            "path": "iceoryx2-bb/log/src/fail.rs",
-            "lines": "55",
-            "line_fragment": "macro_rules! fail {"
-          }
-        ]
-      },
-
-      "static_lifetime": {
-        "fls_paragraph": "2.6.3:3",
-        "syntax": "'static",
-        "occurrences": 251,
-        "modules": ["iceoryx2-bb/derive-macros", "iceoryx2-bb/posix", "iceoryx2"],
-        "samples": [
-          {
-            "path": "iceoryx2-bb/derive-macros/src/lib.rs",
-            "lines": "169",
-            "line_fragment": "unsafe fn type_name() -> &'static str {"
-          },
-          {
-            "path": "iceoryx2-bb/posix/src/signal.rs",
-            "lines": "277",
-            "line_fragment": "registered_signals: [Option<&'static dyn Fn(FetchableSignal)>; posix::MAX_SIGNAL_VALUE],"
-          },
-          {
-            "path": "iceoryx2-bb/posix/src/signal.rs",
-            "lines": "342",
-            "line_fragment": "callback: &'static F,"
-          },
-          {
-            "path": "iceoryx2-bb/posix/src/signal.rs",
-            "lines": "534",
-            "line_fragment": "fn instance() -> MutexGuard<'static, Self> {"
-          },
-          {
-            "path": "iceoryx2-bb/posix/src/clock.rs",
-            "lines": "92",
-            "line_fragment": "pub fn all_supported_clocks() -> &'static [ClockType] {"
-          },
-          {
-            "path": "iceoryx2/src/active_request.rs",
-            "lines": "443",
-            "line_fragment": "ResponsePayload: Debug + Default + ZeroCopySend + 'static,"
-          },
-          {
-            "path": "iceoryx2/src/service/builder/mod.rs",
-            "lines": "192",
-            "line_fragment": "KeyType: Send + Sync + Eq + Clone + Debug + 'static + ZeroCopySend + Hash,"
-          }
-        ]
-      },
-
-      "union_keyword": {
-        "fls_paragraph": "2.6.3:4",
-        "used": true,
-        "occurrences": 42,
-        "note": "NEW in v0.8.0 - Union types now used primarily in FFI layer for C bindings. ZeroCopySend now supports unions (#1144)",
-        "modules": ["iceoryx2-ffi/c", "iceoryx2-bb/derive-macros"],
-        "samples": [
-          {
-            "path": "iceoryx2-ffi/c/src/api/static_config.rs",
-            "lines": "31",
-            "line_fragment": "pub union iox2_static_config_details_t {"
-          },
-          {
-            "path": "iceoryx2-bb/derive-macros/src/zero_copy_send_compile_tests.rs",
-            "lines": "various",
-            "line_fragment": "union types for ZeroCopySend tests"
-          }
-        ],
-        "safety_note": "CHANGED - Union types are inherently unsafe to access. Review FFI layer unions for memory safety."
-      },
-
-      "safe_keyword": {
-        "fls_paragraph": "2.6.3:5",
-        "occurrences": 5,
-        "note": "Used for safe extern functions qualifier - minimal"
+        }
       }
     }
   },
-
   "safety_critical_summary": {
     "constructs_not_used": [
-      {"construct": "async/await keywords", "fls_section": "2.6.1", "safety_benefit": "Avoids async complexity and non-determinism"},
-      {"construct": "Raw identifiers (r#)", "fls_section": "2.3", "safety_benefit": "Clearer code"},
-      {"construct": "Unicode identifiers", "fls_section": "2.3", "safety_benefit": "ASCII-only clarity"},
-      {"construct": "Underscore digit separators", "fls_section": "2.4.4.1", "safety_benefit": "N/A"},
-      {"construct": "Float exponent notation", "fls_section": "2.4.4.2", "safety_benefit": "N/A"},
-      {"construct": "Raw string literals", "fls_section": "2.4.6.2", "safety_benefit": "N/A"},
-      {"construct": "Block doc comments", "fls_section": "2.5", "safety_benefit": "Consistent style"},
-      {"construct": "char literals", "fls_section": "2.4.5", "safety_benefit": "byte literals used instead for ASCII"}
+      {
+        "construct": "async/await keywords",
+        "fls_section": "2.6.1",
+        "safety_benefit": "Avoids async complexity and non-determinism"
+      },
+      {
+        "construct": "Raw identifiers (r#)",
+        "fls_section": "2.3",
+        "safety_benefit": "Clearer code"
+      },
+      {
+        "construct": "Unicode identifiers",
+        "fls_section": "2.3",
+        "safety_benefit": "ASCII-only clarity"
+      },
+      {
+        "construct": "Underscore digit separators",
+        "fls_section": "2.4.4.1",
+        "safety_benefit": "N/A"
+      },
+      {
+        "construct": "Float exponent notation",
+        "fls_section": "2.4.4.2",
+        "safety_benefit": "N/A"
+      },
+      {
+        "construct": "Raw string literals",
+        "fls_section": "2.4.6.2",
+        "safety_benefit": "N/A"
+      },
+      {
+        "construct": "Block doc comments",
+        "fls_section": "2.5",
+        "safety_benefit": "Consistent style"
+      },
+      {
+        "construct": "char literals",
+        "fls_section": "2.4.5",
+        "safety_benefit": "byte literals used instead for ASCII"
+      }
     ],
-
     "constructs_requiring_review": [
       {
         "construct": "Division operator /",
@@ -1111,7 +1652,7 @@
       },
       {
         "construct": "Modulo operator %",
-        "fls_section": "2.2:18", 
+        "fls_section": "2.2:18",
         "risk": "Panic on modulo by zero",
         "action": "Verify all divisors are non-zero"
       },
@@ -1155,7 +1696,6 @@
         "action": "Review all extern \"C\" functions for ABI compatibility"
       }
     ],
-
     "version_comparison": {
       "v0_7_0_unsafe_count": 2437,
       "v0_8_0_unsafe_count": 4959,

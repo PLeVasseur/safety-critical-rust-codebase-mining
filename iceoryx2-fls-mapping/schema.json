@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eclipse-iceoryx/iceoryx2/fls-mapping-schema.json",
+  "title": "FLS Chapter Mapping",
+  "description": "Schema for mapping Ferrocene Language Specification chapters to iceoryx2 codebase analysis",
+  "type": "object",
+  "required": [
+    "chapter",
+    "title",
+    "fls_url",
+    "repository",
+    "version",
+    "analysis_date",
+    "version_changes",
+    "summary",
+    "statistics",
+    "sections"
+  ],
+  "properties": {
+    "chapter": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 25,
+      "description": "FLS chapter number"
+    },
+    "title": {
+      "type": "string",
+      "description": "Chapter title from FLS"
+    },
+    "fls_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to FLS chapter specification"
+    },
+    "fls_id": {
+      "type": "string",
+      "pattern": "^fls_[a-z0-9]+$",
+      "description": "FLS chapter identifier (e.g., fls_jep7p27kaqlp)"
+    },
+    "repository": {
+      "type": "string",
+      "const": "eclipse-iceoryx/iceoryx2",
+      "description": "Repository being analyzed"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "iceoryx2 version analyzed (semver format)"
+    },
+    "analysis_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of analysis (YYYY-MM-DD format)"
+    },
+    "version_changes": {
+      "$ref": "#/$defs/version_changes"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Executive summary of chapter findings"
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Quantitative counts of language constructs (chapter-specific keys)",
+      "additionalProperties": {
+        "type": ["integer", "string", "number"]
+      }
+    },
+    "sections": {
+      "type": "object",
+      "description": "FLS section mappings keyed by semantic name",
+      "additionalProperties": {
+        "$ref": "#/$defs/section"
+      }
+    },
+    "design_patterns": {
+      "type": "object",
+      "description": "Safety-critical design patterns observed in the codebase",
+      "additionalProperties": {
+        "$ref": "#/$defs/design_pattern"
+      }
+    },
+    "safety_critical_summary": {
+      "type": "object",
+      "description": "Summary of safety-critical findings",
+      "properties": {
+        "items_not_used": {
+          "type": "object",
+          "description": "Language features intentionally not used"
+        },
+        "items_requiring_review": {
+          "type": "object",
+          "description": "Items that require safety review"
+        },
+        "positive_patterns": {
+          "type": "object",
+          "description": "Positive safety patterns observed"
+        }
+      }
+    },
+    "cross_chapter_references": {
+      "type": "object",
+      "description": "References to related FLS chapters",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "version_changes": {
+      "type": "object",
+      "required": ["from_version", "to_version", "summary", "key_changes"],
+      "properties": {
+        "from_version": {
+          "type": "string",
+          "description": "Previous version analyzed"
+        },
+        "to_version": {
+          "type": "string",
+          "description": "Current version analyzed"
+        },
+        "summary": {
+          "type": "string",
+          "description": "Summary of changes between versions"
+        },
+        "key_changes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of key changes with metrics"
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "required": ["fls_section", "description"],
+      "properties": {
+        "fls_section": {
+          "type": "string",
+          "description": "FLS section number (e.g., '6.1', '15.3.2')"
+        },
+        "fls_paragraphs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Short paragraph references (e.g., ['6.1:1', '6.1:2'])"
+        },
+        "fls_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^fls_[a-z0-9]+$"
+          },
+          "description": "Full FLS IDs (e.g., ['fls_jd1inwz7ulyw'])"
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "demonstrated",
+            "extensively_demonstrated",
+            "limited_use",
+            "not_used",
+            "not_applicable",
+            "MUST_BE_FILLED"
+          ],
+          "description": "Usage status in iceoryx2"
+        },
+        "findings": {
+          "type": "object",
+          "description": "Detailed findings for this section (chapter-specific structure)"
+        },
+        "samples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/code_sample"
+          },
+          "description": "Code samples demonstrating this section"
+        },
+        "safety_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Safety-related notes for this section"
+        },
+        "subsections": {
+          "type": "object",
+          "description": "Nested subsections",
+          "additionalProperties": {
+            "$ref": "#/$defs/section"
+          }
+        }
+      }
+    },
+    "code_sample": {
+      "type": "object",
+      "required": ["file", "line"],
+      "properties": {
+        "file": {
+          "type": "string",
+          "description": "Path relative to iceoryx2 repository root"
+        },
+        "line": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "description": "Line number(s) as array"
+        },
+        "code": {
+          "type": "string",
+          "description": "Code snippet or fragment"
+        },
+        "purpose": {
+          "type": "string",
+          "description": "Why this sample demonstrates the FLS concept"
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional name/identifier for the sample"
+        }
+      }
+    },
+    "design_pattern": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "benefit": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "samples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/code_sample"
+          }
+        }
+      }
+    }
+  }
+}
