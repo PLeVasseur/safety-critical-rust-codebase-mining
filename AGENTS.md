@@ -233,6 +233,12 @@ eclipse-iceoryx2-actionanable-safety-certification/
         └── synthetic_fls_ids.json      # Generated FLS IDs
 ```
 
+> **Copyright Notice:** The `cache/` directory contains files with copyrighted MISRA content:
+> - `cache/misra_c_extracted_text.json` - Full MISRA rationale/amplification text (required for verification)
+> - `cache/verification/*.json` - Batch reports with MISRA rationale (delete after verification applied)
+> 
+> These files are gitignored and must NEVER be committed. Batch reports should be deleted immediately after successful application via `apply-verification`.
+
 ---
 
 ## JSON File Schemas
@@ -754,6 +760,44 @@ uv run apply-verification \
 **Options:**
 - `--dry-run`: Show changes without writing files
 - `--skip-validation`: Skip running validation after changes
+
+#### Phase 5: Cleanup
+
+After `apply-verification` completes successfully:
+
+1. **Verify application was successful:**
+   ```bash
+   uv run check-progress
+   ```
+   Confirm the batch shows as `completed` with the expected number of verified guidelines.
+
+2. **Spot-check the mapping file:**
+   ```bash
+   # Verify a sample guideline has confidence: "high"
+   grep -A10 '"Rule X.Y"' ../coding-standards-fls-mapping/mappings/misra_c_to_fls.json
+   ```
+
+3. **Report results to user:**
+   
+   Output a summary, for example:
+   > "Batch 3 verification successfully applied:
+   > - 38 guidelines now have `confidence: high`
+   > - `verification_progress.json` updated (Batch 3 status: completed)
+   > - Spot-check: Rule 21.3 shows high confidence with 4 accepted FLS matches"
+
+4. **Prompt for cleanup:**
+   
+   Batch reports contain copyrighted MISRA rationale text extracted from the MISRA PDF and must not be retained after verification is complete.
+   
+   Prompt the user:
+   > "The batch report `cache/verification/batch3_session5.json` contains copyrighted MISRA text. Shall I delete it?"
+   
+   **Wait for explicit user approval before deleting.**
+
+5. **Upon approval, delete the batch report:**
+   ```bash
+   rm cache/verification/batchN_sessionM.json
+   ```
 
 #### Verification Guidelines
 
