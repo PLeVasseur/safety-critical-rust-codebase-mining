@@ -131,11 +131,16 @@
     },
     "verification_decision": {
       "type": ["object", "null"],
-      "description": "The verification decision made during Phase 2. Null when not yet verified, object when verified.",
+      "description": "The verification decision made during Phase 2. Null or scaffolded object (decision: null) when not yet verified, completed object when verified.",
       "if": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "decision": { "type": "string" }
+        },
+        "required": ["decision"]
       },
       "then": {
+        "description": "When decision is a string (not null), full validation applies",
         "required": ["decision", "confidence", "fls_rationale_type", "accepted_matches"],
         "properties": {
           "decision": {
@@ -185,6 +190,17 @@
             },
             "required": ["field", "current_value", "proposed_value", "rationale"]
           }
+        }
+      },
+      "else": {
+        "description": "When decision is null (scaffolded state), allow null values for other fields",
+        "properties": {
+          "decision": { "type": "null" },
+          "confidence": { "type": ["string", "null"] },
+          "fls_rationale_type": { "type": ["string", "null"] },
+          "accepted_matches": { "type": "array" },
+          "rejected_matches": { "type": "array" },
+          "notes": { "type": ["string", "null"] }
         }
       }
     },

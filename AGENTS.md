@@ -214,16 +214,17 @@ eclipse-iceoryx2-actionanable-safety-certification/
     │   │   ├── embeddings/             # Embedding generation
     │   │   ├── mapping/                # Mapping generation
     │   │   ├── validation/             # Validation scripts
-    │   │   └── verification/           # Verification workflow
-    │   │       ├── batch.py            # verify-batch
-    │   │       ├── apply.py            # apply-verification
-    │   │       ├── enrich.py           # enrich-fls-matches
-    │   │       ├── progress.py         # check-progress
-    │   │       ├── reset.py            # reset-batch
-    │   │       ├── scaffold.py         # scaffold-progress
-    │   │       ├── search.py           # search-fls
-    │   │       ├── search_deep.py      # search-fls-deep
-    │   │       └── recompute.py        # recompute-similarity
+│   │   └── verification/           # Verification workflow
+│   │       ├── batch.py            # verify-batch
+│   │       ├── apply.py            # apply-verification
+│   │       ├── enrich.py           # enrich-fls-matches
+│   │       ├── progress.py         # check-progress
+│   │       ├── record.py           # record-decision
+│   │       ├── reset.py            # reset-batch
+│   │       ├── scaffold.py         # scaffold-progress
+│   │       ├── search.py           # search-fls
+│   │       ├── search_deep.py      # search-fls-deep
+│   │       └── recompute.py        # recompute-similarity
     │   └── analysis/                   # Pipeline 3: Cross-reference
     │       ├── coverage.py
     │       └── review.py
@@ -710,14 +711,50 @@ Process the batch report JSON and for each guideline:
    
    All changes remain in the batch report (`cache/verification/`) until approved in Phase 3.
 
-6. **Populate** the `verification_decision` section in batch report JSON
+6. **Record decisions** using the `record-decision` tool:
 
-   **Required fields** (see `coding-standards-fls-mapping/schema/batch_report.schema.json`):
+   ```bash
+   uv run record-decision \
+       --batch-report cache/verification/batch4_session6.json \
+       --guideline "Dir 1.1" \
+       --decision accept_with_modifications \
+       --confidence high \
+       --rationale-type direct_mapping \
+       --accept-match "fls_abc123:Section Title:0:0.65:FLS states X which addresses MISRA concern Y" \
+       --reject-match "fls_xyz789:Other Section:-1:0.55:Not relevant - discusses Z instead" \
+       --notes "Optional notes about the decision"
+   ```
+
+   **Match format:** `fls_id:fls_title:category:score:reason`
+   - `fls_id`: FLS identifier (e.g., `fls_abc123`)
+   - `fls_title`: Human-readable title (e.g., "Type Cast Expressions")
+   - `category`: Integer category code (0=section, -2=legality_rules, etc.)
+   - `score`: Similarity score 0-1
+   - `reason`: Justification text (may contain colons)
+
+   **With applicability change proposal:**
+
+   ```bash
+   uv run record-decision \
+       --batch-report cache/verification/batch4_session6.json \
+       --guideline "Rule 11.1" \
+       --decision accept_with_modifications \
+       --confidence high \
+       --rationale-type rust_prevents \
+       --accept-match "fls_xxx:Type Safety:0:0.70:Rust type system prevents this" \
+       --propose-change "applicability_all_rust:direct:rust_prevents:Rust's type system prevents unsafe conversions"
+   ```
+
+   **Options:**
+   - `--dry-run`: Preview changes without writing to file
+   - `--propose-change`: Format is `field:current_value:proposed_value:rationale`
+
+   **Required fields** (validated against `batch_report.schema.json`):
    - `decision`: "accept_with_modifications", "accept_no_matches", "accept_existing", or "reject"
    - `confidence`: "high", "medium", or "low"
    - `fls_rationale_type`: "direct_mapping", "rust_alternative", "rust_prevents", "no_equivalent", or "partial_mapping"
-   - `accepted_matches`: Array of FLS matches (each with `fls_id`, `category`, `score`, `reason`)
-   - `rejected_matches`: Array of explicitly rejected matches (optional)
+   - `accepted_matches`: Array of FLS matches (each with `fls_id`, `fls_title`, `category`, `score`, `reason`)
+   - `rejected_matches`: Array of explicitly rejected matches (optional but recommended for high-scoring rejects)
    - `notes`: Additional notes (optional)
 
 **Crash recovery:** If the session is interrupted, the batch report in `cache/verification/` preserves all completed work. Run `check-progress` to see where to resume.
