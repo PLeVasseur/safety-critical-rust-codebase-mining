@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "verification_progress.schema.json",
+  "title": "Verification Progress",
+  "description": "Tracks progress of manual FLS mapping verification across sessions",
+  "type": "object",
+  "required": ["standard", "total_guidelines", "verification_started", "last_updated", "summary", "batches"],
+  "properties": {
+    "standard": {
+      "type": "string",
+      "description": "Standard being verified (e.g., misra_c_2025)"
+    },
+    "total_guidelines": {
+      "type": "integer",
+      "description": "Total number of guidelines in this standard"
+    },
+    "verification_started": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date verification began"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date of last update"
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_verified", "total_pending"],
+      "properties": {
+        "total_verified": {
+          "type": "integer",
+          "description": "Number of guidelines verified"
+        },
+        "total_pending": {
+          "type": "integer",
+          "description": "Number of guidelines pending verification"
+        },
+        "by_batch": {
+          "type": "object",
+          "description": "Verification counts per batch",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "verified": { "type": "integer" },
+              "pending": { "type": "integer" }
+            },
+            "required": ["verified", "pending"]
+          }
+        }
+      }
+    },
+    "batches": {
+      "type": "array",
+      "description": "Ordered list of verification batches",
+      "items": {
+        "type": "object",
+        "required": ["batch_id", "name", "description", "status", "guidelines"],
+        "properties": {
+          "batch_id": {
+            "type": "integer",
+            "description": "Unique batch identifier (1-5)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Short name for the batch"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of batch criteria"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "in_progress", "completed"],
+            "description": "Overall batch status"
+          },
+          "guidelines": {
+            "type": "array",
+            "description": "Guidelines assigned to this batch",
+            "items": {
+              "type": "object",
+              "required": ["guideline_id", "status"],
+              "properties": {
+                "guideline_id": {
+                  "type": "string",
+                  "description": "MISRA guideline ID (e.g., 'Rule 10.1', 'Dir 4.1')"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["pending", "verified"],
+                  "description": "Verification status"
+                },
+                "verified_date": {
+                  "type": ["string", "null"],
+                  "format": "date",
+                  "description": "ISO 8601 date when verified"
+                },
+                "session_id": {
+                  "type": ["integer", "null"],
+                  "description": "Reference to session in which this was verified"
+                },
+                "notes": {
+                  "type": "string",
+                  "description": "Optional notes about this guideline's verification"
+                }
+              }
+            }
+          },
+          "started": {
+            "type": ["string", "null"],
+            "format": "date",
+            "description": "ISO 8601 date batch was started"
+          },
+          "completed": {
+            "type": ["string", "null"],
+            "format": "date",
+            "description": "ISO 8601 date batch was completed"
+          }
+        }
+      }
+    },
+    "sessions": {
+      "type": "array",
+      "description": "History of verification sessions",
+      "items": {
+        "type": "object",
+        "required": ["session_id", "date", "batch_id", "guidelines_reviewed"],
+        "properties": {
+          "session_id": {
+            "type": "integer",
+            "description": "Auto-incrementing session identifier"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "ISO 8601 date of session"
+          },
+          "batch_id": {
+            "type": "integer",
+            "description": "Batch being worked on in this session"
+          },
+          "guidelines_reviewed": {
+            "type": "array",
+            "description": "List of guideline IDs reviewed in this session",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional session notes"
+          }
+        }
+      }
+    }
+  }
+}

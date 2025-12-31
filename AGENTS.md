@@ -729,6 +729,72 @@ uv run python validate_synthetic_ids.py
 | `--no-preserve` | - | Overwrite existing high-confidence entries |
 | `--verbose` | - | Print detailed matching info |
 
+### Verification Progress Tracking
+
+Progress is tracked in `coding-standards-fls-mapping/verification_progress.json` to enable:
+- Resuming verification across sessions
+- Batch-based organization of work
+- Session history for auditing
+
+Schema: `coding-standards-fls-mapping/schema/verification_progress.schema.json`
+
+#### Generating/Updating Progress File
+
+```bash
+cd tools
+
+# Initial creation
+uv run python scaffold_verification_progress.py
+
+# Preview batch assignments without writing
+uv run python scaffold_verification_progress.py --dry-run
+
+# Regenerate from scratch (loses progress)
+uv run python scaffold_verification_progress.py --force
+
+# Regenerate batches but preserve completed work
+uv run python scaffold_verification_progress.py --preserve-completed
+```
+
+#### Batch Structure
+
+| Batch | Name | Criteria |
+|-------|------|----------|
+| 1 | High-score direct | Existing high-confidence + `direct` with max score ≥0.65 |
+| 2 | Not applicable | `applicability_all_rust: not_applicable` (still require FLS justification) |
+| 3 | Stdlib & Resources | Categories 21+22 remaining `direct` guidelines |
+| 4 | Medium-score direct | Remaining `direct` with score 0.5-0.65 |
+| 5 | Edge cases | `partial`, `rust_prevents`, and any remaining |
+
+#### Per-Guideline Workflow
+
+For each guideline:
+
+1. Get similarity results (section + paragraph matches)
+2. Read FLS content (legality rules, UB, dynamic semantics)
+3. Read MISRA rationale from extracted text
+4. Present analysis with accept/reject decisions
+5. Update `misra_c_to_fls.json` (set `confidence: "high"`)
+6. Update `verification_progress.json` (mark guideline as `verified`, record `session_id`)
+
+#### Validation Checkpoints
+
+Run every 5-10 guidelines:
+
+```bash
+cd tools
+uv run python validate_coding_standards.py
+uv run python validate_synthetic_ids.py
+```
+
+#### Resuming Across Sessions
+
+1. Read `verification_progress.json` to find current batch and next pending guideline
+2. Create new session entry with incremented `session_id`
+3. Continue per-guideline workflow
+4. Update progress file after each guideline
+5. Run validation checkpoints periodically
+
 ---
 
 ## References

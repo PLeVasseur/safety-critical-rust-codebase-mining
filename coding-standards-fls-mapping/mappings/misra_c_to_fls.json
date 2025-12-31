@@ -583,134 +583,75 @@
       "applicability_safe_rust": "direct",
       "accepted_matches": [
         {
-          "fls_id": "fls_e0896uk0mdyl",
+          "fls_id": "fls_z1il3w9nulzy",
           "category": 0,
-          "fls_section": "22.-2.5",
-          "fls_title": "Assembly Instructions",
-          "score": 0.691,
-          "reason": "Section-level similarity match (score: 0.69)"
-        },
-        {
-          "fls_id": "fls_3fg60jblx0xb",
-          "category": -2,
-          "fls_section": "fls_z1il3w9nulzy",
+          "fls_section": "22.1",
           "fls_title": "Inline Assembly",
-          "score": 0.685,
-          "reason": "Per FLS: 'Inline assembly is written as an assembly code block that is wrappe...' (similarity: 0.69)"
+          "score": 0.588,
+          "reason": "Parent section covering Rust's structured inline assembly approach. All assembly in Rust must go through the macro-based system defined here."
         },
         {
-          "fls_id": "fls_ylli0ortyegk",
-          "category": 0,
-          "fls_section": "22.-2.9",
-          "fls_title": "Assembly Options",
-          "score": 0.662,
-          "reason": "Section-level similarity match (score: 0.66)"
-        },
-        {
-          "fls_id": "fls_6momhvgx4w21",
-          "category": 0,
-          "fls_section": "22.-2.7",
-          "fls_title": "Directive Support",
-          "score": 0.656,
-          "reason": "Section-level similarity match (score: 0.66)"
-        },
-        {
-          "fls_id": "fls_pnoh31rvu9a6",
+          "fls_id": "fls_ecteot716j8j",
           "category": -2,
-          "fls_section": "fls_z1il3w9nulzy",
-          "fls_title": "Inline Assembly",
-          "score": 0.645,
-          "reason": "Per FLS: 'x86 and x86-64' (similarity: 0.65)"
-        },
-        {
-          "fls_id": "fls_2n9el98anp8c",
-          "category": -2,
-          "fls_section": "fls_z1il3w9nulzy",
-          "fls_title": "Inline Assembly",
-          "score": 0.639,
-          "reason": "Per FLS: 'RISC-V' (similarity: 0.64)"
-        },
-        {
-          "fls_id": "fls_e613hpr50t9",
-          "category": -3,
-          "fls_section": "fls_qezwyridmjob",
+          "fls_section": "22.8",
           "fls_title": "Macros: asm, global_asm, and naked_asm",
-          "score": 0.637,
-          "reason": "Per FLS: 'The [assembly instruction]s of the assembly code block are executed...' (similarity: 0.64)"
-        },
-        {
-          "fls_id": "fls_ppnj8bcncdp9",
-          "category": -3,
-          "fls_section": "fls_qezwyridmjob",
-          "fls_title": "Macros: asm, global_asm, and naked_asm",
-          "score": 0.632,
-          "reason": "Per FLS: 'The execution of an assembly code block produced by inline assembly...' (similarity: 0.63)"
+          "score": null,
+          "reason": "Per FLS: 'Assembly code blocks are embedded within Rust source code using macros core::arch::asm, core::arch::global_asm, and core::arch::naked_asm.' This directly addresses MISRA's encapsulation requirement - Rust mandates macro encapsulation."
         },
         {
           "fls_id": "fls_4lb6yh12w1cv",
           "category": -2,
-          "fls_section": "fls_qezwyridmjob",
+          "fls_section": "22.8",
           "fls_title": "Macros: asm, global_asm, and naked_asm",
-          "score": 0.623,
-          "reason": "Per FLS: 'Invoking macro core::arch::asm causes the related assembly code blo...' (similarity: 0.62)"
+          "score": 0.62,
+          "reason": "Per FLS: 'Invoking macro core::arch::asm causes the related assembly code block to be integrated into the generated assembly of the function where the macro invocation took place.' Assembly is isolated to specific macro invocations."
         },
         {
-          "fls_id": "fls_helnk2iz8qhp",
-          "category": -2,
-          "fls_section": "fls_z1il3w9nulzy",
-          "fls_title": "Inline Assembly",
-          "score": 0.621,
-          "reason": "Per FLS: 'Inline assembly is available on the following architectures:' (similarity: 0.62)"
-        },
-        {
-          "fls_id": "fls_ihjhpy4osl53",
-          "category": -2,
-          "fls_section": "fls_e0896uk0mdyl",
-          "fls_title": "Assembly Instructions",
-          "score": 0.619,
-          "reason": "Per FLS: 'An assembly instruction shall use the syntax of format strings as d...' (similarity: 0.62)"
-        },
-        {
-          "fls_id": "fls_caqznttql5p8",
-          "category": -2,
-          "fls_section": "fls_6momhvgx4w21",
-          "fls_title": "Directive Support",
-          "score": 0.618,
-          "reason": "Per FLS: 'The common [assembly directive]s are as follows: #.' (similarity: 0.62)"
-        },
-        {
-          "fls_id": "fls_2hdsgqko25l5",
-          "category": -2,
-          "fls_section": "fls_6momhvgx4w21",
-          "fls_title": "Directive Support",
-          "score": 0.612,
-          "reason": "Per FLS: 'The following [assembly directive]s are relevant on x86 targets. #.' (similarity: 0.61)"
-        },
-        {
-          "fls_id": "fls_z1il3w9nulzy",
+          "fls_id": "fls_qezwyridmjob",
           "category": 0,
-          "fls_section": "22.-2.1",
-          "fls_title": "Inline Assembly",
-          "score": 0.588,
-          "reason": "Section-level similarity match (score: 0.59)"
+          "fls_section": "22.8",
+          "fls_title": "Macros: asm, global_asm, and naked_asm",
+          "score": 0.533,
+          "reason": "Section describing the macro-based encapsulation mechanism for inline assembly."
+        }
+      ],
+      "rejected_matches": [
+        {
+          "fls_id": "fls_e0896uk0mdyl",
+          "category": 0,
+          "fls_section": "22.5",
+          "score": 0.691,
+          "reason": "High similarity due to 'assembly' keyword but covers instruction syntax details, not encapsulation requirements."
+        },
+        {
+          "fls_id": "fls_ylli0ortyegk",
+          "category": 0,
+          "fls_section": "22.6",
+          "score": 0.662,
+          "reason": "About assembly options like att_syntax, not encapsulation."
+        },
+        {
+          "fls_id": "fls_6momhvgx4w21",
+          "category": 0,
+          "fls_section": "22.7",
+          "score": 0.656,
+          "reason": "About assembler directives (.byte, .align), not Rust encapsulation requirements."
         },
         {
           "fls_id": "fls_hejgghwzblf",
           "category": 0,
-          "fls_section": "22.-2.4",
-          "fls_title": "Register Arguments",
+          "fls_section": "22.4",
           "score": 0.58,
-          "reason": "Section-level similarity match (score: 0.58)"
+          "reason": "Register handling implementation details, not encapsulation."
         }
       ],
       "fls_rationale_type": "direct_mapping",
-      "misra_rust_category": "advisory",
-      "confidence": "medium",
-      "notes": "Similarity-based mapping - requires manual verification"
+      "confidence": "high",
+      "notes": "Rust enforces MISRA Dir 4.3 by design: all inline assembly must use the core::arch::{asm, global_asm, naked_asm} macros. There is no way to write raw assembly without macro encapsulation. This satisfies MISRA's goal of encapsulation and isolation."
     },
     {
       "guideline_id": "Dir 4.4",
-      "guideline_title": "Sections of code should not be “commented out”",
+      "guideline_title": "Sections of code should not be \u201ccommented out\u201d",
       "guideline_type": "directive",
       "applicability_all_rust": "direct",
       "applicability_safe_rust": "direct",
@@ -787,9 +728,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "recommended",
-      "misra_rust_comment": "“ambiguity” is determined by the project",
+      "misra_rust_comment": "\u201cambiguity\u201d is determined by the project",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: “ambiguity” is determined by the project"
+      "notes": "MISRA ADD-6: \u201cambiguity\u201d is determined by the project"
     },
     {
       "guideline_id": "Dir 4.6",
@@ -1520,81 +1461,79 @@
         {
           "fls_id": "fls_3v733mnewssy",
           "category": 0,
-          "fls_section": "17.-1.1",
+          "fls_section": "17.1",
           "fls_title": "Concurrency",
           "score": 0.734,
-          "reason": "Section-level similarity match (score: 0.73)"
+          "reason": "Parent section defining Rust's concurrency model, which is designed to prevent data races."
         },
         {
           "fls_id": "fls_tx4b8r6i93n4",
           "category": -2,
-          "fls_section": "fls_3v733mnewssy",
+          "fls_section": "17.1",
           "fls_title": "Concurrency",
           "score": 0.684,
-          "reason": "Per FLS: 'A data race is a scenario where two or more threads access a shared...' (similarity: 0.68)"
+          "reason": "Per FLS: 'A data race is a scenario where two or more threads access a shared memory location concurrently without any synchronization...' This matches MISRA's definition."
         },
         {
           "fls_id": "fls_isypweqewe78",
           "category": -4,
-          "fls_section": "fls_3v733mnewssy",
+          "fls_section": "17.1",
           "fls_title": "Concurrency",
           "score": 0.675,
-          "reason": "Per FLS: 'It is undefined behavior if two or more threads engage in a data race.' (similarity: 0.68)"
-        },
-        {
-          "fls_id": "fls_opt7v0mopxc8",
-          "category": -1,
-          "fls_section": "fls_3v733mnewssy",
-          "fls_title": "Concurrency",
-          "score": 0.659,
-          "reason": "Per FLS: 'The Rust programming language provides features for concurrent prog...' (similarity: 0.66)"
-        },
-        {
-          "fls_id": "fls_vyc9vcuamlph",
-          "category": 0,
-          "fls_section": "17.-2.3",
-          "fls_title": "Atomics",
-          "score": 0.566,
-          "reason": "Section-level similarity match (score: 0.57)"
-        },
-        {
-          "fls_id": "fls_jep7p27kaqlp",
-          "category": 0,
-          "fls_section": "19.-2.1",
-          "fls_title": "Unsafety",
-          "score": 0.562,
-          "reason": "Section-level similarity match (score: 0.56)"
-        },
-        {
-          "fls_id": "fls_3pjla9s93mhd",
-          "category": -2,
-          "fls_section": "fls_vyc9vcuamlph",
-          "fls_title": "Atomics",
-          "score": 0.55,
-          "reason": "Per FLS: 'An atomic type is a type defined in module core::sync::atomic. [Ato...' (similarity: 0.55)"
+          "reason": "Per FLS: 'It is undefined behavior if two or more threads engage in a data race.' Rust explicitly classifies data races as UB."
         },
         {
           "fls_id": "fls_eiw4by8z75di",
           "category": 0,
-          "fls_section": "17.-2.2",
+          "fls_section": "17.2",
           "fls_title": "Send and Sync",
           "score": 0.541,
-          "reason": "Section-level similarity match (score: 0.54)"
+          "reason": "Section describing Rust's compile-time mechanism for preventing data races via Send and Sync traits."
+        },
+        {
+          "fls_id": "fls_n5l17mlglq11",
+          "category": -2,
+          "fls_section": "17.2",
+          "fls_title": "Send and Sync",
+          "score": null,
+          "reason": "Per FLS: 'The Rust programming language provides the core::marker::Send and core::marker::Sync traits for preventing data races at the type level.' This is Rust's primary compile-time data race prevention mechanism."
+        },
+        {
+          "fls_id": "fls_zgemofbs5q2x",
+          "category": -2,
+          "fls_section": "17.2",
+          "fls_title": "Send and Sync",
+          "score": null,
+          "reason": "Per FLS: 'A sync type shall have values that are allowed to be shared across multiple threads at any given time without incurring data races.'"
+        },
+        {
+          "fls_id": "fls_vyc9vcuamlph",
+          "category": 0,
+          "fls_section": "17.3",
+          "fls_title": "Atomics",
+          "score": 0.566,
+          "reason": "Rust's atomic types provide safe concurrent access, addressing MISRA's recommendation for atomic synchronization."
+        }
+      ],
+      "rejected_matches": [
+        {
+          "fls_id": "fls_jep7p27kaqlp",
+          "category": 0,
+          "fls_section": "19.1",
+          "score": 0.562,
+          "reason": "General unsafety section. While unsafe code can cause data races, this section is not specifically about data race prevention."
         },
         {
           "fls_id": "fls_xdvdl2ssnhlo",
           "category": 0,
-          "fls_section": "7.-2.3",
-          "fls_title": "Statics",
+          "fls_section": "7.3",
           "score": 0.501,
-          "reason": "Section-level similarity match (score: 0.50)"
+          "reason": "About static storage duration, not data race prevention mechanisms."
         }
       ],
-      "fls_rationale_type": "partial_mapping",
-      "misra_rust_category": "required",
-      "misra_rust_comment": "not all safe Rust types are race-free",
-      "confidence": "medium",
-      "notes": "MISRA ADD-6: not all safe Rust types are race-free"
+      "fls_rationale_type": "direct_mapping",
+      "confidence": "high",
+      "notes": "Rust provides strong data race prevention via the Send/Sync trait system, but per MISRA ADD-6: 'not all safe Rust types are race-free'. Safe Rust prevents memory-level data races but logical races (e.g., with atomics) are still possible. In unsafe Rust, the programmer must manually ensure data race freedom."
     },
     {
       "guideline_id": "Dir 5.2",
@@ -2648,89 +2587,63 @@
         {
           "fls_id": "fls_21vnag69kbwe",
           "category": 0,
-          "fls_section": "2.-2.3",
+          "fls_section": "2.2",
           "fls_title": "Identifiers",
           "score": 0.675,
-          "reason": "Section-level similarity match (score: 0.68)"
+          "reason": "Parent section defining Rust's identifier rules."
         },
         {
           "fls_id": "fls_j9yh8j8jgdeu",
           "category": -2,
-          "fls_section": "fls_21vnag69kbwe",
+          "fls_section": "2.2",
           "fls_title": "Identifiers",
           "score": 0.651,
-          "reason": "Per FLS: 'Two [identifier]s are considered the same if they consist of the sa...' (similarity: 0.65)"
-        },
-        {
-          "fls_id": "fls_irwcldiotei2",
-          "category": -2,
-          "fls_section": "fls_21vnag69kbwe",
-          "fls_title": "Identifiers",
-          "score": 0.629,
-          "reason": "Per FLS: 'A pure identifier shall be restricted to characters in category Asc...' (similarity: 0.63)"
-        },
-        {
-          "fls_id": "fls_jpecw46eh061",
-          "category": -2,
-          "fls_section": "fls_21vnag69kbwe",
-          "fls_title": "Identifiers",
-          "score": 0.608,
-          "reason": "Per FLS: 'A pure identifier shall follow the specification in Unicode Standar...' (similarity: 0.61)"
-        },
-        {
-          "fls_id": "fls_jejt5z8m1yew",
-          "category": -2,
-          "fls_section": "fls_21vnag69kbwe",
-          "fls_title": "Identifiers",
-          "score": 0.584,
-          "reason": "Per FLS: '[Declarative macro]s and [procedural macro]s shall receive normaliz...' (similarity: 0.58)"
+          "reason": "Per FLS: 'Two identifiers are considered the same if they consist of the same sequence of characters after performing normalization.' Rust considers the full identifier sequence, not a truncated prefix as C may."
         },
         {
           "fls_id": "fls_vde7gev5rz4q",
           "category": -2,
-          "fls_section": "fls_21vnag69kbwe",
+          "fls_section": "2.2",
           "fls_title": "Identifiers",
           "score": 0.579,
-          "reason": "Per FLS: '[Identifier]s are normalized using Normalization Form C as defined ...' (similarity: 0.58)"
+          "reason": "Per FLS: 'Identifiers are normalized using Normalization Form C...' Unicode normalization ensures consistent identifier comparison."
         },
         {
-          "fls_id": "fls_cs6cbw625np1",
+          "fls_id": "fls_op0lp1i065di",
           "category": -2,
-          "fls_section": "fls_21vnag69kbwe",
+          "fls_section": "2.2",
           "fls_title": "Identifiers",
-          "score": 0.572,
-          "reason": "Per FLS: 'Characters 0x200C (zero width non-joiner) and 0x200D (zero width jo...' (similarity: 0.57)"
+          "score": null,
+          "reason": "Per FLS: 'Names of items within external blocks' shall be ASCII. This restricts external/FFI identifiers."
         },
         {
-          "fls_id": "fls_w473jevurlt1",
-          "category": -2,
-          "fls_section": "fls_21vnag69kbwe",
-          "fls_title": "Identifiers",
-          "score": 0.552,
-          "reason": "Per FLS: '[Name]s of external [crate]s represented in a simple path, when the...' (similarity: 0.55)"
-        },
+          "fls_id": "fls_tmoh3y9oyqsy",
+          "category": 0,
+          "fls_section": "21.1",
+          "fls_title": "External Blocks",
+          "score": 0.496,
+          "reason": "FFI context where C ABI applies. Per MISRA ADD-6: identifier distinctness matters in extern \"C\" contexts where the C linker may truncate."
+        }
+      ],
+      "rejected_matches": [
         {
           "fls_id": "fls_p090c5oTnElW",
           "category": 0,
-          "fls_section": "2.-2.10",
-          "fls_title": "Simple C String Literals",
+          "fls_section": "2.7",
           "score": 0.534,
-          "reason": "Section-level similarity match (score: 0.53)"
+          "reason": "About C string literals, not identifier distinctness."
         },
         {
           "fls_id": "fls_e0896uk0mdyl",
           "category": 0,
-          "fls_section": "22.-2.5",
-          "fls_title": "Assembly Instructions",
+          "fls_section": "22.5",
           "score": 0.516,
-          "reason": "Section-level similarity match (score: 0.52)"
+          "reason": "About assembly instructions, not identifiers."
         }
       ],
       "fls_rationale_type": "direct_mapping",
-      "misra_rust_category": "required",
-      "misra_rust_comment": "no character limit, except in extern “C”",
-      "confidence": "medium",
-      "notes": "MISRA ADD-6: no character limit, except in extern “C”. Only applicable in unsafe Rust"
+      "confidence": "high",
+      "notes": "Per MISRA ADD-6: 'no character limit, except in extern \"C\"'. In pure Rust, identifiers are always fully distinct with no truncation. In extern \"C\" contexts, the C linker's rules apply, which may have character limits. Safe Rust has no extern \"C\" items, hence not_applicable for safe Rust."
     },
     {
       "guideline_id": "Rule 5.2",
@@ -4214,7 +4127,7 @@
     },
     {
       "guideline_id": "Rule 7.2",
-      "guideline_title": "A “u” or “U” suffix shall be applied to all integer constants that are",
+      "guideline_title": "A \u201cu\u201d or \u201cU\u201d suffix shall be applied to all integer constants that are",
       "guideline_type": "rule",
       "applicability_all_rust": "direct",
       "applicability_safe_rust": "direct",
@@ -4348,7 +4261,7 @@
     },
     {
       "guideline_id": "Rule 7.3",
-      "guideline_title": "The lowercase character “l” shall not be used in a literal suffix",
+      "guideline_title": "The lowercase character \u201cl\u201d shall not be used in a literal suffix",
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
       "applicability_safe_rust": "not_applicable",
@@ -4425,7 +4338,7 @@
     },
     {
       "guideline_id": "Rule 7.4",
-      "guideline_title": "A string literal shall not be assigned to an object unless the object’s",
+      "guideline_title": "A string literal shall not be assigned to an object unless the object\u2019s",
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
       "applicability_safe_rust": "not_applicable",
@@ -5293,9 +5206,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "advisory",
-      "misra_rust_comment": "may affect extern “C” declarations",
+      "misra_rust_comment": "may affect extern \u201cC\u201d declarations",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: may affect extern “C” declarations. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: may affect extern \u201cC\u201d declarations. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 8.6",
@@ -5427,9 +5340,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "may affect extern “C” declarations",
+      "misra_rust_comment": "may affect extern \u201cC\u201d declarations",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: may affect extern “C” declarations. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: may affect extern \u201cC\u201d declarations. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 8.7",
@@ -6370,9 +6283,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "may affect extern “C” declarations",
+      "misra_rust_comment": "may affect extern \u201cC\u201d declarations",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: may affect extern “C” declarations. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: may affect extern \u201cC\u201d declarations. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 8.16",
@@ -11654,7 +11567,7 @@
     },
     {
       "guideline_id": "Rule 15.7",
-      "guideline_title": "All if … else if constructs shall be terminated with an else statement",
+      "guideline_title": "All if \u2026 else if constructs shall be terminated with an else statement",
       "guideline_type": "rule",
       "applicability_all_rust": "direct",
       "applicability_safe_rust": "direct",
@@ -16339,9 +16252,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.4",
@@ -16361,9 +16274,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.5",
@@ -16372,9 +16285,9 @@
       "applicability_all_rust": "direct",
       "applicability_safe_rust": "not_applicable",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.6",
@@ -16426,9 +16339,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.7",
@@ -16480,9 +16393,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.8",
@@ -16558,9 +16471,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.9",
@@ -16612,9 +16525,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.10",
@@ -16623,9 +16536,9 @@
       "applicability_all_rust": "direct",
       "applicability_safe_rust": "not_applicable",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.11",
@@ -16699,9 +16612,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.13",
@@ -16833,9 +16746,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.14",
@@ -16855,9 +16768,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.15",
@@ -16885,9 +16798,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.16",
@@ -16963,9 +16876,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.17",
@@ -17057,9 +16970,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.18",
@@ -17119,9 +17032,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.19",
@@ -17253,9 +17166,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.20",
@@ -17299,9 +17212,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.21",
@@ -17417,9 +17330,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.22",
@@ -17696,9 +17609,9 @@
       "applicability_all_rust": "direct",
       "applicability_safe_rust": "not_applicable",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 21.25",
@@ -17728,9 +17641,9 @@
       "applicability_all_rust": "direct",
       "applicability_safe_rust": "not_applicable",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.1",
@@ -17777,9 +17690,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.3",
@@ -17799,9 +17712,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.4",
@@ -17821,9 +17734,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.5",
@@ -17899,9 +17812,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.6",
@@ -17961,9 +17874,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.7",
@@ -18015,9 +17928,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.8",
@@ -18026,9 +17939,9 @@
       "applicability_all_rust": "direct",
       "applicability_safe_rust": "not_applicable",
       "misra_rust_category": "disapplied",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.9",
@@ -18037,9 +17950,9 @@
       "applicability_all_rust": "direct",
       "applicability_safe_rust": "not_applicable",
       "misra_rust_category": "disapplied",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.10",
@@ -18048,9 +17961,9 @@
       "applicability_all_rust": "direct",
       "applicability_safe_rust": "not_applicable",
       "misra_rust_category": "disapplied",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.11",
@@ -18104,9 +18017,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.13",
@@ -18303,9 +18216,9 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.17",
@@ -18314,9 +18227,9 @@
       "applicability_all_rust": "direct",
       "applicability_safe_rust": "not_applicable",
       "misra_rust_category": "required",
-      "misra_rust_comment": "only accessible through unsafe extern “C”",
+      "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
       "confidence": "medium",
-      "notes": "MISRA ADD-6: only accessible through unsafe extern “C”. Only applicable in unsafe Rust"
+      "notes": "MISRA ADD-6: only accessible through unsafe extern \u201cC\u201d. Only applicable in unsafe Rust"
     },
     {
       "guideline_id": "Rule 22.18",
