@@ -4276,118 +4276,15 @@
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
       "applicability_safe_rust": "not_applicable",
-      "accepted_matches": [
-        {
-          "fls_id": "fls_e5b9n910z1cp",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.685,
-          "reason": "Per FLS: 'The value of an indexed initializer is the value of its operand.' (similarity: 0.69)"
-        },
-        {
-          "fls_id": "fls_ph7fsphbpbv4",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.658,
-          "reason": "Per FLS: 'An indexed initializer is a construct that specifies the index and ...' (similarity: 0.66)"
-        },
-        {
-          "fls_id": "fls_dfajs3xaxbv",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.651,
-          "reason": "Per FLS: 'The type of the operand of an indexed initializer and the type of t...' (similarity: 0.65)"
-        },
-        {
-          "fls_id": "fls_lmxz5768v5d8",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.649,
-          "reason": "Per FLS: 'A base initializer is allowed even if all [field]s of the construct...' (similarity: 0.65)"
-        },
-        {
-          "fls_id": "fls_qo05owpmtag0",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.649,
-          "reason": "Per FLS: 'A base initializer is allowed even if all [field]s of the construct...' (similarity: 0.65)"
-        },
-        {
-          "fls_id": "fls_z3gj1v6g605r",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.647,
-          "reason": "Per FLS: 'The value of a named initializer is the value of its expression.' (similarity: 0.65)"
-        },
-        {
-          "fls_id": "fls_5w9lj5dc84p",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.645,
-          "reason": "Per FLS: 'The struct expression shall not contain a base initializer.' (similarity: 0.64)"
-        },
-        {
-          "fls_id": "fls_y3p6rtm7ek3l",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.637,
-          "reason": "Per FLS: 'An indexed initializer matches a field of the constructee when the ...' (similarity: 0.64)"
-        },
-        {
-          "fls_id": "fls_lwyq3vyc91rn",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.635,
-          "reason": "Per FLS: 'A named initializer is a construct that specifies the name and init...' (similarity: 0.63)"
-        },
-        {
-          "fls_id": "fls_j2kmp1fee0g4",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.634,
-          "reason": "Per FLS: 'Contain at most one matched indexed initializer, or' (similarity: 0.63)"
-        },
+      "accepted_matches": [],
+      "rejected_matches": [
         {
           "fls_id": "fls_8tsynkj2cufj",
           "category": 0,
           "fls_section": "6.-2.34",
           "fls_title": "Struct Expressions",
           "score": 0.606,
-          "reason": "Section-level similarity match (score: 0.61)"
-        },
-        {
-          "fls_id": "fls_3xvm61x0t251",
-          "category": 0,
-          "fls_section": "15.-2.2",
-          "fls_title": "Initialization",
-          "score": 0.601,
-          "reason": "Section-level similarity match (score: 0.60)"
-        },
-        {
-          "fls_id": "fls_9beohh5475s2",
-          "category": 0,
-          "fls_section": "6.-2.27",
-          "fls_title": "Destructuring Assignment",
-          "score": 0.527,
-          "reason": "Section-level similarity match (score: 0.53)"
-        },
-        {
-          "fls_id": "fls_94a8v54bufn8",
-          "category": 0,
-          "fls_section": "7.-2.1",
-          "fls_title": "Values",
-          "score": 0.52,
-          "reason": "Section-level similarity match (score: 0.52)"
+          "reason": "Rust struct syntax always requires braces - there's no ambiguous form to prohibit."
         },
         {
           "fls_id": "fls_xinykul167l",
@@ -4395,13 +4292,13 @@
           "fls_section": "6.-2.31",
           "fls_title": "Array Expressions",
           "score": 0.514,
-          "reason": "Section-level similarity match (score: 0.51)"
+          "reason": "Rust array syntax always requires brackets - there's no ambiguous form to prohibit."
         }
       ],
       "fls_rationale_type": "no_equivalent",
       "misra_rust_category": "n_a",
-      "confidence": "medium",
-      "notes": "Similarity-based mapping - requires manual verification"
+      "confidence": "high",
+      "notes": "MISRA addresses C's ambiguous aggregate initialization where braces can be omitted (e.g., 'int arr[2][3] = {1,2,3,4,5,6}'). Rust's syntax is unambiguous by design: arrays use brackets [a, b, c], structs use braces Foo { field: value }, and nested structures require explicit nesting. The compiler enforces this - there's no optional brace syntax to misuse."
     },
     {
       "guideline_id": "Rule 9.3",
@@ -4409,38 +4306,15 @@
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
       "applicability_safe_rust": "not_applicable",
-      "accepted_matches": [
+      "accepted_matches": [],
+      "rejected_matches": [
         {
-          "fls_id": "fls_46910buiwvv9",
-          "category": -2,
-          "fls_section": "fls_3xvm61x0t251",
-          "fls_title": "Initialization",
-          "score": 0.633,
-          "reason": "Per FLS: 'A variable shall be initialized before it is accessed.' (similarity: 0.63)"
-        },
-        {
-          "fls_id": "fls_wnhci8phdu4m",
-          "category": -2,
-          "fls_section": "fls_3xvm61x0t251",
-          "fls_title": "Initialization",
-          "score": 0.629,
-          "reason": "Per FLS: 'When a variable holds a value, the variable is considered to be ini...' (similarity: 0.63)"
-        },
-        {
-          "fls_id": "fls_by21pey7k423",
-          "category": -2,
-          "fls_section": "fls_xinykul167l",
+          "fls_id": "fls_xinykul167l",
+          "category": 0,
+          "fls_section": "6.-2.31",
           "fls_title": "Array Expressions",
-          "score": 0.614,
-          "reason": "Per FLS: 'The [type]s of the [operand]s of an array element constructor shall...' (similarity: 0.61)"
-        },
-        {
-          "fls_id": "fls_drfzu02bo7oe",
-          "category": -2,
-          "fls_section": "fls_3xvm61x0t251",
-          "fls_title": "Initialization",
-          "score": 0.595,
-          "reason": "Per FLS: 'Initialization is the act of supplying an initial value to a variable.' (similarity: 0.59)"
+          "score": 0.55,
+          "reason": "Rust array expressions require all elements but this is a different model than C's partial initialization."
         },
         {
           "fls_id": "fls_3xvm61x0t251",
@@ -4448,21 +4322,13 @@
           "fls_section": "15.-2.2",
           "fls_title": "Initialization",
           "score": 0.595,
-          "reason": "Section-level similarity match (score: 0.59)"
-        },
-        {
-          "fls_id": "fls_ch2lvm50olqd",
-          "category": -2,
-          "fls_section": "fls_3xvm61x0t251",
-          "fls_title": "Initialization",
-          "score": 0.568,
-          "reason": "Per FLS: 'When a variable lacks a value or its value has been passed <passing...' (similarity: 0.57)"
+          "reason": "General initialization section, not specific to array partial initialization."
         }
       ],
       "fls_rationale_type": "no_equivalent",
       "misra_rust_category": "n_a",
-      "confidence": "medium",
-      "notes": "Similarity-based mapping - requires manual verification"
+      "confidence": "high",
+      "notes": "C allows partial array initialization (e.g., 'int arr[5] = {1, 2}' where remaining elements are implicitly zeroed). Rust has no equivalent concept - arrays must be fully initialized via element list [a, b, c] or repetition [x; N]. Per MISRA ADD-6: n/a."
     },
     {
       "guideline_id": "Rule 9.4",
@@ -4526,110 +4392,15 @@
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
       "applicability_safe_rust": "not_applicable",
-      "accepted_matches": [
-        {
-          "fls_id": "fls_e5b9n910z1cp",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.652,
-          "reason": "Per FLS: 'The value of an indexed initializer is the value of its operand.' (similarity: 0.65)"
-        },
-        {
-          "fls_id": "fls_ph7fsphbpbv4",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.647,
-          "reason": "Per FLS: 'An indexed initializer is a construct that specifies the index and ...' (similarity: 0.65)"
-        },
-        {
-          "fls_id": "fls_3xvm61x0t251",
-          "category": 0,
-          "fls_section": "15.-2.2",
-          "fls_title": "Initialization",
-          "score": 0.644,
-          "reason": "Section-level similarity match (score: 0.64)"
-        },
-        {
-          "fls_id": "fls_fsn32kmwg65u",
-          "category": -2,
-          "fls_section": "fls_66m4rnbssgig",
-          "fls_title": "Constant Expressions",
-          "score": 0.643,
-          "reason": "Per FLS: 'The size operand of an array repetition constructor,' (similarity: 0.64)"
-        },
-        {
-          "fls_id": "fls_by21pey7k423",
-          "category": -2,
-          "fls_section": "fls_xinykul167l",
-          "fls_title": "Array Expressions",
-          "score": 0.63,
-          "reason": "Per FLS: 'The [type]s of the [operand]s of an array element constructor shall...' (similarity: 0.63)"
-        },
-        {
-          "fls_id": "fls_2gto5kp9bjw8",
-          "category": -2,
-          "fls_section": "fls_xinykul167l",
-          "fls_title": "Array Expressions",
-          "score": 0.619,
-          "reason": "Per FLS: 'If the array expression appears with an array element constructor, ...' (similarity: 0.62)"
-        },
-        {
-          "fls_id": "fls_y3p6rtm7ek3l",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.615,
-          "reason": "Per FLS: 'An indexed initializer matches a field of the constructee when the ...' (similarity: 0.61)"
-        },
-        {
-          "fls_id": "fls_z3gj1v6g605r",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.611,
-          "reason": "Per FLS: 'The value of a named initializer is the value of its expression.' (similarity: 0.61)"
-        },
-        {
-          "fls_id": "fls_wnhci8phdu4m",
-          "category": -2,
-          "fls_section": "fls_3xvm61x0t251",
-          "fls_title": "Initialization",
-          "score": 0.611,
-          "reason": "Per FLS: 'When a variable holds a value, the variable is considered to be ini...' (similarity: 0.61)"
-        },
-        {
-          "fls_id": "fls_imr2jx6cbuzq",
-          "category": -2,
-          "fls_section": "fls_uj0kpjwyld60",
-          "fls_title": "Array Types",
-          "score": 0.609,
-          "reason": "Per FLS: 'The size operand shall be a constant expression or an inferred cons...' (similarity: 0.61)"
-        },
-        {
-          "fls_id": "fls_0eATa6RtDNtA",
-          "category": -2,
-          "fls_section": "fls_lv7w7aalpwm5",
-          "fls_title": "Type Inference",
-          "score": 0.601,
-          "reason": "Per FLS: 'An array expression using an array element constructor is inferred ...' (similarity: 0.60)"
-        },
-        {
-          "fls_id": "fls_94a8v54bufn8",
-          "category": 0,
-          "fls_section": "7.-2.1",
-          "fls_title": "Values",
-          "score": 0.583,
-          "reason": "Section-level similarity match (score: 0.58)"
-        },
+      "accepted_matches": [],
+      "rejected_matches": [
         {
           "fls_id": "fls_xinykul167l",
           "category": 0,
           "fls_section": "6.-2.31",
           "fls_title": "Array Expressions",
           "score": 0.565,
-          "reason": "Section-level similarity match (score: 0.56)"
+          "reason": "Rust has no designated initializers - array initialization is either element list or repetition constructor."
         },
         {
           "fls_id": "fls_8tsynkj2cufj",
@@ -4637,21 +4408,13 @@
           "fls_section": "6.-2.34",
           "fls_title": "Struct Expressions",
           "score": 0.522,
-          "reason": "Section-level similarity match (score: 0.52)"
-        },
-        {
-          "fls_id": "fls_gho955gmob73",
-          "category": 0,
-          "fls_section": "7.-2.5",
-          "fls_title": "Variables",
-          "score": 0.507,
-          "reason": "Section-level similarity match (score: 0.51)"
+          "reason": "Struct field initialization is named but this is different from C's designated initializers for arrays."
         }
       ],
       "fls_rationale_type": "no_equivalent",
       "misra_rust_category": "n_a",
-      "confidence": "medium",
-      "notes": "Similarity-based mapping - requires manual verification"
+      "confidence": "high",
+      "notes": "C99 designated initializers (e.g., 'int arr[10] = {[5] = 1, [2] = 3}') allow sparse array initialization where size can be implicitly determined by highest index. Rust has no designated initializer syntax for arrays - arrays are initialized via element list [a, b, c] (size inferred from count) or repetition [x; N] (size explicit). The concept doesn't exist in Rust."
     },
     {
       "guideline_id": "Rule 9.6",
@@ -4659,100 +4422,21 @@
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
       "applicability_safe_rust": "not_applicable",
-      "accepted_matches": [
-        {
-          "fls_id": "fls_lmxz5768v5d8",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.609,
-          "reason": "Per FLS: 'A base initializer is allowed even if all [field]s of the construct...' (similarity: 0.61)"
-        },
-        {
-          "fls_id": "fls_qo05owpmtag0",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.609,
-          "reason": "Per FLS: 'A base initializer is allowed even if all [field]s of the construct...' (similarity: 0.61)"
-        },
-        {
-          "fls_id": "fls_w7x9wy6t0qcp",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.606,
-          "reason": "Per FLS: 'If a base initializer is supplied, then for each field that was not...' (similarity: 0.61)"
-        },
-        {
-          "fls_id": "fls_y3p6rtm7ek3l",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.605,
-          "reason": "Per FLS: 'An indexed initializer matches a field of the constructee when the ...' (similarity: 0.61)"
-        },
-        {
-          "fls_id": "fls_5w9lj5dc84p",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.599,
-          "reason": "Per FLS: 'The struct expression shall not contain a base initializer.' (similarity: 0.60)"
-        },
-        {
-          "fls_id": "fls_gfu267bpl9ql",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.596,
-          "reason": "Per FLS: 'The type of a base initializer is the type of its operand. The type...' (similarity: 0.60)"
-        },
-        {
-          "fls_id": "fls_ph7fsphbpbv4",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.595,
-          "reason": "Per FLS: 'An indexed initializer is a construct that specifies the index and ...' (similarity: 0.60)"
-        },
-        {
-          "fls_id": "fls_e5b9n910z1cp",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.589,
-          "reason": "Per FLS: 'The value of an indexed initializer is the value of its operand.' (similarity: 0.59)"
-        },
-        {
-          "fls_id": "fls_dfajs3xaxbv",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.588,
-          "reason": "Per FLS: 'The type of the operand of an indexed initializer and the type of t...' (similarity: 0.59)"
-        },
-        {
-          "fls_id": "fls_lwyq3vyc91rn",
-          "category": -2,
-          "fls_section": "fls_8tsynkj2cufj",
-          "fls_title": "Struct Expressions",
-          "score": 0.587,
-          "reason": "Per FLS: 'A named initializer is a construct that specifies the name and init...' (similarity: 0.59)"
-        },
+      "accepted_matches": [],
+      "rejected_matches": [
         {
           "fls_id": "fls_8tsynkj2cufj",
           "category": 0,
           "fls_section": "6.-2.34",
           "fls_title": "Struct Expressions",
           "score": 0.552,
-          "reason": "Section-level similarity match (score: 0.55)"
+          "reason": "Rust struct expressions use named fields, but this is different from C's chained designators."
         }
       ],
       "fls_rationale_type": "no_equivalent",
       "misra_rust_category": "n_a",
-      "confidence": "medium",
-      "notes": "Similarity-based mapping - requires manual verification"
+      "confidence": "high",
+      "notes": "C99 chained designators (e.g., 'struct s arr[2] = {[0].x = 1, 2, 3}') allow mixing designated and positional initializers, which is confusing. Rust has no chained designator syntax. Struct fields use named initialization (Foo { x: 1, y: 2 }), and arrays use element lists or repetition. The mixing of designated/non-designated initializers that MISRA prohibits cannot occur in Rust."
     },
     {
       "guideline_id": "Rule 9.7",
@@ -5923,54 +5607,15 @@
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
       "applicability_safe_rust": "not_applicable",
-      "accepted_matches": [
+      "accepted_matches": [],
+      "rejected_matches": [
         {
           "fls_id": "fls_52thmi9hnoks",
           "category": -4,
           "fls_section": "fls_xztr1kebz8bo",
           "fls_title": "Function Pointer Types",
           "score": 0.591,
-          "reason": "Per FLS: 'It is a validity invariant for a value of a function pointer type t...' (similarity: 0.59)"
-        },
-        {
-          "fls_id": "fls_3mhj0kkupwuz",
-          "category": -2,
-          "fls_section": "fls_ixjc5jaamx84",
-          "fls_title": "Constants",
-          "score": 0.587,
-          "reason": "Per FLS: 'An unnamed constant is a constant declared with character 0x5F (low...' (similarity: 0.59)"
-        },
-        {
-          "fls_id": "fls_o7cqfdnr253y",
-          "category": -2,
-          "fls_section": "fls_wttihxen35as",
-          "fls_title": "Constant Promotion",
-          "score": 0.566,
-          "reason": "Per FLS: 'An anonymous constant is created, whose constant initializer holds ...' (similarity: 0.57)"
-        },
-        {
-          "fls_id": "fls_yiks5bvojncc",
-          "category": -2,
-          "fls_section": "fls_66m4rnbssgig",
-          "fls_title": "Constant Expressions",
-          "score": 0.563,
-          "reason": "Per FLS: 'The default value of a constant parameter,' (similarity: 0.56)"
-        },
-        {
-          "fls_id": "fls_dQdSxf8kOgbi",
-          "category": -2,
-          "fls_section": "fls_ixjc5jaamx84",
-          "fls_title": "Constants",
-          "score": 0.56,
-          "reason": "Per FLS: 'The referent is a value of a zero-sized type.' (similarity: 0.56)"
-        },
-        {
-          "fls_id": "fls_e0a1e8ddph7",
-          "category": -2,
-          "fls_section": "fls_66m4rnbssgig",
-          "fls_title": "Constant Expressions",
-          "score": 0.553,
-          "reason": "Per FLS: '[Type cast expression]s that are not [pointer-to-address cast]s, [f...' (similarity: 0.55)"
+          "reason": "About function pointer validity invariants, not null pointer constants."
         },
         {
           "fls_id": "fls_ixjc5jaamx84",
@@ -5978,30 +5623,14 @@
           "fls_section": "7.-2.2",
           "fls_title": "Constants",
           "score": 0.53,
-          "reason": "Section-level similarity match (score: 0.53)"
-        },
-        {
-          "fls_id": "fls_66m4rnbssgig",
-          "category": 0,
-          "fls_section": "6.-2.3",
-          "fls_title": "Constant Expressions",
-          "score": 0.53,
-          "reason": "Section-level similarity match (score: 0.53)"
-        },
-        {
-          "fls_id": "fls_wttihxen35as",
-          "category": 0,
-          "fls_section": "7.-2.6",
-          "fls_title": "Constant Promotion",
-          "score": 0.502,
-          "reason": "Section-level similarity match (score: 0.50)"
+          "reason": "About Rust constants in general, not null pointer representation."
         }
       ],
       "fls_rationale_type": "no_equivalent",
       "misra_rust_category": "n_a",
       "misra_rust_comment": "Rust does not have a null pointer constant",
-      "confidence": "medium",
-      "notes": "MISRA ADD-6: Rust does not have a null pointer constant"
+      "confidence": "high",
+      "notes": "Rust has no NULL macro or integer null pointer constant. For raw pointers, Rust uses std::ptr::null() and std::ptr::null_mut() functions. For safe code, Option<T> replaces nullable pointers entirely. The C pattern of using 0 or (void*)0 as null doesn't exist in Rust. Per MISRA ADD-6: n/a."
     },
     {
       "guideline_id": "Rule 11.10",
@@ -6009,28 +5638,21 @@
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
       "applicability_safe_rust": "not_applicable",
-      "accepted_matches": [
-        {
-          "fls_id": "fls_3pjla9s93mhd",
-          "category": -2,
-          "fls_section": "fls_vyc9vcuamlph",
-          "fls_title": "Atomics",
-          "score": 0.651,
-          "reason": "Per FLS: 'An atomic type is a type defined in module core::sync::atomic. [Ato...' (similarity: 0.65)"
-        },
+      "accepted_matches": [],
+      "rejected_matches": [
         {
           "fls_id": "fls_vyc9vcuamlph",
           "category": 0,
           "fls_section": "17.-2.3",
           "fls_title": "Atomics",
           "score": 0.613,
-          "reason": "Section-level similarity match (score: 0.61)"
+          "reason": "Rust atomics are types (AtomicU32, AtomicPtr<T>, etc.) not qualifiers. No _Atomic qualifier exists."
         }
       ],
       "fls_rationale_type": "no_equivalent",
       "misra_rust_category": "n_a",
-      "confidence": "medium",
-      "notes": "Similarity-based mapping - requires manual verification"
+      "confidence": "high",
+      "notes": "C11's _Atomic is a type qualifier that can be applied to arbitrary types including void. Rust has no _Atomic qualifier - atomics are distinct types in core::sync::atomic (AtomicBool, AtomicU32, AtomicPtr<T>, etc.). You cannot create an 'atomic void' in Rust because atomics are concrete types, not qualifiers. Per MISRA ADD-6: n/a."
     },
     {
       "guideline_id": "Rule 11.11",
@@ -6232,52 +5854,21 @@
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
       "applicability_safe_rust": "not_applicable",
-      "accepted_matches": [
-        {
-          "fls_id": "fls_ghxns2nggffj",
-          "category": -2,
-          "fls_section": "fls_jr4tpuyksr75",
-          "fls_title": "Break Expressions",
-          "score": 0.563,
-          "reason": "Per FLS: 'A break expression without a label indication is associated with th...' (similarity: 0.56)"
-        },
-        {
-          "fls_id": "fls_jr4tpuyksr75",
-          "category": 0,
-          "fls_section": "6.-2.45",
-          "fls_title": "Break Expressions",
-          "score": 0.547,
-          "reason": "Section-level similarity match (score: 0.55)"
-        },
+      "accepted_matches": [],
+      "rejected_matches": [
         {
           "fls_id": "fls_1pg5ig740tg1",
           "category": 0,
           "fls_section": "8.-2.3",
           "fls_title": "Expression Statements",
           "score": 0.526,
-          "reason": "Section-level similarity match (score: 0.53)"
-        },
-        {
-          "fls_id": "fls_mkut7gut49gi",
-          "category": 0,
-          "fls_section": "6.-2.48",
-          "fls_title": "If Expressions",
-          "score": 0.523,
-          "reason": "Section-level similarity match (score: 0.52)"
-        },
-        {
-          "fls_id": "fls_rr908hgunja7",
-          "category": 0,
-          "fls_section": "6.-2.39",
-          "fls_title": "Loop Expressions",
-          "score": 0.516,
-          "reason": "Section-level similarity match (score: 0.52)"
+          "reason": "Rust has no comma operator. Expression statements are separated by semicolons, not commas."
         }
       ],
       "fls_rationale_type": "no_equivalent",
       "misra_rust_category": "n_a",
-      "confidence": "medium",
-      "notes": "Similarity-based mapping - requires manual verification"
+      "confidence": "high",
+      "notes": "Rust has no comma operator. In C, the comma operator evaluates left operand, discards result, evaluates right operand (e.g., 'a = (b++, c)'). Rust uses semicolons to separate statements and has no equivalent construct. Tuple construction uses commas but that's syntactically distinct. Per MISRA ADD-6: n/a."
     },
     {
       "guideline_id": "Rule 12.4",
@@ -6415,112 +6006,25 @@
     },
     {
       "guideline_id": "Rule 12.5",
-      "guideline_title": "The sizeof operator shall not have an operand which is a function parameter declared as \u201carray of type\u201d",
+      "guideline_title": "The sizeof operator shall not have an operand which is a function parameter declared as \"array of type\"",
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
       "applicability_safe_rust": "not_applicable",
-      "accepted_matches": [
-        {
-          "fls_id": "fls_2l9objtb23zn",
-          "category": -2,
-          "fls_section": "fls_xinykul167l",
-          "fls_title": "Array Expressions",
-          "score": 0.681,
-          "reason": "Per FLS: 'A size operand is an operand that specifies the size of an array or...' (similarity: 0.68)"
-        },
-        {
-          "fls_id": "fls_imr2jx6cbuzq",
-          "category": -2,
-          "fls_section": "fls_uj0kpjwyld60",
-          "fls_title": "Array Types",
-          "score": 0.646,
-          "reason": "Per FLS: 'The size operand shall be a constant expression or an inferred cons...' (similarity: 0.65)"
-        },
-        {
-          "fls_id": "fls_r8nqxry2dlww",
-          "category": -2,
-          "fls_section": "fls_uj0kpjwyld60",
-          "fls_title": "Array Types",
-          "score": 0.643,
-          "reason": "Per FLS: 'The type of the size operand is type usize.' (similarity: 0.64)"
-        },
-        {
-          "fls_id": "fls_veG2D64fIXvo",
-          "category": -2,
-          "fls_section": "fls_lv7w7aalpwm5",
-          "fls_title": "Type Inference",
-          "score": 0.642,
-          "reason": "Per FLS: 'The expected type of a size operand of an array expression or an ar...' (similarity: 0.64)"
-        },
-        {
-          "fls_id": "fls_2gto5kp9bjw8",
-          "category": -2,
-          "fls_section": "fls_xinykul167l",
-          "fls_title": "Array Expressions",
-          "score": 0.64,
-          "reason": "Per FLS: 'If the array expression appears with an array element constructor, ...' (similarity: 0.64)"
-        },
-        {
-          "fls_id": "fls_qplsh3pdqitq",
-          "category": -2,
-          "fls_section": "fls_xinykul167l",
-          "fls_title": "Array Expressions",
-          "score": 0.619,
-          "reason": "Per FLS: 'The type of the size operand shall be type usize.' (similarity: 0.62)"
-        },
-        {
-          "fls_id": "fls_guop34ayjw2",
-          "category": -2,
-          "fls_section": "fls_xinykul167l",
-          "fls_title": "Array Expressions",
-          "score": 0.604,
-          "reason": "Per FLS: 'Otherwise the size is the value of size operand.' (similarity: 0.60)"
-        },
-        {
-          "fls_id": "fls_9gmnjvs83d8o",
-          "category": -2,
-          "fls_section": "fls_xinykul167l",
-          "fls_title": "Array Expressions",
-          "score": 0.603,
-          "reason": "Per FLS: 'The size operand shall be a constant expression.' (similarity: 0.60)"
-        },
-        {
-          "fls_id": "fls_j6kffhbxdm7o",
-          "category": -2,
-          "fls_section": "fls_66m4rnbssgig",
-          "fls_title": "Constant Expressions",
-          "score": 0.576,
-          "reason": "Per FLS: 'The size operand of an array type,' (similarity: 0.58)"
-        },
-        {
-          "fls_id": "fls_A1NVYkepoaMk",
-          "category": -2,
-          "fls_section": "fls_lv7w7aalpwm5",
-          "fls_title": "Type Inference",
-          "score": 0.573,
-          "reason": "Per FLS: 'The size operand of an array expression or an array type.' (similarity: 0.57)"
-        },
-        {
-          "fls_id": "fls_xztr1kebz8bo",
-          "category": 0,
-          "fls_section": "4.-2.16",
-          "fls_title": "Function Pointer Types",
-          "score": 0.532,
-          "reason": "Section-level similarity match (score: 0.53)"
-        },
+      "accepted_matches": [],
+      "rejected_matches": [
         {
           "fls_id": "fls_uj0kpjwyld60",
           "category": 0,
           "fls_section": "4.-2.7",
           "fls_title": "Array Types",
           "score": 0.501,
-          "reason": "Section-level similarity match (score: 0.50)"
+          "reason": "Rust arrays don't decay to pointers. Array parameters retain their type information."
         }
       ],
       "fls_rationale_type": "no_equivalent",
       "misra_rust_category": "n_a",
-      "confidence": "medium",
-      "notes": "Similarity-based mapping - requires manual verification"
+      "confidence": "high",
+      "notes": "In C, arrays decay to pointers when passed as function parameters, so sizeof on such a parameter gives pointer size, not array size. Rust has no array-to-pointer decay: arrays are passed by reference (&[T; N]) or as slices (&[T]). std::mem::size_of::<[T; N]>() always gives the actual array size. The C pitfall doesn't exist in Rust. Per MISRA ADD-6: n/a."
     },
     {
       "guideline_id": "Rule 12.6",
@@ -6528,132 +6032,21 @@
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
       "applicability_safe_rust": "not_applicable",
-      "accepted_matches": [
+      "accepted_matches": [],
+      "rejected_matches": [
         {
           "fls_id": "fls_vyc9vcuamlph",
           "category": 0,
           "fls_section": "17.-2.3",
           "fls_title": "Atomics",
           "score": 0.759,
-          "reason": "Section-level similarity match (score: 0.76)"
-        },
-        {
-          "fls_id": "fls_3pjla9s93mhd",
-          "category": -2,
-          "fls_section": "fls_vyc9vcuamlph",
-          "fls_title": "Atomics",
-          "score": 0.742,
-          "reason": "Per FLS: 'An atomic type is a type defined in module core::sync::atomic. [Ato...' (similarity: 0.74)"
-        },
-        {
-          "fls_id": "fls_3v733mnewssy",
-          "category": 0,
-          "fls_section": "17.-1.1",
-          "fls_title": "Concurrency",
-          "score": 0.676,
-          "reason": "Section-level similarity match (score: 0.68)"
-        },
-        {
-          "fls_id": "fls_opt7v0mopxc8",
-          "category": -1,
-          "fls_section": "fls_3v733mnewssy",
-          "fls_title": "Concurrency",
-          "score": 0.645,
-          "reason": "Per FLS: 'The Rust programming language provides features for concurrent prog...' (similarity: 0.64)"
-        },
-        {
-          "fls_id": "fls_jt7rfq9atbiv",
-          "category": -2,
-          "fls_section": "fls_vyc9vcuamlph",
-          "fls_title": "Atomics",
-          "score": 0.63,
-          "reason": "Per FLS: '- i32 - core::sync::atomic::AtomicI32 -' (similarity: 0.63)"
-        },
-        {
-          "fls_id": "fls_w2mw833g28eb",
-          "category": -2,
-          "fls_section": "fls_vyc9vcuamlph",
-          "fls_title": "Atomics",
-          "score": 0.605,
-          "reason": "Per FLS: '- *mut T - core::sync::atomic::AtomicPtr -' (similarity: 0.60)"
-        },
-        {
-          "fls_id": "fls_jep7p27kaqlp",
-          "category": 0,
-          "fls_section": "19.-2.1",
-          "fls_title": "Unsafety",
-          "score": 0.603,
-          "reason": "Section-level similarity match (score: 0.60)"
-        },
-        {
-          "fls_id": "fls_4urmnh4mfehl",
-          "category": -2,
-          "fls_section": "fls_vyc9vcuamlph",
-          "fls_title": "Atomics",
-          "score": 0.591,
-          "reason": "Per FLS: '- u32 - core::sync::atomic::AtomicU32 -' (similarity: 0.59)"
-        },
-        {
-          "fls_id": "fls_2hqmfwswc6k",
-          "category": -2,
-          "fls_section": "fls_vyc9vcuamlph",
-          "fls_title": "Atomics",
-          "score": 0.584,
-          "reason": "Per FLS: '- i64 - core::sync::atomic::AtomicI64 -' (similarity: 0.58)"
-        },
-        {
-          "fls_id": "fls_cry1e78gp19q",
-          "category": -2,
-          "fls_section": "fls_vyc9vcuamlph",
-          "fls_title": "Atomics",
-          "score": 0.582,
-          "reason": "Per FLS: '- usize - core::sync::atomic::AtomicUsize' (similarity: 0.58)"
-        },
-        {
-          "fls_id": "fls_5ab2sw3gwmt3",
-          "category": -2,
-          "fls_section": "fls_vyc9vcuamlph",
-          "fls_title": "Atomics",
-          "score": 0.582,
-          "reason": "Per FLS: '- isize - core::sync::atomic::AtomicIsize -' (similarity: 0.58)"
-        },
-        {
-          "fls_id": "fls_jx0784jzxy00",
-          "category": -2,
-          "fls_section": "fls_vyc9vcuamlph",
-          "fls_title": "Atomics",
-          "score": 0.577,
-          "reason": "Per FLS: '- bool - core::sync::atomic::AtomicBool -' (similarity: 0.58)"
-        },
-        {
-          "fls_id": "fls_isypweqewe78",
-          "category": -4,
-          "fls_section": "fls_3v733mnewssy",
-          "fls_title": "Concurrency",
-          "score": 0.575,
-          "reason": "Per FLS: 'It is undefined behavior if two or more threads engage in a data race.' (similarity: 0.58)"
-        },
-        {
-          "fls_id": "fls_xdvdl2ssnhlo",
-          "category": 0,
-          "fls_section": "7.-2.3",
-          "fls_title": "Statics",
-          "score": 0.554,
-          "reason": "Section-level similarity match (score: 0.55)"
-        },
-        {
-          "fls_id": "fls_v5x85lt5ulva",
-          "category": 0,
-          "fls_section": "15.-2.3",
-          "fls_title": "References",
-          "score": 0.542,
-          "reason": "Section-level similarity match (score: 0.54)"
+          "reason": "Rust atomics are opaque types, not structs with accessible members. You cannot directly access internal fields."
         }
       ],
       "fls_rationale_type": "no_equivalent",
       "misra_rust_category": "n_a",
-      "confidence": "medium",
-      "notes": "Similarity-based mapping - requires manual verification"
+      "confidence": "high",
+      "notes": "In C11, _Atomic can be applied to struct types, and directly accessing members of such atomic structs is non-atomic and unsafe. Rust's atomic types (AtomicU32, AtomicBool, etc.) are opaque - they don't expose internal fields. You must use methods like load(), store(), compare_exchange() which guarantee atomic access. There's no way to directly access 'members' of an atomic in Rust. Per MISRA ADD-6: n/a."
     },
     {
       "guideline_id": "Rule 13.1",

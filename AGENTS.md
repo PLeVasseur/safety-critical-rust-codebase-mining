@@ -689,6 +689,14 @@ Ask:
 }
 ```
 
+#### Verification Guidelines
+
+1. **Reclassification requires approval:** If analysis suggests changing `applicability_all_rust`, `applicability_safe_rust`, or `fls_rationale_type` from existing values, check with the user before making the change.
+
+2. **Trust MISRA ADD-6 classifications:** When MISRA ADD-6 marks a guideline as `n_a`, keep it as `not_applicable` unless there's a compelling reason to reclassify. Focus verification on adding FLS justification and setting confidence to `high`.
+
+3. **Confidence updates are always okay:** Changing from `medium` to `high` confidence is the expected outcome of verification.
+
 ### Applicability Values
 
 | Value | Description |

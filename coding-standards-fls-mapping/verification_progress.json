@@ -4,16 +4,16 @@
   "verification_started": "2025-12-31",
   "last_updated": "2025-12-31",
   "summary": {
-    "total_verified": 58,
-    "total_pending": 170,
+    "total_verified": 67,
+    "total_pending": 161,
     "by_batch": {
       "1": {
         "verified": 28,
         "pending": 0
       },
       "2": {
-        "verified": 30,
-        "pending": 63
+        "verified": 39,
+        "pending": 54
       },
       "3": {
         "verified": 0,
@@ -397,57 +397,57 @@
         },
         {
           "guideline_id": "Rule 9.2",
-          "status": "pending",
-          "verified_date": null,
-          "session_id": null
+          "status": "verified",
+          "verified_date": "2025-12-31",
+          "session_id": 4
         },
         {
           "guideline_id": "Rule 9.3",
-          "status": "pending",
-          "verified_date": null,
-          "session_id": null
+          "status": "verified",
+          "verified_date": "2025-12-31",
+          "session_id": 4
         },
         {
           "guideline_id": "Rule 9.5",
-          "status": "pending",
-          "verified_date": null,
-          "session_id": null
+          "status": "verified",
+          "verified_date": "2025-12-31",
+          "session_id": 4
         },
         {
           "guideline_id": "Rule 9.6",
-          "status": "pending",
-          "verified_date": null,
-          "session_id": null
+          "status": "verified",
+          "verified_date": "2025-12-31",
+          "session_id": 4
         },
         {
           "guideline_id": "Rule 11.9",
-          "status": "pending",
-          "verified_date": null,
-          "session_id": null
+          "status": "verified",
+          "verified_date": "2025-12-31",
+          "session_id": 4
         },
         {
           "guideline_id": "Rule 11.10",
-          "status": "pending",
-          "verified_date": null,
-          "session_id": null
+          "status": "verified",
+          "verified_date": "2025-12-31",
+          "session_id": 4
         },
         {
           "guideline_id": "Rule 12.3",
-          "status": "pending",
-          "verified_date": null,
-          "session_id": null
+          "status": "verified",
+          "verified_date": "2025-12-31",
+          "session_id": 4
         },
         {
           "guideline_id": "Rule 12.5",
-          "status": "pending",
-          "verified_date": null,
-          "session_id": null
+          "status": "verified",
+          "verified_date": "2025-12-31",
+          "session_id": 4
         },
         {
           "guideline_id": "Rule 12.6",
-          "status": "pending",
-          "verified_date": null,
-          "session_id": null
+          "status": "verified",
+          "verified_date": "2025-12-31",
+          "session_id": 4
         },
         {
           "guideline_id": "Rule 13.2",
@@ -1524,7 +1524,16 @@
         "Rule 8.16",
         "Rule 8.17",
         "Rule 8.18",
-        "Rule 8.19"
+        "Rule 8.19",
+        "Rule 9.2",
+        "Rule 9.3",
+        "Rule 9.5",
+        "Rule 9.6",
+        "Rule 11.9",
+        "Rule 11.10",
+        "Rule 12.3",
+        "Rule 12.5",
+        "Rule 12.6"
       ],
       "notes": "Reconciled Rule 8.8 (already high confidence in mapping file). Continuing Batch 2."
     }
