@@ -19,10 +19,10 @@ Migrate from flat applicability fields to nested per-context structures with ind
 | 3. Update tools | complete | 2026-01-02 |
 | 4. Update verification workflow | complete | 2026-01-02 |
 | 5. Update AGENTS.md | complete | 2026-01-02 |
-| 6. Execute fresh verification | **pending** | - |
+| 6. Execute fresh verification | **in_progress** | - |
 | 7. Cleanup (post-migration) | pending | - |
 
-**Next Action:** Phase 6 - Execute fresh verification using v2 workflow.
+**Next Action:** Phase 6 - Verify Batch 2 (Not applicable guidelines).
 
 ---
 
@@ -375,20 +375,26 @@ Proceed to Phase 6: Execute fresh verification.
 ## Phase 6: Execute Fresh Verification
 
 ### Pre-Verification Checklist
-- [ ] All tools updated and tested
-- [ ] Progress file reset to v2 format
-- [ ] Batch reports generated in v2 format
+- [x] All tools updated and tested
+- [x] Progress file reset to v2 format
+- [x] Batch reports generated in v2 format
 
 ### Verification Progress
 
 | Batch | Guidelines | all_rust | safe_rust | Both Complete |
 |-------|------------|----------|-----------|---------------|
-| 1 | 20 | 0/20 | 0/20 | 0/20 |
+| 1 | 20 | 20/20 ✓ | 20/20 ✓ | 20/20 ✓ |
 | 2 | 88 | 0/88 | 0/88 | 0/88 |
 | 3 | 38 | 0/38 | 0/38 | 0/38 |
 | 4 | 55 | 0/55 | 0/55 | 0/55 |
 | 5 | 22 | 0/22 | 0/22 | 0/22 |
-| **Total** | **223** | **0/223** | **0/223** | **0/223** |
+| **Total** | **223** | **20/223** | **20/223** | **20/223** |
+
+### Session Log
+
+| Session | Date | Batch | Guidelines Verified | Notes |
+|---------|------|-------|---------------------|-------|
+| 1 | 2026-01-02 | 1 | 20 (both contexts) | Initial v2 verification; fixed `migrate_v1_to_v2_entry` to include `guideline_type` |
 
 ### Next Step
 After all batches verified, proceed to Phase 7: Cleanup.

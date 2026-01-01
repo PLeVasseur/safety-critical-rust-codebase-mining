@@ -1063,6 +1063,62 @@ Process the batch report JSON and for each guideline:
    - Check `tools/data/fls_section_mapping.json` for section hierarchy
    - Check `coding-standards-fls-mapping/concept_to_fls.json` for known concept mappings
 
+#### Decision Summary Format
+
+For each guideline processed, output a structured analysis summary before recording decisions. This provides visibility into the reasoning and creates an audit trail.
+
+**Format:**
+
+```
+## Rule X.Y - <Title>
+
+**MISRA Concern:** <1-2 sentence summary of what problem this rule addresses in C>
+
+**Rust Analysis:** <2-4 sentences explaining how Rust handles this concern, with FLS references where relevant>
+
+| Context | Applicability | Category | Rationale Type | Key FLS |
+|---------|---------------|----------|----------------|---------|
+| all_rust | <yes/no/partial> | <category> | <rationale_type> | <fls_id: brief reason> |
+| safe_rust | <yes/no/partial> | <category> | <rationale_type> | <fls_id: brief reason> |
+```
+
+**Example - Both contexts identical (Batch 2 style):**
+
+```
+## Rule 8.8 - The static storage class specifier shall be used in all declarations of objects and functions that have internal linkage
+
+**MISRA Concern:** In C, the `static` keyword must be used consistently for internal linkage because `extern` on a previously-declared-static item confusingly inherits the static linkage rather than creating external linkage.
+
+**Rust Analysis:** Rust has no `static` storage class specifier for linkage control. Instead, visibility modifiers (`pub`, `pub(crate)`, private-by-default) control access. Items are private by default (equivalent to internal). The keyword `static` in Rust means a global variable with static lifetime, not internal linkage.
+
+| Context | Applicability | Category | Rationale Type | Key FLS |
+|---------|---------------|----------|----------------|---------|
+| all_rust | no | n_a | `no_equivalent` | `fls_jdknpu3kf865`: Visibility - private by default |
+| safe_rust | no | n_a | `no_equivalent` | `fls_jdknpu3kf865`: Visibility - private by default |
+```
+
+**Example - Contexts differ:**
+
+```
+## Rule 11.3 - A cast shall not be performed between a pointer to object type and a pointer to a different object type
+
+**MISRA Concern:** Casting between incompatible pointer types can violate alignment requirements and type aliasing rules, causing undefined behavior.
+
+**Rust Analysis:** Safe Rust prohibits arbitrary pointer casts - references are typed and the borrow checker enforces aliasing rules. In unsafe Rust, raw pointer casts via `as` or `transmute` are possible but require explicit `unsafe` blocks.
+
+| Context | Applicability | Category | Rationale Type | Key FLS |
+|---------|---------------|----------|----------------|---------|
+| all_rust | yes | advisory | `direct_mapping` | `fls_1qhsun1vyarz`: Type Cast Expressions - raw pointer casts |
+| safe_rust | no | n_a | `rust_prevents` | `fls_ppwBSNQ2W7jf`: Borrow checker prevents aliasing violations |
+```
+
+**Guidelines:**
+- Keep MISRA Concern to 1-2 sentences focusing on the safety issue
+- Rust Analysis should explain the mechanism, not just state the decision
+- Both contexts must be shown even when identical
+- Key FLS column: use format `fls_id: brief justification` (full quotes go in the recorded decision)
+- Output this summary BEFORE running the `record-decision` commands
+
 #### Search Protocol Enforcement
 
 **CRITICAL: Each guideline MUST have its own 4 searches with results analyzed specifically for that guideline.**
