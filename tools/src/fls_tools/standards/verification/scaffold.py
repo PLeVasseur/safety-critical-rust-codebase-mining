@@ -35,6 +35,7 @@ from fls_tools.shared import (
     get_verification_progress_path,
     normalize_standard,
     VALID_STANDARDS,
+    get_guideline_schema_version,
 )
 
 
@@ -89,13 +90,26 @@ def assign_batches(
     batches: dict[int, list[str]] = {1: [], 2: [], 3: [], 4: [], 5: []}
     assigned: set[str] = set()
 
-    # Build lookup for quick access
+    # Build lookup for quick access - handle both v1 and v2 formats
     guideline_data: dict[str, dict[str, Any]] = {}
     for m in mappings:
         gid = m["guideline_id"]
+        schema_ver = get_guideline_schema_version(m)
+        
+        if schema_ver == "1.0":
+            confidence = m.get("confidence", "medium")
+            applicability = m.get("applicability_all_rust", "unmapped")
+        else:
+            # v2: Get from all_rust context
+            all_rust = m.get("all_rust", {})
+            confidence = all_rust.get("confidence", "medium")
+            # Convert v2 applicability values to v1 for batch assignment
+            app_v2 = all_rust.get("applicability", "no")
+            applicability = {"yes": "direct", "partial": "partial", "no": "not_applicable"}.get(app_v2, "unmapped")
+        
         guideline_data[gid] = {
-            "confidence": m.get("confidence", "medium"),
-            "applicability": m.get("applicability_all_rust", "unmapped"),
+            "confidence": confidence,
+            "applicability": applicability,
             "max_score": get_max_similarity_score(gid, similarity_results),
             "category": get_guideline_category(gid),
         }
@@ -162,8 +176,17 @@ def create_progress_file(
     standard: str,
     existing_progress: dict[str, Any] | None = None,
     preserve_completed: bool = False,
+    schema_version: str = "1.0",
 ) -> dict[str, Any]:
-    """Create the verification progress structure."""
+    """Create the verification progress structure.
+    
+    Args:
+        batches: Mapping of batch_id to list of guideline IDs
+        standard: Standard name (e.g., 'misra-c')
+        existing_progress: Existing progress data to preserve
+        preserve_completed: Whether to preserve completed guidelines
+        schema_version: "1.0" for flat, "2.0" for per-context
+    """
     today = date.today().isoformat()
 
     # Track existing verified guidelines if preserving
@@ -171,14 +194,26 @@ def create_progress_file(
     existing_sessions: list[dict[str, Any]] = []
 
     if existing_progress and preserve_completed:
+        existing_schema = existing_progress.get("schema_version", "1.0")
         for batch in existing_progress.get("batches", []):
             for g in batch.get("guidelines", []):
-                if g.get("status") == "verified":
-                    verified_guidelines[g["guideline_id"]] = {
-                        "verified_date": g.get("verified_date"),
-                        "session_id": g.get("session_id"),
-                        "notes": g.get("notes", ""),
-                    }
+                gid = g["guideline_id"]
+                if existing_schema == "1.0":
+                    if g.get("status") == "verified":
+                        verified_guidelines[gid] = {
+                            "verified_date": g.get("verified_date"),
+                            "session_id": g.get("session_id"),
+                            "notes": g.get("notes", ""),
+                        }
+                else:
+                    # v2: Check both contexts
+                    all_rust = g.get("all_rust", {})
+                    safe_rust = g.get("safe_rust", {})
+                    if all_rust.get("verified") or safe_rust.get("verified"):
+                        verified_guidelines[gid] = {
+                            "all_rust": all_rust,
+                            "safe_rust": safe_rust,
+                        }
         existing_sessions = existing_progress.get("sessions", [])
 
     batch_definitions = [
@@ -210,85 +245,186 @@ def create_progress_file(
     ]
 
     total_guidelines = sum(len(g) for g in batches.values())
-    total_verified = len(verified_guidelines)
 
     # Use internal standard name (snake_case) for the field
     internal_standard = normalize_standard(standard)
 
-    progress = {
-        "standard": internal_standard,
-        "total_guidelines": total_guidelines,
-        "verification_started": existing_progress.get("verification_started", today)
-        if existing_progress
-        else today,
-        "last_updated": today,
-        "summary": {
+    if schema_version == "1.0":
+        # v1: Flat structure
+        total_verified = len(verified_guidelines)
+        
+        progress = {
+            "schema_version": "1.0",
+            "standard": internal_standard,
             "total_guidelines": total_guidelines,
-            "total_verified": total_verified,
-            "total_pending": total_guidelines - total_verified,
-            "by_batch": {},
-        },
-        "batches": [],
-        "sessions": existing_sessions,
-    }
-
-    for batch_def in batch_definitions:
-        batch_id = batch_def["batch_id"]
-        guideline_ids = batches.get(batch_id, [])
-
-        guidelines = []
-        batch_verified = 0
-        for gid in guideline_ids:
-            if gid in verified_guidelines:
-                g_info = verified_guidelines[gid]
-                guidelines.append(
-                    {
-                        "guideline_id": gid,
-                        "status": "verified",
-                        "verified_date": g_info["verified_date"],
-                        "session_id": g_info["session_id"],
-                        "notes": g_info.get("notes", ""),
-                    }
-                )
-                batch_verified += 1
-            else:
-                guidelines.append(
-                    {
-                        "guideline_id": gid,
-                        "status": "pending",
-                        "verified_date": None,
-                        "session_id": None,
-                    }
-                )
-
-        batch_pending = len(guideline_ids) - batch_verified
-
-        # Determine batch status
-        if batch_verified == len(guideline_ids) and len(guideline_ids) > 0:
-            batch_status = "completed"
-        elif batch_verified > 0:
-            batch_status = "in_progress"
-        else:
-            batch_status = "pending"
-
-        progress["batches"].append(
-            {
-                "batch_id": batch_id,
-                "name": batch_def["name"],
-                "description": batch_def["description"],
-                "status": batch_status,
-                "guidelines": guidelines,
-                "started": None,  # Will be set when first guideline is verified
-                "completed": None,
-            }
-        )
-
-        progress["summary"]["by_batch"][str(batch_id)] = {
-            "verified": batch_verified,
-            "pending": batch_pending,
+            "verification_started": existing_progress.get("verification_started", today)
+            if existing_progress
+            else today,
+            "last_updated": today,
+            "summary": {
+                "total_guidelines": total_guidelines,
+                "total_verified": total_verified,
+                "total_pending": total_guidelines - total_verified,
+                "by_batch": {},
+            },
+            "batches": [],
+            "sessions": existing_sessions,
         }
 
+        for batch_def in batch_definitions:
+            batch_id = batch_def["batch_id"]
+            guideline_ids = batches.get(batch_id, [])
+
+            guidelines = []
+            batch_verified = 0
+            for gid in guideline_ids:
+                if gid in verified_guidelines:
+                    g_info = verified_guidelines[gid]
+                    guidelines.append(
+                        {
+                            "guideline_id": gid,
+                            "status": "verified",
+                            "verified_date": g_info.get("verified_date"),
+                            "session_id": g_info.get("session_id"),
+                            "verified": True,
+                            "notes": g_info.get("notes", ""),
+                        }
+                    )
+                    batch_verified += 1
+                else:
+                    guidelines.append(
+                        {
+                            "guideline_id": gid,
+                            "status": "pending",
+                            "verified_date": None,
+                            "session_id": None,
+                        }
+                    )
+
+            batch_pending = len(guideline_ids) - batch_verified
+            batch_status = _determine_batch_status(batch_verified, len(guideline_ids))
+
+            progress["batches"].append(
+                {
+                    "batch_id": batch_id,
+                    "name": batch_def["name"],
+                    "description": batch_def["description"],
+                    "status": batch_status,
+                    "guidelines": guidelines,
+                    "started": None,
+                    "completed": None,
+                }
+            )
+
+            progress["summary"]["by_batch"][str(batch_id)] = {
+                "verified": batch_verified,
+                "pending": batch_pending,
+            }
+
+    else:
+        # v2: Per-context structure
+        all_rust_verified = 0
+        safe_rust_verified = 0
+        both_verified = 0
+        
+        for gid in verified_guidelines:
+            v_info = verified_guidelines[gid]
+            all_v = v_info.get("all_rust", {}).get("verified", False)
+            safe_v = v_info.get("safe_rust", {}).get("verified", False)
+            if all_v:
+                all_rust_verified += 1
+            if safe_v:
+                safe_rust_verified += 1
+            if all_v and safe_v:
+                both_verified += 1
+
+        progress = {
+            "schema_version": "2.0",
+            "standard": internal_standard,
+            "total_guidelines": total_guidelines,
+            "verification_started": existing_progress.get("verification_started", today)
+            if existing_progress
+            else today,
+            "last_updated": today,
+            "summary": {
+                "total_guidelines": total_guidelines,
+                "all_rust_verified": all_rust_verified,
+                "safe_rust_verified": safe_rust_verified,
+                "both_verified": both_verified,
+                "pending": total_guidelines - both_verified,
+                "by_batch": {},
+            },
+            "batches": [],
+            "sessions": existing_sessions,
+        }
+
+        for batch_def in batch_definitions:
+            batch_id = batch_def["batch_id"]
+            guideline_ids = batches.get(batch_id, [])
+
+            guidelines = []
+            batch_all_rust = 0
+            batch_safe_rust = 0
+            batch_both = 0
+            
+            for gid in guideline_ids:
+                if gid in verified_guidelines:
+                    v_info = verified_guidelines[gid]
+                    all_rust_ctx = v_info.get("all_rust", {"verified": False})
+                    safe_rust_ctx = v_info.get("safe_rust", {"verified": False})
+                    
+                    if all_rust_ctx.get("verified"):
+                        batch_all_rust += 1
+                    if safe_rust_ctx.get("verified"):
+                        batch_safe_rust += 1
+                    if all_rust_ctx.get("verified") and safe_rust_ctx.get("verified"):
+                        batch_both += 1
+                    
+                    guidelines.append({
+                        "guideline_id": gid,
+                        "all_rust": all_rust_ctx,
+                        "safe_rust": safe_rust_ctx,
+                    })
+                else:
+                    guidelines.append({
+                        "guideline_id": gid,
+                        "all_rust": {"verified": False, "verified_date": None, "verified_by_session": None},
+                        "safe_rust": {"verified": False, "verified_date": None, "verified_by_session": None},
+                    })
+
+            batch_pending = len(guideline_ids) - batch_both
+            batch_status = _determine_batch_status(batch_both, len(guideline_ids))
+
+            progress["batches"].append(
+                {
+                    "batch_id": batch_id,
+                    "name": batch_def["name"],
+                    "description": batch_def["description"],
+                    "status": batch_status,
+                    "guidelines": guidelines,
+                    "started": None,
+                    "completed": None,
+                }
+            )
+
+            progress["summary"]["by_batch"][str(batch_id)] = {
+                "all_rust_verified": batch_all_rust,
+                "safe_rust_verified": batch_safe_rust,
+                "both_verified": batch_both,
+                "pending": batch_pending,
+            }
+
     return progress
+
+
+def _determine_batch_status(verified_count: int, total_count: int) -> str:
+    """Determine batch status based on verification count."""
+    if verified_count == total_count and total_count > 0:
+        return "completed"
+    elif verified_count > 0:
+        return "in_progress"
+    else:
+        return "pending"
 
 
 def print_dry_run(batches: dict[int, list[str]], mappings: list[dict], similarity_results: dict) -> None:
@@ -376,6 +512,13 @@ def main() -> int:
         action="store_true",
         help="Print batch assignments without writing file",
     )
+    parser.add_argument(
+        "--schema-version",
+        type=str,
+        choices=["1.0", "2.0"],
+        default="2.0",
+        help="Schema version to generate (default: 2.0 for per-context)",
+    )
 
     args = parser.parse_args()
 
@@ -447,7 +590,9 @@ def main() -> int:
     preserve = args.preserve_completed or (
         existing_progress is not None and not args.force
     )
-    progress = create_progress_file(batches, standard, existing_progress, preserve)
+    progress = create_progress_file(
+        batches, standard, existing_progress, preserve, args.schema_version
+    )
 
     # Write output
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -455,8 +600,16 @@ def main() -> int:
 
     print(f"\nSaved: {args.output}")
     print(f"  Total guidelines: {progress['total_guidelines']}")
-    print(f"  Verified: {progress['summary']['total_verified']}")
-    print(f"  Pending: {progress['summary']['total_pending']}")
+    
+    if args.schema_version == "2.0":
+        summary = progress['summary']
+        print(f"  all_rust verified:  {summary['all_rust_verified']}")
+        print(f"  safe_rust verified: {summary['safe_rust_verified']}")
+        print(f"  Both verified:      {summary['both_verified']}")
+        print(f"  Pending:            {summary['pending']}")
+    else:
+        print(f"  Verified: {progress['summary']['total_verified']}")
+        print(f"  Pending: {progress['summary']['total_pending']}")
 
     return 0
 

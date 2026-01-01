@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/eclipse-iceoryx/iceoryx2/coding-standards-fls-mapping/schema/fls_mapping.schema.json",
   "title": "Coding Standard to FLS Mapping",
-  "description": "Schema for mapping coding standard guidelines (MISRA/CERT) to Ferrocene Language Specification (FLS) sections",
+  "description": "Schema for mapping coding standard guidelines (MISRA/CERT) to Ferrocene Language Specification (FLS) sections. Supports v1.0 (flat) and v2.0 (per-context) formats.",
   "type": "object",
   "required": [
     "standard",
@@ -67,30 +67,109 @@
     },
     "mappings": {
       "type": "array",
-      "description": "Array of guideline-to-FLS mappings",
+      "description": "Array of guideline-to-FLS mappings (can contain mixed v1.0 and v2.0 entries)",
       "items": {
-        "$ref": "#/$defs/mapping_entry"
+        "oneOf": [
+          { "$ref": "#/$defs/mapping_entry_v1" },
+          { "$ref": "#/$defs/mapping_entry_v2" }
+        ]
       }
     }
   },
   "$defs": {
-    "mapping_entry": {
+    "fls_match": {
       "type": "object",
-      "description": "A single guideline's mapping to FLS sections",
-      "required": ["guideline_id", "guideline_title", "guideline_type", "applicability_all_rust", "applicability_safe_rust"],
-      "if": {
-        "properties": {
-          "accepted_matches": {
-            "type": "array",
-            "minItems": 1
-          }
-        },
-        "required": ["accepted_matches"]
-      },
-      "then": {
-        "required": ["fls_rationale_type"]
-      },
+      "required": ["fls_id", "category", "reason"],
       "properties": {
+        "fls_id": {
+          "type": "string",
+          "pattern": "^fls_[a-zA-Z0-9]+$",
+          "description": "The FLS ID (section-level or paragraph-level)"
+        },
+        "category": {
+          "type": "integer",
+          "enum": [0, -1, -2, -3, -4, -5, -6, -7, -8],
+          "description": "Category code: 0=section, -1=general, -2=legality_rules, -3=dynamic_semantics, -4=undefined_behavior, -5=implementation_requirements, -6=implementation_permissions, -7=examples, -8=syntax"
+        },
+        "fls_section": {
+          "type": ["string", "null"],
+          "description": "Human-readable FLS section number (e.g., '6.15' or '6.-2.1'). May be null for FLS IDs that don't map to numbered sections."
+        },
+        "fls_title": {
+          "type": "string",
+          "description": "Human-readable title of the FLS section"
+        },
+        "score": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1,
+          "description": "The similarity score (0-1) that was calculated for this match. Null for manually-added paragraph IDs."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Why this FLS section was chosen - should reference specific FLS legality rules or content"
+        }
+      }
+    },
+    "applicability_context": {
+      "type": "object",
+      "description": "Applicability and verification data for a specific Rust context (all_rust or safe_rust)",
+      "required": ["applicability", "rationale_type"],
+      "properties": {
+        "applicability": {
+          "type": "string",
+          "enum": ["yes", "no", "partial"],
+          "description": "Whether the MISRA guideline applies in this context (aligns with MISRA ADD-6)"
+        },
+        "adjusted_category": {
+          "type": ["string", "null"],
+          "enum": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a", null],
+          "description": "MISRA's adjusted category for Rust (from MISRA ADD-6)"
+        },
+        "rationale_type": {
+          "type": "string",
+          "enum": ["direct_mapping", "partial_mapping", "rust_alternative", "rust_prevents", "no_equivalent"],
+          "description": "Explains the relationship between the guideline and FLS sections"
+        },
+        "confidence": {
+          "type": ["string", "null"],
+          "enum": ["high", "medium", "low", null],
+          "description": "Confidence level in the mapping accuracy"
+        },
+        "accepted_matches": {
+          "type": "array",
+          "description": "FLS sections accepted as relevant for this context",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "rejected_matches": {
+          "type": "array",
+          "description": "FLS sections considered but rejected for this context",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "verified": {
+          "type": "boolean",
+          "description": "Whether this context has been verified"
+        },
+        "verified_by_session": {
+          "type": ["integer", "null"],
+          "description": "Session ID that verified this context"
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "Context-specific notes"
+        }
+      }
+    },
+    "mapping_entry_v1": {
+      "type": "object",
+      "description": "v1.0 format: Flat structure with shared applicability fields",
+      "required": ["schema_version", "guideline_id", "guideline_title", "guideline_type", "applicability_all_rust", "applicability_safe_rust"],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "1.0",
+          "description": "Schema version identifier"
+        },
         "guideline_id": {
           "type": "string",
           "description": "ID from the coding standard (e.g., 'Rule 1.1', 'MEM30-C')"
@@ -104,139 +183,81 @@
           "enum": ["rule", "directive", "recommendation"],
           "description": "Type of guideline"
         },
-        "accepted_matches": {
-          "type": "array",
-          "description": "FLS sections that were matched to this guideline during manual review, with justification for each",
-          "items": {
-            "type": "object",
-            "required": ["fls_id", "category", "score", "reason"],
-            "properties": {
-              "fls_id": {
-                "type": "string",
-                "pattern": "^fls_[a-zA-Z0-9]+$",
-                "description": "The accepted FLS ID (section-level or paragraph-level)"
-              },
-              "category": {
-                "type": "integer",
-                "enum": [0, -1, -2, -3, -4, -5, -6, -7, -8],
-                "description": "Category code: 0=section, -1=general, -2=legality_rules, -3=dynamic_semantics, -4=undefined_behavior, -5=implementation_requirements, -6=implementation_permissions, -7=examples, -8=syntax"
-              },
-              "fls_section": {
-                "type": ["string", "null"],
-                "description": "Human-readable FLS section number (e.g., '6.15' or '6.-2.1'). May be null for FLS IDs that don't map to numbered sections."
-              },
-              "fls_title": {
-                "type": "string",
-                "description": "Human-readable title of the FLS section"
-              },
-              "score": {
-                "type": ["number", "null"],
-                "minimum": 0,
-                "maximum": 1,
-                "description": "The similarity score (0-1) that was calculated for this match. Null for manually-added paragraph IDs."
-              },
-              "reason": {
-                "type": "string",
-                "description": "Why this FLS section was chosen - should reference specific FLS legality rules or content"
-              }
-            }
-          }
-        },
-        "rejected_matches": {
-          "type": "array",
-          "description": "High-similarity FLS matches (≥0.5) that were rejected during manual review. Used to improve similarity calculation.",
-          "items": {
-            "type": "object",
-            "required": ["fls_id", "category", "score", "reason"],
-            "properties": {
-              "fls_id": {
-                "type": "string",
-                "pattern": "^fls_[a-zA-Z0-9]+$",
-                "description": "The rejected FLS ID"
-              },
-              "category": {
-                "type": "integer",
-                "enum": [0, -1, -2, -3, -4, -5, -6, -7, -8],
-                "description": "Category code: 0=section, -1=general, -2=legality_rules, -3=dynamic_semantics, -4=undefined_behavior, -5=implementation_requirements, -6=implementation_permissions, -7=examples, -8=syntax"
-              },
-              "fls_section": {
-                "type": ["string", "null"],
-                "description": "Human-readable FLS section number (e.g., '6.15'). May be null for FLS IDs that don't map to numbered sections."
-              },
-              "fls_title": {
-                "type": "string",
-                "description": "Human-readable title of the FLS section"
-              },
-              "score": {
-                "type": "number",
-                "minimum": 0,
-                "maximum": 1,
-                "description": "The similarity score (0-1) that was calculated for this match"
-              },
-              "reason": {
-                "type": "string",
-                "description": "Why this match was rejected despite high similarity score"
-              }
-            }
-          }
-        },
-        "fls_sections": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Human-readable FLS section numbers and paragraphs (e.g., ['15.1', '15.1:3', '17.2']). Deprecated: use accepted_matches instead."
-        },
-        "fls_rationale_type": {
-          "type": "string",
-          "enum": [
-            "direct_mapping",
-            "rust_alternative",
-            "rust_prevents",
-            "no_equivalent",
-            "partial_mapping"
-          ],
-          "description": "Explains the relationship between the guideline and the FLS sections: direct_mapping=rule maps directly to these FLS concepts, rust_alternative=Rust has a different/better mechanism (FLS shows what Rust uses instead), rust_prevents=Rust's design prevents the issue (FLS shows how), no_equivalent=C concept doesn't exist in Rust (FLS shows related Rust constructs for context), partial_mapping=some aspects map directly, others don't"
-        },
         "applicability_all_rust": {
           "type": "string",
-          "enum": [
-            "direct",
-            "partial",
-            "not_applicable",
-            "rust_prevents",
-            "unmapped"
-          ],
-          "description": "How this guideline applies to ALL Rust code (including unsafe): direct=maps cleanly, partial=concept differs in Rust, not_applicable=C/C++ specific with no Rust equivalent, rust_prevents=Rust's design prevents the issue, unmapped=needs expert mapping"
+          "enum": ["direct", "partial", "not_applicable", "rust_prevents", "unmapped"],
+          "description": "How this guideline applies to ALL Rust code (including unsafe)"
         },
         "applicability_safe_rust": {
           "type": "string",
-          "enum": [
-            "direct",
-            "partial",
-            "not_applicable",
-            "rust_prevents",
-            "unmapped"
-          ],
-          "description": "How this guideline applies to SAFE Rust code only: direct=maps cleanly, partial=concept differs in Rust, not_applicable=C/C++ specific with no Rust equivalent, rust_prevents=Rust's design prevents the issue, unmapped=needs expert mapping"
+          "enum": ["direct", "partial", "not_applicable", "rust_prevents", "unmapped"],
+          "description": "How this guideline applies to SAFE Rust code only"
+        },
+        "accepted_matches": {
+          "type": "array",
+          "description": "FLS sections accepted as matches (shared across contexts in v1)",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "rejected_matches": {
+          "type": "array",
+          "description": "FLS sections rejected despite high similarity (shared across contexts in v1)",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "fls_rationale_type": {
+          "type": ["string", "null"],
+          "enum": ["direct_mapping", "rust_alternative", "rust_prevents", "no_equivalent", "partial_mapping", null],
+          "description": "Explains the relationship between the guideline and the FLS sections"
         },
         "misra_rust_category": {
           "type": ["string", "null"],
           "enum": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a", null],
-          "description": "MISRA's adjusted category for Rust (from MISRA C:2025 ADD-6). Only applicable to MISRA standards."
+          "description": "MISRA's adjusted category for Rust (from MISRA ADD-6)"
         },
         "misra_rust_comment": {
           "type": ["string", "null"],
-          "description": "MISRA's comment on Rust applicability (from MISRA C:2025 ADD-6). Only applicable to MISRA standards."
+          "description": "MISRA's comment on Rust applicability (from MISRA ADD-6)"
         },
         "confidence": {
           "type": ["string", "null"],
           "enum": ["high", "medium", "low", null],
-          "description": "Confidence level in the mapping accuracy (null when unmapped)"
+          "description": "Confidence level in the mapping accuracy"
         },
         "notes": {
+          "type": ["string", "null"],
+          "description": "High-level summary of the mapping rationale"
+        }
+      }
+    },
+    "mapping_entry_v2": {
+      "type": "object",
+      "description": "v2.0 format: Per-context structure with independent verification for all_rust and safe_rust",
+      "required": ["schema_version", "guideline_id", "guideline_title", "guideline_type", "all_rust", "safe_rust"],
+      "properties": {
+        "schema_version": {
           "type": "string",
-          "description": "High-level summary of the mapping rationale. Detailed justifications should be in accepted_matches and rejected_matches."
+          "const": "2.0",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "ID from the coding standard (e.g., 'Rule 1.1', 'MEM30-C')"
+        },
+        "guideline_title": {
+          "type": "string",
+          "description": "Title/summary of the guideline"
+        },
+        "guideline_type": {
+          "type": "string",
+          "enum": ["rule", "directive", "recommendation"],
+          "description": "Type of guideline"
+        },
+        "all_rust": {
+          "$ref": "#/$defs/applicability_context",
+          "description": "Applicability and verification data for ALL Rust code (including unsafe)"
+        },
+        "safe_rust": {
+          "$ref": "#/$defs/applicability_context",
+          "description": "Applicability and verification data for SAFE Rust code only"
         }
       }
     }

@@ -8,13 +8,23 @@ This script extracts all relevant data for a batch of guidelines:
 - Wide-shot FLS content (matched sections + siblings + all rubrics)
 - Current mapping state
 
+Supports two schema versions:
+- v1.0: Flat verification_decision structure (legacy)
+- v2.0: Per-context verification_decision with all_rust and safe_rust sections (default)
+
 Two output modes:
 - LLM mode: Full JSON optimized for LLM consumption
 - Human mode: Markdown report with JSON snippets for quick review
 
 Usage:
-    uv run verify-batch --standard misra-c --batch 3 --session 1 --mode llm --output cache/verification/misra-c/batch3_session1.json
-    uv run verify-batch --standard misra-c --batch 3 --mode human --output cache/verification/misra-c/batch3.md
+    # Generate v2 batch report (default)
+    uv run verify-batch --standard misra-c --batch 3 --session 1 --mode llm
+    
+    # Generate v1 batch report (legacy)
+    uv run verify-batch --standard misra-c --batch 3 --session 1 --schema-version 1.0
+    
+    # Human-readable report
+    uv run verify-batch --standard misra-c --batch 3 --mode human
 """
 
 import argparse
@@ -46,6 +56,7 @@ from fls_tools.shared import (
     CATEGORY_NAMES,
     DEFAULT_SECTION_THRESHOLD,
     DEFAULT_PARAGRAPH_THRESHOLD,
+    SchemaVersion,
 )
 
 
@@ -300,17 +311,60 @@ def extract_fls_content(data: dict, similarity_data: dict) -> dict:
     return {"sections": formatted_sections}
 
 
+def build_scaffolded_context_decision() -> dict:
+    """Build a scaffolded v2 context decision structure."""
+    return {
+        "decision": None,           # Required: "accept_with_modifications", "accept_no_matches", "accept_existing", "reject", "pending"
+        "applicability": None,      # Required: "yes", "no", "partial"
+        "adjusted_category": None,  # Required: "required", "advisory", "recommended", "disapplied", "implicit", "n_a"
+        "rationale_type": None,     # Required: "direct_mapping", "partial_mapping", "rust_alternative", "rust_prevents", "no_equivalent"
+        "confidence": None,         # Required: "high", "medium", "low"
+        "accepted_matches": [],     # Required: array of FLS matches
+        "rejected_matches": [],     # Optional: array of explicitly rejected matches
+        "search_tools_used": [],    # Required: array of search tool records
+        "notes": None,              # Optional: additional notes
+    }
+
+
+def build_scaffolded_v1_decision() -> dict:
+    """Build a scaffolded v1 verification decision structure."""
+    return {
+        "decision": None,           # Required: "accept_with_modifications", "accept_no_matches", "accept_existing", "reject"
+        "confidence": None,         # Required: "high", "medium", "low"
+        "fls_rationale_type": None, # Required: "direct_mapping", "rust_alternative", "rust_prevents", "no_equivalent", "partial_mapping"
+        "accepted_matches": [],     # Required: array of FLS matches with fls_id, category, score, reason
+        "rejected_matches": [],     # Optional: array of explicitly rejected matches
+        "search_tools_used": [],    # Required: array of search tool records
+        "notes": None,              # Optional: additional notes
+    }
+
+
+def build_scaffolded_v2_decision() -> dict:
+    """Build a scaffolded v2 verification decision structure."""
+    return {
+        "all_rust": build_scaffolded_context_decision(),
+        "safe_rust": build_scaffolded_context_decision(),
+    }
+
+
 def build_guideline_entry(
     data: dict,
     guideline_id: str,
     section_threshold: float,
     paragraph_threshold: float,
+    schema_version: SchemaVersion = "2.0",
 ) -> dict:
     """Build a complete guideline entry for the batch report."""
     mapping = get_mapping(data, guideline_id)
     rationale = get_rationale(data, guideline_id)
     similarity_data = get_similarity_data(data, guideline_id, section_threshold, paragraph_threshold)
     fls_content = extract_fls_content(data, similarity_data)
+    
+    # Build verification_decision based on schema version
+    if schema_version == "2.0":
+        verification_decision = build_scaffolded_v2_decision()
+    else:
+        verification_decision = build_scaffolded_v1_decision()
     
     return {
         "guideline_id": guideline_id,
@@ -327,16 +381,9 @@ def build_guideline_entry(
         "rationale": rationale,
         "similarity_data": similarity_data,
         "fls_content": fls_content,
-        # Scaffolded verification_decision structure - to be filled by LLM in Phase 2
+        # Scaffolded verification_decision structure - to be filled by LLM/tool in Phase 2
         # See coding-standards-fls-mapping/schema/batch_report.schema.json for required fields
-        "verification_decision": {
-            "decision": None,           # Required: "accept_with_modifications", "accept_no_matches", "accept_existing", "reject"
-            "confidence": None,         # Required: "high", "medium", "low"
-            "fls_rationale_type": None, # Required: "direct_mapping", "rust_alternative", "rust_prevents", "no_equivalent", "partial_mapping"
-            "accepted_matches": [],     # Required: array of FLS matches with fls_id, category, score, reason
-            "rejected_matches": [],     # Optional: array of explicitly rejected matches
-            "notes": None,              # Optional: additional notes
-        },
+        "verification_decision": verification_decision,
     }
 
 
@@ -347,19 +394,36 @@ def build_batch_report(
     session_id: int,
     section_threshold: float,
     paragraph_threshold: float,
+    schema_version: SchemaVersion = "2.0",
 ) -> dict:
     """Build the complete batch report."""
     guideline_ids = get_batch_guidelines(data, batch_id)
     
     guidelines = []
     for gid in guideline_ids:
-        entry = build_guideline_entry(data, gid, section_threshold, paragraph_threshold)
+        entry = build_guideline_entry(
+            data, gid, section_threshold, paragraph_threshold, schema_version
+        )
         guidelines.append(entry)
     
     # Use internal standard name
     internal_standard = normalize_standard(standard)
     
+    # Build summary based on schema version
+    summary = {
+        "total_guidelines": len(guidelines),
+        "verified_count": 0,
+        "applicability_changes_proposed": 0,
+        "applicability_changes_approved": 0,
+    }
+    
+    # Add per-context counts for v2
+    if schema_version == "2.0":
+        summary["all_rust_verified_count"] = 0
+        summary["safe_rust_verified_count"] = 0
+    
     return {
+        "schema_version": schema_version,
         "batch_id": batch_id,
         "session_id": session_id,
         "generated_date": date.today().isoformat(),
@@ -370,12 +434,7 @@ def build_batch_report(
         },
         "guidelines": guidelines,
         "applicability_changes": [],  # To be populated in Phase 2
-        "summary": {
-            "total_guidelines": len(guidelines),
-            "verified_count": 0,
-            "applicability_changes_proposed": 0,
-            "applicability_changes_approved": 0,
-        },
+        "summary": summary,
     }
 
 
@@ -513,11 +572,19 @@ def main():
         default=DEFAULT_PARAGRAPH_THRESHOLD,
         help=f"Minimum paragraph similarity score (default: {DEFAULT_PARAGRAPH_THRESHOLD})",
     )
+    parser.add_argument(
+        "--schema-version",
+        type=str,
+        choices=["1.0", "2.0"],
+        default="2.0",
+        help="Schema version to generate (default: 2.0)",
+    )
     
     args = parser.parse_args()
     
     root = get_project_root()
     standard = args.standard
+    schema_version: SchemaVersion = args.schema_version
     
     print(f"Loading data for {standard}...", file=sys.stderr)
     data = load_all_data(root, standard)
@@ -525,7 +592,7 @@ def main():
     print(f"Loading batch report schema...", file=sys.stderr)
     schema = load_batch_report_schema(root)
     
-    print(f"Building batch {args.batch} report...", file=sys.stderr)
+    print(f"Building batch {args.batch} report (schema {schema_version})...", file=sys.stderr)
     report = build_batch_report(
         data,
         standard,
@@ -533,6 +600,7 @@ def main():
         args.session,
         args.section_threshold,
         args.paragraph_threshold,
+        schema_version,
     )
     
     # Validate the generated report against the schema

@@ -27,6 +27,7 @@
   },
   "mappings": [
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 1.1",
       "guideline_title": "Any implementation-defined behaviour on which the output of the program depends shall be documented and understood C90",
       "guideline_type": "directive",
@@ -84,6 +85,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 1.2",
       "guideline_title": "The use of language extensions should be minimized",
       "guideline_type": "directive",
@@ -142,6 +144,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 2.1",
       "guideline_title": "All source files shall compile without any compilation errors",
       "guideline_type": "directive",
@@ -185,6 +188,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 3.1",
       "guideline_title": "All code shall be traceable to documented requirements",
       "guideline_type": "directive",
@@ -213,6 +217,7 @@
       "fls_rationale_type": "no_equivalent"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.1",
       "guideline_title": "Run-time failures shall be minimized C90",
       "guideline_type": "directive",
@@ -271,6 +276,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.2",
       "guideline_title": "All usage of assembly language should be documented",
       "guideline_type": "directive",
@@ -327,6 +333,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.3",
       "guideline_title": "Assembly language shall be encapsulated and isolated",
       "guideline_type": "directive",
@@ -364,10 +371,11 @@
       ],
       "rejected_matches": [],
       "fls_rationale_type": "direct_mapping",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "Rust enforces MISRA Dir 4.3 by design: all inline assembly must use core::arch::{asm, global_asm, naked_asm} macros. There is no way to write raw assembly without macro encapsulation."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.4",
       "guideline_title": "Sections of code should not be \u201ccommented out\u201d",
       "guideline_type": "directive",
@@ -410,6 +418,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.5",
       "guideline_title": "Identifiers in the same name space with overlapping visibility should be typographically unambiguous",
       "guideline_type": "directive",
@@ -460,6 +469,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.6",
       "guideline_title": "typedefs that indicate size and signedness should be used in place of the basic integer types",
       "guideline_type": "directive",
@@ -474,6 +484,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.7",
       "guideline_title": "If a function returns error information, then that error information shall be tested",
       "guideline_type": "directive",
@@ -525,6 +536,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.8",
       "guideline_title": "If a pointer to a structure or union is never dereferenced within a translation unit, then the implementation of the object should be hidden",
       "guideline_type": "directive",
@@ -538,6 +550,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.9",
       "guideline_title": "A function should be used in preference to a function-like macro where they are interchangeable",
       "guideline_type": "directive",
@@ -588,6 +601,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.10",
       "guideline_title": "Precautions shall be taken in order to prevent the contents of a header file being included more than once",
       "guideline_type": "directive",
@@ -600,6 +614,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.11",
       "guideline_title": "The validity of values passed to library functions shall be checked C90",
       "guideline_type": "directive",
@@ -650,6 +665,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.12",
       "guideline_title": "Dynamic memory allocation shall not be used",
       "guideline_type": "directive",
@@ -685,6 +701,7 @@
       "fls_rationale_type": "direct_mapping"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.13",
       "guideline_title": "Functions which are designed to provide operations on a resource should be called in an appropriate sequence",
       "guideline_type": "directive",
@@ -742,6 +759,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.14",
       "guideline_title": "The validity of values received from external sources shall be checked C90",
       "guideline_type": "directive",
@@ -784,6 +802,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 4.15",
       "guideline_title": "Evaluation of floating-point expressions shall not lead to the undetected generation of infinities and NaNs C90",
       "guideline_type": "directive",
@@ -827,6 +846,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 5.1",
       "guideline_title": "There shall be no data races between threads C11 [Undefined 5]",
       "guideline_type": "directive",
@@ -871,10 +891,11 @@
       ],
       "rejected_matches": [],
       "fls_rationale_type": "direct_mapping",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "Rust directly addresses MISRA Dir 5.1 through the borrow checker and Send/Sync traits which prevent data races at compile time in safe code. The FLS explicitly defines data races and marks them as UB."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 5.2",
       "guideline_title": "There shall be no deadlocks between threads",
       "guideline_type": "directive",
@@ -917,6 +938,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Dir 5.3",
       "guideline_title": "There shall be no dynamic thread creation C11",
       "guideline_type": "directive",
@@ -960,6 +982,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 1.1",
       "guideline_title": "The program shall contain no violations of the standard C syntax and constraints, and shall not exceed the implementation\u2019s translation limits",
       "guideline_type": "rule",
@@ -1017,6 +1040,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 1.3",
       "guideline_title": "There shall be no occurrence of undefined or critical unspecified behaviour",
       "guideline_type": "rule",
@@ -1066,6 +1090,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 1.4",
       "guideline_title": "Emergent language features shall not be used",
       "guideline_type": "rule",
@@ -1080,6 +1105,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 1.5",
       "guideline_title": "Obsolescent language features shall not be used",
       "guideline_type": "rule",
@@ -1109,6 +1135,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 2.1",
       "guideline_title": "A project shall not contain unreachable code",
       "guideline_type": "rule",
@@ -1151,6 +1178,7 @@
       "fls_rationale_type": "direct_mapping"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 2.2",
       "guideline_title": "A project shall not contain dead code",
       "guideline_type": "rule",
@@ -1186,6 +1214,7 @@
       "fls_rationale_type": "direct_mapping"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 2.3",
       "guideline_title": "A project should not contain unused type declarations",
       "guideline_type": "rule",
@@ -1221,6 +1250,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 2.4",
       "guideline_title": "A project should not contain unused tag declarations",
       "guideline_type": "rule",
@@ -1234,6 +1264,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 2.5",
       "guideline_title": "A project should not contain unused macro definitions",
       "guideline_type": "rule",
@@ -1269,6 +1300,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 2.6",
       "guideline_title": "A function should not contain unused label declarations",
       "guideline_type": "rule",
@@ -1311,6 +1343,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 2.7",
       "guideline_title": "A function should not contain unused parameters",
       "guideline_type": "rule",
@@ -1353,6 +1386,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 2.8",
       "guideline_title": "A project should not contain unused object definitions",
       "guideline_type": "rule",
@@ -1388,6 +1422,7 @@
       "fls_rationale_type": "direct_mapping"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 3.1",
       "guideline_title": "The character sequences /* and // shall not be used within a comment",
       "guideline_type": "rule",
@@ -1418,6 +1453,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 3.2",
       "guideline_title": "Line-splicing shall not be used in // comments",
       "guideline_type": "rule",
@@ -1431,6 +1467,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 4.1",
       "guideline_title": "Octal and hexadecimal escape sequences shall be terminated C90",
       "guideline_type": "rule",
@@ -1444,6 +1481,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 4.2",
       "guideline_title": "Trigraphs should not be used",
       "guideline_type": "rule",
@@ -1456,6 +1494,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 5.1",
       "guideline_title": "External identifiers shall be distinct C90 [Undefined 7], C99 [Unspecified 7; Undefined 28], C11 [Unspecified 8; Undefined 31]",
       "guideline_type": "rule",
@@ -1493,10 +1532,11 @@
       ],
       "rejected_matches": [],
       "fls_rationale_type": "rust_alternative",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA Rule 5.1 addresses C limitations on external identifier length (31 chars). Rust has no such limitation - identifiers are full Unicode with no length restriction. External symbols are explicitly controlled via #[no_mangle] or #[link_name] attributes."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 5.2",
       "guideline_title": "Identifiers declared in the same scope and name space shall be distinct C90",
       "guideline_type": "rule",
@@ -1526,6 +1566,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 5.3",
       "guideline_title": "An identifier declared in an inner scope shall not hide an identifier declared in an outer scope",
       "guideline_type": "rule",
@@ -1555,6 +1596,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 5.4",
       "guideline_title": "Macro identifiers shall be distinct C90",
       "guideline_type": "rule",
@@ -1568,6 +1610,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 5.5",
       "guideline_title": "Identifiers shall be distinct from macro names C90",
       "guideline_type": "rule",
@@ -1604,6 +1647,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 5.6",
       "guideline_title": "A typedef name shall be a unique identifier",
       "guideline_type": "rule",
@@ -1639,6 +1683,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 5.7",
       "guideline_title": "A tag name shall be a unique identifier",
       "guideline_type": "rule",
@@ -1653,6 +1698,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 5.8",
       "guideline_title": "Identifiers that define objects or functions with external linkage shall be unique",
       "guideline_type": "rule",
@@ -1695,6 +1741,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 5.9",
       "guideline_title": "Identifiers that define objects or functions with internal linkage should be unique",
       "guideline_type": "rule",
@@ -1732,11 +1779,12 @@
       ],
       "fls_rationale_type": "rust_alternative",
       "misra_rust_category": "n_a",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA Rule 5.9 addresses C internal linkage confusion. Rust replaces linkage concept with visibility modifiers and namespaces. Private items are scoped to modules and namespace separation prevents conflicts.",
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 5.10",
       "guideline_title": "A reserved identifier or reserved macro name shall not be declared C90",
       "guideline_type": "rule",
@@ -1773,6 +1821,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 6.1",
       "guideline_title": "Bit-fields shall only be declared with an appropriate type C90",
       "guideline_type": "rule",
@@ -1787,6 +1836,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 6.2",
       "guideline_title": "Single-bit named bit-fields shall not be of a signed type",
       "guideline_type": "rule",
@@ -1800,6 +1850,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 6.3",
       "guideline_title": "A bit-field shall not be declared as a member of a union C90",
       "guideline_type": "rule",
@@ -1813,6 +1864,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 7.1",
       "guideline_title": "Octal constants shall not be used",
       "guideline_type": "rule",
@@ -1842,6 +1894,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 7.2",
       "guideline_title": "A \u201cu\u201d or \u201cU\u201d suffix shall be applied to all integer constants that are represented in an unsigned type",
       "guideline_type": "rule",
@@ -1878,6 +1931,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 7.3",
       "guideline_title": "The lowercase character \u201cl\u201d shall not be used in a literal suffix",
       "guideline_type": "rule",
@@ -1891,6 +1945,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 7.4",
       "guideline_title": "A string literal shall not be assigned to an object unless the object\u2019s type is \u201cpointer to const-qualified char\u201d C90",
       "guideline_type": "rule",
@@ -1904,6 +1959,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 7.5",
       "guideline_title": "The argument of an integer constant macro shall have an appropriate form C99",
       "guideline_type": "rule",
@@ -1917,6 +1973,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 7.6",
       "guideline_title": "The small integer variants of the minimum-width integer constant macros shall not be used",
       "guideline_type": "rule",
@@ -1930,6 +1987,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.1",
       "guideline_title": "Types shall be explicitly specified",
       "guideline_type": "rule",
@@ -1943,6 +2001,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.2",
       "guideline_title": "Function types shall be in prototype form with named parameters C90",
       "guideline_type": "rule",
@@ -1956,6 +2015,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.3",
       "guideline_title": "All declarations of an object or function shall use the same names and type qualifiers C90",
       "guideline_type": "rule",
@@ -1992,6 +2052,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.4",
       "guideline_title": "A compatible declaration shall be visible when an object or function with external linkage is defined C90",
       "guideline_type": "rule",
@@ -2027,6 +2088,7 @@
       "notes": "Rust has no separate declaration/definition model. Functions are defined in one place. For FFI (extern blocks), the extern declaration IS the declaration - there is no separate definition in Rust to check against. The C concept of \"compatible declaration\" checking between header and source file does not exist in Rust."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.5",
       "guideline_title": "An external object or function shall be declared once in one and only one file",
       "guideline_type": "rule",
@@ -2056,6 +2118,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.6",
       "guideline_title": "An identifier with external linkage shall have exactly one external definition C90",
       "guideline_type": "rule",
@@ -2094,11 +2157,12 @@
       "fls_rationale_type": "rust_alternative",
       "misra_rust_category": "required",
       "misra_rust_comment": "may affect extern \u201cC\u201d declarations",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA Rule 8.6 One Definition Rule is enforced by Rust compiler. Rust separates declarations (extern blocks) from definitions. Duplicate definitions are compile-time errors.",
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.7",
       "guideline_title": "Functions and objects should not be defined with external linkage if they are referenced in only one translation unit",
       "guideline_type": "rule",
@@ -2135,6 +2199,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.8",
       "guideline_title": "The static storage class specifier shall be used in all declarations of objects and functions that have internal linkage",
       "guideline_type": "rule",
@@ -2163,6 +2228,7 @@
       "notes": "C uses storage class specifiers (static/extern) for linkage control. Rust has no equivalent concept - visibility is controlled through the module system (pub, pub(crate), private by default). Rust's \"static\" keyword is for storage duration, not linkage."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.9",
       "guideline_title": "An object should be declared at block scope if its identifier only appears in a single function",
       "guideline_type": "rule",
@@ -2212,6 +2278,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.10",
       "guideline_title": "An inline function shall be declared with the static storage class C99",
       "guideline_type": "rule",
@@ -2250,6 +2317,7 @@
       "notes": "MISRA addresses C's UB when an inline function with external linkage lacks a definition in the translation unit, and timing ambiguity when both inline and external definitions exist. Rust has no equivalent issue: (1) functions have exactly one definition - no inline vs external definition distinction, (2) #[inline] is an optimization hint orthogonal to visibility (pub/pub(crate)), (3) Rust's module system and single-definition rule eliminate the linkage ambiguity that MISRA addresses."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.11",
       "guideline_title": "When an array with external linkage is declared, its size should be explicitly specified",
       "guideline_type": "rule",
@@ -2272,6 +2340,7 @@
       "notes": "MISRA addresses C's ability to declare arrays with incomplete type (unspecified size) with external linkage. Rust prevents this entirely: per FLS fls_imr2jx6cbuzq, array types require 'a constant expression or an inferred constant' for size. Rust has no concept of incomplete array types - [T; N] always requires N to be known at compile time. The concern about cross-translation-unit consistency is also moot since Rust's module system and single-definition semantics prevent the ambiguity."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.12",
       "guideline_title": "Within an enumerator list, the value of an implicitly-specified enumeration constant shall be unique",
       "guideline_type": "rule",
@@ -2319,6 +2388,7 @@
       "notes": "MISRA addresses C's ability to have duplicate enum constant values through mixing implicit and explicit specifications. Rust prevents this at compile time: per FLS fls_w9xj26ej869w, 'It is a static error if two enum variants have discriminants with the same value.' The discriminant calculation rules (fls_t36rk3wikq28: first variant is 0, fls_8ajw5trd23wi: subsequent are previous+1) combined with explicit initializers are checked for uniqueness by the compiler."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.13",
       "guideline_title": "A pointer should point to a const-qualified type whenever possible",
       "guideline_type": "rule",
@@ -2375,6 +2445,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.14",
       "guideline_title": "The restrict type qualifier shall not be used C99",
       "guideline_type": "rule",
@@ -2404,6 +2475,7 @@
       "notes": "Rust has no 'restrict' type qualifier. The C 'restrict' keyword is a promise to the compiler about pointer aliasing that enables optimizations but causes UB if violated. Rust handles aliasing safety through the borrow checker for references (&T, &mut T) and provides no user-accessible aliasing hints for raw pointers. The compiler internally uses noalias annotations based on reference semantics, but this is not exposed to users. Since restrict cannot be written in Rust, this rule is not applicable."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.15",
       "guideline_title": "All declarations of an object with an explicit alignment specification shall specify the same alignment C11",
       "guideline_type": "rule",
@@ -2462,6 +2534,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.16",
       "guideline_title": "The alignment specification of zero should not appear in an object declaration",
       "guideline_type": "rule",
@@ -2493,6 +2566,7 @@
       "notes": "Rust prevents alignment of 0 at compile time. Per FLS fls_muxfn9soi47l: 'The alignment of a value... is at least one, and always a power of two.' Attempting #[repr(align(0))] results in compiler error E0589: 'invalid repr(align) attribute: not a power of two'. C's _Alignas(0) meaning 'use default alignment' has no equivalent in Rust - if you want default alignment, simply don't specify any alignment."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.17",
       "guideline_title": "At most one explicit alignment specifier should appear in an object declaration",
       "guideline_type": "rule",
@@ -2523,6 +2597,7 @@
       "notes": "In C, _Alignas can be applied directly to object declarations (variables), allowing confusing constructs like '_Alignas(4) _Alignas(8) int x;'. In Rust, alignment is specified via #[repr(align(N))] on type definitions only - you cannot specify alignment on individual variable declarations. While Rust technically allows multiple #[repr(align(N))] on a type (taking the maximum), this is uncommon and linted against by clippy. The MISRA concern about 'object declarations' doesn't translate directly since Rust's alignment model is type-centric rather than object-centric."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.18",
       "guideline_title": "There shall be no tentative definitions in a header file C90",
       "guideline_type": "rule",
@@ -2545,6 +2620,7 @@
       "notes": "C 'tentative definitions' (e.g., 'int x;' without initializer in a header) create multiple object instances per translation unit. Rust has no equivalent concept. Rust's statics require explicit 'static' keyword and an initializer, enforcing single-definition semantics. Rust's module system and lack of textual header inclusion prevent the issue entirely - items are defined once and imported by path."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 8.19",
       "guideline_title": "There should be no external declarations in a source file",
       "guideline_type": "rule",
@@ -2567,6 +2643,7 @@
       "notes": "MISRA addresses C's pattern where 'extern' declarations appear in source files rather than headers, breaking modularity. Rust's compilation model is fundamentally different: there are no header files, no textual inclusion, and no 'extern' declarations for Rust items (only for FFI). Items are defined once in a module and made visible via 'pub' and 'use'. Rust's 'extern' blocks (for FFI) typically go in dedicated modules/crates and don't have the modularity concerns MISRA addresses."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 9.1",
       "guideline_title": "The value of an object with automatic storage duration shall not be read before it has been set C90",
       "guideline_type": "rule",
@@ -2632,6 +2709,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 9.2",
       "guideline_title": "The initializer for an aggregate or union shall be enclosed in braces C90",
       "guideline_type": "rule",
@@ -2662,6 +2740,7 @@
       "notes": "MISRA addresses C's ambiguous aggregate initialization where braces can be omitted (e.g., 'int arr[2][3] = {1,2,3,4,5,6}'). Rust's syntax is unambiguous by design: arrays use brackets [a, b, c], structs use braces Foo { field: value }, and nested structures require explicit nesting. The compiler enforces this - there's no optional brace syntax to misuse."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 9.3",
       "guideline_title": "Arrays shall not be partially initialized",
       "guideline_type": "rule",
@@ -2692,6 +2771,7 @@
       "notes": "C allows partial array initialization (e.g., 'int arr[5] = {1, 2}' where remaining elements are implicitly zeroed). Rust has no equivalent concept - arrays must be fully initialized via element list [a, b, c] or repetition [x; N]. Per MISRA ADD-6: n/a."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 9.4",
       "guideline_title": "An element of an object shall not be initialized more than once",
       "guideline_type": "rule",
@@ -2730,11 +2810,12 @@
       "fls_rationale_type": "rust_prevents",
       "misra_rust_category": "required",
       "misra_rust_comment": "enforced by rustc",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "Rust prevents duplicate initialization by design. Struct expressions require each field initialized exactly once. Arrays use element lists or repetition constructors - no C-style designated initializers that allow duplicates.",
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 9.5",
       "guideline_title": "Where designated initializers are used to initialize an array object the size of the array shall be specified explicitly",
       "guideline_type": "rule",
@@ -2765,6 +2846,7 @@
       "notes": "C99 designated initializers (e.g., 'int arr[10] = {[5] = 1, [2] = 3}') allow sparse array initialization where size can be implicitly determined by highest index. Rust has no designated initializer syntax for arrays - arrays are initialized via element list [a, b, c] (size inferred from count) or repetition [x; N] (size explicit). The concept doesn't exist in Rust."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 9.6",
       "guideline_title": "An initializer using chained designators shall not contain initializers without designators",
       "guideline_type": "rule",
@@ -2787,6 +2869,7 @@
       "notes": "C99 chained designators (e.g., 'struct s arr[2] = {[0].x = 1, 2, 3}') allow mixing designated and positional initializers, which is confusing. Rust has no chained designator syntax. Struct fields use named initialization (Foo { x: 1, y: 2 }), and arrays use element lists or repetition. The mixing of designated/non-designated initializers that MISRA prohibits cannot occur in Rust."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 9.7",
       "guideline_title": "Atomic objects shall be appropriately initialized before being accessed C11",
       "guideline_type": "rule",
@@ -2824,11 +2907,12 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "Rust atomic types in core::sync::atomic provide safe concurrent access. Rust type system ensures initialization before access. Atomic::new() provides const initialization for statics.",
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 10.1",
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
@@ -2900,6 +2984,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 10.2",
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
@@ -2955,6 +3040,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 10.3",
       "guideline_title": "The value of an expression shall not be assigned to an object with a narrower essential type or of a different essential type category C90 [Undefined 15; Implementation G.3.5(2)] C99 [Undefined 15, 16; Implementation J.3.5(4)] C11 [Undefined 17, 18; Implementation J.3.5(4)]",
       "guideline_type": "rule",
@@ -3018,6 +3104,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 10.4",
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
@@ -3073,6 +3160,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 10.5",
       "guideline_type": "rule",
       "applicability_all_rust": "direct",
@@ -3080,7 +3168,7 @@
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "recommended",
       "misra_rust_comment": "includes both safe `as` and unsafe `transmute` operations",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "Rust type cast expressions have strict legality rules. Only type coercion or specialized casts are legal. Compiler rejects inappropriate casts at compile time.",
       "guideline_title": "The value of an expression should not be cast to an inappropriate essential type",
       "rejected_matches": [],
@@ -3116,6 +3204,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 10.6",
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
@@ -3171,6 +3260,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 10.7",
       "guideline_type": "rule",
       "applicability_all_rust": "not_applicable",
@@ -3226,6 +3316,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 10.8",
       "guideline_type": "rule",
       "applicability_all_rust": "partial",
@@ -3274,6 +3365,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 11.1",
       "guideline_title": "Conversions shall not be performed between a pointer to a function and any other type C90",
       "guideline_type": "rule",
@@ -3312,7 +3404,7 @@
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
       "misra_rust_comment": "includes both safe `as` and unsafe `transmute` operations",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA prohibits conversions between function pointers and other types. Rust addresses this through: (1) explicit type-checked casts in fls_1qhsun1vyarz allowing only specific conversions, (2) function pointer validity invariants in fls_52thmi9hnoks, (3) unsafe requirement for raw pointer dereferencing. The combination provides stronger guarantees than C.",
       "rejected_matches": [
         {
@@ -3325,6 +3417,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 11.2",
       "guideline_title": "Conversions shall not be performed between a pointer to an incomplete type and any other type C90",
       "guideline_type": "rule",
@@ -3382,6 +3475,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 11.3",
       "guideline_title": "A conversion shall not be performed between a pointer to object type and a pointer to a different object type C90",
       "guideline_type": "rule",
@@ -3439,6 +3533,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 11.4",
       "guideline_title": "A conversion shall not be performed between a pointer to object and an arithmetic type C90",
       "guideline_type": "rule",
@@ -3483,7 +3578,7 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA prohibits pointer-to-integer and integer-to-pointer conversions. Rust addresses this through: (1) explicit as casts in fls_1qhsun1vyarz, (2) usize/isize types matching pointer size per fls_3qnpv2z7yjil, (3) raw pointers without validity guarantees per fls_ppd1xwve3tr7, (4) unsafe requirement for raw pointer dereference per fls_jep7p27kaqlp. The result is implementation-defined but explicit.",
       "rejected_matches": [
         {
@@ -3496,6 +3591,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 11.5",
       "guideline_title": "A conversion should not be performed from pointer to void into pointer to object C90",
       "guideline_type": "rule",
@@ -3538,6 +3634,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 11.6",
       "guideline_title": "A cast shall not be performed between pointer to void and an arithmetic type C90",
       "guideline_type": "rule",
@@ -3575,7 +3672,7 @@
       ],
       "fls_rationale_type": "rust_alternative",
       "misra_rust_category": "advisory",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA prohibits void*-to-integer conversions due to implementation-defined behavior. Rust has no void* type - all pointers are typed (*const T, *mut T). The closest equivalent *const () requires explicit typed casts. This is a rust_alternative: Rust's typed pointer system eliminates the void* issue entirely while providing explicit as casts for pointer-integer conversions.",
       "rejected_matches": [
         {
@@ -3588,6 +3685,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 11.8",
       "guideline_title": "A conversion shall not remove any const, volatile or _Atomic qualification from the type pointed to by a pointer C90",
       "guideline_type": "rule",
@@ -3630,6 +3728,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 11.9",
       "guideline_title": "The macro NULL shall be the only permitted form of integer null pointer constant",
       "guideline_type": "rule",
@@ -3661,6 +3760,7 @@
       "notes": "Rust has no NULL macro or integer null pointer constant. For raw pointers, Rust uses std::ptr::null() and std::ptr::null_mut() functions. For safe code, Option<T> replaces nullable pointers entirely. The C pattern of using 0 or (void*)0 as null doesn't exist in Rust. Per MISRA ADD-6: n/a."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 11.10",
       "guideline_title": "The _Atomic qualifier shall not be applied to the incomplete type void",
       "guideline_type": "rule",
@@ -3683,6 +3783,7 @@
       "notes": "C11's _Atomic is a type qualifier that can be applied to arbitrary types including void. Rust has no _Atomic qualifier - atomics are distinct types in core::sync::atomic (AtomicBool, AtomicU32, AtomicPtr<T>, etc.). You cannot create an 'atomic void' in Rust because atomics are concrete types, not qualifiers. Per MISRA ADD-6: n/a."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 11.11",
       "guideline_title": "Pointers shall not be implicitly compared to NULL",
       "guideline_type": "rule",
@@ -3726,6 +3827,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 12.1",
       "guideline_title": "The precedence of operators within expressions should be made explicit",
       "guideline_type": "rule",
@@ -3763,7 +3865,7 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "recommended",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA requires explicit parentheses to clarify precedence. FLS fls_kw25194gpael defines Rust's precedence and associativity rules. FLS fls_g0uyl7qw4c7w provides parenthesized expressions for explicit grouping. The same readability concern applies - developers should use parentheses for clarity even when Rust's precedence would produce correct results.",
       "rejected_matches": [
         {
@@ -3776,6 +3878,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 12.2",
       "guideline_title": "The right hand operand of a shift operator shall lie in the range zero to one less than the width in bits of the essential type of the left hand operand C90",
       "guideline_type": "rule",
@@ -3825,6 +3928,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 12.3",
       "guideline_title": "The comma operator should not be used",
       "guideline_type": "rule",
@@ -3847,6 +3951,7 @@
       "notes": "Rust has no comma operator. In C, the comma operator evaluates left operand, discards result, evaluates right operand (e.g., 'a = (b++, c)'). Rust uses semicolons to separate statements and has no equivalent construct. Tuple construction uses commas but that's syntactically distinct. Per MISRA ADD-6: n/a."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 12.4",
       "guideline_title": "Evaluation of constant expressions should not lead to unsigned integer wrap-around",
       "guideline_type": "rule",
@@ -3898,6 +4003,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 12.5",
       "guideline_title": "The sizeof operator shall not have an operand which is a function parameter declared as \"array of type\"",
       "guideline_type": "rule",
@@ -3920,6 +4026,7 @@
       "notes": "In C, arrays decay to pointers when passed as function parameters, so sizeof on such a parameter gives pointer size, not array size. Rust has no array-to-pointer decay: arrays are passed by reference (&[T; N]) or as slices (&[T]). std::mem::size_of::<[T; N]>() always gives the actual array size. The C pitfall doesn't exist in Rust. Per MISRA ADD-6: n/a."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 12.6",
       "guideline_title": "Structure and union members of atomic objects shall not be directly accessed C11",
       "guideline_type": "rule",
@@ -3942,6 +4049,7 @@
       "notes": "In C11, _Atomic can be applied to struct types, and directly accessing members of such atomic structs is non-atomic and unsafe. Rust's atomic types (AtomicU32, AtomicBool, etc.) are opaque - they don't expose internal fields. You must use methods like load(), store(), compare_exchange() which guarantee atomic access. There's no way to directly access 'members' of an atomic in Rust. Per MISRA ADD-6: n/a."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 13.1",
       "guideline_title": "Initializer lists shall not contain persistent side effects C99",
       "guideline_type": "rule",
@@ -3980,7 +4088,7 @@
       "fls_rationale_type": "rust_alternative",
       "misra_rust_category": "recommended",
       "misra_rust_comment": "order of evaluation is strict in Rust",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA prohibits persistent side effects in initializer lists due to C's unspecified evaluation order. Rust has deterministic left-to-right evaluation order (fls_p52mfvpadu7w, fls_ehseim1p479z). This is a rust_alternative: while side effects in initializers may still be confusing, they are deterministic in Rust, eliminating the undefined behavior concern.",
       "rejected_matches": [
         {
@@ -3993,6 +4101,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 13.2",
       "guideline_title": "The value of an expression and its persistent side effects shall be the same under all permitted evaluation orders and shall be independent from thread interleaving C90",
       "guideline_type": "rule",
@@ -4032,6 +4141,7 @@
       "notes": "Rust has defined left-to-right evaluation order for all expressions (e.g., FLS Arithmetic Expressions: 'The left operand is evaluated. The right operand is evaluated.'). C allows unspecified evaluation order leading to undefined behavior. The MISRA concern does not apply to Rust."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 13.3",
       "guideline_title": "A full expression containing an increment (++) or decrement (--) operator should have no other potential side effects other than that caused by the increment or decrement operator C90",
       "guideline_type": "rule",
@@ -4062,6 +4172,7 @@
       "notes": "Rust does not have ++ or -- operators. Increment/decrement is done via compound assignment (x += 1) which returns unit type, not the modified value. The MISRA concern about side effects from these operators does not apply."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 13.4",
       "guideline_title": "The result of an assignment operator should not be used C90",
       "guideline_type": "rule",
@@ -4092,6 +4203,7 @@
       "notes": "In C, 'a = 5' returns 5, enabling problematic patterns like 'a = b = c = 0' or 'if (a = b)'. In Rust, assignment expressions return the unit type () per FLS fls_qengy157fa4a, so the result cannot be used. The MISRA concern is structurally prevented."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 13.5",
       "guideline_title": "The right hand operand of a logical && or || operator shall not contain persistent side effects",
       "guideline_type": "rule",
@@ -4141,6 +4253,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 13.6",
       "guideline_title": "The operand of the sizeof operator shall not contain any expression which has potential side effects C99",
       "guideline_type": "rule",
@@ -4172,6 +4285,7 @@
       "notes": "Rust has no sizeof operator. Size is obtained via std::mem::size_of::<T>() which takes a type parameter, not an expression. You cannot write size_of(x + y) in Rust, eliminating the MISRA concern about unevaluated side effects in sizeof operands."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 14.1",
       "guideline_title": "A loop counter shall not have essentially floating type",
       "guideline_type": "rule",
@@ -4222,6 +4336,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 14.2",
       "guideline_title": "A for loop shall be well-formed",
       "guideline_type": "rule",
@@ -4252,6 +4367,7 @@
       "notes": "MISRA's 'well-formed for loop' constrains C's 3-part for(init; cond; update) construct to prevent misuse. Rust's for loop is 'for pattern in iterator' per FLS fls_onfyolkcbeh3, based on IntoIterator trait. There is no separate init/condition/update to misuse. The C-specific concern does not apply."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 14.3",
       "guideline_title": "Controlling expressions shall not be invariant",
       "guideline_type": "rule",
@@ -4301,6 +4417,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 14.4",
       "guideline_title": "The controlling expression of an if statement and the controlling expression of an iteration-statement shall have essentially Boolean type",
       "guideline_type": "rule",
@@ -4344,6 +4461,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 15.1",
       "guideline_title": "The goto statement should not be used",
       "guideline_type": "rule",
@@ -4357,6 +4475,7 @@
       "notes": "Rust has no goto statement. Control flow is managed through structured constructs (loop, while, for, if, match) and labeled breaks/continues."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 15.2",
       "guideline_title": "The goto statement shall jump to a label declared later in the same function",
       "guideline_type": "rule",
@@ -4370,6 +4489,7 @@
       "notes": "Rust has no goto statement. Labeled breaks/continues only jump to enclosing loops, never forward to arbitrary labels."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 15.3",
       "guideline_title": "Any label referenced by a goto statement shall be declared in the same block, or in any block enclosing the goto statement",
       "guideline_type": "rule",
@@ -4383,6 +4503,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 15.4",
       "guideline_title": "There should be no more than one break or goto statement used to terminate any iteration statement",
       "guideline_type": "rule",
@@ -4420,7 +4541,7 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "recommended",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA limits break/goto to single exit from loops for structured programming. Rust has no goto but has break and continue with optional labels. The FLS sections define how break terminates loops (fls_jr4tpuyksr75) and how labels target specific loops (fls_uusi0zej55is). The MISRA concern about structured control flow applies equally - limiting to single break per loop improves readability.",
       "rejected_matches": [
         {
@@ -4433,6 +4554,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 15.5",
       "guideline_title": "A function should have a single point of exit at the end",
       "guideline_type": "rule",
@@ -4476,6 +4598,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 15.6",
       "guideline_title": "The body of an iteration-statement or a selection-statement shall be a compound-statement",
       "guideline_type": "rule",
@@ -4489,6 +4612,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 15.7",
       "guideline_title": "All if \u2026 else if constructs shall be terminated with an else statement",
       "guideline_type": "rule",
@@ -4519,7 +4643,7 @@
       ],
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "advisory",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA requires if-else-if chains to end with else. FLS fls_mkut7gut49gi defines Rust's if/else syntax. Additionally, fls_e5td0fa92fay provides match expressions with compiler-enforced exhaustiveness (fls_e02um1gb89d0), which is stronger than requiring a final else - the compiler rejects non-exhaustive matches.",
       "rejected_matches": [
         {
@@ -4532,6 +4656,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 16.1",
       "guideline_title": "All switch statements shall be well-formed",
       "guideline_type": "rule",
@@ -4545,6 +4670,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 16.2",
       "guideline_title": "A switch label shall only be used when the most closely-enclosing compound statement is the body of a switch statement",
       "guideline_type": "rule",
@@ -4558,6 +4684,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 16.3",
       "guideline_title": "Every switch-clause shall be appropriately terminated",
       "guideline_type": "rule",
@@ -4571,6 +4698,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 16.4",
       "guideline_title": "Every switch statement shall have a default label",
       "guideline_type": "rule",
@@ -4585,6 +4713,7 @@
       "fls_rationale_type": "rust_prevents"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 16.5",
       "guideline_title": "A default label shall appear as either the first or the last switch label of a switch statement",
       "guideline_type": "rule",
@@ -4599,6 +4728,7 @@
       "fls_rationale_type": "no_equivalent"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 16.6",
       "guideline_title": "Every switch statement shall have at least two switch-clauses",
       "guideline_type": "rule",
@@ -4612,6 +4742,7 @@
       "fls_rationale_type": "no_equivalent"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 16.7",
       "guideline_title": "A switch-expression shall not have essentially Boolean type",
       "guideline_type": "rule",
@@ -4625,6 +4756,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 17.1",
       "guideline_title": "The standard header file <stdarg.h> shall not be used",
       "guideline_type": "rule",
@@ -4638,6 +4770,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 17.2",
       "guideline_title": "Functions shall not call themselves, either directly or indirectly",
       "guideline_type": "rule",
@@ -4680,6 +4813,7 @@
       "fls_rationale_type": "direct_mapping"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 17.3",
       "guideline_title": "A function shall not be declared implicitly",
       "guideline_type": "rule",
@@ -4693,6 +4827,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 17.4",
       "guideline_title": "All exit paths from a function with non-void return type shall have an explicit return statement with an expression",
       "guideline_type": "rule",
@@ -4707,6 +4842,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 17.5",
       "guideline_title": "The function argument corresponding to a parameter declared to have an array type shall have an appropriate number of elements",
       "guideline_type": "rule",
@@ -4720,6 +4856,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 17.7",
       "guideline_title": "The value returned by a function having non-void return type shall be used",
       "guideline_type": "rule",
@@ -4762,6 +4899,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 17.8",
       "guideline_title": "A function parameter should not be modified",
       "guideline_type": "rule",
@@ -4805,6 +4943,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 17.9",
       "guideline_title": "A function declared with a _Noreturn function specifier shall not return to its caller C11",
       "guideline_type": "rule",
@@ -4848,6 +4987,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 17.10",
       "guideline_title": "A function declared with a _Noreturn function specifier shall have void return type",
       "guideline_type": "rule",
@@ -4861,6 +5001,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 17.11",
       "guideline_title": "A function that never returns should be declared with a _Noreturn function specifier",
       "guideline_type": "rule",
@@ -4904,6 +5045,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 17.12",
       "guideline_title": "A function identifier should only be used with either a preceding &, or with a parenthesized parameter list",
       "guideline_type": "rule",
@@ -4917,6 +5059,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 17.13",
       "guideline_title": "A function type shall not be type qualified",
       "guideline_type": "rule",
@@ -4930,6 +5073,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 18.1",
       "guideline_title": "A pointer resulting from arithmetic on a pointer operand shall address an element of the same array as that pointer operand C90",
       "guideline_type": "rule",
@@ -4973,6 +5117,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 18.2",
       "guideline_title": "Subtraction between pointers shall only be applied to pointers that address elements of the same array C90",
       "guideline_type": "rule",
@@ -5016,6 +5161,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 18.3",
       "guideline_title": "The relational operators >, >=, < and <= shall not be applied to expressions of pointer type except where they point into the same object C90",
       "guideline_type": "rule",
@@ -5058,6 +5204,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 18.4",
       "guideline_title": "The +, -, += and -= operators should not be applied to an expression of pointer type",
       "guideline_type": "rule",
@@ -5101,6 +5248,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 18.5",
       "guideline_title": "Declarations should contain no more than two levels of pointer nesting",
       "guideline_type": "rule",
@@ -5136,6 +5284,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 18.6",
       "guideline_title": "The address of an object with automatic or thread-local storage shall not be copied to another object that persists after the first object has ceased to exist C90",
       "guideline_type": "rule",
@@ -5185,6 +5334,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 18.7",
       "guideline_title": "Flexible array members shall not be declared",
       "guideline_type": "rule",
@@ -5198,6 +5348,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 18.8",
       "guideline_title": "Variable-length arrays shall not be used",
       "guideline_type": "rule",
@@ -5211,6 +5362,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 18.9",
       "guideline_title": "An object with temporary lifetime shall not undergo array-to-pointer conversion",
       "guideline_type": "rule",
@@ -5224,6 +5376,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 18.10",
       "guideline_title": "Pointers to variably-modified array types shall not be used",
       "guideline_type": "rule",
@@ -5237,6 +5390,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 19.1",
       "guideline_title": "An object shall not be assigned or copied to an overlapping object C90 [Undefined 34, 55], C99 [Undefined 51, 94], C11 [Undefined 54, 100]",
       "guideline_type": "rule",
@@ -5284,6 +5438,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 19.2",
       "guideline_title": "The union keyword should not be used C90 [Undefined 39, 40; Implementation G.3.9(1)] C99 [Unspecified 10; Undefined 61, 62] C11 [Unspecified 11; Undefined 64, 65]",
       "guideline_type": "rule",
@@ -5291,7 +5446,7 @@
       "applicability_safe_rust": "direct",
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "advisory",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA discourages union due to type-punning risks. Rust unions require unsafe for reading (fls_ucghxcnpaq2t) and have explicit UB rules (fls_Vani4665hiJY). More importantly, Rust provides tagged enums (fls_szibmtfv117b) as a safe alternative with compiler-tracked discriminants. Prefer enums over unions in Rust.",
       "accepted_matches": [
         {
@@ -5334,6 +5489,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 19.3",
       "guideline_title": "A union member shall not be read unless it has been previously set C99 [Unspecified 10], C11 [Unspecified 11]",
       "guideline_type": "rule",
@@ -5341,7 +5497,7 @@
       "applicability_safe_rust": "direct",
       "fls_rationale_type": "direct_mapping",
       "misra_rust_category": "required",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA requires union members to be set before reading. Rust directly addresses this: fls_Vani4665hiJY makes reading invalid union data UB, fls_ucghxcnpaq2t requires unsafe for reading union fields, and fls_t6xmsm2nk1bc clarifies that read-after-write is a transmute operation. The unsafe requirement ensures developers acknowledge the risk.",
       "accepted_matches": [
         {
@@ -5384,6 +5540,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.1",
       "guideline_title": "#include directives should only be preceded by preprocessor directives or comments",
       "guideline_type": "rule",
@@ -5398,6 +5555,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.2",
       "guideline_title": "The ', \" or \\ characters and the /* or // character sequences shall not occur in a header file name",
       "guideline_type": "rule",
@@ -5411,6 +5569,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.3",
       "guideline_title": "The #include directive shall be followed by either a <filename> or \"filename\" sequence",
       "guideline_type": "rule",
@@ -5424,6 +5583,7 @@
       "fls_rationale_type": "no_equivalent"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.4",
       "guideline_title": "A macro shall not be defined with the same name as a keyword C90",
       "guideline_type": "rule",
@@ -5467,6 +5627,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.5",
       "guideline_title": "#undef should not be used",
       "guideline_type": "rule",
@@ -5480,6 +5641,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.6",
       "guideline_title": "Tokens that look like a preprocessing directive shall not occur within a macro argument",
       "guideline_type": "rule",
@@ -5493,6 +5655,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.7",
       "guideline_title": "Expressions resulting from the expansion of macro parameters shall be appropriately delimited",
       "guideline_type": "rule",
@@ -5536,6 +5699,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.8",
       "guideline_title": "The controlling expression of a #if or #elif preprocessing directive shall evaluate to 0 or 1",
       "guideline_type": "rule",
@@ -5549,6 +5713,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.9",
       "guideline_title": "All identifiers used in the controlling expression of #if or #elif preprocessing directives shall be defined before evaluation",
       "guideline_type": "rule",
@@ -5562,6 +5727,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.10",
       "guideline_title": "The # and ## preprocessor operators should not be used",
       "guideline_type": "rule",
@@ -5575,6 +5741,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.11",
       "guideline_title": "A macro parameter immediately following a # operator shall not immediately be followed by a ## operator",
       "guideline_type": "rule",
@@ -5588,6 +5755,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.12",
       "guideline_title": "A macro parameter used as an operand to the # or ## operators, which is itself subject to further macro replacement, shall only be used as an operand to these operators",
       "guideline_type": "rule",
@@ -5601,6 +5769,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.13",
       "guideline_title": "A line whose first token is # shall be a valid preprocessing directive",
       "guideline_type": "rule",
@@ -5614,6 +5783,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.14",
       "guideline_title": "All #else, #elif and #endif preprocessor directives shall reside in the same file as the #if, #ifdef or #ifndef directive to which they are related",
       "guideline_type": "rule",
@@ -5627,6 +5797,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 20.15",
       "guideline_title": "#define and #undef shall not be used on a reserved identifier or reserved macro name",
       "guideline_type": "rule",
@@ -5641,6 +5812,7 @@
       "notes": "Rust has no #define/#undef. Rust macros (macro_rules! and proc macros) operate in a hygienic namespace system with different reserved identifier rules."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.3",
       "guideline_title": "The memory allocation and deallocation functions of <stdlib.h> shall not be used C90",
       "guideline_type": "rule",
@@ -5698,6 +5870,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.4",
       "guideline_title": "The standard header file <setjmp.h> shall not be used C90",
       "guideline_type": "rule",
@@ -5734,6 +5907,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.5",
       "guideline_title": "The standard header file <signal.h> shall not be used C90",
       "guideline_type": "rule",
@@ -5770,6 +5944,7 @@
       "fls_rationale_type": "no_equivalent"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.6",
       "guideline_title": "The Standard Library input/output functions shall not be used C90",
       "guideline_type": "rule",
@@ -5801,7 +5976,7 @@
       "fls_rationale_type": "rust_alternative",
       "misra_rust_category": "required",
       "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA prohibits C stdio functions due to implementation-defined behavior. Rust has its own type-safe I/O system (std::io, println! macro) that doesn't use C stdio. C stdio functions can only be accessed via FFI (fls_osd6c4utyjb3) requiring explicit unsafe blocks. This is a rust_alternative: Rust provides safe, type-checked I/O primitives.",
       "rejected_matches": [
         {
@@ -5814,6 +5989,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.7",
       "guideline_title": "The Standard Library functions atof, atoi, atol and atoll of <stdlib.h> shall not be used C90",
       "guideline_type": "rule",
@@ -5845,7 +6021,7 @@
       "fls_rationale_type": "rust_alternative",
       "misra_rust_category": "required",
       "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA prohibits C's atoi/atol due to undefined behavior on invalid input. Rust uses str::parse() returning Result<T, E> which safely handles parse failures. Overflow is defined behavior per fls_ZfIBiJMf8qE1 (panic or wrap). C functions would require FFI (fls_osd6c4utyjb3) with unsafe. This is rust_alternative: Rust's type-safe parsing eliminates the UB risk.",
       "rejected_matches": [
         {
@@ -5858,6 +6034,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.8",
       "guideline_title": "The Standard Library termination functions of <stdlib.h> shall not be used C90",
       "guideline_type": "rule",
@@ -5908,6 +6085,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.9",
       "guideline_title": "The Standard Library functions bsearch and qsort of <stdlib.h> shall not be used C90",
       "guideline_type": "rule",
@@ -5944,6 +6122,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.10",
       "guideline_title": "The Standard Library time and date functions shall not be used C90",
       "guideline_type": "rule",
@@ -5980,6 +6159,7 @@
       "fls_rationale_type": "rust_alternative"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.11",
       "guideline_title": "The standard header file <tgmath.h> should not be used",
       "guideline_type": "rule",
@@ -5994,6 +6174,7 @@
       "notes": "Rust has no <tgmath.h>. Type-generic math in Rust is achieved through traits (e.g., num-traits crate) and generic functions, with compile-time type safety."
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.12",
       "guideline_title": "The standard header file <fenv.h> shall not be used C99",
       "guideline_type": "rule",
@@ -6030,6 +6211,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.13",
       "guideline_title": "Any value passed to a function in <ctype.h> shall be representable as an unsigned char or be the value EOF C90",
       "guideline_type": "rule",
@@ -6066,6 +6248,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.14",
       "guideline_title": "The Standard Library function memcmp shall not be used to compare null terminated strings",
       "guideline_type": "rule",
@@ -6102,6 +6285,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.15",
       "guideline_title": "The pointer arguments to the Standard Library functions memcpy, memmove and memcmp shall be pointers to qualified or unqualified versions of compatible types",
       "guideline_type": "rule",
@@ -6138,6 +6322,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.16",
       "guideline_title": "The pointer arguments to the Standard Library function memcmp shall point to either a pointer type, an essentially signed type, an essentially unsigned type, an essentially Boolean type or an essentially enum type C99",
       "guideline_type": "rule",
@@ -6174,6 +6359,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.17",
       "guideline_title": "Use of the string handling functions from <string.h> shall not result in accesses beyond the bounds of the objects referenced by their pointer parameters C90",
       "guideline_type": "rule",
@@ -6212,7 +6398,7 @@
       "fls_rationale_type": "rust_alternative",
       "misra_rust_category": "required",
       "misra_rust_comment": "only accessible through unsafe extern \u201cC\u201d",
-      "confidence": "high",
+      "confidence": "medium",
       "notes": "MISRA prohibits C string.h functions that can cause buffer overflows. Rust addresses this fundamentally: slices carry length (fls_vpbikb73dw4k), str is a length-aware type (fls_4agmmu5al6gt), and bounds are checked at runtime. C string functions would require FFI with unsafe. This is rust_alternative: Rust's type system prevents buffer overflows by design.",
       "rejected_matches": [
         {
@@ -6225,6 +6411,7 @@
       ]
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.18",
       "guideline_title": "The size_t argument passed to any function in <string.h> shall have an appropriate value C90",
       "guideline_type": "rule",
@@ -6261,6 +6448,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.19",
       "guideline_title": "The pointers returned by the Standard Library functions localeconv, getenv, setlocale or strerror shall only be used as if they have pointer to const-qualified type C90",
       "guideline_type": "rule",
@@ -6297,6 +6485,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.20",
       "guideline_title": "The pointer returned by the Standard Library functions asctime, ctime, gmtime, localtime, localeconv, getenv, setlocale or strerror shall not be used following a subsequent call to the same function",
       "guideline_type": "rule",
@@ -6333,6 +6522,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.21",
       "guideline_title": "The Standard Library function system of <stdlib.h> shall not be used C90",
       "guideline_type": "rule",
@@ -6369,6 +6559,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.22",
       "guideline_title": "All operand arguments to any type-generic macros declared in <tgmath.h> shall have an appropriate essential type",
       "guideline_type": "rule",
@@ -6383,6 +6574,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.23",
       "guideline_title": "All operand arguments to any multi-argument type-generic macros declared in <tgmath.h> shall have the same standard type",
       "guideline_type": "rule",
@@ -6397,6 +6589,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.24",
       "guideline_title": "The random number generator functions of <stdlib.h> shall not be used",
       "guideline_type": "rule",
@@ -6433,6 +6626,7 @@
       "fls_rationale_type": "rust_alternative"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.25",
       "guideline_title": "All memory synchronization operations shall be executed in sequentially consistent order C11",
       "guideline_type": "rule",
@@ -6482,6 +6676,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 21.26",
       "guideline_title": "The Standard Library function mtx_timedlock() shall only be invoked on mutex objects of appropriate mutex type C11",
       "guideline_type": "rule",
@@ -6518,6 +6713,7 @@
       "fls_rationale_type": "no_equivalent"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.1",
       "guideline_title": "All resources obtained dynamically by means of Standard Library functions shall be explicitly released",
       "guideline_type": "rule",
@@ -6575,6 +6771,7 @@
       "fls_rationale_type": "direct_mapping"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.2",
       "guideline_title": "A block of memory shall only be freed if it was allocated by means of a Standard Library function C90",
       "guideline_type": "rule",
@@ -6625,6 +6822,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.3",
       "guideline_title": "The same file shall not be open for read and write access at the same time on different streams C90",
       "guideline_type": "rule",
@@ -6661,6 +6859,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.4",
       "guideline_title": "There shall be no attempt to write to a stream which has been opened as read-only",
       "guideline_type": "rule",
@@ -6697,6 +6896,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.5",
       "guideline_title": "A pointer to a FILE object shall not be dereferenced",
       "guideline_type": "rule",
@@ -6733,6 +6933,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.6",
       "guideline_title": "The value of a pointer to a FILE shall not be used after the associated stream has been closed C99",
       "guideline_type": "rule",
@@ -6769,6 +6970,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.7",
       "guideline_title": "The macro EOF shall only be compared with the unmodified return value from any Standard Library function capable of returning EOF",
       "guideline_type": "rule",
@@ -6805,6 +7007,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.8",
       "guideline_title": "The value of errno shall be set to zero prior to a call to an errno- setting-function",
       "guideline_type": "rule",
@@ -6855,6 +7058,7 @@
       "fls_rationale_type": "rust_alternative"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.9",
       "guideline_title": "The value of errno shall be tested against zero after calling an errno- setting-function",
       "guideline_type": "rule",
@@ -6905,6 +7109,7 @@
       "fls_rationale_type": "rust_alternative"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.10",
       "guideline_title": "The value of errno shall only be tested when the last function to be called was an errno-setting-function",
       "guideline_type": "rule",
@@ -6955,6 +7160,7 @@
       "fls_rationale_type": "rust_alternative"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.11",
       "guideline_title": "A thread that was previously either joined or detached shall not be subsequently joined nor detached C11",
       "guideline_type": "rule",
@@ -7004,6 +7210,7 @@
       "fls_rationale_type": "no_equivalent"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.12",
       "guideline_title": "Thread objects, thread synchronization objects, and thread-specific storage pointers shall only be accessed by the appropriate Standard Library functions C11",
       "guideline_type": "rule",
@@ -7054,6 +7261,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.13",
       "guideline_title": "Thread objects, thread synchronization objects and thread-specific storage pointers shall have appropriate storage duration C11",
       "guideline_type": "rule",
@@ -7110,6 +7318,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.14",
       "guideline_title": "Thread synchronization objects shall be initialized before being accessed C11",
       "guideline_type": "rule",
@@ -7167,6 +7376,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.15",
       "guideline_title": "Thread synchronization objects and thread-specific storage pointers shall not be destroyed until after all threads accessing them have terminated C11",
       "guideline_type": "rule",
@@ -7217,6 +7427,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.16",
       "guideline_title": "All mutex objects locked by a thread shall be explicitly unlocked by the same thread C11",
       "guideline_type": "rule",
@@ -7274,6 +7485,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.17",
       "guideline_title": "No thread shall unlock a mutex or call cnd_wait() or cnd_timedwait() for a mutex it has not locked before C11",
       "guideline_type": "rule",
@@ -7331,6 +7543,7 @@
       "fls_rationale_type": "no_equivalent"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.18",
       "guideline_title": "Non-recursive mutexes shall not be recursively locked C11",
       "guideline_type": "rule",
@@ -7387,6 +7600,7 @@
       "fls_rationale_type": "no_equivalent"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.19",
       "guideline_title": "A condition variable shall be associated with at most one mutex object",
       "guideline_type": "rule",
@@ -7443,6 +7657,7 @@
       "fls_rationale_type": "no_equivalent"
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 22.20",
       "guideline_title": "Thread-specific storage pointers shall be created before being accessed C11",
       "guideline_type": "rule",
@@ -7492,6 +7707,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 23.1",
       "guideline_title": "A generic selection should only be expanded from a macro",
       "guideline_type": "rule",
@@ -7505,6 +7721,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 23.2",
       "guideline_title": "A generic selection that is not expanded from a macro shall not contain potentially evaluated expressions in its association list",
       "guideline_type": "rule",
@@ -7518,6 +7735,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 23.3",
       "guideline_title": "A generic selection should contain at least one non-default association",
       "guideline_type": "rule",
@@ -7531,6 +7749,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 23.4",
       "guideline_title": "A generic association shall list an appropriate type",
       "guideline_type": "rule",
@@ -7544,6 +7763,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 23.5",
       "guideline_title": "A generic selection should not depend on implicit pointer type conversion",
       "guideline_type": "rule",
@@ -7557,6 +7777,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 23.6",
       "guideline_title": "The controlling expression of a generic selection shall have an essential type that matches one of the selections",
       "guideline_type": "rule",
@@ -7570,6 +7791,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 23.7",
       "guideline_title": "A generic selection that is expanded from a macro should evaluate its argument only once",
       "guideline_type": "rule",
@@ -7583,6 +7805,7 @@
       "rejected_matches": []
     },
     {
+      "schema_version": "1.0",
       "guideline_id": "Rule 23.8",
       "guideline_title": "A default association shall appear as either the first or the last association of a generic selection",
       "guideline_type": "rule",

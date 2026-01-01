@@ -1,71 +1,70 @@
 #!/usr/bin/env python3
 """
-record_decision.py - Record a verification decision for a guideline.
+record_decision.py - Record a v2 verification decision for a guideline.
 
-This tool records verification decisions either:
-1. In-place mode: Updates verification_decision field in a batch report
-2. Per-guideline mode: Writes individual decision files (for parallel verification)
+This tool records verification decisions in v2 format (per-context).
+Each guideline has independent decisions for all_rust and safe_rust contexts.
 
 Features:
-- Validates decisions against appropriate schema
+- Always writes v2 format decision files
+- Single decision file per guideline contains both contexts
+- Recording one context preserves the other context's data
+- Validates decisions against schema
 - Supports accepted and rejected matches with full metadata
-- Handles optional applicability change proposals
-- Per-guideline mode enables parallel verification by multiple workers
 
-Usage (in-place mode - updates batch report):
-    uv run record-decision \\
-        --batch-report cache/verification/batch4_session6.json \\
-        --guideline "Dir 1.1" \\
-        --decision accept_with_modifications \\
-        --confidence high \\
-        --rationale-type direct_mapping \\
-        --accept-match "fls_abc123:Section Title:0:0.65:FLS states X which addresses MISRA concern Y"
-
-Usage (per-guideline mode - parallel-safe):
+Usage:
+    # Record all_rust context
     uv run record-decision \\
         --standard misra-c \\
         --batch 4 \\
         --guideline "Dir 1.1" \\
+        --context all_rust \\
         --decision accept_with_modifications \\
-        --confidence high \\
+        --applicability yes \\
+        --adjusted-category advisory \\
         --rationale-type direct_mapping \\
-        --search-used "550e8400-e29b-41d4-a716-446655440000:search-fls-deep:Dir 1.1:5" \\
-        --search-used "a1b2c3d4-5678-90ab-cdef-1234567890ab:search-fls:implementation defined ABI:8" \\
-        --accept-match "fls_abc123:Section Title:0:0.65:FLS states X which addresses MISRA concern Y"
+        --confidence high \\
+        --search-used "uuid:search-fls-deep:Dir 1.1:5" \\
+        --search-used "uuid:search-fls:query:10" \\
+        --search-used "uuid:search-fls:query2:10" \\
+        --search-used "uuid:search-fls:query3:10" \\
+        --accept-match "fls_abc123:Section Title:0:0.65:FLS states X"
+
+    # Then record safe_rust context (updates same file)
+    uv run record-decision \\
+        --standard misra-c \\
+        --batch 4 \\
+        --guideline "Dir 1.1" \\
+        --context safe_rust \\
+        --decision accept_with_modifications \\
+        --applicability no \\
+        --adjusted-category implicit \\
+        --rationale-type rust_prevents \\
+        --confidence high \\
+        --search-used "uuid:search-fls-deep:Dir 1.1:5" \\
+        --search-used "uuid:search-fls:safe rust:10" \\
+        --search-used "uuid:search-fls:type system:10" \\
+        --search-used "uuid:search-fls:borrow checker:10" \\
+        --accept-match "fls_xyz:Type System:0:0.70:Rust prevents this"
 
 Search-used format: search_id:tool:query:result_count
-  - search_id: UUID4 from search tool output (required for new decisions)
-  - tool: Search tool name (search-fls, search-fls-deep, etc.)
+  - search_id: UUID4 from search tool output
+  - tool: search-fls, search-fls-deep, etc.
   - query: The search query or guideline ID
   - result_count: Number of results returned
 
 Match format: fls_id:fls_title:category:score:reason
   - fls_id: FLS identifier (e.g., fls_abc123)
-  - fls_title: Human-readable title (e.g., "Type Cast Expressions")
+  - fls_title: Human-readable title
   - category: Integer category code (0=section, -2=legality_rules, etc.)
-  - score: Similarity score 0-1 (e.g., 0.65)
+  - score: Similarity score 0-1
   - reason: Justification text (may contain colons)
 
 Change format: field:current_value:proposed_value:rationale
-  - field: applicability_all_rust, applicability_safe_rust, or fls_rationale_type
-  - current_value: Current value of the field
+  - field: applicability, adjusted_category, or rationale_type
+  - current_value: Current value
   - proposed_value: Proposed new value
   - rationale: Justification (may contain colons)
-
-Exceptional cases (no FLS matches):
-    uv run record-decision \\
-        --standard misra-c \\
-        --batch 4 \\
-        --guideline "Rule X.Y" \\
-        --decision accept_no_matches \\
-        --confidence high \\
-        --rationale-type no_equivalent \\
-        --search-used "uuid1:search-fls-deep:Rule X.Y:5" \\
-        --search-used "uuid2:search-fls:relevant keywords:10" \\
-        --search-used "uuid3:search-fls:rust equivalent:10" \\
-        --search-used "uuid4:search-fls:safety concept:10" \\
-        --force-no-matches \\
-        --notes "Searched for X, Y, Z. Rule concerns C preprocessor feature with no Rust equivalent."
 """
 
 import argparse
@@ -89,18 +88,23 @@ from fls_tools.shared import (
 
 
 # Valid enum values from schema
-VALID_DECISIONS = ["accept_with_modifications", "accept_no_matches", "accept_existing", "reject"]
+VALID_DECISIONS = ["accept_with_modifications", "accept_no_matches", "accept_existing", "reject", "pending"]
 VALID_CONFIDENCE = ["high", "medium", "low"]
 VALID_RATIONALE_TYPES = [
     "direct_mapping",
+    "partial_mapping",
     "rust_alternative",
     "rust_prevents",
     "no_equivalent",
-    "partial_mapping",
 ]
 VALID_CATEGORIES = [0, -1, -2, -3, -4, -5, -6, -7, -8]
-VALID_CHANGE_FIELDS = ["applicability_all_rust", "applicability_safe_rust", "fls_rationale_type"]
+VALID_CONTEXTS = ["all_rust", "safe_rust"]
+VALID_APPLICABILITY = ["yes", "no", "partial"]
+VALID_ADJUSTED_CATEGORIES = ["required", "advisory", "recommended", "disapplied", "implicit", "n_a"]
+VALID_CHANGE_FIELDS = ["applicability", "adjusted_category", "rationale_type"]
 VALID_SEARCH_TOOLS = ["search-fls", "search-fls-deep", "recompute-similarity", "read-fls-chapter", "grep-fls"]
+
+MIN_SEARCHES_PER_CONTEXT = 4
 
 
 def load_json(path: Path) -> dict:
@@ -116,14 +120,6 @@ def save_json(path: Path, data: dict) -> None:
         f.write("\n")
 
 
-def load_batch_report_schema(root: Path) -> dict | None:
-    """Load the batch report schema."""
-    schema_path = get_coding_standards_dir(root) / "schema" / "batch_report.schema.json"
-    if not schema_path.exists():
-        return None
-    return load_json(schema_path)
-
-
 def load_decision_file_schema(root: Path) -> dict | None:
     """Load the decision file schema."""
     schema_path = get_coding_standards_dir(root) / "schema" / "decision_file.schema.json"
@@ -137,11 +133,11 @@ def guideline_id_to_filename(guideline_id: str) -> str:
     return guideline_id.replace(" ", "_") + ".json"
 
 
-def validate_report(report: dict, schema: dict) -> list[str]:
-    """Validate a batch report against the schema. Returns list of errors."""
+def validate_decision_file(decision: dict, schema: dict) -> list[str]:
+    """Validate a decision file against the schema. Returns list of errors."""
     errors = []
     try:
-        jsonschema.validate(instance=report, schema=schema)
+        jsonschema.validate(instance=decision, schema=schema)
     except jsonschema.ValidationError as e:
         errors.append(f"Schema validation error: {e.message}")
         if e.path:
@@ -198,12 +194,12 @@ def parse_match(match_str: str) -> dict:
     }
 
 
-def parse_applicability_change(change_str: str, guideline_id: str) -> dict:
+def parse_applicability_change(change_str: str, guideline_id: str, context: str) -> dict:
     """
-    Parse an applicability change string.
+    Parse a v2 applicability change string.
     
     Format: field:current_value:proposed_value:rationale
-    The rationale may contain colons, so we split from the left with maxsplit=3.
+    Context is provided separately via --context parameter.
     """
     parts = change_str.split(":", 3)
     if len(parts) < 4:
@@ -219,6 +215,7 @@ def parse_applicability_change(change_str: str, guideline_id: str) -> dict:
     
     return {
         "guideline_id": guideline_id,
+        "context": context,
         "field": field,
         "current_value": current_value,
         "proposed_value": proposed_value,
@@ -236,142 +233,101 @@ def parse_search_used(search_used_list: list[str]) -> list[dict]:
       - tool: Search tool name
       - query: The search query or guideline ID
       - result_count: Number of results returned
-    
-    Legacy format (without UUID) is also accepted for backward compatibility:
-      tool:query[:result_count]
     """
     result = []
     for item in search_used_list:
         parts = item.split(":", 3)  # Split into at most 4 parts
         
-        # Detect format based on first part
-        # If first part looks like a UUID, use new format
-        # Otherwise, use legacy format (no UUID)
-        first_part = parts[0] if parts else ""
-        is_new_format = validate_search_id(first_part)
+        if len(parts) < 4:
+            raise ValueError(
+                f"Invalid --search-used format: '{item}'. "
+                f"Expected 'search_id:tool:query:result_count'"
+            )
         
-        if is_new_format:
-            # New format: search_id:tool:query:result_count
-            if len(parts) < 4:
-                raise ValueError(
-                    f"Invalid --search-used format: '{item}'. "
-                    f"Expected 'search_id:tool:query:result_count' "
-                    f"(UUID detected but missing fields)"
-                )
-            
-            search_id, tool, query, result_count_str = parts
-            
-            if tool not in VALID_SEARCH_TOOLS:
-                raise ValueError(
-                    f"Invalid tool '{tool}'. Must be one of: {', '.join(VALID_SEARCH_TOOLS)}"
-                )
-            
-            try:
-                result_count = int(result_count_str)
-            except ValueError:
-                raise ValueError(f"Invalid result_count '{result_count_str}'. Must be integer.")
-            
-            entry: dict = {
-                "search_id": search_id,
-                "tool": tool,
-                "query": query,
-                "result_count": result_count,
-            }
-        else:
-            # Legacy format: tool:query[:result_count] (no UUID)
-            if len(parts) < 2:
-                raise ValueError(
-                    f"Invalid --search-used format: '{item}'. "
-                    f"Expected 'search_id:tool:query:result_count' or legacy 'tool:query[:result_count]'"
-                )
-            
-            tool, query = parts[0], parts[1]
-            if tool not in VALID_SEARCH_TOOLS:
-                raise ValueError(
-                    f"Invalid tool '{tool}'. Must be one of: {', '.join(VALID_SEARCH_TOOLS)}"
-                )
-            
-            entry = {"tool": tool, "query": query}
-            if len(parts) >= 3:
-                try:
-                    entry["result_count"] = int(parts[2])
-                except ValueError:
-                    raise ValueError(f"Invalid result_count '{parts[2]}'. Must be integer.")
+        search_id, tool, query, result_count_str = parts
         
-        result.append(entry)
+        # Validate UUID format
+        if not validate_search_id(search_id):
+            raise ValueError(
+                f"Invalid search_id: '{search_id}'. Must be a valid UUID4. "
+                f"Copy the UUID from search tool output."
+            )
+        
+        if tool not in VALID_SEARCH_TOOLS:
+            raise ValueError(
+                f"Invalid tool '{tool}'. Must be one of: {', '.join(VALID_SEARCH_TOOLS)}"
+            )
+        
+        try:
+            result_count = int(result_count_str)
+        except ValueError:
+            raise ValueError(f"Invalid result_count '{result_count_str}'. Must be integer.")
+        
+        result.append({
+            "search_id": search_id,
+            "tool": tool,
+            "query": query,
+            "result_count": result_count,
+        })
+    
     return result
 
 
-def find_guideline(report: dict, guideline_id: str) -> tuple[int, dict] | None:
-    """Find a guideline in the report by ID. Returns (index, guideline) or None."""
-    for i, g in enumerate(report.get("guidelines", [])):
-        if g.get("guideline_id") == guideline_id:
-            return i, g
-    return None
-
-
-def update_summary(report: dict) -> None:
-    """Update the batch report summary statistics."""
-    guidelines = report.get("guidelines", [])
-    verified_count = sum(
-        1 for g in guidelines
-        if g.get("verification_decision") and g["verification_decision"].get("decision")
-    )
-    
-    changes = report.get("applicability_changes", [])
-    changes_proposed = len(changes)
-    changes_approved = sum(1 for c in changes if c.get("approved") is True)
-    
-    report["summary"] = {
-        "total_guidelines": len(guidelines),
-        "verified_count": verified_count,
-        "applicability_changes_proposed": changes_proposed,
-        "applicability_changes_approved": changes_approved,
+def build_scaffolded_context() -> dict:
+    """Build a scaffolded (empty) context decision structure."""
+    return {
+        "decision": None,
+        "applicability": None,
+        "adjusted_category": None,
+        "rationale_type": None,
+        "confidence": None,
+        "accepted_matches": [],
+        "rejected_matches": [],
+        "search_tools_used": [],
+        "notes": None,
     }
 
 
-def validate_decision_file(decision: dict, schema: dict) -> list[str]:
-    """Validate a decision file against the schema. Returns list of errors."""
-    errors = []
-    try:
-        jsonschema.validate(instance=decision, schema=schema)
-    except jsonschema.ValidationError as e:
-        errors.append(f"Schema validation error: {e.message}")
-        if e.path:
-            errors.append(f"  Path: {'.'.join(str(p) for p in e.path)}")
-    except jsonschema.SchemaError as e:
-        errors.append(f"Schema error: {e.message}")
-    return errors
+def build_v2_decision_file(guideline_id: str) -> dict:
+    """Build a new v2 decision file with scaffolded contexts."""
+    return {
+        "schema_version": "2.0",
+        "guideline_id": guideline_id,
+        "all_rust": build_scaffolded_context(),
+        "safe_rust": build_scaffolded_context(),
+        "recorded_at": None,
+    }
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Record a verification decision for a guideline"
+        description="Record a v2 verification decision for a guideline (per-context)"
     )
     parser.add_argument(
         "--standard",
         type=str,
         required=True,
         choices=VALID_STANDARDS,
-        help="Coding standard to record decision for (e.g., misra-c, cert-cpp)",
-    )
-    parser.add_argument(
-        "--batch-report",
-        type=str,
-        default=None,
-        help="Path to the batch report JSON file (required for in-place mode, optional for per-guideline mode)",
+        help="Coding standard (e.g., misra-c, cert-cpp)",
     )
     parser.add_argument(
         "--batch",
         type=int,
-        default=None,
-        help="Batch number - writes to cache/verification/{standard}/batch{N}_decisions/ (enables parallel mode)",
+        required=True,
+        help="Batch number - writes to cache/verification/{standard}/batch{N}_decisions/",
     )
     parser.add_argument(
         "--guideline",
         type=str,
         required=True,
         help="Guideline ID (e.g., 'Dir 1.1', 'Rule 10.1')",
+    )
+    parser.add_argument(
+        "--context",
+        type=str,
+        required=True,
+        choices=VALID_CONTEXTS,
+        help="Which context to record: all_rust or safe_rust",
     )
     parser.add_argument(
         "--decision",
@@ -381,11 +337,18 @@ def main():
         help="Verification decision type",
     )
     parser.add_argument(
-        "--confidence",
+        "--applicability",
         type=str,
         required=True,
-        choices=VALID_CONFIDENCE,
-        help="Confidence level in the decision",
+        choices=VALID_APPLICABILITY,
+        help="Whether the guideline applies in this context: yes, no, partial",
+    )
+    parser.add_argument(
+        "--adjusted-category",
+        type=str,
+        required=True,
+        choices=VALID_ADJUSTED_CATEGORIES,
+        help="MISRA adjusted category for Rust",
     )
     parser.add_argument(
         "--rationale-type",
@@ -393,6 +356,13 @@ def main():
         required=True,
         choices=VALID_RATIONALE_TYPES,
         help="Type of FLS rationale",
+    )
+    parser.add_argument(
+        "--confidence",
+        type=str,
+        required=True,
+        choices=VALID_CONFIDENCE,
+        help="Confidence level in the decision",
     )
     parser.add_argument(
         "--accept-match",
@@ -411,6 +381,14 @@ def main():
         help="Rejected FLS match (format: fls_id:fls_title:category:score:reason). Repeatable.",
     )
     parser.add_argument(
+        "--search-used",
+        dest="search_used",
+        action="append",
+        default=[],
+        help=f"Search tool used (format: search_id:tool:query:result_count). Repeatable. "
+             f"At least {MIN_SEARCHES_PER_CONTEXT} required. Tools: {', '.join(VALID_SEARCH_TOOLS)}.",
+    )
+    parser.add_argument(
         "--notes",
         type=str,
         default=None,
@@ -420,16 +398,7 @@ def main():
         "--propose-change",
         type=str,
         default=None,
-        help="Propose applicability change (format: field:current:proposed:rationale)",
-    )
-    parser.add_argument(
-        "--search-used",
-        dest="search_used",
-        action="append",
-        default=[],
-        help="Search tool used (format: search_id:tool:query:result_count). Repeatable. "
-             f"Tools: {', '.join(VALID_SEARCH_TOOLS)}. "
-             "search_id is the UUID output by search tools.",
+        help="Propose change (format: field:current:proposed:rationale). Fields: applicability, adjusted_category, rationale_type",
     )
     parser.add_argument(
         "--dry-run",
@@ -445,58 +414,17 @@ def main():
     args = parser.parse_args()
     
     root = get_project_root()
+    context = args.context
     
-    # Determine mode: per-guideline (--batch) or in-place (--batch-report)
-    per_guideline_mode = args.batch is not None
+    # Validate guideline is in the specified batch
+    from fls_tools.standards.verification.batch_check import validate_guideline_in_batch
     
-    if not per_guideline_mode and args.batch_report is None:
-        print("ERROR: Either --batch or --batch-report must be provided", file=sys.stderr)
+    is_valid, error_msg, actual_batch = validate_guideline_in_batch(
+        root, args.standard, args.guideline, args.batch
+    )
+    if not is_valid:
+        print(f"ERROR: {error_msg}", file=sys.stderr)
         sys.exit(1)
-    
-    # Validate guideline is in the specified batch (per-guideline mode only)
-    if per_guideline_mode:
-        from fls_tools.standards.verification.batch_check import validate_guideline_in_batch
-        
-        is_valid, error_msg, actual_batch = validate_guideline_in_batch(
-            root, args.standard, args.guideline, args.batch
-        )
-        if not is_valid:
-            print(f"ERROR: {error_msg}", file=sys.stderr)
-            sys.exit(1)
-    
-    # Resolve output directory for per-guideline mode
-    output_dir = None
-    if args.batch is not None:
-        output_dir = get_batch_decisions_dir(root, args.standard, args.batch)
-    
-    report_path = None
-    report = None
-    if args.batch_report:
-        try:
-            report_path = resolve_path(Path(args.batch_report))
-            report_path = validate_path_in_project(report_path, root)
-        except PathOutsideProjectError as e:
-            print(f"ERROR: {e}", file=sys.stderr)
-            sys.exit(1)
-        
-        if report_path.exists():
-            report = load_json(report_path)
-        elif not per_guideline_mode:
-            # In-place mode requires batch report to exist
-            print(f"ERROR: Batch report not found: {report_path}", file=sys.stderr)
-            sys.exit(1)
-    
-    # Validate guideline exists in batch report (if available)
-    if report:
-        result = find_guideline(report, args.guideline)
-        if result is None:
-            if per_guideline_mode:
-                print(f"WARNING: Guideline '{args.guideline}' not found in batch report", file=sys.stderr)
-            else:
-                print(f"ERROR: Guideline '{args.guideline}' not found in batch report", file=sys.stderr)
-                available = [g["guideline_id"] for g in report.get("guidelines", [])[:10]]
-                print(f"  Available guidelines (first 10): {available}", file=sys.stderr)
-                sys.exit(1)
     
     # Parse matches
     try:
@@ -506,59 +434,42 @@ def main():
         print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
     
-    # Validate that at least one match is provided unless explicitly overridden
+    # Validate at least one match unless explicitly overridden
     if not accepted_matches and not rejected_matches and not args.force_no_matches:
         print(f"""ERROR: At least one --accept-match or --reject-match must be provided
 
 Even for 'no_equivalent' or 'n_a' cases, include FLS sections that explain
 WHY the concept doesn't apply to Rust.
 
-Suggested searches:
-    uv run search-fls-deep --guideline "{args.guideline}"
-    uv run search-fls --query "<relevant keywords>"
-
 Guidance by rationale type:
-  - no_equivalent: Search for FLS sections showing Rust lacks the C construct
-  - rust_prevents: Search for type system, borrow checker, or ownership sections
-  - rust_alternative: Search for FLS sections describing Rust's alternative mechanism
-  - partial_mapping: Search for FLS sections that partially address the concern
-  - direct_mapping: Search for FLS sections that directly address the concern
+  - no_equivalent: FLS sections showing Rust lacks the C construct
+  - rust_prevents: Type system, borrow checker, or ownership sections
+  - rust_alternative: FLS sections describing Rust's alternative mechanism
+  - partial_mapping: FLS sections that partially address the concern
+  - direct_mapping: FLS sections that directly address the concern
 
-Exceptional cases only - use --force-no-matches when:
-  - Rule is entirely about C preprocessor with no Rust equivalent
-  - Rule concerns C-specific syntax with no parallel in Rust grammar  
-  - Multiple thorough searches yielded nothing relevant
-
---force-no-matches requires --notes explaining:
-  - What searches were attempted
-  - Why no FLS content is relevant
-  - Why this is truly an exceptional case
+Use --force-no-matches only for exceptional cases (requires --notes).
 """, file=sys.stderr)
         sys.exit(1)
     
-    # If force-no-matches is used, require notes explaining why
     if args.force_no_matches and not args.notes:
         print("ERROR: --force-no-matches requires --notes explaining why no FLS matches apply", file=sys.stderr)
         sys.exit(1)
     
-    # Validate and parse search tool usage
+    # Parse and validate search tool usage
     if not args.search_used:
-        print("ERROR: --search-used is required (repeatable)", file=sys.stderr)
+        print(f"ERROR: --search-used is required (at least {MIN_SEARCHES_PER_CONTEXT} times)", file=sys.stderr)
         print("  Format: search_id:tool:query:result_count", file=sys.stderr)
-        print("  search_id is the UUID output by search tools", file=sys.stderr)
         sys.exit(1)
     
-    # Parse search tool usage
-    MIN_SEARCHES = 4
     try:
         search_tools_used = parse_search_used(args.search_used)
     except ValueError as e:
         print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
     
-    # Enforce minimum search count
-    if len(search_tools_used) < MIN_SEARCHES:
-        print(f"ERROR: At least {MIN_SEARCHES} search tools required, got {len(search_tools_used)}", file=sys.stderr)
+    if len(search_tools_used) < MIN_SEARCHES_PER_CONTEXT:
+        print(f"ERROR: At least {MIN_SEARCHES_PER_CONTEXT} searches required, got {len(search_tools_used)}", file=sys.stderr)
         print("  Required protocol:", file=sys.stderr)
         print("    1. search-fls-deep --guideline <id>", file=sys.stderr)
         print("    2. search-fls with C/MISRA terminology", file=sys.stderr)
@@ -566,185 +477,127 @@ Exceptional cases only - use --force-no-matches when:
         print("    4. search-fls with safety/semantic concepts", file=sys.stderr)
         sys.exit(1)
     
-    # Handle applicability change proposal
+    # Parse proposed change if provided
     proposed_change = None
     if args.propose_change:
         try:
-            change_data = parse_applicability_change(args.propose_change, args.guideline)
-            proposed_change = {
-                "field": change_data["field"],
-                "current_value": change_data["current_value"],
-                "proposed_value": change_data["proposed_value"],
-                "rationale": change_data["rationale"],
-            }
+            proposed_change = parse_applicability_change(
+                args.propose_change, args.guideline, context
+            )
         except ValueError as e:
             print(f"ERROR: {e}", file=sys.stderr)
             sys.exit(1)
     
-    if per_guideline_mode:
-        # === PER-GUIDELINE MODE ===
-        assert output_dir is not None
-        
-        # Build decision file
-        decision_file = {
-            "guideline_id": args.guideline,
-            "decision": args.decision,
-            "confidence": args.confidence,
-            "fls_rationale_type": args.rationale_type,
-            "accepted_matches": accepted_matches,
-            "rejected_matches": rejected_matches,
-            "notes": args.notes,
-            "search_tools_used": search_tools_used,
-            "proposed_applicability_change": proposed_change,
-            "recorded_at": datetime.now(timezone.utc).isoformat(),
-        }
-        
-        # Validate against decision file schema
-        schema = load_decision_file_schema(root)
-        if schema:
-            errors = validate_decision_file(decision_file, schema)
-            if errors:
-                print("ERROR: Decision file fails schema validation:", file=sys.stderr)
-                for err in errors:
-                    print(f"  {err}", file=sys.stderr)
-                sys.exit(1)
-        
-        # Prepare output path
-        filename = guideline_id_to_filename(args.guideline)
-        output_path = output_dir / filename
-        
-        # Output or save
-        if args.dry_run:
-            print("DRY RUN - Would write decision file:")
-            print(f"  Path: {output_path}")
-            print(f"  Guideline: {args.guideline}")
-            print(f"  Decision: {args.decision}")
-            print(f"  Confidence: {args.confidence}")
-            print(f"  Rationale Type: {args.rationale_type}")
-            print(f"  Accepted Matches: {len(accepted_matches)}")
-            for m in accepted_matches:
-                reason_preview = m['reason'][:60] + '...' if len(m['reason']) > 60 else m['reason']
-                print(f"    - {m['fls_id']} ({m['score']:.3f}): {reason_preview}")
-            print(f"  Rejected Matches: {len(rejected_matches)}")
-            for m in rejected_matches:
-                reason_preview = m['reason'][:60] + '...' if len(m['reason']) > 60 else m['reason']
-                print(f"    - {m['fls_id']} ({m['score']:.3f}): {reason_preview}")
-            if args.notes:
-                print(f"  Notes: {args.notes}")
-            # Print search tools info
-            print(f"  Search Tools Used: {len(search_tools_used)}")
-            for s in search_tools_used:
-                uuid_str = f"[{s['search_id'][:8]}...] " if s.get('search_id') else ""
-                count_str = f" ({s['result_count']} results)" if 'result_count' in s else ""
-                print(f"    - {uuid_str}{s['tool']}: {s['query']}{count_str}")
-            if proposed_change:
-                print(f"  Proposed Change: {proposed_change['field']}: "
-                      f"{proposed_change['current_value']} -> {proposed_change['proposed_value']}")
-        else:
-            # Create output directory if needed
-            output_dir.mkdir(parents=True, exist_ok=True)
-            
-            save_json(output_path, decision_file)
-            print(f"Recorded decision for {args.guideline}")
-            print(f"  Output: {output_path}")
-            print(f"  Decision: {args.decision}, Confidence: {args.confidence}")
-            print(f"  Accepted: {len(accepted_matches)}, Rejected: {len(rejected_matches)}")
-            print(f"  Search Tools: {len(search_tools_used)}")
-            if proposed_change:
-                print(f"  Proposed change: {proposed_change['field']}: "
-                      f"{proposed_change['current_value']} -> {proposed_change['proposed_value']}")
+    # Determine output path
+    output_dir = get_batch_decisions_dir(root, args.standard, args.batch)
+    filename = guideline_id_to_filename(args.guideline)
+    output_path = output_dir / filename
     
+    # Load existing decision file or create new one
+    if output_path.exists():
+        decision_file = load_json(output_path)
+        # Validate it's v2
+        if decision_file.get("schema_version") != "2.0":
+            print(f"ERROR: Existing decision file is not v2 format: {output_path}", file=sys.stderr)
+            sys.exit(1)
     else:
-        # === IN-PLACE MODE ===
-        # At this point, we know report and report_path are not None
-        assert report is not None
-        assert report_path is not None
-        
-        # Find guideline index
-        result = find_guideline(report, args.guideline)
-        assert result is not None  # Already validated above
-        guideline_idx, guideline = result
-        
-        # Build verification decision
-        verification_decision = {
-            "decision": args.decision,
-            "confidence": args.confidence,
-            "fls_rationale_type": args.rationale_type,
-            "accepted_matches": accepted_matches,
-            "rejected_matches": rejected_matches,
-            "notes": args.notes,
-            "search_tools_used": search_tools_used,
+        decision_file = build_v2_decision_file(args.guideline)
+    
+    # Build the context decision
+    context_decision = {
+        "decision": args.decision,
+        "applicability": args.applicability,
+        "adjusted_category": args.adjusted_category,
+        "rationale_type": args.rationale_type,
+        "confidence": args.confidence,
+        "accepted_matches": accepted_matches,
+        "rejected_matches": rejected_matches,
+        "search_tools_used": search_tools_used,
+        "notes": args.notes,
+    }
+    
+    if proposed_change:
+        context_decision["proposed_change"] = {
+            "field": proposed_change["field"],
+            "current_value": proposed_change["current_value"],
+            "proposed_value": proposed_change["proposed_value"],
+            "rationale": proposed_change["rationale"],
         }
-        
+    
+    # Update the specified context
+    decision_file[context] = context_decision
+    decision_file["recorded_at"] = datetime.now(timezone.utc).isoformat()
+    
+    # Validate against schema
+    schema = load_decision_file_schema(root)
+    if schema:
+        errors = validate_decision_file(decision_file, schema)
+        if errors:
+            print("WARNING: Decision file has schema validation issues:", file=sys.stderr)
+            for err in errors:
+                print(f"  {err}", file=sys.stderr)
+            # Don't fail - schema may not be updated yet
+    
+    # Output
+    if args.dry_run:
+        print(f"DRY RUN - Would write decision file:")
+        print(f"  Path: {output_path}")
+        print(f"  Guideline: {args.guideline}")
+        print(f"  Context: {context}")
+        print(f"  Decision: {args.decision}")
+        print(f"  Applicability: {args.applicability}")
+        print(f"  Adjusted Category: {args.adjusted_category}")
+        print(f"  Rationale Type: {args.rationale_type}")
+        print(f"  Confidence: {args.confidence}")
+        print(f"  Accepted Matches: {len(accepted_matches)}")
+        for m in accepted_matches:
+            reason_preview = m['reason'][:60] + '...' if len(m['reason']) > 60 else m['reason']
+            print(f"    - {m['fls_id']} ({m['score']:.3f}): {reason_preview}")
+        print(f"  Rejected Matches: {len(rejected_matches)}")
+        for m in rejected_matches:
+            reason_preview = m['reason'][:60] + '...' if len(m['reason']) > 60 else m['reason']
+            print(f"    - {m['fls_id']} ({m['score']:.3f}): {reason_preview}")
+        print(f"  Search Tools Used: {len(search_tools_used)}")
+        for s in search_tools_used:
+            print(f"    - [{s['search_id'][:8]}...] {s['tool']}: {s['query']} ({s['result_count']} results)")
+        if args.notes:
+            print(f"  Notes: {args.notes}")
         if proposed_change:
-            verification_decision["proposed_applicability_change"] = proposed_change
+            print(f"  Proposed Change: {proposed_change['field']}: "
+                  f"{proposed_change['current_value']} -> {proposed_change['proposed_value']}")
         
-        # Update guideline
-        report["guidelines"][guideline_idx]["verification_decision"] = verification_decision
-        
-        # Add applicability change to top-level array if proposed
-        if proposed_change:
-            applicability_change = {
-                "guideline_id": args.guideline,
-                "field": proposed_change["field"],
-                "current_value": proposed_change["current_value"],
-                "proposed_value": proposed_change["proposed_value"],
-                "rationale": proposed_change["rationale"],
-                "approved": None,
-            }
-            # Remove any existing change for this guideline/field combination
-            existing_changes = report.get("applicability_changes", [])
-            filtered_changes = [
-                c for c in existing_changes
-                if not (c["guideline_id"] == args.guideline and c["field"] == applicability_change["field"])
-            ]
-            filtered_changes.append(applicability_change)
-            report["applicability_changes"] = filtered_changes
-        
-        # Update summary
-        update_summary(report)
-        
-        # Validate against schema
-        schema = load_batch_report_schema(root)
-        if schema:
-            errors = validate_report(report, schema)
-            if errors:
-                print("ERROR: Updated report fails schema validation:", file=sys.stderr)
-                for err in errors:
-                    print(f"  {err}", file=sys.stderr)
-                sys.exit(1)
-        
-        # Output or save
-        if args.dry_run:
-            print("DRY RUN - Would record the following decision:")
-            print(f"  Guideline: {args.guideline}")
-            print(f"  Decision: {args.decision}")
-            print(f"  Confidence: {args.confidence}")
-            print(f"  Rationale Type: {args.rationale_type}")
-            print(f"  Accepted Matches: {len(accepted_matches)}")
-            for m in accepted_matches:
-                reason_preview = m['reason'][:60] + '...' if len(m['reason']) > 60 else m['reason']
-                print(f"    - {m['fls_id']} ({m['score']:.3f}): {reason_preview}")
-            print(f"  Rejected Matches: {len(rejected_matches)}")
-            for m in rejected_matches:
-                reason_preview = m['reason'][:60] + '...' if len(m['reason']) > 60 else m['reason']
-                print(f"    - {m['fls_id']} ({m['score']:.3f}): {reason_preview}")
-            if args.notes:
-                print(f"  Notes: {args.notes}")
-            if proposed_change:
-                print(f"  Proposed Change: {proposed_change['field']}: "
-                      f"{proposed_change['current_value']} -> {proposed_change['proposed_value']}")
-            print()
-            print(f"  Updated summary: {report['summary']}")
+        # Show other context status
+        other_context = "safe_rust" if context == "all_rust" else "all_rust"
+        other_decision = decision_file.get(other_context, {}).get("decision")
+        if other_decision:
+            print(f"  Other context ({other_context}): {other_decision}")
         else:
-            save_json(report_path, report)
-            print(f"Recorded decision for {args.guideline}")
-            print(f"  Decision: {args.decision}, Confidence: {args.confidence}")
-            print(f"  Accepted: {len(accepted_matches)}, Rejected: {len(rejected_matches)}")
-            if proposed_change:
-                print(f"  Proposed change: {proposed_change['field']}: "
-                      f"{proposed_change['current_value']} -> {proposed_change['proposed_value']}")
-            print(f"  Progress: {report['summary']['verified_count']}/{report['summary']['total_guidelines']}")
+            print(f"  Other context ({other_context}): not yet recorded")
+    else:
+        # Create output directory if needed
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        save_json(output_path, decision_file)
+        
+        print(f"Recorded {context} decision for {args.guideline}")
+        print(f"  Output: {output_path}")
+        print(f"  Decision: {args.decision}")
+        print(f"  Applicability: {args.applicability}, Category: {args.adjusted_category}")
+        print(f"  Rationale: {args.rationale_type}, Confidence: {args.confidence}")
+        print(f"  Matches: {len(accepted_matches)} accepted, {len(rejected_matches)} rejected")
+        print(f"  Searches: {len(search_tools_used)}")
+        
+        # Show other context status
+        other_context = "safe_rust" if context == "all_rust" else "all_rust"
+        other_decision = decision_file.get(other_context, {}).get("decision")
+        if other_decision:
+            print(f"  {other_context}: {other_decision} (already recorded)")
+        else:
+            print(f"  {other_context}: pending")
+        
+        if proposed_change:
+            print(f"  Proposed change: {proposed_change['field']}: "
+                  f"{proposed_change['current_value']} -> {proposed_change['proposed_value']}")
 
 
 if __name__ == "__main__":

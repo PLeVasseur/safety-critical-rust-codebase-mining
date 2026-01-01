@@ -3,23 +3,24 @@
 validate_decisions.py - Validate decision files in a decisions directory.
 
 This tool validates individual guideline verification decision files used in the
-parallel verification workflow.
+parallel verification workflow. Supports both v1 and v2 decision file formats.
 
 Validation checks:
-1. Schema validation against decision_file.schema.json
+1. Schema validation against decision_file.schema.json (v1 or v2)
 2. Filename-to-guideline_id consistency (Dir_1.1.json should contain "Dir 1.1")
 3. No duplicate guideline_ids across files
 4. FLS ID format validity
 5. Non-empty reason fields on matches
 6. If --batch-report provided: verify guideline_ids exist in batch
+7. v2-specific: per-context progress reporting
 
 Usage:
     uv run validate-decisions \\
-        --decisions-dir cache/verification/batch4_decisions/
+        --decisions-dir cache/verification/misra-c/batch4_decisions/
 
     uv run validate-decisions \\
-        --decisions-dir cache/verification/batch4_decisions/ \\
-        --batch-report cache/verification/batch4_session6.json
+        --decisions-dir cache/verification/misra-c/batch4_decisions/ \\
+        --batch-report cache/verification/misra-c/batch4_session6.json
 """
 
 import argparse
@@ -104,18 +105,33 @@ def validate_decision_file(
         if gid and gid not in batch_guideline_ids:
             errors.append(f"Guideline '{gid}' not found in batch report")
     
-    # Validate FLS IDs format
+    # Detect schema version
+    schema_version = data.get("schema_version", "1.0")
+    
+    # Validate FLS IDs format - handle v1 and v2 structures
     fls_id_pattern = re.compile(r"^fls_[a-zA-Z0-9]+$")
-    for match_type in ["accepted_matches", "rejected_matches"]:
-        for i, match in enumerate(data.get(match_type, [])):
+    
+    def validate_matches(matches: list, prefix: str) -> None:
+        """Validate FLS matches in a list."""
+        for i, match in enumerate(matches):
             fls_id = match.get("fls_id", "")
             if not fls_id_pattern.match(fls_id):
-                errors.append(f"{match_type}[{i}]: Invalid fls_id format '{fls_id}'")
+                errors.append(f"{prefix}[{i}]: Invalid fls_id format '{fls_id}'")
             
-            # Check reason is non-empty (schema enforces minLength but double-check)
             reason = match.get("reason", "")
             if not reason or not reason.strip():
-                errors.append(f"{match_type}[{i}]: Empty reason field")
+                errors.append(f"{prefix}[{i}]: Empty reason field")
+    
+    if schema_version == "2.0":
+        # v2: validate each context
+        for context in ["all_rust", "safe_rust"]:
+            ctx_data = data.get(context, {})
+            validate_matches(ctx_data.get("accepted_matches", []), f"{context}.accepted_matches")
+            validate_matches(ctx_data.get("rejected_matches", []), f"{context}.rejected_matches")
+    else:
+        # v1: flat structure
+        validate_matches(data.get("accepted_matches", []), "accepted_matches")
+        validate_matches(data.get("rejected_matches", []), "rejected_matches")
     
     is_valid = len(errors) == 0
     return is_valid, errors, data
@@ -125,12 +141,13 @@ def validate_decisions_directory(
     decisions_dir: Path,
     schema: dict | None,
     batch_report_path: Path | None = None,
-) -> tuple[int, int, list[tuple[str, list[str]]], set[str]]:
+) -> dict:
     """
     Validate all decision files in a directory.
     
-    Returns:
-        (valid_count, invalid_count, errors_by_file, guideline_ids)
+    Returns dict with:
+        valid_count, invalid_count, errors_by_file, guideline_ids,
+        v2 per-context stats: all_rust_decided, safe_rust_decided, both_decided
     """
     # Load batch report for cross-reference if provided
     batch_guideline_ids = None
@@ -150,11 +167,20 @@ def validate_decisions_directory(
     all_guideline_ids = set()
     guideline_id_to_file = {}
     
+    # v2 per-context tracking
+    all_rust_decided = set()
+    safe_rust_decided = set()
+    both_decided = set()
+    v1_count = 0
+    v2_count = 0
+    
     for path in decision_files:
         is_valid, errors, data = validate_decision_file(path, schema, batch_guideline_ids)
         
         if data:
             gid = data.get("guideline_id")
+            schema_version = data.get("schema_version", "1.0")
+            
             if gid:
                 # Check for duplicates
                 if gid in all_guideline_ids:
@@ -165,6 +191,26 @@ def validate_decisions_directory(
                 else:
                     all_guideline_ids.add(gid)
                     guideline_id_to_file[gid] = path.name
+                
+                # Track per-context decisions
+                if schema_version == "2.0":
+                    v2_count += 1
+                    ar = data.get("all_rust", {})
+                    sr = data.get("safe_rust", {})
+                    
+                    if ar.get("decision"):
+                        all_rust_decided.add(gid)
+                    if sr.get("decision"):
+                        safe_rust_decided.add(gid)
+                    if ar.get("decision") and sr.get("decision"):
+                        both_decided.add(gid)
+                else:
+                    v1_count += 1
+                    # v1: single decision applies to both
+                    if data.get("decision"):
+                        all_rust_decided.add(gid)
+                        safe_rust_decided.add(gid)
+                        both_decided.add(gid)
         
         if is_valid:
             valid_count += 1
@@ -172,7 +218,17 @@ def validate_decisions_directory(
             invalid_count += 1
             errors_by_file.append((path.name, errors))
     
-    return valid_count, invalid_count, errors_by_file, all_guideline_ids
+    return {
+        "valid_count": valid_count,
+        "invalid_count": invalid_count,
+        "errors_by_file": errors_by_file,
+        "guideline_ids": all_guideline_ids,
+        "all_rust_decided": all_rust_decided,
+        "safe_rust_decided": safe_rust_decided,
+        "both_decided": both_decided,
+        "v1_count": v1_count,
+        "v2_count": v2_count,
+    }
 
 
 def main():
@@ -228,10 +284,12 @@ def main():
     print(f"Validating decisions in {decisions_dir}")
     print()
     
-    valid_count, invalid_count, errors_by_file, guideline_ids = validate_decisions_directory(
-        decisions_dir, schema, batch_report_path
-    )
+    result = validate_decisions_directory(decisions_dir, schema, batch_report_path)
     
+    valid_count = result["valid_count"]
+    invalid_count = result["invalid_count"]
+    errors_by_file = result["errors_by_file"]
+    guideline_ids = result["guideline_ids"]
     total_count = valid_count + invalid_count
     
     if total_count == 0:
@@ -240,7 +298,17 @@ def main():
     
     # Print results
     print(f"Found {total_count} decision files")
+    print(f"  v1 format: {result['v1_count']}")
+    print(f"  v2 format: {result['v2_count']}")
     print()
+    
+    # Per-context progress (v2)
+    if result["v2_count"] > 0:
+        print("Per-context progress:")
+        print(f"  all_rust decided:  {len(result['all_rust_decided'])}/{total_count}")
+        print(f"  safe_rust decided: {len(result['safe_rust_decided'])}/{total_count}")
+        print(f"  Both decided:      {len(result['both_decided'])}/{total_count}")
+        print()
     
     if errors_by_file:
         print("Validation errors:")
@@ -264,6 +332,8 @@ def main():
             print(f"  Coverage: {len(guideline_ids)}/{len(batch_guidelines)} ({100*len(guideline_ids)/len(batch_guidelines):.0f}%)")
             if missing:
                 print(f"  Pending: {len(missing)} guidelines")
+                if len(missing) <= 10:
+                    print(f"    {', '.join(sorted(missing))}")
             if extra:
                 print(f"  Extra (not in batch): {len(extra)}")
             print()

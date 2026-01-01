@@ -2,96 +2,259 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "decision_file.schema.json",
   "title": "Verification Decision File",
-  "description": "Schema for individual guideline verification decision files used in parallel verification workflow",
-  "type": "object",
-  "required": [
-    "guideline_id",
-    "decision",
-    "confidence",
-    "fls_rationale_type",
-    "accepted_matches",
-    "rejected_matches",
-    "search_tools_used",
-    "recorded_at"
+  "description": "Schema for individual guideline verification decision files. Supports v1.0 (flat) and v2.0 (per-context) formats.",
+  "oneOf": [
+    { "$ref": "#/$defs/decision_file_v1" },
+    { "$ref": "#/$defs/decision_file_v2" }
   ],
-  "properties": {
-    "guideline_id": {
-      "type": "string",
-      "description": "MISRA guideline ID (e.g., 'Rule 10.1', 'Dir 4.1')"
-    },
-    "decision": {
-      "type": "string",
-      "enum": ["accept_with_modifications", "accept_no_matches", "accept_existing", "reject"],
-      "description": "The verification decision type"
-    },
-    "confidence": {
-      "type": "string",
-      "enum": ["high", "medium", "low"],
-      "description": "Confidence level in the verification decision"
-    },
-    "fls_rationale_type": {
-      "type": "string",
-      "enum": ["direct_mapping", "rust_alternative", "rust_prevents", "no_equivalent", "partial_mapping"],
-      "description": "Type of relationship between the guideline and FLS"
-    },
-    "accepted_matches": {
-      "type": "array",
-      "description": "FLS sections accepted as matches",
-      "items": {
-        "$ref": "#/$defs/fls_match"
+  "$defs": {
+    "decision_file_v1": {
+      "type": "object",
+      "description": "v1.0 format: Flat decision structure",
+      "required": [
+        "schema_version",
+        "guideline_id",
+        "decision",
+        "confidence",
+        "fls_rationale_type",
+        "accepted_matches",
+        "rejected_matches",
+        "search_tools_used",
+        "recorded_at"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "1.0",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "MISRA guideline ID (e.g., 'Rule 10.1', 'Dir 4.1')"
+        },
+        "decision": {
+          "type": "string",
+          "enum": ["accept_with_modifications", "accept_no_matches", "accept_existing", "reject"],
+          "description": "The verification decision type"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Confidence level in the verification decision"
+        },
+        "fls_rationale_type": {
+          "type": "string",
+          "enum": ["direct_mapping", "rust_alternative", "rust_prevents", "no_equivalent", "partial_mapping"],
+          "description": "Type of relationship between the guideline and FLS"
+        },
+        "accepted_matches": {
+          "type": "array",
+          "description": "FLS sections accepted as matches",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "rejected_matches": {
+          "type": "array",
+          "description": "FLS sections explicitly rejected",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "Additional notes about the decision"
+        },
+        "search_tools_used": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Search tools used during verification (at least one required)",
+          "items": { "$ref": "#/$defs/search_tool_usage" }
+        },
+        "proposed_applicability_change": {
+          "type": ["object", "null"],
+          "description": "Proposed change to applicability fields (requires human approval)",
+          "if": { "type": "object" },
+          "then": {
+            "required": ["field", "current_value", "proposed_value", "rationale"],
+            "properties": {
+              "field": {
+                "type": "string",
+                "enum": ["applicability_all_rust", "applicability_safe_rust", "fls_rationale_type"]
+              },
+              "current_value": { "type": "string" },
+              "proposed_value": { "type": "string" },
+              "rationale": { "type": "string" }
+            }
+          }
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when decision was recorded"
+        }
       }
     },
-    "rejected_matches": {
-      "type": "array",
-      "description": "FLS sections explicitly rejected",
-      "items": {
-        "$ref": "#/$defs/fls_match"
+    "decision_file_v2": {
+      "type": "object",
+      "description": "v2.0 format: Per-context decision structure",
+      "required": [
+        "schema_version",
+        "guideline_id",
+        "all_rust",
+        "safe_rust",
+        "recorded_at"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "2.0",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "MISRA guideline ID (e.g., 'Rule 10.1', 'Dir 4.1')"
+        },
+        "all_rust": {
+          "oneOf": [
+            { "$ref": "#/$defs/context_decision_complete" },
+            { "$ref": "#/$defs/context_decision_scaffolded" }
+          ],
+          "description": "Verification decision for ALL Rust code (including unsafe)"
+        },
+        "safe_rust": {
+          "oneOf": [
+            { "$ref": "#/$defs/context_decision_complete" },
+            { "$ref": "#/$defs/context_decision_scaffolded" }
+          ],
+          "description": "Verification decision for SAFE Rust code only"
+        },
+        "recorded_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of last update (null if never recorded)"
+        }
       }
     },
-    "notes": {
-      "type": ["string", "null"],
-      "description": "Additional notes about the decision"
-    },
-    "search_tools_used": {
-      "type": "array",
-      "minItems": 1,
-      "description": "Search tools used during verification (at least one required)",
-      "items": {
-        "$ref": "#/$defs/search_tool_usage"
-      }
-    },
-    "proposed_applicability_change": {
-      "type": ["object", "null"],
-      "description": "Proposed change to applicability fields (requires human approval)",
-      "if": {
-        "type": "object"
-      },
-      "then": {
-        "required": ["field", "current_value", "proposed_value", "rationale"],
-        "properties": {
-          "field": {
-            "type": "string",
-            "enum": ["applicability_all_rust", "applicability_safe_rust", "fls_rationale_type"]
-          },
-          "current_value": {
-            "type": "string"
-          },
-          "proposed_value": {
-            "type": "string"
-          },
-          "rationale": {
-            "type": "string"
+    "context_decision_complete": {
+      "type": "object",
+      "description": "Complete verification decision for a specific Rust context",
+      "required": [
+        "decision",
+        "applicability",
+        "adjusted_category",
+        "rationale_type",
+        "confidence",
+        "accepted_matches",
+        "rejected_matches",
+        "search_tools_used"
+      ],
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": ["accept_with_modifications", "accept_no_matches", "accept_existing", "reject"],
+          "description": "The verification decision type"
+        },
+        "applicability": {
+          "type": "string",
+          "enum": ["yes", "no", "partial"],
+          "description": "Whether the MISRA guideline applies in this context (aligns with MISRA ADD-6)"
+        },
+        "adjusted_category": {
+          "type": "string",
+          "enum": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a"],
+          "description": "MISRA's adjusted category for Rust"
+        },
+        "rationale_type": {
+          "type": "string",
+          "enum": ["direct_mapping", "partial_mapping", "rust_alternative", "rust_prevents", "no_equivalent"],
+          "description": "Type of relationship between the guideline and FLS"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Confidence level in the verification decision"
+        },
+        "accepted_matches": {
+          "type": "array",
+          "description": "FLS sections accepted as matches for this context",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "rejected_matches": {
+          "type": "array",
+          "description": "FLS sections rejected for this context",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "search_tools_used": {
+          "type": "array",
+          "minItems": 4,
+          "description": "Search tools used during verification (at least 4 required per context)",
+          "items": { "$ref": "#/$defs/search_tool_usage" }
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "Context-specific notes about the decision"
+        },
+        "proposed_change": {
+          "type": "object",
+          "description": "Proposed change to a context field (requires human approval)",
+          "required": ["field", "current_value", "proposed_value", "rationale"],
+          "properties": {
+            "field": {
+              "type": "string",
+              "enum": ["applicability", "adjusted_category", "rationale_type"]
+            },
+            "current_value": { "type": "string" },
+            "proposed_value": { "type": "string" },
+            "rationale": { "type": "string" }
           }
         }
       }
     },
-    "recorded_at": {
-      "type": "string",
-      "format": "date-time",
-      "description": "ISO 8601 timestamp when decision was recorded"
-    }
-  },
-  "$defs": {
+    "context_decision_scaffolded": {
+      "type": "object",
+      "description": "Scaffolded (not yet recorded) context decision",
+      "required": [
+        "decision",
+        "applicability",
+        "adjusted_category",
+        "rationale_type",
+        "confidence",
+        "accepted_matches",
+        "rejected_matches",
+        "search_tools_used",
+        "notes"
+      ],
+      "properties": {
+        "decision": {
+          "type": "null",
+          "description": "Not yet recorded"
+        },
+        "applicability": {
+          "type": "null"
+        },
+        "adjusted_category": {
+          "type": "null"
+        },
+        "rationale_type": {
+          "type": "null"
+        },
+        "confidence": {
+          "type": "null"
+        },
+        "accepted_matches": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "rejected_matches": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "search_tools_used": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "notes": {
+          "type": "null"
+        }
+      }
+    },
     "fls_match": {
       "type": "object",
       "required": ["fls_id", "fls_title", "category", "score", "reason"],
@@ -126,12 +289,12 @@
     "search_tool_usage": {
       "type": "object",
       "description": "Record of a search tool used during verification",
-      "required": ["tool", "query"],
+      "required": ["search_id", "tool", "query", "result_count"],
       "properties": {
         "search_id": {
           "type": "string",
           "format": "uuid",
-          "description": "Unique identifier for this search execution (UUID4). Required for new decisions, optional for legacy decisions."
+          "description": "Unique identifier for this search execution (UUID4)"
         },
         "tool": {
           "type": "string",
@@ -145,7 +308,7 @@
         "result_count": {
           "type": "integer",
           "minimum": 0,
-          "description": "Number of results returned (optional)"
+          "description": "Number of results returned"
         }
       }
     }

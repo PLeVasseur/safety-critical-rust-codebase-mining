@@ -102,6 +102,20 @@ from .search_id import (
     validate_search_id,
 )
 
+from .schema_version import (
+    SchemaVersion,
+    detect_schema_version,
+    is_v1,
+    is_v2,
+    get_guideline_schema_version,
+    get_decision_schema_version,
+    get_progress_schema_version,
+    get_batch_report_schema_version,
+    convert_v1_applicability_to_v2,
+    convert_v2_applicability_to_v1,
+    normalize_rationale_type,
+)
+
 __all__ = [
     # Standard name utilities
     "VALID_STANDARDS",
@@ -176,4 +190,16 @@ __all__ = [
     # search_id
     "generate_search_id",
     "validate_search_id",
+    # schema_version
+    "SchemaVersion",
+    "detect_schema_version",
+    "is_v1",
+    "is_v2",
+    "get_guideline_schema_version",
+    "get_decision_schema_version",
+    "get_progress_schema_version",
+    "get_batch_report_schema_version",
+    "convert_v1_applicability_to_v2",
+    "convert_v2_applicability_to_v1",
+    "normalize_rationale_type",
 ]

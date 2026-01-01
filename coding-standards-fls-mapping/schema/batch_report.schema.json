@@ -2,10 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "batch_report.schema.json",
   "title": "Verification Batch Report",
-  "description": "Schema for batch verification reports used in Phase 2 of the MISRA to FLS verification workflow",
+  "description": "Schema for batch verification reports. Supports v1.0 (flat) and v2.0 (per-context) formats.",
   "type": "object",
-  "required": ["batch_id", "session_id", "generated_date", "standard", "thresholds", "guidelines", "applicability_changes", "summary"],
+  "required": ["schema_version", "batch_id", "session_id", "generated_date", "standard", "thresholds", "guidelines", "applicability_changes", "summary"],
   "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0", "2.0"],
+      "description": "Schema version identifier"
+    },
     "batch_id": {
       "type": "integer",
       "minimum": 1,
@@ -72,6 +77,16 @@
           "minimum": 0,
           "description": "Number of guidelines with completed verification decisions"
         },
+        "all_rust_verified_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of guidelines with all_rust context verified (v2 only)"
+        },
+        "safe_rust_verified_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of guidelines with safe_rust context verified (v2 only)"
+        },
         "applicability_changes_proposed": {
           "type": "integer",
           "minimum": 0,
@@ -112,9 +127,9 @@
             "notes": { "type": ["string", "null"] }
           }
         },
-        "misra_rationale": {
-          "type": ["string", "object", "null"],
-          "description": "Extracted MISRA rationale text (string) or full extracted data (object)"
+        "rationale": {
+          "type": ["string", "null"],
+          "description": "Extracted MISRA rationale text"
         },
         "similarity_data": {
           "type": "object",
@@ -125,96 +140,112 @@
           "description": "Extracted FLS content for matched sections"
         },
         "verification_decision": {
-          "$ref": "#/$defs/verification_decision"
+          "oneOf": [
+            { "$ref": "#/$defs/verification_decision_v1" },
+            { "$ref": "#/$defs/verification_decision_v2" },
+            { "type": "null" }
+          ]
         }
       }
     },
-    "verification_decision": {
-      "type": ["object", "null"],
-      "description": "The verification decision made during Phase 2. Null or scaffolded object (decision: null) when not yet verified, completed object when verified.",
-      "if": {
-        "type": "object",
-        "properties": {
-          "decision": { "type": "string" }
+    "verification_decision_v1": {
+      "type": "object",
+      "description": "v1.0 format: Flat verification decision structure",
+      "properties": {
+        "decision": {
+          "type": ["string", "null"],
+          "enum": ["accept_with_modifications", "accept_no_matches", "accept_existing", "reject", null],
+          "description": "The verification decision type"
         },
-        "required": ["decision"]
-      },
-      "then": {
-        "description": "When decision is a string (not null), full validation applies",
-        "required": ["decision", "confidence", "fls_rationale_type", "accepted_matches", "search_tools_used"],
-        "properties": {
-          "decision": {
-            "type": "string",
-            "enum": ["accept_with_modifications", "accept_no_matches", "accept_existing", "reject"],
-            "description": "The verification decision type"
-          },
-          "confidence": {
-            "type": "string",
-            "enum": ["high", "medium", "low"],
-            "description": "Confidence level in the verification decision"
-          },
-          "fls_rationale_type": {
-            "type": "string",
-            "enum": ["direct_mapping", "rust_alternative", "rust_prevents", "no_equivalent", "partial_mapping"],
-            "description": "Type of relationship between the guideline and FLS"
-          },
-          "accepted_matches": {
-            "type": "array",
-            "description": "FLS sections accepted as matches for this guideline",
-            "items": {
-              "$ref": "#/$defs/fls_match"
-            }
-          },
-          "rejected_matches": {
-            "type": "array",
-            "description": "FLS sections explicitly rejected despite high similarity",
-            "items": {
-              "$ref": "#/$defs/fls_match"
-            }
-          },
-          "notes": {
-            "type": ["string", "null"],
-            "description": "Additional notes about the verification decision"
-          },
-          "proposed_applicability_change": {
-            "type": ["object", "null"],
-            "description": "If set, proposes a change to applicability fields (requires human approval)",
-            "properties": {
-              "field": {
-                "type": "string",
-                "enum": ["applicability_all_rust", "applicability_safe_rust", "fls_rationale_type"]
-              },
-              "current_value": { "type": "string" },
-              "proposed_value": { "type": "string" },
-              "rationale": { "type": "string" }
-            },
-            "required": ["field", "current_value", "proposed_value", "rationale"]
-          },
-          "search_tools_used": {
-            "type": "array",
-            "minItems": 1,
-            "description": "Search tools used during verification (at least one required)",
-            "items": {
-              "$ref": "#/$defs/search_tool_usage"
-            }
-          }
+        "confidence": {
+          "type": ["string", "null"],
+          "enum": ["high", "medium", "low", null],
+          "description": "Confidence level in the verification decision"
+        },
+        "fls_rationale_type": {
+          "type": ["string", "null"],
+          "enum": ["direct_mapping", "rust_alternative", "rust_prevents", "no_equivalent", "partial_mapping", null],
+          "description": "Type of relationship between the guideline and FLS"
+        },
+        "accepted_matches": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "rejected_matches": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "notes": {
+          "type": ["string", "null"]
+        },
+        "proposed_applicability_change": {
+          "type": ["object", "null"],
+          "$ref": "#/$defs/proposed_change"
+        },
+        "search_tools_used": {
+          "type": ["array", "null"],
+          "items": { "$ref": "#/$defs/search_tool_usage" }
         }
-      },
-      "else": {
-        "description": "When decision is null (scaffolded state), allow null values for other fields",
-        "properties": {
-          "decision": { "type": "null" },
-          "confidence": { "type": ["string", "null"] },
-          "fls_rationale_type": { "type": ["string", "null"] },
-          "accepted_matches": { "type": "array" },
-          "rejected_matches": { "type": "array" },
-          "notes": { "type": ["string", "null"] },
-          "search_tools_used": {
-            "oneOf": [
-              { "type": "array" },
-              { "type": "null" }
-            ]
-          }
+      }
+    },
+    "verification_decision_v2": {
+      "type": "object",
+      "description": "v2.0 format: Per-context verification decision structure",
+      "required": ["all_rust", "safe_rust"],
+      "properties": {
+        "all_rust": {
+          "$ref": "#/$defs/context_decision",
+          "description": "Verification decision for ALL Rust code (including unsafe)"
+        },
+        "safe_rust": {
+          "$ref": "#/$defs/context_decision",
+          "description": "Verification decision for SAFE Rust code only"
+        }
+      }
+    },
+    "context_decision": {
+      "type": "object",
+      "description": "Verification decision for a specific Rust context",
+      "properties": {
+        "decision": {
+          "type": ["string", "null"],
+          "enum": ["accept_with_modifications", "accept_no_matches", "accept_existing", "reject", "pending", null],
+          "description": "The verification decision type"
+        },
+        "applicability": {
+          "type": ["string", "null"],
+          "enum": ["yes", "no", "partial", null],
+          "description": "Whether the MISRA guideline applies in this context"
+        },
+        "adjusted_category": {
+          "type": ["string", "null"],
+          "enum": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a", null],
+          "description": "MISRA's adjusted category for Rust"
+        },
+        "rationale_type": {
+          "type": ["string", "null"],
+          "enum": ["direct_mapping", "partial_mapping", "rust_alternative", "rust_prevents", "no_equivalent", null],
+          "description": "Type of relationship between the guideline and FLS"
+        },
+        "confidence": {
+          "type": ["string", "null"],
+          "enum": ["high", "medium", "low", null],
+          "description": "Confidence level in the verification decision"
+        },
+        "accepted_matches": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "rejected_matches": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "search_tools_used": {
+          "type": ["array", "null"],
+          "items": { "$ref": "#/$defs/search_tool_usage" }
+        },
+        "notes": {
+          "type": ["string", "null"]
         }
       }
     },
@@ -230,7 +261,7 @@
         "category": {
           "type": "integer",
           "enum": [0, -1, -2, -3, -4, -5, -6, -7, -8],
-          "description": "Category code: 0=section, -1=general, -2=legality_rules, -3=dynamic_semantics, -4=undefined_behavior, -5=implementation_requirements, -6=implementation_permissions, -7=examples, -8=syntax"
+          "description": "Category code"
         },
         "fls_title": {
           "type": "string",
@@ -244,21 +275,26 @@
         },
         "reason": {
           "type": "string",
-          "description": "Justification for accepting/rejecting this match - should quote FLS content"
+          "description": "Justification for accepting/rejecting this match"
         }
       }
     },
     "applicability_change": {
       "type": "object",
-      "required": ["guideline_id", "field", "current_value", "proposed_value", "rationale"],
+      "required": ["guideline_id", "context", "field", "current_value", "proposed_value", "rationale"],
       "properties": {
         "guideline_id": {
           "type": "string",
           "description": "The guideline ID for which this change is proposed"
         },
+        "context": {
+          "type": "string",
+          "enum": ["all_rust", "safe_rust", "shared"],
+          "description": "Which context this change applies to (shared for v1 compatibility)"
+        },
         "field": {
           "type": "string",
-          "enum": ["applicability_all_rust", "applicability_safe_rust", "fls_rationale_type"],
+          "enum": ["applicability", "adjusted_category", "rationale_type", "applicability_all_rust", "applicability_safe_rust", "fls_rationale_type"],
           "description": "The field to be changed"
         },
         "current_value": {
@@ -279,6 +315,19 @@
         }
       }
     },
+    "proposed_change": {
+      "type": "object",
+      "required": ["field", "current_value", "proposed_value", "rationale"],
+      "properties": {
+        "field": {
+          "type": "string",
+          "enum": ["applicability_all_rust", "applicability_safe_rust", "fls_rationale_type"]
+        },
+        "current_value": { "type": "string" },
+        "proposed_value": { "type": "string" },
+        "rationale": { "type": "string" }
+      }
+    },
     "search_tool_usage": {
       "type": "object",
       "description": "Record of a search tool used during verification",
@@ -287,7 +336,7 @@
         "search_id": {
           "type": "string",
           "format": "uuid",
-          "description": "Unique identifier for this search execution (UUID4). Required for new decisions, optional for legacy decisions."
+          "description": "Unique identifier for this search execution (UUID4)"
         },
         "tool": {
           "type": "string",

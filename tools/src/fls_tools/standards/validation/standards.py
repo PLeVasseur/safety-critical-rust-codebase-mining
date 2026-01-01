@@ -29,7 +29,14 @@ from typing import Any
 
 import jsonschema
 
-from fls_tools.shared import get_project_root, get_coding_standards_dir, get_tools_dir
+from fls_tools.shared import (
+    get_project_root,
+    get_coding_standards_dir,
+    get_tools_dir,
+    get_guideline_schema_version,
+    is_v1,
+    is_v2,
+)
 
 # Use shared path utilities to get correct paths
 ROOT_DIR = get_project_root()
@@ -129,38 +136,45 @@ def validate_schema(data: dict, schema: dict, filename: str) -> list[str]:
 def validate_fls_ids(data: dict, valid_fls_ids: set[str], filename: str) -> list[str]:
     """Validate that all FLS IDs in a mapping file are valid.
     
+    Handles both v1.0 (flat) and v2.0 (per-context) formats.
+    
     Checks FLS IDs in:
-    - fls_ids array
-    - accepted_matches array (fls_id field)
-    - rejected_matches array (fls_id field)
+    - fls_ids array (v1)
+    - accepted_matches array (v1 or v2 context)
+    - rejected_matches array (v1 or v2 context)
     """
     errors = []
 
     if "mappings" not in data:
         return errors
 
+    def check_matches(matches: list, location: str, guideline_id: str) -> None:
+        """Helper to check FLS IDs in a matches array."""
+        for match in matches:
+            fls_id = match.get("fls_id")
+            if fls_id and fls_id not in valid_fls_ids:
+                errors.append(f"{filename}: {guideline_id}: Unknown FLS ID '{fls_id}' in {location}")
+
     for mapping in data["mappings"]:
         guideline_id = mapping.get("guideline_id", "unknown")
+        schema_version = get_guideline_schema_version(mapping)
         
-        # Check fls_ids array
-        fls_ids = mapping.get("fls_ids", [])
-        for fls_id in fls_ids:
-            if fls_id not in valid_fls_ids:
-                errors.append(f"{filename}: {guideline_id}: Unknown FLS ID '{fls_id}' in fls_ids")
+        if schema_version == "1.0":
+            # v1: Check flat structure
+            fls_ids = mapping.get("fls_ids", [])
+            for fls_id in fls_ids:
+                if fls_id not in valid_fls_ids:
+                    errors.append(f"{filename}: {guideline_id}: Unknown FLS ID '{fls_id}' in fls_ids")
+            
+            check_matches(mapping.get("accepted_matches", []), "accepted_matches", guideline_id)
+            check_matches(mapping.get("rejected_matches", []), "rejected_matches", guideline_id)
         
-        # Check accepted_matches array
-        accepted_matches = mapping.get("accepted_matches", [])
-        for match in accepted_matches:
-            fls_id = match.get("fls_id")
-            if fls_id and fls_id not in valid_fls_ids:
-                errors.append(f"{filename}: {guideline_id}: Unknown FLS ID '{fls_id}' in accepted_matches")
-        
-        # Check rejected_matches array
-        rejected_matches = mapping.get("rejected_matches", [])
-        for match in rejected_matches:
-            fls_id = match.get("fls_id")
-            if fls_id and fls_id not in valid_fls_ids:
-                errors.append(f"{filename}: {guideline_id}: Unknown FLS ID '{fls_id}' in rejected_matches")
+        elif schema_version == "2.0":
+            # v2: Check per-context structure
+            for context in ["all_rust", "safe_rust"]:
+                ctx_data = mapping.get(context, {})
+                check_matches(ctx_data.get("accepted_matches", []), f"{context}.accepted_matches", guideline_id)
+                check_matches(ctx_data.get("rejected_matches", []), f"{context}.rejected_matches", guideline_id)
 
     return errors
 
@@ -187,7 +201,10 @@ def validate_standards_file(filepath: Path, schema: dict) -> tuple[list[str], di
 def validate_mapping_file(
     filepath: Path, schema: dict, valid_fls_ids: set[str]
 ) -> tuple[list[str], dict]:
-    """Validate a mapping file and return errors and statistics."""
+    """Validate a mapping file and return errors and statistics.
+    
+    Handles both v1.0 (flat) and v2.0 (per-context) formats.
+    """
     data = load_json(filepath)
     errors = validate_schema(data, schema, filepath.name)
 
@@ -198,22 +215,45 @@ def validate_mapping_file(
     # Compute statistics for both applicability dimensions
     mappings = data.get("mappings", [])
     
-    def count_applicability(field: str) -> dict[str, int]:
-        """Count applicability values for a given field."""
+    # Count v1 vs v2 entries
+    v1_count = sum(1 for m in mappings if get_guideline_schema_version(m) == "1.0")
+    v2_count = sum(1 for m in mappings if get_guideline_schema_version(m) == "2.0")
+    
+    def count_v1_applicability(field: str) -> dict[str, int]:
+        """Count v1 applicability values for a given field."""
+        v1_mappings = [m for m in mappings if get_guideline_schema_version(m) == "1.0"]
         return {
-            "direct": sum(1 for m in mappings if m.get(field) == "direct"),
-            "partial": sum(1 for m in mappings if m.get(field) == "partial"),
-            "not_applicable": sum(1 for m in mappings if m.get(field) == "not_applicable"),
-            "rust_prevents": sum(1 for m in mappings if m.get(field) == "rust_prevents"),
-            "unmapped": sum(1 for m in mappings if m.get(field) == "unmapped"),
+            "direct": sum(1 for m in v1_mappings if m.get(field) == "direct"),
+            "partial": sum(1 for m in v1_mappings if m.get(field) == "partial"),
+            "not_applicable": sum(1 for m in v1_mappings if m.get(field) == "not_applicable"),
+            "rust_prevents": sum(1 for m in v1_mappings if m.get(field) == "rust_prevents"),
+            "unmapped": sum(1 for m in v1_mappings if m.get(field) == "unmapped"),
         }
+    
+    def count_v2_applicability(context: str) -> dict[str, int]:
+        """Count v2 applicability values for a given context."""
+        v2_mappings = [m for m in mappings if get_guideline_schema_version(m) == "2.0"]
+        counts = {"yes": 0, "no": 0, "partial": 0}
+        for m in v2_mappings:
+            ctx = m.get(context, {})
+            app = ctx.get("applicability", "no")
+            if app in counts:
+                counts[app] += 1
+        return counts
     
     stats = {
         "standard": data.get("standard", "unknown"),
         "total": len(mappings),
-        "all_rust": count_applicability("applicability_all_rust"),
-        "safe_rust": count_applicability("applicability_safe_rust"),
+        "v1_count": v1_count,
+        "v2_count": v2_count,
+        "all_rust": count_v1_applicability("applicability_all_rust"),
+        "safe_rust": count_v1_applicability("applicability_safe_rust"),
     }
+    
+    # Add v2 stats if any v2 entries exist
+    if v2_count > 0:
+        stats["all_rust_v2"] = count_v2_applicability("all_rust")
+        stats["safe_rust_v2"] = count_v2_applicability("safe_rust")
 
     return errors, stats
 
@@ -367,20 +407,37 @@ def main():
 
                 if not errors:
                     print(f"    OK - {stats['standard']} ({stats['total']} guidelines)")
-                    all_rust = stats["all_rust"]
-                    safe_rust = stats["safe_rust"]
-                    print(
-                        f"       All Rust:  {all_rust['direct']} direct, "
-                        f"{all_rust['partial']} partial, "
-                        f"{all_rust['not_applicable']} N/A, "
-                        f"{all_rust['rust_prevents']} rust_prevents"
-                    )
-                    print(
-                        f"       Safe Rust: {safe_rust['direct']} direct, "
-                        f"{safe_rust['partial']} partial, "
-                        f"{safe_rust['not_applicable']} N/A, "
-                        f"{safe_rust['rust_prevents']} rust_prevents"
-                    )
+                    print(f"       Schema versions: v1={stats['v1_count']}, v2={stats['v2_count']}")
+                    
+                    if stats['v1_count'] > 0:
+                        all_rust = stats["all_rust"]
+                        safe_rust = stats["safe_rust"]
+                        print(
+                            f"       [v1] All Rust:  {all_rust['direct']} direct, "
+                            f"{all_rust['partial']} partial, "
+                            f"{all_rust['not_applicable']} N/A, "
+                            f"{all_rust['rust_prevents']} rust_prevents"
+                        )
+                        print(
+                            f"       [v1] Safe Rust: {safe_rust['direct']} direct, "
+                            f"{safe_rust['partial']} partial, "
+                            f"{safe_rust['not_applicable']} N/A, "
+                            f"{safe_rust['rust_prevents']} rust_prevents"
+                        )
+                    
+                    if stats['v2_count'] > 0:
+                        all_rust_v2 = stats.get("all_rust_v2", {})
+                        safe_rust_v2 = stats.get("safe_rust_v2", {})
+                        print(
+                            f"       [v2] All Rust:  {all_rust_v2.get('yes', 0)} yes, "
+                            f"{all_rust_v2.get('partial', 0)} partial, "
+                            f"{all_rust_v2.get('no', 0)} no"
+                        )
+                        print(
+                            f"       [v2] Safe Rust: {safe_rust_v2.get('yes', 0)} yes, "
+                            f"{safe_rust_v2.get('partial', 0)} partial, "
+                            f"{safe_rust_v2.get('no', 0)} no"
+                        )
 
     # Check guideline coverage
     if args.check_coverage:

@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 """
-check_progress.py - Phase 0: Check Verification Progress
+check_progress.py - Check Verification Progress (v2 Schema)
 
-This script shows current verification status and helps determine where to resume:
-- Last session ID and next session ID to use
+This script shows current verification status with per-context tracking:
+- Overall progress: all_rust and safe_rust separately
 - Current batch and its status
-- Whether a batch report exists in cache/verification/{standard}/
-- Whether a decisions directory exists (for parallel mode)
+- Batch report and decisions directory status
 - Worker assignment suggestions for remaining guidelines
-- If resuming, which guideline to continue from
-- Suggested command for Phase 1 (if batch report doesn't exist)
 
 Usage:
     uv run check-progress --standard misra-c
@@ -27,8 +24,12 @@ from fls_tools.shared import (
     get_project_root,
     get_verification_cache_dir,
     get_verification_progress_path,
+    get_standard_mappings_path,
     get_coding_standards_dir,
     VALID_STANDARDS,
+    get_guideline_schema_version,
+    is_v1,
+    is_v2,
 )
 
 
@@ -40,14 +41,31 @@ def load_json(path: Path) -> dict | None:
         return json.load(f)
 
 
-def is_verification_complete(guideline: dict) -> bool:
-    """Check if a guideline's verification_decision has been completed.
+def is_context_verified_in_decision(decision: dict, context: str) -> bool:
+    """Check if a context has a completed decision in a decision file."""
+    if not decision:
+        return False
     
-    The batch tool scaffolds verification_decision as a dict with None values.
-    A decision is complete only when the 'decision' field is populated.
-    """
-    vd = guideline.get("verification_decision")
-    return vd is not None and vd.get("decision") is not None
+    version = decision.get("schema_version", "1.0")
+    
+    if version == "2.0":
+        ctx_data = decision.get(context, {})
+        return ctx_data.get("decision") is not None
+    else:
+        # v1: both contexts share the same decision
+        return decision.get("decision") is not None
+
+
+def is_context_verified_in_mapping(entry: dict, context: str) -> bool:
+    """Check if a context is verified in a mapping file entry."""
+    version = get_guideline_schema_version(entry)
+    
+    if version == "2.0":
+        ctx_data = entry.get(context, {})
+        return ctx_data.get("verified", False)
+    else:
+        # v1: check confidence (high = verified)
+        return entry.get("confidence") == "high"
 
 
 def find_batch_reports(cache_dir: Path) -> list[dict]:
@@ -60,37 +78,53 @@ def find_batch_reports(cache_dir: Path) -> list[dict]:
         try:
             data = load_json(f)
             if data and "batch_id" in data and "session_id" in data:
-                # Count verified guidelines (decision field must be populated)
+                version = data.get("schema_version", "1.0")
                 total = len(data.get("guidelines", []))
-                verified = sum(
-                    1 for g in data.get("guidelines", [])
-                    if is_verification_complete(g)
-                )
-                reports.append({
-                    "path": f,
-                    "batch_id": data["batch_id"],
-                    "session_id": data["session_id"],
-                    "total": total,
-                    "verified": verified,
-                    "generated_date": data.get("generated_date"),
-                })
+                
+                if version == "2.0":
+                    # Count per-context verification
+                    all_rust_verified = 0
+                    safe_rust_verified = 0
+                    for g in data.get("guidelines", []):
+                        vd = g.get("verification_decision", {})
+                        if vd:
+                            ar = vd.get("all_rust", {})
+                            sr = vd.get("safe_rust", {})
+                            if ar.get("decision"):
+                                all_rust_verified += 1
+                            if sr.get("decision"):
+                                safe_rust_verified += 1
+                    
+                    reports.append({
+                        "path": f,
+                        "batch_id": data["batch_id"],
+                        "session_id": data["session_id"],
+                        "schema_version": version,
+                        "total": total,
+                        "all_rust_verified": all_rust_verified,
+                        "safe_rust_verified": safe_rust_verified,
+                        "both_verified": min(all_rust_verified, safe_rust_verified),
+                        "generated_date": data.get("generated_date"),
+                    })
+                else:
+                    # v1 report
+                    verified = sum(
+                        1 for g in data.get("guidelines", [])
+                        if g.get("verification_decision", {}).get("decision")
+                    )
+                    reports.append({
+                        "path": f,
+                        "batch_id": data["batch_id"],
+                        "session_id": data["session_id"],
+                        "schema_version": version,
+                        "total": total,
+                        "verified": verified,
+                        "generated_date": data.get("generated_date"),
+                    })
         except (json.JSONDecodeError, KeyError):
             continue
     
     return sorted(reports, key=lambda r: (r["batch_id"], r["session_id"]))
-
-
-def find_resume_guideline(report_path: Path) -> str | None:
-    """Find the first guideline without a completed verification decision."""
-    data = load_json(report_path)
-    if not data:
-        return None
-    
-    for g in data.get("guidelines", []):
-        if not is_verification_complete(g):
-            return g.get("guideline_id")
-    
-    return None
 
 
 def load_decision_schema(root: Path) -> dict | None:
@@ -101,32 +135,33 @@ def load_decision_schema(root: Path) -> dict | None:
     return load_json(schema_path)
 
 
-def validate_decision_file(path: Path, schema: dict | None) -> tuple[bool, str | None]:
+def validate_decision_file(path: Path, schema: dict | None) -> tuple[bool, str | None, dict | None]:
     """
     Validate a decision file.
     
     Returns:
-        (is_valid, guideline_id or None)
+        (is_valid, guideline_id, data)
     """
     data = load_json(path)
     if data is None:
-        return False, None
+        return False, None, None
     
     guideline_id = data.get("guideline_id")
     
     # Check filename matches guideline_id
     expected_filename = (guideline_id or "").replace(" ", "_") + ".json"
     if path.name != expected_filename:
-        return False, guideline_id
+        return False, guideline_id, None
     
-    # Schema validation
+    # Schema validation (warning only, don't fail)
     if schema:
         try:
             jsonschema.validate(instance=data, schema=schema)
         except jsonschema.ValidationError:
-            return False, guideline_id
+            # Still return the data for analysis even if schema fails
+            pass
     
-    return True, guideline_id
+    return True, guideline_id, data
 
 
 def find_decisions_directory(cache_dir: Path, batch_id: int) -> Path | None:
@@ -137,47 +172,69 @@ def find_decisions_directory(cache_dir: Path, batch_id: int) -> Path | None:
     return None
 
 
-def analyze_decisions_directory(
+def analyze_decisions_directory_v2(
     decisions_dir: Path,
     batch_guidelines: list[str],
     schema: dict | None,
 ) -> dict:
     """
-    Analyze a decisions directory.
+    Analyze a decisions directory with v2 per-context tracking.
     
-    Returns dict with:
-        - total_files: number of .json files
-        - valid_count: number of valid decision files
-        - invalid_count: number of invalid files
-        - invalid_files: list of invalid filenames
-        - decided_guidelines: set of guideline IDs with valid decisions
-        - remaining_guidelines: list of guideline IDs without decisions
+    Returns dict with per-context progress.
     """
     decision_files = list(decisions_dir.glob("*.json"))
     
     valid_count = 0
     invalid_count = 0
     invalid_files = []
-    decided_guidelines = set()
+    
+    # Per-context tracking
+    all_rust_decided = set()
+    safe_rust_decided = set()
+    both_decided = set()
     
     for path in decision_files:
-        is_valid, guideline_id = validate_decision_file(path, schema)
-        if is_valid and guideline_id:
+        is_valid, guideline_id, data = validate_decision_file(path, schema)
+        if is_valid and guideline_id and data:
             valid_count += 1
-            decided_guidelines.add(guideline_id)
+            
+            version = data.get("schema_version", "1.0")
+            if version == "2.0":
+                ar = data.get("all_rust", {})
+                sr = data.get("safe_rust", {})
+                
+                if ar.get("decision"):
+                    all_rust_decided.add(guideline_id)
+                if sr.get("decision"):
+                    safe_rust_decided.add(guideline_id)
+                if ar.get("decision") and sr.get("decision"):
+                    both_decided.add(guideline_id)
+            else:
+                # v1: counts as both
+                if data.get("decision"):
+                    all_rust_decided.add(guideline_id)
+                    safe_rust_decided.add(guideline_id)
+                    both_decided.add(guideline_id)
         else:
             invalid_count += 1
             invalid_files.append(path.name)
     
-    remaining_guidelines = [g for g in batch_guidelines if g not in decided_guidelines]
+    # Remaining by context
+    all_rust_remaining = [g for g in batch_guidelines if g not in all_rust_decided]
+    safe_rust_remaining = [g for g in batch_guidelines if g not in safe_rust_decided]
+    both_remaining = [g for g in batch_guidelines if g not in both_decided]
     
     return {
         "total_files": len(decision_files),
         "valid_count": valid_count,
         "invalid_count": invalid_count,
         "invalid_files": invalid_files,
-        "decided_guidelines": decided_guidelines,
-        "remaining_guidelines": remaining_guidelines,
+        "all_rust_decided": all_rust_decided,
+        "safe_rust_decided": safe_rust_decided,
+        "both_decided": both_decided,
+        "all_rust_remaining": all_rust_remaining,
+        "safe_rust_remaining": safe_rust_remaining,
+        "both_remaining": both_remaining,
     }
 
 
@@ -199,7 +256,6 @@ def suggest_worker_assignment(
     
     start = 0
     for i in range(num_workers):
-        # Distribute remainder among first workers
         count = per_worker + (1 if i < remainder else 0)
         if count > 0:
             worker_guidelines = remaining_guidelines[start:start + count]
@@ -209,16 +265,68 @@ def suggest_worker_assignment(
     return assignments
 
 
+def get_progress_from_mapping(root: Path, standard: str) -> dict:
+    """
+    Get verification progress from the mapping file.
+    
+    Detects v1/v2 per-entry and counts per-context verification.
+    """
+    mapping_path = get_standard_mappings_path(root, standard)
+    data = load_json(mapping_path)
+    
+    if not data:
+        return {"error": f"Mapping file not found: {mapping_path}"}
+    
+    total = 0
+    all_rust_verified = 0
+    safe_rust_verified = 0
+    both_verified = 0
+    v1_count = 0
+    v2_count = 0
+    
+    for entry in data.get("mappings", []):
+        total += 1
+        version = get_guideline_schema_version(entry)
+        
+        if version == "2.0":
+            v2_count += 1
+            ar_verified = entry.get("all_rust", {}).get("verified", False)
+            sr_verified = entry.get("safe_rust", {}).get("verified", False)
+            
+            if ar_verified:
+                all_rust_verified += 1
+            if sr_verified:
+                safe_rust_verified += 1
+            if ar_verified and sr_verified:
+                both_verified += 1
+        else:
+            v1_count += 1
+            # v1: confidence=high means verified (both contexts)
+            if entry.get("confidence") == "high":
+                all_rust_verified += 1
+                safe_rust_verified += 1
+                both_verified += 1
+    
+    return {
+        "total": total,
+        "all_rust_verified": all_rust_verified,
+        "safe_rust_verified": safe_rust_verified,
+        "both_verified": both_verified,
+        "v1_count": v1_count,
+        "v2_count": v2_count,
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Check verification progress and suggest next steps"
+        description="Check verification progress with per-context tracking (v2)"
     )
     parser.add_argument(
         "--standard", "-s",
         type=str,
         required=True,
         choices=VALID_STANDARDS,
-        help="Standard to check (e.g., misra-c, misra-cpp, cert-c, cert-cpp)",
+        help="Standard to check (e.g., misra-c, misra-cpp)",
     )
     parser.add_argument(
         "--workers",
@@ -241,7 +349,12 @@ def main():
         print(f"       Run: uv run scaffold-progress --standard {standard}", file=sys.stderr)
         sys.exit(1)
     
-    # Find last and next session
+    progress_version = progress.get("schema_version", "1.0")
+    
+    # Get progress from mapping file
+    mapping_progress = get_progress_from_mapping(root, standard)
+    
+    # Find sessions info
     sessions = progress.get("sessions", [])
     last_session = max((s["session_id"] for s in sessions), default=0)
     next_session = last_session + 1
@@ -253,192 +366,184 @@ def main():
             current_batch = batch
             break
     
-    # Find batch reports in cache
+    # Find batch reports
     cache_dir = get_verification_cache_dir(root, standard)
     batch_reports = find_batch_reports(cache_dir)
     
-    # Output
+    # Output header
     print("=" * 60)
     print(f"VERIFICATION PROGRESS: {standard}")
     print("=" * 60)
     print()
+    print(f"Progress schema version: {progress_version}")
     print(f"Last session: {last_session}")
     print(f"Next session: {next_session}")
     print()
     
-    # Compute counts from actual guideline data (not stale summary)
-    total_verified = 0
-    total_pending = 0
-    for batch in progress.get("batches", []):
-        for g in batch.get("guidelines", []):
-            if g.get("verified", False):
-                total_verified += 1
-            else:
-                total_pending += 1
-    
-    print(f"Total guidelines: {progress.get('total_guidelines', 'N/A')}")
-    print(f"Verified: {total_verified}")
-    print(f"Pending: {total_pending}")
-    
-    # Warn if cached summary is stale
-    summary = progress.get("summary", {})
-    cached_verified = summary.get("total_verified")
-    cached_pending = summary.get("total_pending")
-    if cached_verified is not None and cached_verified != total_verified:
+    # Mapping file progress
+    print("-" * 60)
+    print("MAPPING FILE PROGRESS")
+    print("-" * 60)
+    if "error" in mapping_progress:
+        print(f"  {mapping_progress['error']}")
+    else:
+        total = mapping_progress["total"]
+        ar = mapping_progress["all_rust_verified"]
+        sr = mapping_progress["safe_rust_verified"]
+        both = mapping_progress["both_verified"]
+        v1 = mapping_progress["v1_count"]
+        v2 = mapping_progress["v2_count"]
+        
+        print(f"Total guidelines: {total}")
+        print(f"  all_rust verified:  {ar}/{total} ({100*ar/total:.0f}%)")
+        print(f"  safe_rust verified: {sr}/{total} ({100*sr/total:.0f}%)")
+        print(f"  Both verified:      {both}/{total} ({100*both/total:.0f}%)")
         print()
-        print(f"WARNING: Cached summary is stale (shows {cached_verified} verified)")
-        print(f"         Consider running: uv run scaffold-progress --standard {standard} --preserve-completed")
-    
+        print(f"Schema versions: {v1} v1 entries, {v2} v2 entries")
+        if v1 > 0 and v2 == 0:
+            print("  (All entries are v1 - will be migrated to v2 when apply-verification runs)")
     print()
     
-    # Load decision file schema for validation
+    # Load decision schema
     decision_schema = load_decision_schema(root)
     
-    # Current batch
+    # Current batch details
     if current_batch:
         batch_id = current_batch["batch_id"]
         batch_guidelines = [g["guideline_id"] for g in current_batch.get("guidelines", [])]
-        pending_count = sum(
-            1 for g in current_batch.get("guidelines", [])
-            if not g.get("verified", False)
-        )
-        print(f"Current batch: {batch_id} ({current_batch['name']})")
+        
+        print("-" * 60)
+        print(f"CURRENT BATCH: {batch_id} ({current_batch['name']})")
+        print("-" * 60)
         print(f"Status: {current_batch['status']}")
-        print(f"Pending in batch: {pending_count} guidelines")
+        print(f"Guidelines in batch: {len(batch_guidelines)}")
         print()
         
-        # Check for decisions directory (parallel mode)
+        # Check for decisions directory
         decisions_dir = find_decisions_directory(cache_dir, batch_id)
         decisions_analysis = None
         
         if decisions_dir:
-            decisions_analysis = analyze_decisions_directory(
+            decisions_analysis = analyze_decisions_directory_v2(
                 decisions_dir, batch_guidelines, decision_schema
             )
             
-            print("-" * 60)
-            print("DECISIONS DIRECTORY")
-            print("-" * 60)
-            print(f"Path: {decisions_dir}")
-            pct = 100 * decisions_analysis["valid_count"] / len(batch_guidelines) if batch_guidelines else 0
-            print(f"Progress: {decisions_analysis['valid_count']}/{len(batch_guidelines)} decisions ({pct:.0f}%)")
-            print(f"  Valid: {decisions_analysis['valid_count']}")
-            print(f"  Invalid: {decisions_analysis['invalid_count']}")
+            print("Decisions Directory:")
+            print(f"  Path: {decisions_dir.relative_to(root)}")
+            print(f"  Files: {decisions_analysis['valid_count']} valid, {decisions_analysis['invalid_count']} invalid")
+            print()
+            print("  Per-context progress:")
+            ar_done = len(decisions_analysis["all_rust_decided"])
+            sr_done = len(decisions_analysis["safe_rust_decided"])
+            both_done = len(decisions_analysis["both_decided"])
+            total = len(batch_guidelines)
+            
+            print(f"    all_rust:  {ar_done}/{total} ({100*ar_done/total:.0f}%)")
+            print(f"    safe_rust: {sr_done}/{total} ({100*sr_done/total:.0f}%)")
+            print(f"    Both:      {both_done}/{total} ({100*both_done/total:.0f}%)")
             
             if decisions_analysis["invalid_files"]:
+                print()
                 print(f"  Invalid files: {', '.join(decisions_analysis['invalid_files'][:5])}")
-                if len(decisions_analysis["invalid_files"]) > 5:
-                    print(f"    ... and {len(decisions_analysis['invalid_files']) - 5} more")
             
-            remaining = decisions_analysis["remaining_guidelines"]
-            if remaining:
+            # Show guidelines status
+            remaining_both = decisions_analysis["both_remaining"]
+            if remaining_both:
                 print()
-                print(f"Remaining guidelines ({len(remaining)}):")
-                # Show first 10
-                display_remaining = remaining[:10]
-                print(f"  {', '.join(display_remaining)}")
-                if len(remaining) > 10:
-                    print(f"  ... and {len(remaining) - 10} more")
+                print(f"Guidelines needing verification ({len(remaining_both)}):")
+                for gid in remaining_both[:10]:
+                    ar_status = "✓" if gid in decisions_analysis["all_rust_decided"] else "○"
+                    sr_status = "✓" if gid in decisions_analysis["safe_rust_decided"] else "○"
+                    print(f"  {gid:<15} all_rust {ar_status}  safe_rust {sr_status}")
+                if len(remaining_both) > 10:
+                    print(f"  ... and {len(remaining_both) - 10} more")
                 
-                # Worker assignment suggestions
+                # Worker assignment
                 print()
-                print("-" * 60)
-                print(f"SUGGESTED WORKER ASSIGNMENT ({args.workers} workers)")
-                print("-" * 60)
-                assignments = suggest_worker_assignment(remaining, args.workers)
+                print(f"Worker assignment ({args.workers} workers):")
+                assignments = suggest_worker_assignment(remaining_both, args.workers)
                 for worker_num, worker_guidelines in assignments:
-                    if len(worker_guidelines) > 0:
-                        first = worker_guidelines[0]
-                        last = worker_guidelines[-1]
-                        print(f"Worker {worker_num} ({len(worker_guidelines)} guidelines): {first} -> {last}")
-                
+                    if worker_guidelines:
+                        print(f"  Worker {worker_num}: {worker_guidelines[0]} -> {worker_guidelines[-1]} ({len(worker_guidelines)} guidelines)")
+            else:
                 print()
-                print("To continue parallel verification:")
-                print(f"  uv run record-decision --standard {standard} --batch {batch_id} \\")
-                print(f"      --guideline \"<GUIDELINE_ID>\" ...")
-                
-                print()
-                print("To merge completed decisions:")
+                print("All guidelines in batch have both contexts verified!")
+                print("Ready for merge and apply.")
         
-        # Check for existing batch report
-        matching_reports = [
-            r for r in batch_reports
-            if r["batch_id"] == batch_id
-        ]
+        # Batch report
+        matching_reports = [r for r in batch_reports if r["batch_id"] == batch_id]
         
         if matching_reports:
-            # Found existing report(s)
             latest = max(matching_reports, key=lambda r: r["session_id"])
             print()
-            print("-" * 60)
-            print("BATCH REPORT")
-            print("-" * 60)
-            print(f"Path: {latest['path']}")
-            print(f"Session: {latest['session_id']}")
-            print(f"Progress: {latest['verified']}/{latest['total']} guidelines have verification_decision")
+            print("Batch Report:")
+            print(f"  Path: {latest['path'].relative_to(root)}")
+            print(f"  Session: {latest['session_id']}")
+            print(f"  Schema: {latest.get('schema_version', '1.0')}")
+            
+            if latest.get("schema_version") == "2.0":
+                ar = latest.get("all_rust_verified", 0)
+                sr = latest.get("safe_rust_verified", 0)
+                both = latest.get("both_verified", 0)
+                total = latest["total"]
+                print(f"  all_rust verified:  {ar}/{total}")
+                print(f"  safe_rust verified: {sr}/{total}")
+                print(f"  Both verified:      {both}/{total}")
+            else:
+                print(f"  Verified: {latest.get('verified', 0)}/{latest['total']}")
             
             if decisions_dir and decisions_analysis:
-                # Parallel mode - suggest merge
-                if decisions_analysis["valid_count"] > 0:
+                both_done = len(decisions_analysis["both_decided"])
+                if both_done > 0:
                     print()
-                    print("To merge decisions into batch report:")
-                    print(f"  uv run merge-decisions --standard {standard} \\")
-                    print(f"      --batch-report {latest['path'].relative_to(root)} \\")
-                    print(f"      --decisions-dir {decisions_dir.relative_to(root)} \\")
-                    print(f"      --validate")
-            elif latest['verified'] < latest['total']:
-                # Sequential mode
-                resume_from = find_resume_guideline(latest['path'])
-                if resume_from:
-                    print(f"Resume from: {resume_from}")
-                print()
-                print("To continue Phase 2 (sequential):")
-                print(f"  Read {latest['path'].name} and resume analysis from {resume_from}")
-                print()
-                print("To enable parallel mode:")
-                print(f"  mkdir -p {cache_dir.relative_to(root)}/batch{batch_id}_decisions")
-            
-            if latest['verified'] == latest['total'] or (
-                decisions_analysis and decisions_analysis["valid_count"] == len(batch_guidelines)
-            ):
-                print()
-                print("All guidelines have verification decisions.")
-                print("Ready for Phase 3 (human review) and Phase 4 (apply changes).")
-                print()
-                print("To apply changes:")
-                print(f"  uv run apply-verification --standard {standard} \\")
-                print(f"      --batch-report {latest['path'].relative_to(root)} \\")
-                print(f"      --session {latest['session_id']}")
+                    print("To merge decisions:")
+                    print(f"  uv run merge-decisions --standard {standard} --batch {batch_id} --session {latest['session_id']}")
         else:
-            # No existing report
             print()
-            print("-" * 60)
-            print("NO BATCH REPORT FOUND")
-            print("-" * 60)
-            output_path = f"cache/verification/{standard}/batch{batch_id}_session{next_session}.json"
+            print("No batch report found.")
             print()
-            print("To start Phase 1:")
-            print(f"  uv run verify-batch --standard {standard} \\")
-            print(f"      --batch {batch_id} \\")
-            print(f"      --session {next_session} \\")
-            print(f"      --mode llm \\")
-            print(f"      --output {output_path}")
+            print("To generate batch report:")
+            print(f"  uv run verify-batch --standard {standard} --batch {batch_id} --session {next_session}")
     else:
         print("All batches completed!")
-        print()
     
     # Show all batches summary
     print()
     print("-" * 60)
     print("ALL BATCHES")
     print("-" * 60)
-    print(f"{'Batch':<6} {'Name':<30} {'Status':<12} {'Verified':<10} {'Pending':<10}")
-    print("-" * 60)
     
-    for batch in progress.get("batches", []):
-        verified = sum(1 for g in batch.get("guidelines", []) if g.get("status") == "verified")
-        pending = sum(1 for g in batch.get("guidelines", []) if g.get("status") == "pending")
-        print(f"{batch['batch_id']:<6} {batch['name']:<30} {batch['status']:<12} {verified:<10} {pending:<10}")
+    if progress_version == "2.0":
+        print(f"{'Batch':<6} {'Name':<25} {'Status':<12} {'all_rust':<10} {'safe_rust':<10} {'Both':<10}")
+        print("-" * 60)
+        
+        for batch in progress.get("batches", []):
+            batch_guidelines = batch.get("guidelines", [])
+            total = len(batch_guidelines)
+            
+            ar_verified = sum(
+                1 for g in batch_guidelines
+                if g.get("all_rust", {}).get("verified", False)
+            )
+            sr_verified = sum(
+                1 for g in batch_guidelines
+                if g.get("safe_rust", {}).get("verified", False)
+            )
+            both_verified = sum(
+                1 for g in batch_guidelines
+                if g.get("all_rust", {}).get("verified", False) and g.get("safe_rust", {}).get("verified", False)
+            )
+            
+            print(f"{batch['batch_id']:<6} {batch['name'][:25]:<25} {batch['status']:<12} {ar_verified}/{total:<6} {sr_verified}/{total:<6} {both_verified}/{total:<6}")
+    else:
+        # v1 progress format
+        print(f"{'Batch':<6} {'Name':<30} {'Status':<12} {'Verified':<10} {'Pending':<10}")
+        print("-" * 60)
+        
+        for batch in progress.get("batches", []):
+            verified = sum(1 for g in batch.get("guidelines", []) if g.get("verified", False))
+            pending = sum(1 for g in batch.get("guidelines", []) if not g.get("verified", False))
+            print(f"{batch['batch_id']:<6} {batch['name'][:30]:<30} {batch['status']:<12} {verified:<10} {pending:<10}")
     
     print()
 

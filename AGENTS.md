@@ -542,33 +542,67 @@ Chapter files documenting iceoryx2's use of FLS constructs. Schema: `iceoryx2-fl
 ### coding-standards-fls-mapping/ Schema
 
 **standards/*.json** - Rule listings per standard
-**mappings/*.json** - FLS mappings with `accepted_matches`:
+**mappings/*.json** - FLS mappings with per-context verification (v2 schema):
 
+**v1 Structure (legacy):**
 ```json
 {
+  "schema_version": "1.0",
   "guideline_id": "Rule 11.1",
   "guideline_title": "Conversions shall not be performed...",
   "applicability_all_rust": "direct",
   "applicability_safe_rust": "not_applicable",
-  "accepted_matches": [
-    {
-      "fls_id": "fls_xxx",
-      "category": 0,
-      "fls_title": "Type Cast Expressions",
-      "score": 0.65,
-      "reason": "Per FLS: 'A cast is legal when...' This directly addresses MISRA's concern."
-    }
-  ],
-  "rejected_matches": [
-    {
-      "fls_id": "fls_yyy",
-      "category": 0,
-      "score": 0.62,
-      "reason": "Section is about enum layout, not type conversions."
-    }
-  ],
   "fls_rationale_type": "direct_mapping",
-  "confidence": "high"
+  "confidence": "medium",
+  "accepted_matches": [...],
+  "rejected_matches": []
+}
+```
+
+**v2 Structure (current):**
+```json
+{
+  "schema_version": "2.0",
+  "guideline_id": "Rule 11.1",
+  "guideline_title": "Conversions shall not be performed...",
+  "all_rust": {
+    "applicability": "yes",
+    "adjusted_category": "advisory",
+    "rationale_type": "direct_mapping",
+    "confidence": "high",
+    "accepted_matches": [
+      {
+        "fls_id": "fls_xxx",
+        "category": 0,
+        "fls_title": "Type Cast Expressions",
+        "score": 0.65,
+        "reason": "Per FLS: 'A cast is legal when...' This directly addresses MISRA's concern."
+      }
+    ],
+    "rejected_matches": [],
+    "verified": true,
+    "verified_by_session": 1,
+    "notes": "..."
+  },
+  "safe_rust": {
+    "applicability": "no",
+    "adjusted_category": "n_a",
+    "rationale_type": "rust_prevents",
+    "confidence": "high",
+    "accepted_matches": [
+      {
+        "fls_id": "fls_yyy",
+        "category": 0,
+        "fls_title": "Type Coercion",
+        "score": 0.58,
+        "reason": "Safe Rust prevents arbitrary pointer-to-function casts via type system."
+      }
+    ],
+    "rejected_matches": [],
+    "verified": true,
+    "verified_by_session": 1,
+    "notes": "Safe Rust has no raw pointers or function pointer casts."
+  }
 }
 ```
 
@@ -756,6 +790,12 @@ uv run validate-fls --audit-samples                    # Sample quality audit
 
 The verification workflow uses a 4-phase process with dedicated tooling.
 
+**Schema Version:** The verification workflow now uses **v2.0 schema** with per-context verification. Each guideline is verified independently for two contexts:
+- **`all_rust`** - Applicability when using all of Rust (including unsafe)
+- **`safe_rust`** - Applicability when restricted to safe Rust only
+
+This means each guideline requires **8 searches** (4 per context) instead of 4.
+
 #### Phase 0: Check Progress
 
 Before starting, run `check-progress` to determine current state:
@@ -769,12 +809,34 @@ uv run check-progress --standard misra-c --workers 4  # Adjust worker count for 
 This shows:
 - Last session ID and next session ID to use
 - Current batch and its status
+- Per-context verification progress (all_rust: X/Y, safe_rust: X/Y)
 - Whether a batch report exists in `cache/verification/`
 - Whether a decisions directory exists (for parallel mode)
 - Progress from decision files (valid/invalid counts)
+- Schema version information (v1/v2 entry counts)
 - Suggested worker assignments for remaining guidelines
 - If resuming, which guideline to continue from
 - Suggested command for Phase 1 (if batch report doesn't exist)
+
+**Example output:**
+```
+============================================================
+VERIFICATION PROGRESS: misra-c
+============================================================
+
+Current batch: 1 (High-score direct mappings)
+Status: in_progress
+
+Guideline Progress:
+  Dir 4.3:  all_rust ✓  safe_rust ✓
+  Dir 5.1:  all_rust ✓  safe_rust ○
+  Rule 5.1: all_rust ○  safe_rust ○
+
+Summary:
+  all_rust:  5/20 verified (25%)
+  safe_rust: 3/20 verified (15%)
+  Both complete: 3/20 (15%)
+```
 
 **Crash recovery:** If a session was interrupted, `check-progress` will detect existing work in either the batch report or decisions directory and indicate where to resume.
 
@@ -788,7 +850,8 @@ uv run verify-batch \
     --standard misra-c \
     --batch BATCH_ID \
     --session SESSION_ID \
-    --mode llm
+    --mode llm \
+    --schema-version 2.0
 ```
 
 **What it extracts:**
@@ -797,12 +860,16 @@ uv run verify-batch \
 - Wide-shot FLS content (matched sections + siblings + all rubrics)
 - Current mapping state
 
-All guidelines start with a scaffolded `verification_decision` structure (fields set to `null`/empty).
+All guidelines start with a scaffolded `verification_decision` structure with nested `all_rust` and `safe_rust` contexts (fields set to `null`/empty).
 See `coding-standards-fls-mapping/schema/batch_report.schema.json` for required fields.
 
 **Output modes:**
 - `--mode llm`: Full JSON optimized for LLM consumption
 - `--mode human`: Markdown summary for quick review
+
+**Schema version:**
+- `--schema-version 2.0` (default): Generates v2 batch reports with per-context verification decisions
+- `--schema-version 1.0`: Legacy flat structure (not recommended for new verification)
 
 **Thresholds** (configurable via CLI):
 
@@ -853,16 +920,19 @@ uv run check-progress --standard misra-c --workers 3
 
 ##### Recording Decisions (Parallel-Safe)
 
-Use `--batch` to write decisions to individual files (enables parallel verification):
+Use `--batch` to write decisions to individual files (enables parallel verification). **v2 requires `--context` to specify which context is being verified:**
 
 ```bash
 uv run record-decision \
     --standard misra-c \
     --batch 4 \
     --guideline "Dir 1.1" \
+    --context all_rust \
     --decision accept_with_modifications \
-    --confidence high \
+    --applicability yes \
+    --adjusted-category advisory \
     --rationale-type direct_mapping \
+    --confidence high \
     --search-used "550e8400-e29b-41d4-a716-446655440000:search-fls-deep:Dir 1.1:5" \
     --search-used "a1b2c3d4-5678-90ab-cdef-1234567890ab:search-fls:ABI implementation:10" \
     --search-used "b2c3d4e5-6789-01ab-cdef-2345678901ab:search-fls:rust ABI extern:10" \
@@ -870,7 +940,12 @@ uv run record-decision \
     --accept-match "fls_abc123:ABI:0:0.64:FLS states X addressing MISRA concern Y"
 ```
 
-Each decision is written to a separate file (e.g., `Dir_1.1.json`), enabling parallel workers to operate without conflicts.
+Each guideline has a single decision file (e.g., `Dir_1.1.json`) containing both contexts. Recording a decision for one context preserves the other context's existing data (or scaffolds it as null if not yet recorded).
+
+**New v2 required parameters:**
+- `--context {all_rust,safe_rust}`: Which context this decision applies to
+- `--applicability {yes,no,partial}`: Whether the guideline applies in this context
+- `--adjusted-category {required,advisory,recommended,disapplied,implicit,n_a}`: MISRA adjusted category for Rust
 
 ##### Progress Tracking
 
@@ -1090,9 +1165,12 @@ This means:
        --standard misra-c \
        --batch 4 \
        --guideline "Dir 1.1" \
+       --context all_rust \
        --decision accept_with_modifications \
-       --confidence high \
+       --applicability yes \
+       --adjusted-category advisory \
        --rationale-type direct_mapping \
+       --confidence high \
        --search-used "550e8400-e29b-41d4-a716-446655440000:search-fls-deep:Dir 1.1:5" \
        --search-used "a1b2c3d4-5678-90ab-cdef-1234567890ab:search-fls:ABI implementation:10" \
        --search-used "b2c3d4e5-6789-01ab-cdef-2345678901ab:search-fls:rust ABI extern:10" \
@@ -1101,6 +1179,11 @@ This means:
        --reject-match "fls_xyz789:Other Section:-1:0.55:Not relevant - discusses Z instead" \
        --notes "Optional notes about the decision"
    ```
+
+   **v2 Required Parameters:**
+   - `--context {all_rust,safe_rust}`: Which context this decision applies to
+   - `--applicability {yes,no,partial}`: Whether the guideline applies in this context
+   - `--adjusted-category`: MISRA adjusted category for Rust (`required`, `advisory`, `recommended`, `disapplied`, `implicit`, `n_a`)
 
    **Search-used format:** `search_id:tool:query:result_count`
    - `search_id`: UUID4 from search tool output (required for new decisions)
@@ -1126,9 +1209,12 @@ This means:
        --standard misra-c \
        --batch 4 \
        --guideline "Rule 11.1" \
+       --context all_rust \
        --decision accept_with_modifications \
-       --confidence high \
+       --applicability yes \
+       --adjusted-category advisory \
        --rationale-type rust_prevents \
+       --confidence high \
        --search-used "uuid1:search-fls-deep:Rule 11.1:5" \
        --search-used "uuid2:search-fls:type conversion pointer:10" \
        --search-used "uuid3:search-fls:rust type cast safety:10" \
@@ -1141,14 +1227,16 @@ This means:
    - `--dry-run`: Preview changes without writing to file
    - `--propose-change`: Format is `field:current_value:proposed_value:rationale`
 
-   **Required fields** (validated against `batch_report.schema.json`):
-   - `decision`: "accept_with_modifications", "accept_no_matches", "accept_existing", or "reject"
-   - `confidence`: "high", "medium", or "low"
-   - `fls_rationale_type`: "direct_mapping", "rust_alternative", "rust_prevents", "no_equivalent", or "partial_mapping"
-   - `accepted_matches`: Array of FLS matches (each with `fls_id`, `fls_title`, `category`, `score`, `reason`)
-   - `rejected_matches`: Array of explicitly rejected matches (optional but recommended for high-scoring rejects)
-   - `search_tools_used`: Array of search tool records (each with `search_id`, `tool`, `query`, `result_count`). At least 4 required.
-   - `notes`: Additional notes (optional)
+   **Required fields** (validated against `decision_file.schema.json`):
+   - `--context`: Which context (all_rust or safe_rust)
+   - `--decision`: "accept_with_modifications", "accept_no_matches", "accept_existing", "reject", or "pending"
+   - `--applicability`: "yes", "no", or "partial"
+   - `--adjusted-category`: MISRA adjusted category for Rust
+   - `--rationale-type`: "direct_mapping", "rust_alternative", "rust_prevents", "no_equivalent", or "partial_mapping"
+   - `--confidence`: "high", "medium", or "low"
+   - `--accept-match`: At least one FLS match (unless `--force-no-matches`)
+   - `--search-used`: At least 4 search tool records (each with `search_id`, `tool`, `query`, `result_count`)
+   - `--notes`: Additional notes (optional)
 
 **Crash recovery:** If the session is interrupted, the batch report in `cache/verification/` preserves all completed work. Run `check-progress` to see where to resume.
 
@@ -1281,6 +1369,27 @@ After `apply-verification` completes successfully:
 
 ### Applicability Values
 
+**v2 uses simplified `applicability` values per context:**
+
+| Value | Description |
+|-------|-------------|
+| `yes` | Guideline applies in this context |
+| `no` | Guideline does not apply in this context |
+| `partial` | Some aspects of the guideline apply |
+
+**v2 `adjusted_category` values (per MISRA ADD-6):**
+
+| Value | Description |
+|-------|-------------|
+| `required` | Required guideline (must comply) |
+| `advisory` | Advisory guideline (should comply) |
+| `recommended` | Recommended practice |
+| `disapplied` | Guideline explicitly disapplied for Rust |
+| `implicit` | Rust's design implicitly enforces this |
+| `n_a` | Not applicable to Rust |
+
+**v1 legacy values (for reference):**
+
 | Value | Description |
 |-------|-------------|
 | `direct` | Maps directly to FLS concept(s) |
@@ -1397,8 +1506,14 @@ To reset verification decisions for a batch (e.g., to re-verify after issues):
 ```bash
 cd tools
 
-# Reset all guidelines in a batch to unverified state
+# Reset all guidelines in a batch to unverified state (both contexts)
 uv run reset-batch --standard misra-c --batch 3
+
+# Reset only all_rust context in batch 3
+uv run reset-batch --standard misra-c --batch 3 --context all_rust
+
+# Reset only safe_rust context in batch 3
+uv run reset-batch --standard misra-c --batch 3 --context safe_rust
 
 # Reset specific guidelines within a batch
 uv run reset-batch --standard misra-c --batch 3 --guidelines "Rule 22.1,Rule 22.2"
@@ -1410,7 +1525,9 @@ uv run reset-batch --standard misra-c --batch 3 --dry-run
 uv run reset-verification --standard misra-c
 ```
 
-This clears `verification_decision` fields in the batch report and resets `verified` status in `verification_progress.json` for affected guidelines.
+**v2 context reset:** The `--context` flag allows selective reset of only one context while preserving the other. This is useful when re-verifying decisions for one context without losing work on the other.
+
+This clears `verification_decision` fields in the batch report and resets `verified` status in `verification_progress.json` for affected guidelines and contexts.
 
 ---
 

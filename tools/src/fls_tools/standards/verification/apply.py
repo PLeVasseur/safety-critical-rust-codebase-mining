@@ -1,30 +1,31 @@
 #!/usr/bin/env python3
 """
-apply_verification.py - Phase 4: Apply Verified Changes
+apply_verification.py - Phase 4: Apply Verified Changes (v1 to v2 Migration)
 
-This script applies verified decisions from a batch report to:
-- misra_c_to_fls.json: Update accepted/rejected matches and confidence
-- verification_progress.json: Mark guidelines as verified
+This script applies verified decisions from a v2 batch report to:
+- misra_c_to_fls.json: Update to v2 format with per-context decisions
+- verification_progress.json: Mark guidelines as verified per-context
+
+**IMPORTANT: This is where v1 to v2 migration happens.**
+
+When applying v2 decisions to v1 entries, the entries are converted to v2 format.
 
 Usage:
-    uv run python verification/apply_verification.py \
-        --batch-report cache/verification/batch3_session5.json \
-        --session 5 \
-        --apply-applicability-changes
+    uv run apply-verification --standard misra-c --batch 1 --session 1
+    uv run apply-verification --standard misra-c --batch 1 --session 1 --dry-run
 """
 
 import argparse
 import json
 import sys
-from datetime import date, datetime
+from copy import deepcopy
+from datetime import date
 from pathlib import Path
-from typing import Any
 
 import jsonschema
 
 from fls_tools.shared import (
     get_project_root,
-    get_tools_dir,
     get_standard_mappings_path,
     get_verification_progress_path,
     get_coding_standards_dir,
@@ -33,6 +34,8 @@ from fls_tools.shared import (
     validate_path_in_project,
     PathOutsideProjectError,
     VALID_STANDARDS,
+    get_guideline_schema_version,
+    convert_v1_applicability_to_v2,
 )
 
 
@@ -49,6 +52,7 @@ def save_json(path: Path, data: dict, description: str):
     """Save a JSON file with formatting."""
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
+        f.write("\n")
     print(f"Updated {description}: {path}", file=sys.stderr)
 
 
@@ -56,155 +60,193 @@ def load_batch_report_schema(root: Path) -> dict | None:
     """Load the batch report JSON schema."""
     schema_path = get_coding_standards_dir(root) / "schema" / "batch_report.schema.json"
     if not schema_path.exists():
-        print(f"WARNING: Batch report schema not found: {schema_path}", file=sys.stderr)
         return None
     with open(schema_path) as f:
         return json.load(f)
 
 
-def validate_batch_report(report: dict, schema: dict | None = None) -> list[str]:
+def validate_batch_report_v2(report: dict) -> list[str]:
     """
-    Validate that the batch report is ready to apply.
+    Validate that a v2 batch report is ready to apply.
     
-    Uses schema validation if schema is provided, plus additional semantic checks.
+    Checks that verification_decision has both contexts with decisions.
     """
     errors = []
+    
+    if report.get("schema_version") != "2.0":
+        errors.append(f"Expected v2 batch report, got {report.get('schema_version', '1.0')}")
+        return errors
     
     if not report.get("guidelines"):
         errors.append("No guidelines in batch report")
         return errors
     
-    # Schema validation if available
-    if schema:
-        try:
-            jsonschema.validate(instance=report, schema=schema)
-        except jsonschema.ValidationError as e:
-            errors.append(f"Schema validation error: {e.message}")
-            if e.path:
-                errors.append(f"  Path: {'.'.join(str(p) for p in e.path)}")
-        except jsonschema.SchemaError as e:
-            errors.append(f"Schema error: {e.message}")
-    
-    # Semantic validation for apply-readiness
-    # (verification_decision must be fully populated, not just scaffolded)
     for g in report["guidelines"]:
         gid = g.get("guideline_id", "UNKNOWN")
-        decision = g.get("verification_decision")
+        vd = g.get("verification_decision")
         
-        if decision is None:
-            errors.append(f"{gid}: verification_decision is null (not verified)")
-        elif not isinstance(decision, dict):
-            errors.append(f"{gid}: verification_decision is not an object")
-        else:
-            # Check that required fields are not just scaffolded (None)
-            if decision.get("decision") is None:
-                errors.append(f"{gid}: verification_decision.decision is null")
-            if decision.get("confidence") is None:
-                errors.append(f"{gid}: verification_decision.confidence is null")
-            if decision.get("fls_rationale_type") is None:
-                errors.append(f"{gid}: verification_decision.fls_rationale_type is null")
-            if "accepted_matches" not in decision:
-                errors.append(f"{gid}: verification_decision missing 'accepted_matches'")
+        if vd is None:
+            errors.append(f"{gid}: verification_decision is null")
+            continue
+        
+        # Check both contexts have decisions
+        for context in ["all_rust", "safe_rust"]:
+            ctx = vd.get(context, {})
+            if ctx.get("decision") is None:
+                errors.append(f"{gid}: {context}.decision is null")
     
     return errors
 
 
-def validate_applicability_changes(report: dict, apply_changes: bool) -> list[str]:
-    """Validate applicability changes if they will be applied."""
-    warnings = []
+def migrate_v1_to_v2_entry(v1_entry: dict) -> dict:
+    """
+    Convert a v1 mapping entry to v2 structure.
     
-    changes = report.get("applicability_changes", [])
-    if not changes:
-        return warnings
-    
-    if apply_changes:
-        unapproved = [c for c in changes if c.get("approved") is not True]
-        if unapproved:
-            for c in unapproved:
-                warnings.append(
-                    f"{c['guideline_id']}: applicability change not approved "
-                    f"({c['field']}: {c['current_value']} -> {c['proposed_value']})"
-                )
-    
-    return warnings
+    The v1 data is split into both contexts as a starting point.
+    The actual verified data will be applied on top.
+    """
+    return {
+        "schema_version": "2.0",
+        "guideline_id": v1_entry["guideline_id"],
+        "guideline_title": v1_entry.get("guideline_title", ""),
+        "all_rust": {
+            "applicability": convert_v1_applicability_to_v2(v1_entry.get("applicability_all_rust", "direct")),
+            "adjusted_category": None,  # Not in v1
+            "rationale_type": v1_entry.get("fls_rationale_type"),
+            "confidence": v1_entry.get("confidence", "medium"),
+            "accepted_matches": deepcopy(v1_entry.get("accepted_matches", [])),
+            "rejected_matches": deepcopy(v1_entry.get("rejected_matches", [])),
+            "verified": False,
+            "verified_by_session": None,
+            "notes": v1_entry.get("notes"),
+        },
+        "safe_rust": {
+            "applicability": convert_v1_applicability_to_v2(v1_entry.get("applicability_safe_rust", "direct")),
+            "adjusted_category": None,
+            "rationale_type": v1_entry.get("fls_rationale_type"),
+            "confidence": v1_entry.get("confidence", "medium"),
+            "accepted_matches": deepcopy(v1_entry.get("accepted_matches", [])),
+            "rejected_matches": deepcopy(v1_entry.get("rejected_matches", [])),
+            "verified": False,
+            "verified_by_session": None,
+            "notes": v1_entry.get("notes"),
+        },
+    }
 
 
-def update_mappings(
+def apply_v2_decision_to_context(
+    entry: dict,
+    context: str,
+    decision: dict,
+    session_id: int,
+) -> None:
+    """
+    Apply a v2 context decision to a v2 entry.
+    
+    Modifies entry in place.
+    """
+    ctx = entry.get(context, {})
+    
+    # Apply all decision fields
+    ctx["applicability"] = decision.get("applicability")
+    ctx["adjusted_category"] = decision.get("adjusted_category")
+    ctx["rationale_type"] = decision.get("rationale_type")
+    ctx["confidence"] = decision.get("confidence", "high")
+    ctx["accepted_matches"] = decision.get("accepted_matches", [])
+    ctx["rejected_matches"] = decision.get("rejected_matches", [])
+    ctx["notes"] = decision.get("notes")
+    ctx["verified"] = True
+    ctx["verified_by_session"] = session_id
+    
+    entry[context] = ctx
+
+
+def update_mappings_v2(
     mappings: dict,
     report: dict,
+    session_id: int,
     apply_applicability_changes: bool,
-) -> tuple[dict, int]:
+) -> tuple[dict, int, int]:
     """
-    Update mappings with verified decisions.
+    Update mappings with v2 decisions, migrating v1 entries as needed.
     
-    Returns updated mappings and count of updated guidelines.
+    Returns:
+        (updated_mappings, guidelines_updated, guidelines_migrated)
     """
     # Build lookup by guideline_id
-    mapping_lookup = {m["guideline_id"]: m for m in mappings["mappings"]}
+    mapping_lookup = {m["guideline_id"]: (i, m) for i, m in enumerate(mappings["mappings"])}
     
-    # Build applicability changes lookup
+    # Build approved changes lookup
     approved_changes = {}
     if apply_applicability_changes:
         for change in report.get("applicability_changes", []):
             if change.get("approved") is True:
                 gid = change["guideline_id"]
+                ctx = change.get("context", "all_rust")
                 if gid not in approved_changes:
-                    approved_changes[gid] = []
-                approved_changes[gid].append(change)
+                    approved_changes[gid] = {}
+                if ctx not in approved_changes[gid]:
+                    approved_changes[gid][ctx] = []
+                approved_changes[gid][ctx].append(change)
     
     updated_count = 0
+    migrated_count = 0
     
     for g in report["guidelines"]:
         gid = g["guideline_id"]
-        decision = g.get("verification_decision")
+        vd = g.get("verification_decision")
         
-        if decision is None:
+        if vd is None:
             continue
         
         if gid not in mapping_lookup:
             print(f"WARNING: {gid} not found in mappings, skipping", file=sys.stderr)
             continue
         
-        mapping = mapping_lookup[gid]
+        idx, existing = mapping_lookup[gid]
+        existing_version = get_guideline_schema_version(existing)
         
-        # Update accepted/rejected matches
-        mapping["accepted_matches"] = decision.get("accepted_matches", [])
-        mapping["rejected_matches"] = decision.get("rejected_matches", [])
+        # Migrate v1 to v2 if needed
+        if existing_version == "1.0":
+            entry = migrate_v1_to_v2_entry(existing)
+            migrated_count += 1
+        else:
+            entry = deepcopy(existing)
         
-        # Update confidence
-        mapping["confidence"] = decision.get("confidence", "high")
-        
-        # Update fls_rationale_type
-        if decision.get("fls_rationale_type"):
-            mapping["fls_rationale_type"] = decision["fls_rationale_type"]
-        
-        # Update notes if provided
-        if decision.get("notes"):
-            mapping["notes"] = decision["notes"]
+        # Apply v2 decisions to each context
+        for context in ["all_rust", "safe_rust"]:
+            ctx_decision = vd.get(context, {})
+            if ctx_decision.get("decision") is not None:
+                apply_v2_decision_to_context(entry, context, ctx_decision, session_id)
         
         # Apply approved applicability changes
         if gid in approved_changes:
-            for change in approved_changes[gid]:
-                field = change["field"]
-                mapping[field] = change["proposed_value"]
-                print(f"  {gid}: Applied {field} = {change['proposed_value']}", file=sys.stderr)
+            for ctx, changes in approved_changes[gid].items():
+                for change in changes:
+                    field = change["field"]
+                    entry[ctx][field] = change["proposed_value"]
+                    print(f"  {gid} ({ctx}): Applied {field} = {change['proposed_value']}", file=sys.stderr)
         
+        # Update in mappings
+        mappings["mappings"][idx] = entry
         updated_count += 1
     
-    return mappings, updated_count
+    return mappings, updated_count, migrated_count
 
 
-def update_progress(
+def update_progress_v2(
     progress: dict,
     report: dict,
     session_id: int,
-) -> tuple[dict, int]:
+) -> tuple[dict, int, int]:
     """
-    Update verification progress with verified guidelines.
+    Update verification progress with v2 per-context status.
     
-    Returns updated progress and count of newly verified guidelines.
+    Returns:
+        (updated_progress, all_rust_verified, safe_rust_verified)
     """
     batch_id = report["batch_id"]
+    progress_version = progress.get("schema_version", "1.0")
     
     # Find the batch
     target_batch = None
@@ -215,18 +257,19 @@ def update_progress(
     
     if not target_batch:
         print(f"ERROR: Batch {batch_id} not found in progress file", file=sys.stderr)
-        return progress, 0
+        return progress, 0, 0
     
-    # Build guideline lookup within batch
+    # Build guideline lookup
     guideline_lookup = {g["guideline_id"]: g for g in target_batch["guidelines"]}
     
-    verified_count = 0
+    all_rust_count = 0
+    safe_rust_count = 0
     
     for g in report["guidelines"]:
         gid = g["guideline_id"]
-        decision = g.get("verification_decision")
+        vd = g.get("verification_decision")
         
-        if decision is None:
+        if vd is None:
             continue
         
         if gid not in guideline_lookup:
@@ -235,19 +278,46 @@ def update_progress(
         
         pg = guideline_lookup[gid]
         
-        if pg["status"] != "verified":
+        # Ensure v2 structure in progress
+        if "all_rust" not in pg:
+            pg["all_rust"] = {"verified": False}
+        if "safe_rust" not in pg:
+            pg["safe_rust"] = {"verified": False}
+        
+        # Update per-context verification status
+        for context in ["all_rust", "safe_rust"]:
+            ctx_decision = vd.get(context, {})
+            if ctx_decision.get("decision") is not None:
+                pg[context]["verified"] = True
+                pg[context]["verified_by_session"] = session_id
+                
+                if context == "all_rust":
+                    all_rust_count += 1
+                else:
+                    safe_rust_count += 1
+        
+        # Update legacy status field for compatibility
+        if pg["all_rust"]["verified"] and pg["safe_rust"]["verified"]:
             pg["status"] = "verified"
             pg["verified"] = True
-            pg["session_id"] = session_id
-            verified_count += 1
+        elif pg["all_rust"]["verified"] or pg["safe_rust"]["verified"]:
+            pg["status"] = "partial"
+            pg["verified"] = False
     
     # Update batch status
-    all_verified = all(g["status"] == "verified" for g in target_batch["guidelines"])
-    if all_verified:
+    all_both_verified = all(
+        g.get("all_rust", {}).get("verified") and g.get("safe_rust", {}).get("verified")
+        for g in target_batch["guidelines"]
+    )
+    if all_both_verified:
         target_batch["status"] = "completed"
         print(f"Batch {batch_id} marked as completed", file=sys.stderr)
     else:
         target_batch["status"] = "in_progress"
+    
+    # Update progress schema version if it was v1
+    if progress_version == "1.0":
+        progress["schema_version"] = "2.0"
     
     # Update or add session
     session_exists = any(s["session_id"] == session_id for s in progress.get("sessions", []))
@@ -258,15 +328,17 @@ def update_progress(
             "session_id": session_id,
             "date": date.today().isoformat(),
             "batch_id": batch_id,
-            "guidelines_verified": verified_count,
+            "all_rust_verified": all_rust_count,
+            "safe_rust_verified": safe_rust_count,
         })
     else:
         for s in progress["sessions"]:
             if s["session_id"] == session_id:
-                s["guidelines_verified"] = s.get("guidelines_verified", 0) + verified_count
+                s["all_rust_verified"] = s.get("all_rust_verified", 0) + all_rust_count
+                s["safe_rust_verified"] = s.get("safe_rust_verified", 0) + safe_rust_count
                 s["date"] = date.today().isoformat()
     
-    return progress, verified_count
+    return progress, all_rust_count, safe_rust_count
 
 
 def run_validation(root: Path) -> bool:
@@ -294,12 +366,12 @@ def run_validation(root: Path) -> bool:
         
     except Exception as e:
         print(f"Warning: Could not run validation: {e}", file=sys.stderr)
-        return True  # Don't fail if validation script isn't available
+        return True
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Phase 4: Apply verified changes from batch report"
+        description="Phase 4: Apply v2 verified changes (migrates v1 entries to v2)"
     )
     parser.add_argument(
         "--standard",
@@ -348,10 +420,8 @@ def main():
     
     # Determine batch report path
     if args.batch is not None:
-        # Use --batch and --session to construct path
         report_path = get_batch_report_path(root, args.standard, args.batch, args.session)
     elif args.batch_report is not None:
-        # Resolve and validate user-provided path
         try:
             report_path = resolve_path(Path(args.batch_report))
             report_path = validate_path_in_project(report_path, root)
@@ -366,57 +436,61 @@ def main():
     print(f"Loading batch report from {report_path}...", file=sys.stderr)
     report = load_json(report_path, "Batch report")
     
-    # Load schema for validation
-    schema = load_batch_report_schema(root)
+    report_version = report.get("schema_version", "1.0")
+    print(f"Batch report schema: {report_version}", file=sys.stderr)
     
     # Validate batch report
-    errors = validate_batch_report(report, schema)
+    errors = validate_batch_report_v2(report)
     if errors:
         print("ERROR: Batch report validation failed:", file=sys.stderr)
-        for e in errors:
+        for e in errors[:10]:
             print(f"  - {e}", file=sys.stderr)
+        if len(errors) > 10:
+            print(f"  ... and {len(errors) - 10} more errors", file=sys.stderr)
         sys.exit(1)
     
     # Check applicability changes
-    warnings = validate_applicability_changes(report, args.apply_applicability_changes)
-    if warnings:
-        print("WARNING: Applicability change issues:", file=sys.stderr)
-        for w in warnings:
-            print(f"  - {w}", file=sys.stderr)
+    changes = report.get("applicability_changes", [])
+    pending = [c for c in changes if c.get("approved") is None]
+    approved = [c for c in changes if c.get("approved") is True]
+    
+    if pending:
+        print(f"WARNING: {len(pending)} unapproved applicability changes", file=sys.stderr)
         if args.apply_applicability_changes:
-            print("Unapproved changes will be skipped.", file=sys.stderr)
+            print("  Only approved changes will be applied.", file=sys.stderr)
     
     # Load current files
     mappings_path = get_standard_mappings_path(root, args.standard)
     progress_path = get_verification_progress_path(root, args.standard)
     
-    mappings = load_json(mappings_path, "MISRA C to FLS mappings")
+    mappings = load_json(mappings_path, "Mappings")
     progress = load_json(progress_path, "Verification progress")
     
     # Apply updates
     print(f"\nApplying changes from batch {report['batch_id']}...", file=sys.stderr)
     
-    updated_mappings, mapping_count = update_mappings(
-        mappings, report, args.apply_applicability_changes
+    updated_mappings, mapping_count, migrated_count = update_mappings_v2(
+        mappings, report, args.session, args.apply_applicability_changes
     )
-    updated_progress, progress_count = update_progress(
+    updated_progress, all_rust_count, safe_rust_count = update_progress_v2(
         progress, report, args.session
     )
     
     print(f"\nSummary:", file=sys.stderr)
-    print(f"  Guidelines updated in mappings: {mapping_count}", file=sys.stderr)
-    print(f"  Guidelines marked verified: {progress_count}", file=sys.stderr)
+    print(f"  Guidelines updated: {mapping_count}", file=sys.stderr)
+    print(f"  v1 entries migrated to v2: {migrated_count}", file=sys.stderr)
+    print(f"  all_rust contexts verified: {all_rust_count}", file=sys.stderr)
+    print(f"  safe_rust contexts verified: {safe_rust_count}", file=sys.stderr)
     
-    approved_changes = [c for c in report.get("applicability_changes", []) if c.get("approved") is True]
-    if approved_changes:
-        print(f"  Applicability changes applied: {len(approved_changes)}", file=sys.stderr)
+    if approved:
+        print(f"  Applicability changes applied: {len(approved)}", file=sys.stderr)
     
     if args.dry_run:
         print("\n[DRY RUN] No files were modified.", file=sys.stderr)
         return
     
     # Save updated files
-    save_json(mappings_path, updated_mappings, "MISRA C to FLS mappings")
+    save_json(mappings_path, updated_mappings, "Mappings")
     save_json(progress_path, updated_progress, "Verification progress")
     
     # Run validation
