@@ -29,14 +29,18 @@ from typing import Any
 
 import jsonschema
 
-SCRIPT_DIR = Path(__file__).parent
-ROOT_DIR = SCRIPT_DIR.parent
-STANDARDS_DIR = ROOT_DIR / "coding-standards-fls-mapping" / "standards"
-MAPPINGS_DIR = ROOT_DIR / "coding-standards-fls-mapping" / "mappings"
-SCHEMA_DIR = ROOT_DIR / "coding-standards-fls-mapping" / "schema"
-FLS_MAPPING_PATH = SCRIPT_DIR / "fls_section_mapping.json"
+from fls_tools.shared import get_project_root, get_coding_standards_dir, get_tools_dir
+
+# Use shared path utilities to get correct paths
+ROOT_DIR = get_project_root()
+CODING_STANDARDS_DIR = get_coding_standards_dir()
+STANDARDS_DIR = CODING_STANDARDS_DIR / "standards"
+MAPPINGS_DIR = CODING_STANDARDS_DIR / "mappings"
+SCHEMA_DIR = CODING_STANDARDS_DIR / "schema"
+TOOLS_DATA_DIR = get_tools_dir() / "data"
+FLS_MAPPING_PATH = TOOLS_DATA_DIR / "fls_section_mapping.json"
 FLS_RST_DIR = ROOT_DIR / "cache" / "repos" / "fls" / "src"
-SYNTHETIC_IDS_PATH = SCRIPT_DIR / "synthetic_fls_ids.json"
+SYNTHETIC_IDS_PATH = TOOLS_DATA_DIR / "synthetic_fls_ids.json"
 
 # Schema file names
 RULES_SCHEMA = "coding_standard_rules.schema.json"

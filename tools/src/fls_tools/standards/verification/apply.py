@@ -236,6 +236,7 @@ def update_progress(
         
         if pg["status"] != "verified":
             pg["status"] = "verified"
+            pg["verified"] = True
             pg["session_id"] = session_id
             verified_count += 1
     
@@ -275,7 +276,7 @@ def run_validation(root: Path) -> bool:
     
     try:
         result = subprocess.run(
-            ["uv", "run", "python", "validate_coding_standards.py"],
+            ["uv", "run", "validate-standards"],
             cwd=root / "tools",
             capture_output=True,
             text=True,
