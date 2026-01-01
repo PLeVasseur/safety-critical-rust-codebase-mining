@@ -806,28 +806,38 @@ Process the batch report JSON and for each guideline:
 
 3. **Search FLS for relevant content:**
 
-   Use at least one of these search tools as part of analysis, and additional methods as needed:
-
+   **Required search protocol** (mandatory for each guideline):
+   
    ```bash
-   # Semantic search across all FLS content
-   uv run search-fls --query "memory allocation" --top 10
-
-   # Deep search using all MISRA embedding types for a guideline
-   uv run search-fls-deep --guideline "Rule 21.3"
-
-   # Recompute similarity for specific guideline
-   uv run recompute-similarity --guideline "Rule 21.3"
+   # Step 1: Deep search (always first)
+   uv run search-fls-deep --guideline "Rule X.Y"
+   
+   # Step 2: C/MISRA terminology query
+   uv run search-fls --query "<C concepts from rule text>" --top 10
+   
+   # Step 3: Rust terminology query  
+   uv run search-fls --query "<Rust equivalent concepts>" --top 10
+   
+   # Step 4: Additional angles as needed (safety concepts, related mechanisms)
+   uv run search-fls --query "<semantic/safety concepts>" --top 10
    ```
 
-   **Guidelines for search tools** (use discretion):
+   **Query style guide** (use multiple angles to maximize coverage):
+   
+   | Style | Description | Example |
+   |-------|-------------|---------|
+   | C/MISRA terminology | C language concepts from rule text | `"const pointer parameter mutable"` |
+   | Rust terminology | Rust-specific concepts | `"borrow shared exclusive reference"` |
+   | Safety/semantic | Focus on underlying concern | `"mutation prevention immutable"` |
+   | Related mechanisms | Rust features addressing concern differently | `"interior mutability Cell RefCell"` |
+   | Error/UB concepts | What goes wrong if violated | `"undefined behavior dangling"` |
 
-   | Condition | Consider Using |
-   |-----------|----------------|
-   | Quick concept lookup (e.g., "pointer arithmetic") | `search-fls` |
-   | Exploring tangential concepts not in MISRA text | `search-fls` |
-   | Batch report shows no/few matches but MISRA rationale is substantive | `search-fls-deep` or `recompute-similarity` |
-   | Pre-computed similarity seems to have missed obvious FLS sections | `recompute-similarity` |
-
+   **Why multi-search matters:**
+   
+   Single searches miss relevant FLS content. For example, Rule 8.9 (block scope):
+   - C-terminology search found: `Binding Scopes`, `Item Scope`
+   - Rust-terminology search additionally found: `Drop Scopes` - directly relevant since MISRA wants minimal scope for cleanup, and Rust's drop scopes provide deterministic destruction at block boundaries
+   
    **Additional methods** if search tools are not sufficient:
    - Read FLS chapter files directly (`embeddings/fls/chapter_NN.json`)
    - Grep across FLS content for keywords
@@ -1003,9 +1013,21 @@ After `apply-verification` completes successfully:
 
 3. **Trust MISRA ADD-6 classifications:** When MISRA ADD-6 marks a guideline as `n_a`, keep it as `not_applicable` unless there's a compelling reason to reclassify. Focus verification on adding FLS justification and setting confidence to `high`.
 
-4. **Confidence updates are always okay:** Changing from `medium` to `high` confidence is the expected outcome of verification.
+4. **Always provide FLS justification:** Even when a MISRA rule is marked `n_a` (not applicable) or uses `no_equivalent` rationale, include FLS matches that **explain why** the concept doesn't apply to Rust. The `record-decision` tool will error if no matches are provided.
 
-5. **Applicability change report format:** At session end, after processing all guidelines, if any applicability changes are proposed, output a report:
+   **Exceptional cases:** Use `--force-no-matches` only when:
+   - The MISRA rule is entirely about C preprocessor behavior with no Rust equivalent
+   - The rule concerns C-specific syntax that has no parallel in Rust's grammar
+   - Multiple thorough searches (`search-fls-deep`, `search-fls` with various queries) yielded nothing relevant
+   
+   When using `--force-no-matches`, the `--notes` field must document:
+   - What searches were attempted
+   - Why no FLS content is relevant
+   - Why this is truly an exceptional case
+
+5. **Confidence updates are always okay:** Changing from `medium` to `high` confidence is the expected outcome of verification.
+
+6. **Applicability change report format:** At session end, after processing all guidelines, if any applicability changes are proposed, output a report:
    
    ```
    ## Proposed Applicability Changes

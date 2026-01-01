@@ -54,6 +54,18 @@ Change format: field:current_value:proposed_value:rationale
   - current_value: Current value of the field
   - proposed_value: Proposed new value
   - rationale: Justification (may contain colons)
+
+Exceptional cases (no FLS matches):
+    uv run record-decision \\
+        --batch 4 \\
+        --guideline "Rule X.Y" \\
+        --decision accept_no_matches \\
+        --confidence high \\
+        --rationale-type no_equivalent \\
+        --search-used "search-fls-deep:Rule X.Y" \\
+        --search-used "search-fls:relevant keywords:10" \\
+        --force-no-matches \\
+        --notes "Searched for X, Y, Z. Rule concerns C preprocessor feature with no Rust equivalent."
 """
 
 import argparse
@@ -419,6 +431,11 @@ def main():
         action="store_true",
         help="Show what would be recorded without writing to file",
     )
+    parser.add_argument(
+        "--force-no-matches",
+        action="store_true",
+        help="Override requirement for FLS matches (requires --notes justification)",
+    )
     
     args = parser.parse_args()
     
@@ -471,6 +488,41 @@ def main():
         rejected_matches = [parse_match(m) for m in args.reject_matches]
     except ValueError as e:
         print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+    
+    # Validate that at least one match is provided unless explicitly overridden
+    if not accepted_matches and not rejected_matches and not args.force_no_matches:
+        print(f"""ERROR: At least one --accept-match or --reject-match must be provided
+
+Even for 'no_equivalent' or 'n_a' cases, include FLS sections that explain
+WHY the concept doesn't apply to Rust.
+
+Suggested searches:
+    uv run search-fls-deep --guideline "{args.guideline}"
+    uv run search-fls --query "<relevant keywords>"
+
+Guidance by rationale type:
+  - no_equivalent: Search for FLS sections showing Rust lacks the C construct
+  - rust_prevents: Search for type system, borrow checker, or ownership sections
+  - rust_alternative: Search for FLS sections describing Rust's alternative mechanism
+  - partial_mapping: Search for FLS sections that partially address the concern
+  - direct_mapping: Search for FLS sections that directly address the concern
+
+Exceptional cases only - use --force-no-matches when:
+  - Rule is entirely about C preprocessor with no Rust equivalent
+  - Rule concerns C-specific syntax with no parallel in Rust grammar  
+  - Multiple thorough searches yielded nothing relevant
+
+--force-no-matches requires --notes explaining:
+  - What searches were attempted
+  - Why no FLS content is relevant
+  - Why this is truly an exceptional case
+""", file=sys.stderr)
+        sys.exit(1)
+    
+    # If force-no-matches is used, require notes explaining why
+    if args.force_no_matches and not args.notes:
+        print("ERROR: --force-no-matches requires --notes explaining why no FLS matches apply", file=sys.stderr)
         sys.exit(1)
     
     # Validate and parse search tool usage (must have either --search-used or --search-waiver)
