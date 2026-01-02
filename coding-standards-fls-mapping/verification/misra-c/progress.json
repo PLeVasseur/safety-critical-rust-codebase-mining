@@ -358,1151 +358,1327 @@
       "batch_id": 2,
       "name": "Not applicable",
       "description": "Guidelines not applicable to Rust - require FLS justification for why no equivalent exists",
-      "status": "pending",
+      "status": "completed",
       "guidelines": [
         {
           "guideline_id": "Dir 4.6",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Dir 4.8",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Dir 4.10",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 1.4",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 2.4",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 3.2",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 4.1",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 4.2",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 5.4",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 5.7",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 6.1",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 6.2",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 6.3",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 7.3",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 7.4",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 7.5",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 7.6",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 8.1",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 8.2",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 8.4",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 8.8",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 8.10",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 8.11",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 8.14",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 8.17",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 8.18",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 8.19",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 9.2",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 9.3",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 9.5",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 9.6",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 10.1",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 10.2",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 10.3",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 10.4",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 10.6",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 10.7",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 11.9",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 11.10",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 12.3",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 12.5",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 12.6",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 13.2",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 13.3",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 13.4",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 13.6",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 14.2",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 15.1",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 15.2",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 15.3",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 16.1",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 16.2",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 16.5",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 16.6",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 16.7",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 17.1",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 17.5",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 17.10",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 17.12",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 17.13",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 18.7",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 18.8",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 18.9",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 18.10",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 20.1",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 20.2",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 20.3",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 20.5",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 20.6",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 20.8",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 20.9",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 20.10",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 20.11",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 20.12",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 20.13",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 20.14",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 20.15",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 21.11",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 21.22",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 21.23",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 23.1",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 23.2",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 23.3",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 23.4",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 23.5",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 23.6",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 23.7",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         },
         {
           "guideline_id": "Rule 23.8",
           "all_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
+            "verified_by_session": 2
           },
           "safe_rust": {
-            "verified": false,
+            "verified": true,
             "verified_date": null,
-            "verified_by_session": null
-          }
+            "verified_by_session": 2
+          },
+          "status": "verified",
+          "verified": true
         }
       ],
       "started": null,
@@ -3041,6 +3217,13 @@
       "batch_id": 1,
       "all_rust_verified": 20,
       "safe_rust_verified": 20
+    },
+    {
+      "session_id": 2,
+      "date": "2026-01-02",
+      "batch_id": 2,
+      "all_rust_verified": 176,
+      "safe_rust_verified": 176
     }
   ]
 }

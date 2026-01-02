@@ -124,6 +124,7 @@ from fls_tools.shared import (
     get_project_root,
     get_fls_dir,
     get_fls_repo_dir,
+    generate_valid_fls_ids,
 )
 
 
@@ -674,6 +675,14 @@ def main():
             para_count = len(rubric_data.get('paragraphs', {}))
             cat_name = CATEGORY_NAMES.get(int(cat_key), "unknown")
             print(f"    {cat_key} ({cat_name}): {para_count} paragraphs")
+    
+    # Generate valid FLS IDs file for downstream validation
+    print(f"\n{'='*60}")
+    print("Generating valid FLS IDs file...")
+    print(f"{'='*60}")
+    valid_ids_path, id_count = generate_valid_fls_ids(project_root)
+    print(f"  Generated: {valid_ids_path}")
+    print(f"  Total valid FLS IDs: {id_count}")
     
     return 0
 

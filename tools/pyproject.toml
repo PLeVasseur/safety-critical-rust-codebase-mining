@@ -62,6 +62,7 @@ check-guideline = "fls_tools.standards.verification.batch_check:main"
 validate-standards = "fls_tools.standards.validation.standards:main"
 validate-synthetic-ids = "fls_tools.standards.validation.synthetic:main"
 validate-decisions = "fls_tools.standards.validation.decisions:main"
+generate-valid-fls-ids = "fls_tools.standards.validation.generate_fls_ids:main"
 
 # Analysis
 analyze-coverage = "fls_tools.analysis.coverage:main"

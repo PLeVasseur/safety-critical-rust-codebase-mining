@@ -1441,6 +1441,26 @@ After `apply-verification` completes successfully:
    
    After user approval, apply the changes in a separate update pass.
 
+#### FLS ID Validation
+
+The `record-decision` tool validates all FLS IDs against a pre-generated list of known valid IDs from the FLS specification. This prevents hallucinated or mistyped FLS IDs from being recorded.
+
+**Validation behavior:**
+- Invalid FLS IDs cause a hard error with guidance on how to find valid IDs
+- If `valid_fls_ids.json` is missing, validation is skipped with a warning
+
+**Refreshing the valid IDs:**
+```bash
+uv run generate-valid-fls-ids
+```
+
+This is also automatically called at the end of `extract-fls-content`, so the list stays current when FLS content is re-extracted.
+
+**Sources combined for valid IDs:**
+- `tools/data/fls_section_mapping.json` - Canonical section hierarchy
+- `tools/data/synthetic_fls_ids.json` - Generated/fabricated IDs
+- `embeddings/fls/chapter_*.json` - All paragraph-level IDs from extraction
+
 ### Applicability Values
 
 **v2 uses simplified `applicability` values per context:**

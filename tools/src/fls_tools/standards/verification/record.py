@@ -84,6 +84,8 @@ from fls_tools.shared import (
     PathOutsideProjectError,
     VALID_STANDARDS,
     validate_search_id,
+    load_valid_fls_ids,
+    validate_fls_id,
 )
 
 
@@ -433,6 +435,28 @@ def main():
     except ValueError as e:
         print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
+    
+    # Validate FLS IDs against the known valid IDs
+    valid_fls_ids = load_valid_fls_ids(root)
+    if valid_fls_ids is None:
+        print("WARNING: Could not load valid_fls_ids.json - FLS ID validation skipped", file=sys.stderr)
+        print("  Run 'uv run generate-valid-fls-ids' to generate this file", file=sys.stderr)
+    else:
+        invalid_ids = []
+        for match in accepted_matches + rejected_matches:
+            fls_id = match["fls_id"]
+            is_valid, error_msg = validate_fls_id(fls_id, valid_fls_ids)
+            if not is_valid:
+                invalid_ids.append((fls_id, error_msg))
+        
+        if invalid_ids:
+            print("ERROR: Invalid FLS ID(s) detected:", file=sys.stderr)
+            for fls_id, error_msg in invalid_ids:
+                print(f"  - {fls_id}: {error_msg}", file=sys.stderr)
+            print("\nThese FLS IDs do not exist in the FLS specification.", file=sys.stderr)
+            print("Use 'uv run search-fls <query>' to find valid FLS sections.", file=sys.stderr)
+            print("If you believe this is an error, run 'uv run generate-valid-fls-ids' to refresh.", file=sys.stderr)
+            sys.exit(1)
     
     # Validate at least one match unless explicitly overridden
     if not accepted_matches and not rejected_matches and not args.force_no_matches:

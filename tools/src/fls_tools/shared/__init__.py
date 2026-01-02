@@ -116,6 +116,13 @@ from .schema_version import (
     normalize_rationale_type,
 )
 
+from .fls_ids import (
+    get_valid_fls_ids_path,
+    generate_valid_fls_ids,
+    load_valid_fls_ids,
+    validate_fls_id,
+)
+
 __all__ = [
     # Standard name utilities
     "VALID_STANDARDS",
@@ -202,4 +209,9 @@ __all__ = [
     "convert_v1_applicability_to_v2",
     "convert_v2_applicability_to_v1",
     "normalize_rationale_type",
+    # fls_ids
+    "get_valid_fls_ids_path",
+    "generate_valid_fls_ids",
+    "load_valid_fls_ids",
+    "validate_fls_id",
 ]
