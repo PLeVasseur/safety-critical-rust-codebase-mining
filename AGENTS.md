@@ -118,6 +118,7 @@ Maps MISRA C/C++ and CERT C/C++ guidelines to FLS sections using semantic simila
 | Command | Input | Output | Description |
 |---------|-------|--------|-------------|
 | `extract-misra-rules` | MISRA PDF | `standards/misra_c_2025.json` | Extract MISRA rule listings |
+| `extract-misra-add6` | MISRA ADD-6 PDF | `misra_rust_applicability.json` | Extract MISRA ADD-6 Rust applicability data |
 | `scrape-cert-rules` | CERT Wiki | `standards/cert_*.json` | Scrape CERT rule listings |
 
 **Embedding Pipeline:**
@@ -153,6 +154,7 @@ uv run map-misra-to-fls
 # Validate
 uv run validate-standards
 uv run validate-synthetic-ids
+uv run validate-applicability
 ```
 
 ### Pipeline 3: Cross-Reference & Analysis
@@ -265,6 +267,7 @@ eclipse-iceoryx2-actionanable-safety-certification/
 │   │   ├── batch_report.schema.json
 │   │   ├── coding_standard_rules.schema.json
 │   │   ├── fls_mapping.schema.json
+│   │   ├── misra_rust_applicability.schema.json
 │   │   └── verification_progress.schema.json
 │   ├── standards/                      # Extracted rule listings
 │   │   ├── misra_c_2025.json
@@ -304,6 +307,8 @@ eclipse-iceoryx2-actionanable-safety-certification/
 │   └── cert-cpp/
 │
 ├── cache/                              # Cached data (gitignored)
+│   ├── misra-standards/                # MISRA PDF sources (copyrighted, gitignored)
+│   │   └── MISRA-C-2025-ADD-6_*.pdf    # ADD-6 Rust applicability PDF
 │   ├── repos/
 │   │   ├── iceoryx2/v0.8.0/            # iceoryx2 source at specific versions
 │   │   └── fls/                        # FLS RST source files
@@ -500,6 +505,64 @@ for pid, text in section['rubrics'].get('-2', {}).get('paragraphs', {}).items():
 for pid, text in section['rubrics'].get('-4', {}).get('paragraphs', {}).items():
     print(f"{pid}: {text[:80]}...")
 ```
+
+### misra_rust_applicability.json
+
+Contains MISRA C:2025 Addendum 6 (ADD-6) data mapping each guideline to Rust applicability.
+Schema: `coding-standards-fls-mapping/schema/misra_rust_applicability.schema.json`
+
+**Extraction:**
+```bash
+cd tools
+uv run extract-misra-add6
+uv run validate-applicability
+```
+
+**Source:** MISRA ADD-6 PDF at `cache/misra-standards/MISRA-C-2025-ADD-6_*.pdf`
+
+**Guideline entry structure:**
+```json
+{
+  "Rule 22.8": {
+    "misra_category": "Required",
+    "decidability": "Undecidable",
+    "scope": "System",
+    "rationale": ["DC"],
+    "applicability_all_rust": "Yes",
+    "applicability_safe_rust": "No",
+    "adjusted_category": "disapplied",
+    "comment": "only accessible through unsafe extern \"C\""
+  }
+}
+```
+
+**ADD-6 Applicability values:**
+
+| Value | Meaning |
+|-------|---------|
+| `Yes` | MISRA C guideline applies equally to Rust |
+| `No` | MISRA C guideline does not apply to Rust |
+| `Partial` | Guideline partially applies to some aspects of Rust |
+
+**ADD-6 Adjusted category values:**
+
+| Value | Description |
+|-------|-------------|
+| `required` | Code shall comply with this guideline |
+| `advisory` | Recommendations to follow as practical |
+| `recommended` | Best practice recommendations |
+| `disapplied` | Compliance not required |
+| `implicit` | Rust compiler enforces this |
+| `n_a` | Does not apply to Rust |
+
+**Rationale values (why the guideline exists):**
+
+| Value | Description |
+|-------|-------------|
+| `UB` | Addresses C Undefined Behaviour |
+| `IDB` | Addresses C Implementation-defined Behaviour |
+| `CQ` | Code Quality considerations |
+| `DC` | Design Considerations |
 
 ### iceoryx2-fls-mapping/ Schema
 

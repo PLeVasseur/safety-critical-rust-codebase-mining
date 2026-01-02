@@ -29,6 +29,7 @@ validate-fls = "fls_tools.iceoryx2.validate:main"
 
 # Pipeline 2: Standards -> FLS (extraction)
 extract-misra-rules = "fls_tools.standards.extraction.misra:main"
+extract-misra-add6 = "fls_tools.standards.extraction.misra_add6:main"
 scrape-cert-rules = "fls_tools.standards.extraction.cert:main"
 
 # Pipeline 2: Standards -> FLS (embeddings)
@@ -62,6 +63,7 @@ check-guideline = "fls_tools.standards.verification.batch_check:main"
 validate-standards = "fls_tools.standards.validation.standards:main"
 validate-synthetic-ids = "fls_tools.standards.validation.synthetic:main"
 validate-decisions = "fls_tools.standards.validation.decisions:main"
+validate-applicability = "fls_tools.standards.validation.applicability:main"
 generate-valid-fls-ids = "fls_tools.standards.validation.generate_fls_ids:main"
 
 # Analysis

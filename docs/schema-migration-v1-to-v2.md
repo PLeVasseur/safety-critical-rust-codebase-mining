@@ -22,7 +22,7 @@ Migrate from flat applicability fields to nested per-context structures with ind
 | 6. Execute fresh verification | **in_progress** | - |
 | 7. Cleanup (post-migration) | pending | - |
 
-**Next Action:** Phase 6 - Verify Batch 2 (Not applicable guidelines).
+**Next Action:** Phase 6 - Verify Batch 3 (Stdlib & Resources).
 
 ---
 
@@ -384,17 +384,18 @@ Proceed to Phase 6: Execute fresh verification.
 | Batch | Guidelines | all_rust | safe_rust | Both Complete |
 |-------|------------|----------|-----------|---------------|
 | 1 | 20 | 20/20 ✓ | 20/20 ✓ | 20/20 ✓ |
-| 2 | 88 | 0/88 | 0/88 | 0/88 |
+| 2 | 88 | 88/88 ✓ | 88/88 ✓ | 88/88 ✓ |
 | 3 | 38 | 0/38 | 0/38 | 0/38 |
 | 4 | 55 | 0/55 | 0/55 | 0/55 |
 | 5 | 22 | 0/22 | 0/22 | 0/22 |
-| **Total** | **223** | **20/223** | **20/223** | **20/223** |
+| **Total** | **223** | **108/223** | **108/223** | **108/223** |
 
 ### Session Log
 
 | Session | Date | Batch | Guidelines Verified | Notes |
 |---------|------|-------|---------------------|-------|
 | 1 | 2026-01-02 | 1 | 20 (both contexts) | Initial v2 verification; fixed `migrate_v1_to_v2_entry` to include `guideline_type` |
+| 2 | 2026-01-02 | 2 | 88 (both contexts) | "Not applicable" guidelines; added FLS ID validation to `record-decision`; fixed 2 hallucinated FLS IDs (Rule 9.5, Rule 18.8) |
 
 ### Next Step
 After all batches verified, proceed to Phase 7: Cleanup.

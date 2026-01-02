@@ -3,7 +3,7 @@
     "source": "MISRA C:2025 Addendum 6 - Applicability of MISRA C:2025 to the Rust Language",
     "version": "Working Draft March 2025",
     "isbn": "978-1-911700-22-7",
-    "extracted_date": "2025-12-31",
+    "extracted_date": "2026-01-03",
     "total_guidelines": 228
   },
   "applicability_values": {
@@ -19,1374 +19,2768 @@
     "implicit": "The behaviour is not permitted by Rust (compiler enforces)",
     "n_a": "The behaviour does not apply to Rust"
   },
+  "rationale_values": {
+    "UB": "The MISRA C guideline applies to C Undefined Behaviour",
+    "IDB": "The MISRA C guideline applies to C Implementation-defined Behaviour",
+    "CQ": "The MISRA C guideline applies to Code Quality considerations",
+    "DC": "The MISRA C guideline applies to Design Considerations"
+  },
+  "decidability_values": {
+    "Decidable": "Can be checked by static analysis",
+    "Undecidable": "Cannot be fully checked by static analysis",
+    "n/a": "Not applicable"
+  },
+  "scope_values": {
+    "STU": "Single Translation Unit - analysis confined to one compilation unit",
+    "System": "Requires system-wide analysis across multiple compilation units",
+    "n/a": "Not applicable"
+  },
   "guidelines": {
     "Dir 1.1": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "IDB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Dir 1.2": {
+      "misra_category": "Advisory",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "IDB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": "previously Rule 1.2"
     },
     "Dir 2.1": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Dir 3.1": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "CQ"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Dir 4.1": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "CQ"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": "often in the form of panics"
     },
     "Dir 4.2": {
+      "misra_category": "Advisory",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "CQ"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Dir 4.3": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "CQ"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "advisory",
       "comment": ""
     },
     "Dir 4.4": {
+      "misra_category": "Advisory",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "advisory",
       "comment": ""
     },
     "Dir 4.5": {
+      "misra_category": "Advisory",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
-      "comment": "\u201cambiguity\u201d is determined by the project"
+      "comment": "“ambiguity” is determined by the project"
     },
     "Dir 4.6": {
+      "misra_category": "Advisory",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "all primitive types already fulfil this"
     },
     "Dir 4.7": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "advisory",
       "comment": "prefer Option, Result, etc."
     },
     "Dir 4.8": {
+      "misra_category": "Advisory",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Dir 4.9": {
+      "misra_category": "Advisory",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "DC",
+        "CQ"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": ""
     },
     "Dir 4.10": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Dir 4.11": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "UB",
+        "IDB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "advisory",
       "comment": ""
     },
     "Dir 4.12": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "UB",
+        "CQ"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "advisory",
       "comment": ""
     },
     "Dir 4.13": {
+      "misra_category": "Advisory",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Dir 4.14": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "UB",
+        "CQ"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Dir 4.15": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": "Rust implements IEEE-754"
     },
     "Dir 5.1": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "required",
       "comment": "not all safe Rust types are race-free"
     },
     "Dir 5.2": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Dir 5.3": {
+      "misra_category": "Required",
+      "decidability": "n/a",
+      "scope": "n/a",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 1.1": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "IDB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "required",
       "comment": ""
     },
-    "Rule 1.2": {
-      "applicability_all_rust": "No",
-      "applicability_safe_rust": "No",
-      "adjusted_category": "n_a",
-      "comment": "Renumbered moved to Directive 1.2"
-    },
     "Rule 1.3": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB",
+        "IDB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 1.4": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "this is specific to C versioning"
     },
     "Rule 1.5": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB",
+        "IDB",
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
       "comment": "this applies to deprecated APIs"
     },
     "Rule 2.1": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "advisory",
       "comment": ""
     },
     "Rule 2.2": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 2.3": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": ""
     },
     "Rule 2.4": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "no separate tag name space in Rust"
     },
     "Rule 2.5": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": ""
     },
     "Rule 2.6": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": ""
     },
     "Rule 2.7": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": ""
     },
     "Rule 2.8": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": ""
     },
     "Rule 3.1": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "advisory",
       "comment": "nested comments are fully supported"
     },
     "Rule 3.2": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 4.1": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC",
+        "IDB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 4.2": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 5.1": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "no character limit, except in extern \u201cC\u201d"
+      "comment": "no character limit, except in extern “C”"
     },
     "Rule 5.2": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": "no character limit, but has name spaces"
     },
     "Rule 5.3": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "advisory",
       "comment": "this also applies to macro names"
     },
     "Rule 5.4": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 5.5": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "advisory",
       "comment": "macros and functions use different syntax"
     },
     "Rule 5.6": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 5.7": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "no separate tag name space in Rust"
     },
     "Rule 5.8": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": ""
     },
     "Rule 5.9": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 5.10": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "advisory",
       "comment": "only possible in some cases. Previously Rule 21.2"
     },
     "Rule 6.1": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "IDB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "only provided as a library feature"
     },
     "Rule 6.2": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 6.3": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "IDB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 7.1": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": "Rust octals have a distinct prefix from decimals"
     },
     "Rule 7.2": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": "this is an error by default but can be enabled"
     },
     "Rule 7.3": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 7.4": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 7.5": {
+      "misra_category": "Mandatory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 7.6": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 8.1": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 8.2": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 8.3": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
       "comment": "an extern declaration shall have a type compatible with the C declaration"
     },
     "Rule 8.4": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 8.5": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "advisory",
-      "comment": "may affect extern \u201cC\u201d declarations"
+      "comment": "may affect extern “C” declarations"
     },
     "Rule 8.6": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "may affect extern \u201cC\u201d declarations"
+      "comment": "may affect extern “C” declarations"
     },
     "Rule 8.7": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "advisory",
       "comment": "items should not be declared pub if referenced in only one crate"
     },
     "Rule 8.8": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 8.9": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": ""
     },
     "Rule 8.10": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 8.11": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 8.12": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 8.13": {
+      "misra_category": "Advisory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "advisory",
       "comment": ""
     },
     "Rule 8.14": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 8.15": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "may affect extern \u201cC\u201d declarations"
+      "comment": "may affect extern “C” declarations"
     },
     "Rule 8.16": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "cannot be explicitly specified. Only ZSTs have this alignment"
     },
     "Rule 8.17": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 8.18": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 8.19": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 9.1": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": "enforced by rustc but can be bypassed by unsafe"
     },
     "Rule 9.2": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 9.3": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 9.4": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": "enforced by rustc"
     },
     "Rule 9.5": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 9.6": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 9.7": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 10.1": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "IDB",
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 10.2": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 10.3": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "IDB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 10.4": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "IDB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 10.5": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "recommended",
       "comment": "includes both safe `as` and unsafe `transmute` operations"
     },
     "Rule 10.6": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 10.7": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 10.8": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "advisory",
       "comment": "includes both safe `as` and unsafe `transmute` operations"
     },
     "Rule 11.1": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "required",
       "comment": "includes both safe `as` and unsafe `transmute` operations"
     },
     "Rule 11.2": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 11.3": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 11.4": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 11.5": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 11.6": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "advisory",
       "comment": ""
     },
     "Rule 11.7": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
       "comment": "merged into Rule 11.4"
     },
     "Rule 11.8": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 11.9": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "Rust does not have a null pointer constant"
     },
     "Rule 11.10": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 11.11": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "implicit",
       "comment": "enforced by rustc"
     },
     "Rule 12.1": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": ""
     },
     "Rule 12.2": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "advisory",
       "comment": ""
     },
     "Rule 12.3": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 12.4": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "advisory",
       "comment": "this is either well-defined or will not occur"
     },
     "Rule 12.5": {
+      "misra_category": "Mandatory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 12.6": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 13.1": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": "order of evaluation is strict in Rust"
     },
     "Rule 13.2": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "order of evaluation is strict in Rust"
     },
     "Rule 13.3": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 13.4": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 13.5": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": ""
     },
     "Rule 13.6": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "this is not an expression operator in Rust"
     },
     "Rule 14.1": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "required",
       "comment": "applies to while loops only"
     },
     "Rule 14.2": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 14.3": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 14.4": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "implicit",
       "comment": "enforced by rustc"
     },
     "Rule 15.1": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 15.2": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 15.3": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 15.4": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": ""
     },
     "Rule 15.5": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "disapplied",
       "comment": "no longer endorsed by MISRA"
     },
     "Rule 15.6": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 15.7": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "advisory",
       "comment": ""
     },
     "Rule 16.1": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 16.2": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 16.3": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 16.4": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "a corresponding match expression must be complete"
     },
     "Rule 16.5": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "irrefutable pattern causes a subsequent refutable one to be unreachable"
     },
     "Rule 16.6": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 16.7": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 17.1": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 17.2": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 17.3": {
+      "misra_category": "Mandatory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 17.4": {
+      "misra_category": "Mandatory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "the return keyword is not needed to return a value in Rust, only to exit"
     },
     "Rule 17.5": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 17.6": {
+      "misra_category": "Mandatory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "no longer endorsed by MISRA"
     },
     "Rule 17.7": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 17.8": {
+      "misra_category": "Advisory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "disapplied",
       "comment": "this cannot be done accidentally without declaring parameters `mut`"
     },
     "Rule 17.9": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
       "comment": "this is expressed with the `!` (Never) type, and enforced by rustc"
     },
     "Rule 17.10": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 17.11": {
+      "misra_category": "Advisory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "advisory",
       "comment": "a non-returning function can be declared to return a value type"
     },
     "Rule 17.12": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 17.13": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 18.1": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
       "comment": "by unsafe API"
     },
     "Rule 18.2": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
       "comment": "by unsafe API"
     },
     "Rule 18.3": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 18.4": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "advisory",
       "comment": "applies to use of the unsafe API"
     },
     "Rule 18.5": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "recommended",
       "comment": ""
     },
     "Rule 18.6": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 18.7": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 18.8": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 18.9": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 18.10": {
+      "misra_category": "Mandatory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 19.1": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 19.2": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "advisory",
       "comment": ""
     },
     "Rule 19.3": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB",
+        "IDB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 20.1": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "rules specific to the C preprocessor do not apply to Rust"
     },
     "Rule 20.2": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 20.3": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 20.4": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Partial",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "required",
       "comment": "possible with raw identifiers but the compiler prevents visual conflicts"
     },
     "Rule 20.5": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 20.6": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 20.7": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Partial",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "advisory",
       "comment": "possible to express with procedural macros only, not macro_rules"
     },
     "Rule 20.8": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 20.9": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 20.10": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 20.11": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 20.12": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 20.13": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 20.14": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 20.15": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "previously Rule 21.1"
     },
-    "Rule 21.1": {
-      "applicability_all_rust": "No",
-      "applicability_safe_rust": "No",
-      "adjusted_category": "n_a",
-      "comment": "Renumbered moved to rule 20.15"
-    },
-    "Rule 21.2": {
-      "applicability_all_rust": "No",
-      "applicability_safe_rust": "No",
-      "adjusted_category": "n_a",
-      "comment": "Renumbered moved to Rule 5.10"
-    },
     "Rule 21.3": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.4": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.5": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "IDB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.6": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "IDB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.7": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.8": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "IDB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.9": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.10": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "IDB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.11": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "no external interface"
     },
     "Rule 21.12": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "IDB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.13": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.14": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.15": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.16": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.17": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.18": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.19": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.20": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.21": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "IDB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.22": {
+      "misra_category": "Mandatory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "no external interface"
     },
     "Rule 21.23": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": "no external interface"
     },
     "Rule 21.24": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "CQ"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 21.25": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 21.26": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 22.1": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "CQ"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
       "comment": "applies to resources acquired through FFI only"
     },
     "Rule 22.2": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 22.3": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 22.4": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 22.5": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "IDB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 22.6": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 22.7": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 22.8": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "disapplied",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 22.9": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "disapplied",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 22.10": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "disapplied",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 22.11": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 22.12": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 22.13": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "UB",
+        "DC"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 22.14": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "required",
       "comment": "applies to creating synchronization objects before threads that use them"
     },
     "Rule 22.15": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "required",
       "comment": "applies to releasing synchronization objects after threads that use them"
     },
     "Rule 22.16": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 22.17": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "No",
       "adjusted_category": "required",
-      "comment": "only accessible through unsafe extern \u201cC\u201d"
+      "comment": "only accessible through unsafe extern “C”"
     },
     "Rule 22.18": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 22.19": {
+      "misra_category": "Required",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Yes",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 22.20": {
+      "misra_category": "Mandatory",
+      "decidability": "Undecidable",
+      "scope": "System",
+      "rationale": [
+        "UB"
+      ],
       "applicability_all_rust": "Yes",
       "applicability_safe_rust": "Partial",
       "adjusted_category": "required",
       "comment": ""
     },
     "Rule 23.1": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 23.2": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 23.3": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 23.4": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 23.5": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 23.6": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 23.7": {
+      "misra_category": "Advisory",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
     },
     "Rule 23.8": {
+      "misra_category": "Required",
+      "decidability": "Decidable",
+      "scope": "STU",
+      "rationale": [
+        "DC"
+      ],
       "applicability_all_rust": "No",
       "applicability_safe_rust": "No",
       "adjusted_category": "n_a",
       "comment": ""
+    },
+    "Rule 1.2": {
+      "renumbered": true,
+      "comment": "Renumbered moved to Directive 1.2"
+    },
+    "Rule 21.1": {
+      "renumbered": true,
+      "comment": "Renumbered moved to rule 20.15"
+    },
+    "Rule 21.2": {
+      "renumbered": true,
+      "comment": "Renumbered moved to Rule 5.10"
     }
   }
 }

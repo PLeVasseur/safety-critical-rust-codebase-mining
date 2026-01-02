@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "misra_rust_applicability.schema.json",
+  "title": "MISRA C:2025 ADD-6 Rust Applicability",
+  "description": "Schema for MISRA C:2025 Addendum 6 - Applicability of MISRA C:2025 to the Rust Language",
+  "type": "object",
+  "required": ["metadata", "applicability_values", "adjusted_category_values", "rationale_values", "guidelines"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["source", "version", "extracted_date", "total_guidelines"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Source document name"
+        },
+        "version": {
+          "type": "string",
+          "description": "Document version"
+        },
+        "isbn": {
+          "type": "string",
+          "description": "ISBN of the document"
+        },
+        "extracted_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date of extraction in ISO 8601 format"
+        },
+        "total_guidelines": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total number of guidelines in the file"
+        }
+      }
+    },
+    "applicability_values": {
+      "type": "object",
+      "description": "Definitions of applicability values",
+      "required": ["Yes", "No", "Partial"],
+      "properties": {
+        "Yes": { "type": "string" },
+        "No": { "type": "string" },
+        "Partial": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "adjusted_category_values": {
+      "type": "object",
+      "description": "Definitions of adjusted category values for Rust",
+      "required": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a"],
+      "properties": {
+        "required": { "type": "string" },
+        "advisory": { "type": "string" },
+        "recommended": { "type": "string" },
+        "disapplied": { "type": "string" },
+        "implicit": { "type": "string" },
+        "n_a": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "rationale_values": {
+      "type": "object",
+      "description": "Definitions of applicability rationale values",
+      "required": ["UB", "IDB", "CQ", "DC"],
+      "properties": {
+        "UB": { "type": "string", "description": "Undefined Behaviour" },
+        "IDB": { "type": "string", "description": "Implementation-defined Behaviour" },
+        "CQ": { "type": "string", "description": "Code Quality considerations" },
+        "DC": { "type": "string", "description": "Design Considerations" }
+      },
+      "additionalProperties": false
+    },
+    "decidability_values": {
+      "type": "object",
+      "description": "Definitions of decidability values",
+      "properties": {
+        "Decidable": { "type": "string" },
+        "Undecidable": { "type": "string" },
+        "n/a": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "scope_values": {
+      "type": "object",
+      "description": "Definitions of scope values",
+      "properties": {
+        "STU": { "type": "string" },
+        "System": { "type": "string" },
+        "n/a": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "guidelines": {
+      "type": "object",
+      "description": "Per-guideline applicability data",
+      "patternProperties": {
+        "^(Dir|Rule) \\d+\\.\\d+$": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/regularGuideline"
+            },
+            {
+              "$ref": "#/$defs/renumberedGuideline"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "regularGuideline": {
+      "type": "object",
+      "description": "A regular guideline entry with full applicability data",
+      "required": [
+        "misra_category",
+        "decidability",
+        "scope",
+        "rationale",
+        "applicability_all_rust",
+        "applicability_safe_rust",
+        "adjusted_category"
+      ],
+      "properties": {
+        "misra_category": {
+          "type": "string",
+          "enum": ["Required", "Advisory", "Mandatory"],
+          "description": "Original MISRA C category"
+        },
+        "decidability": {
+          "type": "string",
+          "enum": ["Decidable", "Undecidable", "n/a"],
+          "description": "Whether the guideline can be checked by static analysis"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["STU", "System", "n/a"],
+          "description": "Scope of analysis required"
+        },
+        "rationale": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["UB", "IDB", "CQ", "DC"]
+          },
+          "uniqueItems": true,
+          "description": "Rationale categories for this guideline (one or more)"
+        },
+        "applicability_all_rust": {
+          "type": "string",
+          "enum": ["Yes", "No", "Partial"],
+          "description": "Applicability when using all of Rust (including unsafe)"
+        },
+        "applicability_safe_rust": {
+          "type": "string",
+          "enum": ["Yes", "No", "Partial"],
+          "description": "Applicability when restricted to safe Rust"
+        },
+        "adjusted_category": {
+          "type": "string",
+          "enum": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a"],
+          "description": "Adjusted category for Rust"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Additional comments or notes"
+        }
+      },
+      "additionalProperties": false
+    },
+    "renumberedGuideline": {
+      "type": "object",
+      "description": "A renumbered guideline entry (moved to another guideline)",
+      "required": ["renumbered", "comment"],
+      "properties": {
+        "renumbered": {
+          "type": "boolean",
+          "const": true
+        },
+        "comment": {
+          "type": "string",
+          "description": "Information about where the guideline was moved"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
