@@ -1,8 +1,11 @@
-# Schema Migration Plan: v2 to v3
+# Schema Migration Plan: v1.1/v2.1 Enrichment and v3 Verification
 
-This document outlines the plan to migrate from v1/v2 guideline decisions to v3 format, bringing additional metadata from `misra_rust_applicability.json` (MISRA ADD-6) into the verification workflow.
+This document outlines the plan to:
+1. Enrich existing v1.0/v2.0 entries with MISRA ADD-6 metadata (→ v1.1/v2.1)
+2. Create v3.0 format for new verification decisions
 
 **Created:** 2026-01-03  
+**Last Updated:** 2026-01-03  
 **Status:** Not Started
 
 ---
@@ -11,26 +14,28 @@ This document outlines the plan to migrate from v1/v2 guideline decisions to v3 
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| Phase 0 | Foundation (Task 0) | ⬜ Not Started |
-| Phase 1 | Schema Updates (Tasks 1-3) | ⬜ Not Started |
-| Phase 2 | Core Tool Updates (Tasks 4-6) | ⬜ Not Started |
-| Phase 3 | Supporting Updates (Tasks 7-9) | ⬜ Not Started |
-| Phase 4 | Migration & Documentation (Tasks 10-12) | ⬜ Not Started |
+| Phase 0 | Foundation - `schema_version.py` and `paths.py` | ⬜ Not Started |
+| Phase 1 | Schema Updates - Add v1.1, v2.1, v3.0 definitions | ⬜ Not Started |
+| Phase 2 | Migration Tools - Enrich existing entries | ⬜ Not Started |
+| Phase 3 | Core Tool Updates - Generate v3.0 going forward | ⬜ Not Started |
+| Phase 4 | Search Enhancements - Display ADD-6 context | ⬜ Not Started |
+| Phase 5 | Validation & Documentation | ⬜ Not Started |
 
-**Next Action:** Start Phase 0 - Update `schema_version.py` with v3 support.
+**Next Action:** Start Phase 0 - Update `schema_version.py` with v1.1/v2.1/v3.0 support.
 
 ---
 
 ## Table of Contents
 
 1. [Motivation](#motivation)
-2. [Current State Analysis](#current-state-analysis)
-3. [Mixed Schema Version Handling](#mixed-schema-version-handling)
-4. [v3 Schema Design](#v3-schema-design)
-5. [Migration Tasks](#migration-tasks)
-6. [Implementation Details](#implementation-details)
-7. [Rollback Strategy](#rollback-strategy)
-8. [Progress Tracking](#progress-tracking)
+2. [Schema Version Overview](#schema-version-overview)
+3. [Current State Analysis](#current-state-analysis)
+4. [v1.1/v2.1 Enrichment Design](#v11v21-enrichment-design)
+5. [v3.0 Schema Design](#v30-schema-design)
+6. [Migration Tasks](#migration-tasks)
+7. [Implementation Details](#implementation-details)
+8. [Rollback Strategy](#rollback-strategy)
+9. [Progress Tracking](#progress-tracking)
 
 ---
 
@@ -38,73 +43,90 @@ This document outlines the plan to migrate from v1/v2 guideline decisions to v3 
 
 ### Problem Statement
 
-The current v2 schema captures per-context verification decisions but does **not** include valuable metadata from MISRA ADD-6 that would help verifiers and downstream consumers:
+The current v1.0 and v2.0 schemas lack valuable metadata from MISRA ADD-6 that helps verifiers and downstream consumers:
 
 | ADD-6 Field | Current Status | Value for Verification |
 |-------------|----------------|------------------------|
-| `misra_category` | Not in v2 | Know original MISRA severity (Required/Advisory/Mandatory) |
-| `decidability` | Not in v2 | Understand if static analysis can check this |
-| `scope` | Not in v2 | Know if analysis is per-file (STU) or system-wide |
-| `rationale` (codes) | Not in v2 | Understand WHY the guideline exists (UB/IDB/CQ/DC) |
-| `comment` | Not in v2 | MISRA's own notes about Rust applicability |
+| `misra_category` | Not in v1/v2 | Know original MISRA severity (Required/Advisory/Mandatory) |
+| `decidability` | Not in v1/v2 | Understand if static analysis can check this |
+| `scope` | Not in v1/v2 | Know if analysis is per-file (STU) or system-wide |
+| `rationale` (codes) | Not in v1/v2 | Understand WHY the guideline exists (UB/IDB/CQ/DC) |
+| `comment` | Not in v1/v2 | MISRA's own notes about Rust applicability |
 
-### Benefits of v3
+### Benefits
 
 1. **Better Verifier Context**: Search tools can display ADD-6 metadata, helping verifiers understand guideline intent
 2. **Richer Mapping Data**: Final mappings include original MISRA classification for downstream tools
 3. **Audit Trail**: Captures MISRA's official Rust assessment alongside our FLS mapping
-4. **Filtering Capability**: Can filter guidelines by decidability, scope, or rationale codes
+4. **Cross-Analysis**: v3.0 demarcation distinguishes fresh verification from enriched legacy data
+
+---
+
+## Schema Version Overview
+
+### Version Semantics
+
+| Version | Type | Description | Created By |
+|---------|------|-------------|------------|
+| **v1.0** | Original | Flat structure, no ADD-6 | Legacy |
+| **v1.1** | Enriched | v1.0 + `misra_add6` block | Migration tool |
+| **v2.0** | Original | Per-context structure, no ADD-6 | Previous verification |
+| **v2.1** | Enriched | v2.0 + `misra_add6` block | Migration tool |
+| **v3.0** | New | Per-context + ADD-6, fresh verification | New verification workflow |
+
+### Key Distinction
+
+- **v1.1/v2.1** = Enriched legacy data (ADD-6 added to existing entries via migration)
+- **v3.0** = Fresh verification decisions (created going forward with full ADD-6 context)
+
+This distinction enables cross-analysis:
+- Identify which entries were migrated vs freshly verified
+- Track verification progress over time
+- Compare legacy assessments with new verification
+
+### Version Applicability by File Type
+
+| File | v1.0 | v1.1 | v2.0 | v2.1 | v3.0 |
+|------|:----:|:----:|:----:|:----:|:----:|
+| `fls_mapping.schema.json` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `decision_file.schema.json` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `batch_report.schema.json` | ✅ | - | ✅ | - | ✅ |
+
+Batch reports don't need v1.1/v2.1 since they're generated fresh (not migrated).
 
 ---
 
 ## Current State Analysis
 
-### v1 Schema (Legacy)
+### Mapping File Inventory
 
-```json
-{
-  "schema_version": "1.0",
-  "guideline_id": "Rule 11.1",
-  "guideline_title": "...",
-  "applicability_all_rust": "direct",
-  "applicability_safe_rust": "not_applicable",
-  "fls_rationale_type": "direct_mapping",
-  "confidence": "medium",
-  "accepted_matches": [...],
-  "rejected_matches": []
-}
-```
+As of 2026-01-03, `coding-standards-fls-mapping/mappings/misra_c_to_fls.json` contains:
 
-**Issues**: Flat structure, shared rationale type, legacy applicability values.
+| Schema Version | Count | Percentage | Description |
+|----------------|-------|------------|-------------|
+| v1.0 | 115 | 51.6% | Batches 3, 4, 5 - unverified entries |
+| v2.0 | 108 | 48.4% | Batches 1, 2 - verified entries |
+| **Total** | 223 | 100% | |
 
-### v2 Schema (Current)
+**Batch-to-Version Mapping:**
 
-```json
-{
-  "schema_version": "2.0",
-  "guideline_id": "Rule 11.1",
-  "guideline_title": "...",
-  "all_rust": {
-    "applicability": "yes",
-    "adjusted_category": "advisory",
-    "rationale_type": "direct_mapping",
-    "confidence": "high",
-    "accepted_matches": [...],
-    "rejected_matches": [],
-    "verified": true,
-    "verified_by_session": 1,
-    "notes": "..."
-  },
-  "safe_rust": { /* same structure */ }
-}
-```
+| Batch | Name | Current Version | After Migration |
+|-------|------|-----------------|-----------------|
+| 1 | High-score direct | v2.0 | v2.1 |
+| 2 | Not applicable | v2.0 | v2.1 |
+| 3 | Stdlib & Resources | v1.0 | v1.1 |
+| 4 | Medium-score direct | v1.0 | v1.1 |
+| 5 | Edge cases | v1.0 | v1.1 |
 
-**Improvements over v1**: Per-context verification, simplified applicability values, adjusted_category per context.
+### Decision Files
 
-**Gaps**: Missing `misra_category`, `decidability`, `scope`, `rationale` codes, `comment` from ADD-6.
+No decision files currently exist in `cache/verification/`. They are deleted after verification is applied per cleanup protocol.
 
-### ADD-6 Data Structure
+### ADD-6 Data Source
 
+**File:** `coding-standards-fls-mapping/misra_rust_applicability.json`
+
+Contains 228 guideline entries with:
 ```json
 {
   "Rule 22.8": {
@@ -120,135 +142,28 @@ The current v2 schema captures per-context verification decisions but does **not
 }
 ```
 
-**Key ADD-6 Fields:**
-
-| Field | Description |
-|-------|-------------|
-| `misra_category` | **Original** MISRA C category (Required/Advisory/Mandatory) - the C-world classification |
-| `adjusted_category` | MISRA's **adjusted** category for Rust - MISRA's own Rust assessment |
-| `applicability_all_rust` | MISRA's assessment: does this apply to all Rust (including unsafe)? |
-| `applicability_safe_rust` | MISRA's assessment: does this apply to safe Rust only? |
-
 ---
 
-## Mixed Schema Version Handling
+## v1.1/v2.1 Enrichment Design
 
-### Current State Inventory
+### Enrichment Principle
 
-As of 2026-01-03, the mapping file `coding-standards-fls-mapping/mappings/misra_c_to_fls.json` contains a **mixed state**:
+v1.1 and v2.1 are **additive** - they add a `misra_add6` block without changing existing fields.
 
-| Schema Version | Count | Percentage | Description |
-|----------------|-------|------------|-------------|
-| v1.0 | 115 | 51.6% | Batches 3, 4, 5 - unverified entries |
-| v2.0 | 108 | 48.4% | Batches 1, 2 - verified entries |
-| v3.0 | 0 | 0% | Not yet created |
-| **Total** | 223 | 100% | |
+### v1.1 Mapping Entry Structure
 
-**Batch-to-Version Mapping:**
-
-| Batch | Name | Version | Status |
-|-------|------|---------|--------|
-| 1 | High-score direct | v2.0 | Completed |
-| 2 | Not applicable | v2.0 | Completed |
-| 3 | Stdlib & Resources | v1.0 | Pending |
-| 4 | Medium-score direct | v1.0 | Pending |
-| 5 | Edge cases | v1.0 | Pending |
-
-### Tool Behavior: Reading vs Writing
-
-The v3 migration follows an asymmetric approach:
-
-| Operation | v1 Support | v2 Support | v3 Support |
-|-----------|------------|------------|------------|
-| **Reading** existing data | ✅ Must handle | ✅ Must handle | ✅ Must handle |
-| **Writing** new data | ❌ Never create | ❌ Never create | ✅ Always create |
-
-**Reading (All Tools):** Tools that read mapping files, batch reports, or decision files must detect and handle all three schema versions. This is required because:
-- v1 entries exist in the mapping file (unverified batches 3-5)
-- v2 entries exist in the mapping file (verified batches 1-2)
-- v3 entries will be created by new verification work
-
-**Writing (All Tools):** Tools that create new data must always create v3 format:
-- `verify-batch` → creates v3 batch reports
-- `record-decision` → creates v3 decision files
-- `apply-verification` → writes v3 mapping entries
-
-### Schema Version Detection Updates
-
-**File:** `tools/src/fls_tools/shared/schema_version.py`
-
-The existing module handles v1/v2 detection. It must be extended for v3:
-
-```python
-SchemaVersion = Literal["1.0", "2.0", "3.0"]
-
-def is_v3(data: Dict[str, Any]) -> bool:
-    """Check if data is v3.0 format."""
-    return detect_schema_version(data) == "3.0"
-
-def get_guideline_schema_version(guideline: Dict[str, Any]) -> SchemaVersion:
-    """
-    Detect schema version for a guideline entry.
-    
-    v1.0 indicators: has applicability_all_rust, applicability_safe_rust fields
-    v2.0 indicators: has all_rust, safe_rust nested objects, no misra_add6
-    v3.0 indicators: has all_rust, safe_rust nested objects, AND misra_add6
-    """
-    if guideline.get("schema_version"):
-        return guideline["schema_version"]
-    
-    # Heuristic detection for unversioned entries
-    if "misra_add6" in guideline:
-        return "3.0"
-    if "all_rust" in guideline and "safe_rust" in guideline:
-        return "2.0"
-    if "applicability_all_rust" in guideline:
-        return "1.0"
-    
-    return "1.0"  # Default to v1
-```
-
-### Converting v1 Entries in Batch Reports
-
-When `verify-batch` generates a batch report for v1 entries (batches 3-5), it should convert the `current_state` to v3 structure:
-
-**v1 Entry in Mapping File:**
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "guideline_id": "Rule 21.3",
+  "guideline_title": "The memory allocation functions...",
   "applicability_all_rust": "direct",
   "applicability_safe_rust": "not_applicable",
   "fls_rationale_type": "rust_prevents",
   "confidence": "medium",
-  "accepted_matches": [...]
-}
-```
-
-**Converted `current_state` in v3 Batch Report:**
-```json
-{
-  "current_state": {
-    "schema_version": "1.0",
-    "all_rust": {
-      "applicability": "yes",
-      "adjusted_category": null,
-      "rationale_type": "rust_prevents",
-      "confidence": "medium",
-      "accepted_matches": [...],
-      "rejected_matches": [],
-      "verified": false
-    },
-    "safe_rust": {
-      "applicability": "no",
-      "adjusted_category": null,
-      "rationale_type": "rust_prevents",
-      "confidence": "medium",
-      "accepted_matches": [...],
-      "rejected_matches": [],
-      "verified": false
-    }
-  },
+  "accepted_matches": [...],
+  "rejected_matches": [],
+  
   "misra_add6": {
     "misra_category": "Required",
     "decidability": "Undecidable",
@@ -257,77 +172,19 @@ When `verify-batch` generates a batch report for v1 entries (batches 3-5), it sh
     "applicability_all_rust": "Yes",
     "applicability_safe_rust": "No",
     "adjusted_category": "advisory",
-    "comment": "..."
+    "comment": "Safe Rust has no direct heap allocation functions",
+    "source_version": "ADD-6:2025"
   }
 }
 ```
 
-**Conversion Rules (v1 → v3 current_state):**
-
-| v1 Field | v3 Field | Conversion |
-|----------|----------|------------|
-| `applicability_all_rust: "direct"` | `all_rust.applicability: "yes"` | `direct` → `yes`, `not_applicable` → `no`, `partial` → `partial` |
-| `applicability_safe_rust` | `safe_rust.applicability` | Same conversion |
-| `fls_rationale_type` | Both contexts' `rationale_type` | Copied to both |
-| `confidence` | Both contexts' `confidence` | Copied to both |
-| `accepted_matches` | Both contexts' `accepted_matches` | Copied to both |
-| `rejected_matches` | Both contexts' `rejected_matches` | Copied to both |
-| *(not in v1)* | `adjusted_category` | Set to `null` (verifier must decide) |
-| *(not in v1)* | `verified` | Set to `false` |
-
-**MISRA ADD-6 Data:** The `misra_add6` block is populated from `misra_rust_applicability.json`, providing:
-- MISRA's official Rust applicability assessments
-- Starting point values for `adjusted_category` (verifier may confirm or override)
-
-### Indefinite Mixed State
-
-The mapping file will contain mixed v1/v2/v3 entries for an indefinite period:
-
-- **v1 entries** remain until their batch is verified
-- **v2 entries** can be upgraded to v3 via `migrate-v3` tool (optional)
-- **v3 entries** are created by new verification work
-
-**Validation:** The schema allows all three versions via `oneOf` in the JSON Schema.
-
-**No forced migration:** There is no target date to migrate all entries to v3. Migration happens organically as:
-1. Pending batches are verified → v1 → v3
-2. Optionally, verified batches are migrated → v2 → v3
-
----
-
-## v3 Schema Design
-
-### Design Principles
-
-1. **Additive**: v3 extends v2 structure; does not remove v2 fields
-2. **Dual Assessment**: Captures both MISRA's official assessment AND our FLS-based verification
-3. **Source Attribution**: Clearly distinguish MISRA ADD-6 data from our verification decisions
-4. **Per-Context Reference**: Each context includes MISRA's assessment for easy comparison
-5. **Immutable Source Data**: ADD-6 metadata is copied at verification time, not referenced
-
-### Dual Assessment Model
-
-v3 captures **two independent assessments** for each guideline:
-
-| Assessment | Source | Purpose |
-|------------|--------|---------|
-| **MISRA's Assessment** | ADD-6 document | Official MISRA position on Rust applicability |
-| **Our Assessment** | FLS-based verification | Our analysis linking guideline to specific FLS sections |
-
-These assessments may **agree or differ**. Both are recorded for:
-1. Audit trail of MISRA's official position
-2. Documentation of our independent analysis
-3. Identification of cases where we disagree with MISRA
-4. Downstream tooling that needs either or both perspectives
-
-### Proposed v3 Mapping Entry Structure
+### v2.1 Mapping Entry Structure
 
 ```json
 {
-  "schema_version": "3.0",
+  "schema_version": "2.1",
   "guideline_id": "Rule 11.1",
   "guideline_title": "Conversions shall not be performed...",
-  "guideline_type": "rule",
   
   "misra_add6": {
     "misra_category": "Required",
@@ -342,8 +199,6 @@ These assessments may **agree or differ**. Both are recorded for:
   },
   
   "all_rust": {
-    "misra_applicability": "Yes",
-    "misra_adjusted_category": "disapplied",
     "applicability": "yes",
     "adjusted_category": "advisory",
     "rationale_type": "direct_mapping",
@@ -355,8 +210,6 @@ These assessments may **agree or differ**. Both are recorded for:
     "notes": "..."
   },
   "safe_rust": {
-    "misra_applicability": "No",
-    "misra_adjusted_category": "implicit",
     "applicability": "no",
     "adjusted_category": "n_a",
     "rationale_type": "rust_prevents",
@@ -365,21 +218,50 @@ These assessments may **agree or differ**. Both are recorded for:
     "rejected_matches": [],
     "verified": true,
     "verified_by_session": 1,
-    "notes": "Safe Rust type system prevents this issue entirely"
+    "notes": "..."
   }
 }
 ```
 
-### Proposed v3 Batch Report Entry Structure
+### v1.1/v2.1 Decision File Structure
 
+Decision files gain `misra_add6_snapshot`:
+
+**v1.1 Decision File:**
 ```json
 {
-  "guideline_id": "Rule 11.1",
-  "guideline_title": "...",
+  "schema_version": "1.1",
+  "guideline_id": "Rule 21.3",
+  "decision": "accept_with_modifications",
+  "confidence": "high",
+  "fls_rationale_type": "rust_prevents",
+  "accepted_matches": [...],
+  "rejected_matches": [],
+  "search_tools_used": [...],
+  "recorded_at": "2026-01-03T...",
   
-  "misra_add6": {
+  "misra_add6_snapshot": {
     "misra_category": "Required",
-    "decidability": "Undecidable", 
+    "decidability": "Undecidable",
+    "scope": "System",
+    "rationale_codes": ["UB"],
+    "applicability_all_rust": "Yes",
+    "applicability_safe_rust": "No",
+    "adjusted_category": "advisory",
+    "comment": "..."
+  }
+}
+```
+
+**v2.1 Decision File:**
+```json
+{
+  "schema_version": "2.1",
+  "guideline_id": "Rule 11.1",
+  
+  "misra_add6_snapshot": {
+    "misra_category": "Required",
+    "decidability": "Undecidable",
     "scope": "System",
     "rationale_codes": ["UB", "DC"],
     "applicability_all_rust": "Yes",
@@ -388,18 +270,66 @@ These assessments may **agree or differ**. Both are recorded for:
     "comment": "..."
   },
   
-  "current_state": { /* existing mapping state */ },
-  "rationale": "MISRA rationale text...",
-  "similarity_data": { /* ... */ },
-  "fls_content": { /* ... */ },
-  "verification_decision": {
-    "all_rust": { /* ... */ },
-    "safe_rust": { /* ... */ }
+  "all_rust": { /* context decision */ },
+  "safe_rust": { /* context decision */ },
+  "recorded_at": "2026-01-03T..."
+}
+```
+
+---
+
+## v3.0 Schema Design
+
+### Design Principle
+
+v3.0 is **structurally identical to v2.1** but indicates **fresh verification** rather than enriched migration.
+
+### v3.0 Mapping Entry Structure
+
+```json
+{
+  "schema_version": "3.0",
+  "guideline_id": "Rule 11.1",
+  "guideline_title": "Conversions shall not be performed...",
+  
+  "misra_add6": {
+    "misra_category": "Required",
+    "decidability": "Undecidable",
+    "scope": "System",
+    "rationale_codes": ["UB", "DC"],
+    "applicability_all_rust": "Yes",
+    "applicability_safe_rust": "No",
+    "adjusted_category": "disapplied",
+    "comment": "Safe Rust type system prevents arbitrary pointer casts",
+    "source_version": "ADD-6:2025"
+  },
+  
+  "all_rust": {
+    "applicability": "yes",
+    "adjusted_category": "advisory",
+    "rationale_type": "direct_mapping",
+    "confidence": "high",
+    "accepted_matches": [...],
+    "rejected_matches": [],
+    "verified": true,
+    "verified_by_session": 5,
+    "notes": "..."
+  },
+  "safe_rust": {
+    "applicability": "no",
+    "adjusted_category": "n_a",
+    "rationale_type": "rust_prevents",
+    "confidence": "high",
+    "accepted_matches": [...],
+    "rejected_matches": [],
+    "verified": true,
+    "verified_by_session": 5,
+    "notes": "..."
   }
 }
 ```
 
-### Proposed v3 Decision File Structure
+### v3.0 Decision File Structure
 
 ```json
 {
@@ -423,45 +353,47 @@ These assessments may **agree or differ**. Both are recorded for:
 }
 ```
 
-### New Fields Summary
+### v3.0 Batch Report Structure
 
-**Guideline-Level Fields (in `misra_add6` block):**
-
-| Field | Type | Source | Description |
-|-------|------|--------|-------------|
-| `misra_add6.misra_category` | enum | ADD-6 | Original MISRA C category: `Required`, `Advisory`, `Mandatory` |
-| `misra_add6.decidability` | enum | ADD-6 | `Decidable`, `Undecidable`, `n/a` |
-| `misra_add6.scope` | enum | ADD-6 | `STU` (single translation unit), `System`, `n/a` |
-| `misra_add6.rationale_codes` | array | ADD-6 | Why guideline exists: `UB`, `IDB`, `CQ`, `DC` |
-| `misra_add6.applicability_all_rust` | enum | ADD-6 | MISRA's all-Rust applicability: `Yes`, `No`, `Partial` |
-| `misra_add6.applicability_safe_rust` | enum | ADD-6 | MISRA's safe-Rust applicability: `Yes`, `No`, `Partial` |
-| `misra_add6.adjusted_category` | enum | ADD-6 | MISRA's adjusted category for Rust |
-| `misra_add6.comment` | string | ADD-6 | MISRA's Rust-specific notes |
-| `misra_add6.source_version` | string | Generated | Track ADD-6 version used |
-
-**Per-Context Fields (in `all_rust` and `safe_rust` blocks):**
-
-| Field | Type | Source | Description |
-|-------|------|--------|-------------|
-| `misra_applicability` | enum | ADD-6 | MISRA's applicability for this context (for reference) |
-| `misra_adjusted_category` | enum | ADD-6 | MISRA's adjusted category for this context (for reference) |
-| `applicability` | enum | Verification | **Our** applicability assessment |
-| `adjusted_category` | enum | Verification | **Our** adjusted category (may differ from MISRA) |
-
-**Assessment Comparison:**
-
-The per-context structure enables direct comparison:
-
-```
-all_rust:
-  MISRA says:  applicability = "Yes",  adjusted_category = "advisory"
-  We say:      applicability = "yes",  adjusted_category = "advisory"
-  → Agreement ✓
-
-safe_rust:
-  MISRA says:  applicability = "No",   adjusted_category = "implicit"
-  We say:      applicability = "no",   adjusted_category = "n_a"
-  → Partial agreement (both say N/A, but different category reasoning)
+```json
+{
+  "schema_version": "3.0",
+  "batch_id": 3,
+  "session_id": 5,
+  "generated_date": "2026-01-03",
+  "standard": "misra_c",
+  "thresholds": { "section": 0.5, "paragraph": 0.55 },
+  
+  "guidelines": [
+    {
+      "guideline_id": "Rule 21.3",
+      "guideline_title": "...",
+      
+      "misra_add6": {
+        "misra_category": "Required",
+        "decidability": "Undecidable",
+        "scope": "System",
+        "rationale_codes": ["UB"],
+        "applicability_all_rust": "Yes",
+        "applicability_safe_rust": "No",
+        "adjusted_category": "advisory",
+        "comment": "..."
+      },
+      
+      "current_state": { /* ... */ },
+      "rationale": "MISRA rationale text...",
+      "similarity_data": { /* ... */ },
+      "fls_content": { /* ... */ },
+      "verification_decision": {
+        "all_rust": { /* ... */ },
+        "safe_rust": { /* ... */ }
+      }
+    }
+  ],
+  
+  "applicability_changes": [],
+  "summary": { /* ... */ }
+}
 ```
 
 ---
@@ -470,292 +402,367 @@ safe_rust:
 
 ### Task Overview
 
-| ID | Task | Priority | Complexity | Dependencies |
-|----|------|----------|------------|--------------|
-| 0 | Update `schema_version.py` for v3 detection | High | Low | None |
-| 1 | Update `fls_mapping.schema.json` for v3 | High | Low | None |
-| 2 | Update `batch_report.schema.json` for v3 | High | Low | None |
-| 3 | Update `decision_file.schema.json` for v3 | High | Low | None |
-| 4 | Modify `batch.py` to include ADD-6 data | High | Medium | 0, 1, 2 |
-| 5 | Modify `record.py` to capture ADD-6 snapshot | High | Medium | 0, 3 |
-| 6 | Modify `apply.py` to write v3 mappings | High | Medium | 0, 1 |
-| 7 | Modify `merge.py` to handle v3 decisions | Medium | Low | 0, 3 |
-| 8 | Enhance `search_deep.py` with ADD-6 display | Medium | Low | None |
-| 9 | Enhance `search.py` with optional ADD-6 context | Low | Low | None |
-| 10 | Write `migrate-v3` tool for existing data | Medium | Medium | 0, 1 |
-| 11 | Update AGENTS.md documentation | High | Low | All |
-| 12 | Update validation tools | Medium | Low | 0, 1-3 |
-
-### Detailed Task Breakdown
+| ID | Task | Phase | Priority | Dependencies |
+|----|------|-------|----------|--------------|
+| 0a | Update `schema_version.py` for v1.1/v2.1/v3.0 | 0 | High | None |
+| 0b | Add `get_misra_rust_applicability_path()` to `paths.py` | 0 | High | None |
+| 1a | Update `fls_mapping.schema.json` | 1 | High | None |
+| 1b | Update `decision_file.schema.json` | 1 | High | None |
+| 1c | Update `batch_report.schema.json` | 1 | High | None |
+| 2a | Write `migrate-mappings` tool | 2 | High | 0a, 0b, 1a |
+| 2b | Run migration on `misra_c_to_fls.json` | 2 | High | 2a |
+| 3a | Update `batch.py` for v3.0 batch reports | 3 | High | 0a, 0b, 1c |
+| 3b | Update `record.py` for v3.0 decision files | 3 | High | 0a, 1b |
+| 3c | Update `apply.py` for v1.1/v2.1/v3.0 handling | 3 | High | 0a, 1a |
+| 3d | Update `merge.py` for v3.0 decision files | 3 | Medium | 0a, 1b |
+| 4a | Enhance `search_deep.py` with ADD-6 display | 4 | Medium | 0b |
+| 4b | Enhance `search.py` with optional ADD-6 display | 4 | Low | 0b |
+| 5a | Update validation tools | 5 | Medium | 1a, 1b, 1c |
+| 5b | Update `AGENTS.md` documentation | 5 | High | All |
+| 5c | Update this migration doc with final status | 5 | Low | All |
 
 ---
 
-### Task 0: Update `schema_version.py` for v3 Detection
+### Phase 0: Foundation
 
-**Status**: [ ] Not Started
+#### Task 0a: Update `schema_version.py`
 
-**File**: `tools/src/fls_tools/shared/schema_version.py`
+**File:** `tools/src/fls_tools/shared/schema_version.py`
 
-**Changes**:
+**Changes:**
 
-1. Update `SchemaVersion` type to include "3.0":
+1. Update `SchemaVersion` type:
    ```python
-   SchemaVersion = Literal["1.0", "2.0", "3.0"]
+   SchemaVersion = Literal["1.0", "1.1", "2.0", "2.1", "3.0"]
    ```
 
-2. Add `is_v3()` function:
+2. Add detection functions:
    ```python
+   def is_v1_1(data: Dict[str, Any]) -> bool:
+       """Check if data is v1.1 format (v1 + ADD-6)."""
+       return detect_schema_version(data) == "1.1"
+
+   def is_v2_1(data: Dict[str, Any]) -> bool:
+       """Check if data is v2.1 format (v2 + ADD-6)."""
+       return detect_schema_version(data) == "2.1"
+
    def is_v3(data: Dict[str, Any]) -> bool:
        """Check if data is v3.0 format."""
        return detect_schema_version(data) == "3.0"
    ```
 
-3. Update `get_guideline_schema_version()` for v3 detection:
+3. Update `get_guideline_schema_version()`:
    ```python
    def get_guideline_schema_version(guideline: Dict[str, Any]) -> SchemaVersion:
+       # Explicit version field takes precedence
        if guideline.get("schema_version"):
            return guideline["schema_version"]
        
        # Heuristic detection for unversioned entries
-       if "misra_add6" in guideline:
-           return "3.0"
-       if "all_rust" in guideline and "safe_rust" in guideline:
-           return "2.0"
-       if "applicability_all_rust" in guideline:
-           return "1.0"
+       has_add6 = "misra_add6" in guideline
+       has_per_context = "all_rust" in guideline and "safe_rust" in guideline
+       has_flat = "applicability_all_rust" in guideline
        
-       return "1.0"  # Default to v1
-   ```
-
-4. Add v1-to-v3 conversion helper:
-   ```python
-   def convert_v1_to_v3_current_state(v1_entry: dict, add6_data: dict | None) -> dict:
-       """
-       Convert a v1 mapping entry to v3 current_state structure for batch reports.
+       if has_per_context:
+           return "2.1" if has_add6 else "2.0"
+       if has_flat:
+           return "1.1" if has_add6 else "1.0"
        
-       This creates a v3-shaped current_state from v1 data, used when generating
-       batch reports for v1 entries.
-       """
-       return {
-           "schema_version": "1.0",  # Preserve original version for reference
-           "all_rust": {
-               "misra_applicability": add6_data.get("applicability_all_rust") if add6_data else None,
-               "misra_adjusted_category": add6_data.get("adjusted_category") if add6_data else None,
-               "applicability": convert_v1_applicability_to_v2(v1_entry.get("applicability_all_rust", "direct")),
-               "adjusted_category": None,  # Verifier must decide
-               "rationale_type": v1_entry.get("fls_rationale_type"),
-               "confidence": v1_entry.get("confidence", "medium"),
-               "accepted_matches": v1_entry.get("accepted_matches", []),
-               "rejected_matches": v1_entry.get("rejected_matches", []),
-               "verified": False,
-           },
-           "safe_rust": {
-               "misra_applicability": add6_data.get("applicability_safe_rust") if add6_data else None,
-               "misra_adjusted_category": add6_data.get("adjusted_category") if add6_data else None,
-               "applicability": convert_v1_applicability_to_v2(v1_entry.get("applicability_safe_rust", "direct")),
-               "adjusted_category": None,
-               "rationale_type": v1_entry.get("fls_rationale_type"),
-               "confidence": v1_entry.get("confidence", "medium"),
-               "accepted_matches": v1_entry.get("accepted_matches", []),
-               "rejected_matches": v1_entry.get("rejected_matches", []),
-               "verified": False,
-           },
-       }
+       return "1.0"  # Default
    ```
 
-5. Add path helper to `shared/paths.py`:
+4. Add helper to check if entry has ADD-6:
    ```python
-   def get_misra_rust_applicability_path(root: Path) -> Path:
-       """Get path to MISRA ADD-6 Rust applicability JSON."""
-       return get_coding_standards_dir(root) / "misra_rust_applicability.json"
+   def has_add6_data(data: Dict[str, Any]) -> bool:
+       """Check if entry has misra_add6 block."""
+       return "misra_add6" in data or "misra_add6_snapshot" in data
    ```
 
-6. Export new functions in `shared/__init__.py`
+5. Export new functions in `shared/__init__.py`
+
+#### Task 0b: Add Path Helper
+
+**File:** `tools/src/fls_tools/shared/paths.py`
+
+**Changes:**
+
+Add function:
+```python
+def get_misra_rust_applicability_path(root: Path) -> Path:
+    """Get path to MISRA ADD-6 Rust applicability JSON."""
+    return get_coding_standards_dir(root) / "misra_rust_applicability.json"
+```
+
+Export in `shared/__init__.py`.
 
 ---
 
-### Task 1: Update `fls_mapping.schema.json` for v3
+### Phase 1: Schema Updates
 
-**Status**: [ ] Not Started
+#### Task 1a: Update `fls_mapping.schema.json`
 
-**File**: `coding-standards-fls-mapping/schema/fls_mapping.schema.json`
+**File:** `coding-standards-fls-mapping/schema/fls_mapping.schema.json`
 
-**Changes**:
+**Changes:**
 
-1. Add `misra_add6` object definition to `$defs`:
+1. Add `misra_add6` definition to `$defs`:
    ```json
    "misra_add6": {
      "type": "object",
-     "description": "MISRA ADD-6 Rust applicability data for this guideline",
+     "description": "MISRA ADD-6 Rust applicability data",
+     "required": ["misra_category", "decidability", "scope", "rationale_codes"],
      "properties": {
        "misra_category": {
          "type": "string",
-         "enum": ["Required", "Advisory", "Mandatory"],
-         "description": "Original MISRA C category"
+         "enum": ["Required", "Advisory", "Mandatory"]
        },
        "decidability": {
-         "type": "string", 
-         "enum": ["Decidable", "Undecidable", "n/a"],
-         "description": "Whether static analysis can check this guideline"
+         "type": "string",
+         "enum": ["Decidable", "Undecidable", "n/a"]
        },
        "scope": {
          "type": "string",
-         "enum": ["STU", "System", "n/a"],
-         "description": "Analysis scope: STU (single translation unit) or System"
+         "enum": ["STU", "System", "n/a"]
        },
        "rationale_codes": {
          "type": "array",
-         "items": {
-           "type": "string",
-           "enum": ["UB", "IDB", "CQ", "DC"]
-         },
-         "description": "Why this guideline exists: UB/IDB/CQ/DC"
+         "items": { "type": "string", "enum": ["UB", "IDB", "CQ", "DC"] }
        },
        "applicability_all_rust": {
          "type": "string",
-         "enum": ["Yes", "No", "Partial"],
-         "description": "MISRA's assessment: applies to all Rust?"
+         "enum": ["Yes", "No", "Partial"]
        },
        "applicability_safe_rust": {
          "type": "string",
-         "enum": ["Yes", "No", "Partial"],
-         "description": "MISRA's assessment: applies to safe Rust?"
+         "enum": ["Yes", "No", "Partial"]
        },
        "adjusted_category": {
          "type": "string",
-         "enum": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a"],
-         "description": "MISRA's adjusted category for Rust"
+         "enum": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a"]
        },
-       "comment": { 
-         "type": ["string", "null"],
-         "description": "MISRA's Rust-specific notes"
-       },
-       "source_version": { 
-         "type": "string",
-         "description": "ADD-6 version identifier"
-       }
-     },
-     "required": ["misra_category", "decidability", "scope", "rationale_codes"]
-   }
-   ```
-
-2. Update `applicability_context` definition to add per-context MISRA fields:
-   ```json
-   "applicability_context": {
-     "type": "object",
-     "required": ["applicability", "rationale_type"],
-     "properties": {
-       "misra_applicability": {
-         "type": ["string", "null"],
-         "enum": ["Yes", "No", "Partial", null],
-         "description": "MISRA's applicability for this context (from ADD-6, for reference)"
-       },
-       "misra_adjusted_category": {
-         "type": ["string", "null"],
-         "enum": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a", null],
-         "description": "MISRA's adjusted category for this context (from ADD-6, for reference)"
-       },
-       "applicability": {
-         "type": "string",
-         "enum": ["yes", "no", "partial"],
-         "description": "OUR applicability assessment"
-       },
-       "adjusted_category": {
-         "type": ["string", "null"],
-         "enum": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a", null],
-         "description": "OUR adjusted category (may differ from MISRA)"
-       },
-       // ... existing fields: rationale_type, confidence, accepted_matches, etc.
+       "comment": { "type": ["string", "null"] },
+       "source_version": { "type": "string" }
      }
    }
    ```
 
-3. Add `mapping_entry_v3` definition:
-   ```json
-   "mapping_entry_v3": {
-     "type": "object",
-     "description": "v3.0 format: Per-context structure with MISRA ADD-6 metadata",
-     "required": ["schema_version", "guideline_id", "guideline_title", "guideline_type", "misra_add6", "all_rust", "safe_rust"],
-     "properties": {
-       "schema_version": {
-         "type": "string",
-         "const": "3.0"
-       },
-       "guideline_id": { "type": "string" },
-       "guideline_title": { "type": "string" },
-       "guideline_type": {
-         "type": "string",
-         "enum": ["rule", "directive", "recommendation"]
-       },
-       "misra_add6": { "$ref": "#/$defs/misra_add6" },
-       "all_rust": { "$ref": "#/$defs/applicability_context" },
-       "safe_rust": { "$ref": "#/$defs/applicability_context" }
-     }
-   }
-   ```
+2. Add `mapping_entry_v1_1` definition (v1.0 + misra_add6)
 
-4. Update `mappings.items.oneOf` to include v3:
-   ```json
-   "items": {
-     "oneOf": [
-       { "$ref": "#/$defs/mapping_entry_v1" },
-       { "$ref": "#/$defs/mapping_entry_v2" },
-       { "$ref": "#/$defs/mapping_entry_v3" }
-     ]
-   }
-   ```
+3. Add `mapping_entry_v2_1` definition (v2.0 + misra_add6)
 
----
+4. Add `mapping_entry_v3` definition (same structure as v2.1, different const version)
 
-### Task 2: Update `batch_report.schema.json` for v3
+5. Update `mappings.items.oneOf` to include all five versions
 
-**Status**: [ ] Not Started
+#### Task 1b: Update `decision_file.schema.json`
 
-**File**: `coding-standards-fls-mapping/schema/batch_report.schema.json`
+**File:** `coding-standards-fls-mapping/schema/decision_file.schema.json`
 
-**Changes**:
+**Changes:**
 
-1. Add `misra_add6` to guideline entry properties (same structure as Task 1, minus `source_version`)
-2. Update `schema_version` enum to include "3.0"
+1. Add `misra_add6_snapshot` definition (same as `misra_add6` but without `source_version`)
+
+2. Add `decision_file_v1_1` definition (v1.0 + misra_add6_snapshot)
+
+3. Add `decision_file_v2_1` definition (v2.0 + misra_add6_snapshot)
+
+4. Add `decision_file_v3` definition (same structure as v2.1, different const version)
+
+5. Update top-level `oneOf` to include all five versions
+
+#### Task 1c: Update `batch_report.schema.json`
+
+**File:** `coding-standards-fls-mapping/schema/batch_report.schema.json`
+
+**Changes:**
+
+1. Add `misra_add6` definition to `$defs`
+
+2. Add `misra_add6` as optional property in `guideline_entry`
+
+3. Update `schema_version` enum to include "3.0"
+
+4. v3.0 batch reports require `misra_add6` in guideline entries
 
 ---
 
-### Task 3: Update `decision_file.schema.json` for v3
+### Phase 2: Migration Tools
 
-**Status**: [ ] Not Started
+#### Task 2a: Write `migrate-mappings` Tool
 
-**File**: `coding-standards-fls-mapping/schema/decision_file.schema.json`
+**New File:** `tools/src/fls_tools/standards/verification/migrate_mappings.py`
 
-**Changes**:
+**Purpose:** Enrich v1.0 → v1.1 and v2.0 → v2.1 by adding ADD-6 data
 
-1. Add `misra_add6_snapshot` property (same structure as Task 1)
-2. Update `schema_version` enum to include "3.0"
-3. Make `misra_add6_snapshot` required for v3 decision files
+**Implementation:**
+
+```python
+#!/usr/bin/env python3
+"""
+migrate-mappings - Enrich mapping entries with MISRA ADD-6 data.
+
+Upgrades:
+  v1.0 → v1.1 (adds misra_add6 block)
+  v2.0 → v2.1 (adds misra_add6 block)
+
+Usage:
+    uv run migrate-mappings --standard misra-c --dry-run
+    uv run migrate-mappings --standard misra-c
+"""
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+from fls_tools.shared import (
+    get_project_root,
+    get_mapping_path,
+    get_misra_rust_applicability_path,
+    get_guideline_schema_version,
+)
+
+
+def build_misra_add6_block(add6_data: dict) -> dict:
+    """Build misra_add6 block from ADD-6 source data."""
+    return {
+        "misra_category": add6_data.get("misra_category"),
+        "decidability": add6_data.get("decidability"),
+        "scope": add6_data.get("scope"),
+        "rationale_codes": add6_data.get("rationale", []),
+        "applicability_all_rust": add6_data.get("applicability_all_rust"),
+        "applicability_safe_rust": add6_data.get("applicability_safe_rust"),
+        "adjusted_category": add6_data.get("adjusted_category"),
+        "comment": add6_data.get("comment"),
+        "source_version": "ADD-6:2025",
+    }
+
+
+def migrate_entry(entry: dict, add6_all: dict) -> tuple[dict, str, str]:
+    """
+    Migrate a single mapping entry.
+    
+    Returns: (migrated_entry, old_version, new_version)
+    """
+    gid = entry["guideline_id"]
+    old_version = get_guideline_schema_version(entry)
+    
+    # Already enriched?
+    if old_version in ("1.1", "2.1", "3.0"):
+        return entry, old_version, old_version
+    
+    # Get ADD-6 data
+    add6 = add6_all.get(gid)
+    if not add6:
+        print(f"  WARNING: No ADD-6 data for {gid}, skipping", file=sys.stderr)
+        return entry, old_version, old_version
+    
+    # Enrich
+    entry["misra_add6"] = build_misra_add6_block(add6)
+    
+    if old_version == "1.0":
+        entry["schema_version"] = "1.1"
+        return entry, "1.0", "1.1"
+    elif old_version == "2.0":
+        entry["schema_version"] = "2.1"
+        return entry, "2.0", "2.1"
+    
+    return entry, old_version, old_version
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Enrich mapping entries with ADD-6 data")
+    parser.add_argument("--standard", required=True, choices=["misra-c", "misra-cpp", "cert-c", "cert-cpp"])
+    parser.add_argument("--dry-run", action="store_true", help="Preview changes without writing")
+    args = parser.parse_args()
+    
+    root = get_project_root()
+    
+    # Load ADD-6 data
+    add6_path = get_misra_rust_applicability_path(root)
+    if not add6_path.exists():
+        print(f"ERROR: ADD-6 data not found: {add6_path}", file=sys.stderr)
+        sys.exit(1)
+    
+    with open(add6_path) as f:
+        add6_data = json.load(f)
+    add6_all = add6_data.get("guidelines", {})
+    
+    # Load mapping file
+    mapping_path = get_mapping_path(root, args.standard)
+    with open(mapping_path) as f:
+        mappings = json.load(f)
+    
+    # Migrate entries
+    stats = {"v1.0→v1.1": 0, "v2.0→v2.1": 0, "skipped": 0, "no_add6": 0}
+    
+    for i, entry in enumerate(mappings.get("mappings", [])):
+        migrated, old_v, new_v = migrate_entry(entry, add6_all)
+        mappings["mappings"][i] = migrated
+        
+        if old_v == new_v:
+            if "misra_add6" not in migrated:
+                stats["no_add6"] += 1
+            else:
+                stats["skipped"] += 1
+        elif old_v == "1.0":
+            stats["v1.0→v1.1"] += 1
+        elif old_v == "2.0":
+            stats["v2.0→v2.1"] += 1
+    
+    # Report
+    print(f"\nMigration Summary for {args.standard}:")
+    print(f"  v1.0 → v1.1: {stats['v1.0→v1.1']}")
+    print(f"  v2.0 → v2.1: {stats['v2.0→v2.1']}")
+    print(f"  Already enriched (skipped): {stats['skipped']}")
+    print(f"  Missing ADD-6 data: {stats['no_add6']}")
+    
+    if args.dry_run:
+        print("\nDRY RUN - no changes written")
+    else:
+        with open(mapping_path, "w") as f:
+            json.dump(mappings, f, indent=2)
+        print(f"\nWrote changes to {mapping_path}")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+**Entry Point:** Add to `pyproject.toml`:
+```toml
+migrate-mappings = "fls_tools.standards.verification.migrate_mappings:main"
+```
+
+#### Task 2b: Run Migration
+
+After implementing Task 2a:
+
+```bash
+cd tools
+uv run migrate-mappings --standard misra-c --dry-run  # Preview
+uv run migrate-mappings --standard misra-c            # Apply
+```
+
+Expected result:
+- 115 entries: v1.0 → v1.1
+- 108 entries: v2.0 → v2.1
 
 ---
 
-### Task 4: Modify `batch.py` to Include ADD-6 Data
+### Phase 3: Core Tool Updates
 
-**Status**: [ ] Not Started
+#### Task 3a: Update `batch.py`
 
-**File**: `tools/src/fls_tools/standards/verification/batch.py`
+**File:** `tools/src/fls_tools/standards/verification/batch.py`
 
-**Changes**:
+**Changes:**
 
-1. Import new helpers:
-   ```python
-   from fls_tools.shared import (
-       get_misra_rust_applicability_path,
-       get_guideline_schema_version,
-       convert_v1_to_v3_current_state,
-       convert_v1_applicability_to_v2,
-   )
-   ```
+1. Import ADD-6 helpers from `shared`
 
-2. Add function to load ADD-6 data:
+2. Load ADD-6 data at start:
    ```python
    def load_add6_data(root: Path) -> dict:
-       """Load MISRA ADD-6 Rust applicability data."""
        path = get_misra_rust_applicability_path(root)
        if not path.exists():
            print(f"WARNING: ADD-6 data not found: {path}", file=sys.stderr)
@@ -765,312 +772,88 @@ safe_rust:
        return data.get("guidelines", {})
    ```
 
-3. Add function to build `misra_add6` block:
-   ```python
-   def build_misra_add6_block(add6: dict | None) -> dict | None:
-       """Build misra_add6 block from ADD-6 data."""
-       if not add6:
-           return None
-       return {
-           "misra_category": add6.get("misra_category"),
-           "decidability": add6.get("decidability"),
-           "scope": add6.get("scope"),
-           "rationale_codes": add6.get("rationale", []),
-           "applicability_all_rust": add6.get("applicability_all_rust"),
-           "applicability_safe_rust": add6.get("applicability_safe_rust"),
-           "adjusted_category": add6.get("adjusted_category"),
-           "comment": add6.get("comment"),
-       }
-   ```
+3. Include `misra_add6` in each guideline entry
 
-4. Update `build_guideline_entry()` to handle v1/v2/v3 and include ADD-6:
-   ```python
-   def build_guideline_entry(
-       data: dict,
-       guideline_id: str,
-       add6_data: dict,  # New parameter
-       section_threshold: float,
-       paragraph_threshold: float,
-       schema_version: SchemaVersion = "3.0",
-   ) -> dict:
-       mapping = get_mapping(data, guideline_id)
-       mapping_version = get_guideline_schema_version(mapping)
-       add6 = add6_data.get(guideline_id)
-       
-       # Build current_state based on mapping version
-       if mapping_version == "1.0":
-           # Convert v1 to v3 structure for display
-           current_state = convert_v1_to_v3_current_state(mapping, add6)
-       else:
-           # v2 or v3 - use as-is but add MISRA reference fields if missing
-           current_state = build_current_state_from_v2_or_v3(mapping, add6)
-       
-       return {
-           "guideline_id": guideline_id,
-           "guideline_title": mapping.get("guideline_title", ""),
-           "misra_add6": build_misra_add6_block(add6),
-           "current_state": current_state,
-           "rationale": get_rationale(data, guideline_id),
-           "similarity_data": get_similarity_data(...),
-           "fls_content": extract_fls_content(...),
-           "verification_decision": build_scaffolded_v3_decision(add6),
-       }
-   ```
+4. Change default `--schema-version` to "3.0"
 
-5. Update scaffolded decision to include MISRA reference fields:
-   ```python
-   def build_scaffolded_v3_context_decision(add6: dict | None, context: str) -> dict:
-       """Build a scaffolded v3 context decision structure."""
-       misra_field = "applicability_all_rust" if context == "all_rust" else "applicability_safe_rust"
-       return {
-           "decision": None,
-           "misra_applicability": add6.get(misra_field) if add6 else None,
-           "misra_adjusted_category": add6.get("adjusted_category") if add6 else None,
-           "applicability": None,
-           "adjusted_category": None,
-           "rationale_type": None,
-           "confidence": None,
-           "accepted_matches": [],
-           "rejected_matches": [],
-           "search_tools_used": [],
-           "notes": None,
-       }
-   ```
+5. Always generate v3.0 batch reports (remove v1.0/v2.0 options)
 
-6. Update CLI:
-   - Change `--schema-version` default from "2.0" to "3.0"
-   - Remove "1.0" and "2.0" as valid choices (always generate v3)
-   
-7. Warn if ADD-6 data is missing for a guideline
+#### Task 3b: Update `record.py`
 
----
+**File:** `tools/src/fls_tools/standards/verification/record.py`
 
-### Task 5: Modify `record.py` to Capture ADD-6 Snapshot
+**Changes:**
 
-**Status**: [ ] Not Started
+1. Load ADD-6 data for the guideline
 
-**File**: `tools/src/fls_tools/standards/verification/record.py`
+2. Include `misra_add6_snapshot` in v3.0 decision files
 
-**Changes**:
-
-1. Load ADD-6 data at decision recording time:
-   ```python
-   from fls_tools.shared import get_misra_rust_applicability_path
-   
-   def load_add6_for_guideline(root: Path, guideline_id: str) -> dict | None:
-       path = get_misra_rust_applicability_path(root)
-       if not path.exists():
-           return None
-       with open(path) as f:
-           data = json.load(f)
-       return data.get("guidelines", {}).get(guideline_id)
-   ```
-
-2. Include ADD-6 snapshot in v3 decision files:
-   ```python
-   def build_v3_decision_file(guideline_id: str, add6_data: dict | None) -> dict:
-       return {
-           "schema_version": "3.0",
-           "guideline_id": guideline_id,
-           "misra_add6_snapshot": {
-               "misra_category": add6_data.get("misra_category") if add6_data else None,
-               "decidability": add6_data.get("decidability") if add6_data else None,
-               "scope": add6_data.get("scope") if add6_data else None,
-               "rationale_codes": add6_data.get("rationale", []) if add6_data else [],
-               "applicability_all_rust": add6_data.get("applicability_all_rust") if add6_data else None,
-               "applicability_safe_rust": add6_data.get("applicability_safe_rust") if add6_data else None,
-               "adjusted_category": add6_data.get("adjusted_category") if add6_data else None,
-               "comment": add6_data.get("comment") if add6_data else None,
-           } if add6_data else None,
-           "all_rust": build_scaffolded_context(),
-           "safe_rust": build_scaffolded_context(),
-           "recorded_at": None,
-       }
-   ```
-
-3. Add `--schema-version` parameter (default "3.0")
+3. Always generate v3.0 decision files
 
 4. Warn if ADD-6 data unavailable but don't fail
 
----
+#### Task 3c: Update `apply.py`
 
-### Task 6: Modify `apply.py` to Write v3 Mappings
+**File:** `tools/src/fls_tools/standards/verification/apply.py`
 
-**Status**: [ ] Not Started
+**Changes:**
 
-**File**: `tools/src/fls_tools/standards/verification/apply.py`
+1. Handle reading v1.0, v1.1, v2.0, v2.1, v3.0 entries
 
-**Changes**:
+2. Always write v3.0 entries when applying verification
 
-1. Import new helpers:
-   ```python
-   from fls_tools.shared import (
-       get_misra_rust_applicability_path,
-       get_guideline_schema_version,
-       is_v1, is_v2, is_v3,
-   )
+3. Load ADD-6 data and include in output
+
+4. Track upgrade statistics:
+   ```
+   Applied verification:
+     v1.0 → v3.0: 0
+     v1.1 → v3.0: 38
+     v2.0 → v3.0: 0
+     v2.1 → v3.0: 0
+     v3.0 updated: 0
    ```
 
-2. Load ADD-6 data at start:
+5. Implement ADD-6 mismatch detection:
    ```python
-   def load_add6_data(root: Path) -> dict:
-       path = get_misra_rust_applicability_path(root)
-       if not path.exists():
-           return {}
-       with open(path) as f:
-           data = json.load(f)
-       return data.get("guidelines", {})
+   def check_add6_mismatch(snapshot: dict, current: dict, guideline_id: str) -> list[str]:
+       """Compare ADD-6 snapshot with current data, return list of differences."""
+       mismatches = []
+       for field in ["misra_category", "applicability_all_rust", "applicability_safe_rust", "adjusted_category"]:
+           snap_val = snapshot.get(field)
+           curr_val = current.get(field)
+           if snap_val != curr_val:
+               mismatches.append(f"  {field}: \"{snap_val}\" (snapshot) vs \"{curr_val}\" (current)")
+       return mismatches
    ```
+   
+   Warn on mismatch but continue applying.
 
-3. Replace existing `migrate_v1_to_v2_entry()` with `build_v3_entry()`:
-   ```python
-   def build_v3_entry(
-       guideline_id: str,
-       guideline_title: str,
-       guideline_type: str,
-       add6: dict | None,
-   ) -> dict:
-       """
-       Build a fresh v3 mapping entry structure.
-       
-       This completely replaces any v1 or v2 content - only the guideline
-       metadata is preserved. The context blocks are empty/scaffolded.
-       """
-       return {
-           "schema_version": "3.0",
-           "guideline_id": guideline_id,
-           "guideline_title": guideline_title,
-           "guideline_type": guideline_type,
-           "misra_add6": {
-               "misra_category": add6.get("misra_category") if add6 else None,
-               "decidability": add6.get("decidability") if add6 else None,
-               "scope": add6.get("scope") if add6 else None,
-               "rationale_codes": add6.get("rationale", []) if add6 else [],
-               "applicability_all_rust": add6.get("applicability_all_rust") if add6 else None,
-               "applicability_safe_rust": add6.get("applicability_safe_rust") if add6 else None,
-               "adjusted_category": add6.get("adjusted_category") if add6 else None,
-               "comment": add6.get("comment") if add6 else None,
-               "source_version": "ADD-6:2025",
-           } if add6 else None,
-           "all_rust": {
-               "misra_applicability": add6.get("applicability_all_rust") if add6 else None,
-               "misra_adjusted_category": add6.get("adjusted_category") if add6 else None,
-               "applicability": None,
-               "adjusted_category": None,
-               "rationale_type": None,
-               "confidence": None,
-               "accepted_matches": [],
-               "rejected_matches": [],
-               "verified": False,
-               "verified_by_session": None,
-               "notes": None,
-           },
-           "safe_rust": {
-               "misra_applicability": add6.get("applicability_safe_rust") if add6 else None,
-               "misra_adjusted_category": add6.get("adjusted_category") if add6 else None,
-               "applicability": None,
-               "adjusted_category": None,
-               "rationale_type": None,
-               "confidence": None,
-               "accepted_matches": [],
-               "rejected_matches": [],
-               "verified": False,
-               "verified_by_session": None,
-               "notes": None,
-           },
-       }
-   ```
+#### Task 3d: Update `merge.py`
 
-4. Update `update_mappings_v2()` to `update_mappings()` handling v1/v2/v3:
-   ```python
-   def update_mappings(
-       mappings: dict,
-       report: dict,
-       add6_all: dict,  # All ADD-6 data
-       session_id: int,
-       apply_applicability_changes: bool,
-   ) -> tuple[dict, int, int, int]:
-       """
-       Update mappings with verified decisions.
-       
-       Returns:
-           (updated_mappings, v1_upgraded, v2_upgraded, v3_updated)
-       """
-       v1_upgraded = 0
-       v2_upgraded = 0
-       v3_updated = 0
-       
-       for g in report["guidelines"]:
-           gid = g["guideline_id"]
-           vd = g.get("verification_decision")
-           existing = mapping_lookup.get(gid)
-           existing_version = get_guideline_schema_version(existing)
-           add6 = add6_all.get(gid)
-           
-           # Always create fresh v3 entry (complete replacement)
-           entry = build_v3_entry(
-               gid,
-               existing.get("guideline_title", ""),
-               existing.get("guideline_type", "rule"),
-               add6,
-           )
-           
-           # Apply verified context decisions
-           for context in ["all_rust", "safe_rust"]:
-               ctx_decision = vd.get(context, {})
-               if ctx_decision.get("decision") is not None:
-                   apply_v3_decision_to_context(entry, context, ctx_decision, session_id)
-           
-           # Track what was upgraded
-           if existing_version == "1.0":
-               v1_upgraded += 1
-           elif existing_version == "2.0":
-               v2_upgraded += 1
-           else:
-               v3_updated += 1
-           
-           mappings["mappings"][idx] = entry
-       
-       return mappings, v1_upgraded, v2_upgraded, v3_updated
-   ```
+**File:** `tools/src/fls_tools/standards/verification/merge.py`
 
-5. Update summary output:
-   ```python
-   print(f"  v1 entries upgraded to v3: {v1_upgraded}", file=sys.stderr)
-   print(f"  v2 entries upgraded to v3: {v2_upgraded}", file=sys.stderr)
-   print(f"  v3 entries updated: {v3_updated}", file=sys.stderr)
-   ```
+**Changes:**
 
----
+1. Detect v3.0 decision files
 
-### Task 7: Modify `merge.py` to Handle v3 Decisions
-
-**Status**: [ ] Not Started
-
-**File**: `tools/src/fls_tools/standards/verification/merge.py`
-
-**Changes**:
-
-1. Detect v3 decision files by `schema_version`
 2. Preserve `misra_add6_snapshot` when merging to batch report
-3. Validate ADD-6 snapshot matches current ADD-6 data (warn on mismatch)
+
+3. Validate ADD-6 snapshot matches batch report's `misra_add6` (warn on mismatch)
 
 ---
 
-### Task 8: Enhance `search_deep.py` with ADD-6 Display
+### Phase 4: Search Enhancements
 
-**Status**: [ ] Not Started
+#### Task 4a: Enhance `search_deep.py`
 
-**File**: `tools/src/fls_tools/standards/verification/search_deep.py`
+**File:** `tools/src/fls_tools/standards/verification/search_deep.py`
 
-**Changes**:
+**Changes:**
 
-1. Load ADD-6 data for the guideline:
-   ```python
-   add6 = load_add6_for_guideline(root, guideline_id)
-   ```
+1. Load ADD-6 data for the guideline
 
-2. Display ADD-6 context in output header:
+2. Display ADD-6 context in output header with full rationale code expansion:
    ```
    ======================================================================
    DEEP SEARCH RESULTS: Rule 21.3
@@ -1081,9 +864,9 @@ safe_rust:
      Original Category: Required
      Decidability: Undecidable
      Scope: System
-     Rationale: UB (Undefined Behavior), DC (Design Consideration)
-     All Rust: Yes -> advisory
-     Safe Rust: No -> implicit
+     Rationale: UB (Undefined Behaviour), DC (Design Consideration)
+     All Rust: Yes → advisory
+     Safe Rust: No → implicit
      Comment: Safe Rust has no direct heap allocation functions
    
    Embeddings used: 5
@@ -1092,135 +875,59 @@ safe_rust:
 
 3. Add `--no-add6` flag to suppress ADD-6 display
 
-4. Add ADD-6 to JSON output mode
+4. Include ADD-6 in JSON output mode (`--json`)
 
----
+#### Task 4b: Enhance `search.py`
 
-### Task 9: Enhance `search.py` with Optional ADD-6 Context
+**File:** `tools/src/fls_tools/standards/verification/search.py`
 
-**Status**: [ ] Not Started
-
-**File**: `tools/src/fls_tools/standards/verification/search.py`
-
-**Changes**:
+**Changes:**
 
 1. Add optional `--for-guideline "Rule X.Y"` parameter
+
 2. When provided, display ADD-6 context as header before results
-3. No change to search behavior (still uses query, not guideline embeddings)
+
+3. No change to search behavior (still uses query string)
 
 ---
 
-### Task 10: Write v2-to-v3 Migration Script
+### Phase 5: Validation & Documentation
 
-**Status**: [ ] Not Started
+#### Task 5a: Update Validation Tools
 
-**New File**: `tools/src/fls_tools/standards/verification/migrate_v3.py`
-
-**Purpose**: Migrate existing v2 mapping entries to v3 format by adding ADD-6 data
-
-**Implementation**:
-
-```python
-#!/usr/bin/env python3
-"""
-migrate_v3.py - Migrate v2 mapping entries to v3 format.
-
-Adds misra_add6 metadata from misra_rust_applicability.json to existing
-mapping entries.
-
-Usage:
-    uv run migrate-v3 --standard misra-c --dry-run
-    uv run migrate-v3 --standard misra-c
-"""
-
-def migrate_mapping_to_v3(root: Path, standard: str, dry_run: bool) -> None:
-    # Load mapping file
-    mapping_path = get_mapping_path(root, standard)
-    mapping = load_json(mapping_path)
-    
-    # Load ADD-6 data
-    add6_data = load_add6_data(root)
-    
-    migrated = 0
-    skipped = 0
-    missing_add6 = []
-    
-    for guideline_id, entry in mapping.get("guidelines", {}).items():
-        if entry.get("schema_version") == "3.0":
-            skipped += 1
-            continue
-        
-        add6 = add6_data.get(guideline_id)
-        if not add6:
-            missing_add6.append(guideline_id)
-            continue
-        
-        # Upgrade to v3
-        entry["schema_version"] = "3.0"
-        entry["misra_add6"] = {
-            "misra_category": add6.get("misra_category"),
-            "decidability": add6.get("decidability"),
-            "scope": add6.get("scope"),
-            "rationale_codes": add6.get("rationale", []),
-            "applicability_all_rust": add6.get("applicability_all_rust"),
-            "applicability_safe_rust": add6.get("applicability_safe_rust"),
-            "adjusted_category": add6.get("adjusted_category"),
-            "comment": add6.get("comment"),
-            "source_version": "ADD-6:2025",
-        }
-        migrated += 1
-    
-    if dry_run:
-        print(f"DRY RUN - Would migrate {migrated} entries to v3")
-        print(f"  Already v3: {skipped}")
-        print(f"  Missing ADD-6 data: {len(missing_add6)}")
-        if missing_add6:
-            for gid in missing_add6[:5]:
-                print(f"    - {gid}")
-            if len(missing_add6) > 5:
-                print(f"    ... and {len(missing_add6) - 5} more")
-    else:
-        save_json(mapping_path, mapping)
-        print(f"Migrated {migrated} entries to v3")
-```
-
-**Entry Point**: Add to `pyproject.toml`:
-```toml
-migrate-v3 = "fls_tools.standards.verification.migrate_v3:main"
-```
-
----
-
-### Task 11: Update AGENTS.md Documentation
-
-**Status**: [ ] Not Started
-
-**File**: `AGENTS.md`
-
-**Changes**:
-
-1. Update schema version references throughout
-2. Document v3 schema structure
-3. Update example JSON snippets
-4. Add migration instructions
-5. Document new `--schema-version 3.0` options
-6. Update search tool output examples with ADD-6 context
-
----
-
-### Task 12: Update Validation Tools
-
-**Status**: [ ] Not Started
-
-**Files**: 
+**Files:**
 - `tools/src/fls_tools/standards/validation/standards.py`
 - `tools/src/fls_tools/standards/validation/decisions.py`
 
-**Changes**:
+**Changes:**
 
-1. Support v3 schema validation
-2. Validate `misra_add6` presence for v3 entries
-3. Warn on ADD-6 data inconsistencies
+1. Support v1.1, v2.1, v3.0 schema validation
+
+2. Validate `misra_add6` presence for v1.1/v2.1/v3.0 entries
+
+3. Warn on entries missing ADD-6 data
+
+#### Task 5b: Update `AGENTS.md`
+
+**File:** `AGENTS.md`
+
+**Changes:**
+
+1. Update schema version references throughout
+
+2. Document v1.1/v2.1/v3.0 schema structures
+
+3. Update example JSON snippets
+
+4. Document migration workflow
+
+5. Update `--schema-version` CLI options
+
+6. Update search tool output examples with ADD-6 context
+
+#### Task 5c: Update This Document
+
+Mark all tasks complete, update session log.
 
 ---
 
@@ -1229,89 +936,83 @@ migrate-v3 = "fls_tools.standards.verification.migrate_v3:main"
 ### Implementation Order
 
 ```
-Phase 0: Foundation (Task 0)
-    └── schema_version.py - v3 detection, conversion helpers, path helpers
-        (Must be done first - all other tasks depend on this)
+Phase 0: Foundation
+    ├── Task 0a: schema_version.py
+    └── Task 0b: paths.py
+    
+Phase 1: Schema Updates (can run in parallel)
+    ├── Task 1a: fls_mapping.schema.json
+    ├── Task 1b: decision_file.schema.json
+    └── Task 1c: batch_report.schema.json
 
-Phase 1: Schema Updates (Tasks 1-3)
-    ├── Can be done in parallel after Phase 0
-    └── JSON Schema definitions only
+Phase 2: Migration
+    ├── Task 2a: Write migrate-mappings tool
+    └── Task 2b: Run migration
+    
+Phase 3: Core Tools (after Phase 2)
+    ├── Task 3a: batch.py
+    ├── Task 3b: record.py
+    ├── Task 3c: apply.py
+    └── Task 3d: merge.py
 
-Phase 2: Core Tool Updates (Tasks 4-6)
-    ├── batch.py (Task 4) - requires Task 0, 1, 2
-    │   └── Converts v1 current_state to v3 structure in batch reports
-    ├── record.py (Task 5) - requires Task 0, 3
-    └── apply.py (Task 6) - requires Task 0, 1
-        └── Handles v1→v3 and v2→v3 upgrades
-
-Phase 3: Supporting Updates (Tasks 7-9)
-    ├── merge.py (Task 7) - requires Task 0, 3
-    ├── search_deep.py (Task 8)
-    └── search.py (Task 9)
-
-Phase 4: Migration & Documentation (Tasks 10-12)
-    ├── migrate-v3 tool (Task 10) - for batch upgrading existing v2 entries
-    ├── AGENTS.md (Task 11)
-    └── Validation tools (Task 12)
+Phase 4: Search Enhancements (can run in parallel with Phase 3)
+    ├── Task 4a: search_deep.py
+    └── Task 4b: search.py
+    
+Phase 5: Validation & Documentation (after all)
+    ├── Task 5a: Validation tools
+    ├── Task 5b: AGENTS.md
+    └── Task 5c: This document
 ```
 
 ### Backwards Compatibility
 
-1. **Schema Version Detection**: All tools detect schema version via `get_guideline_schema_version()` and handle v1/v2/v3 appropriately
+1. **Reading:** All tools handle v1.0, v1.1, v2.0, v2.1, v3.0
 
-2. **Mixed Versions Supported Indefinitely**: 
-   - Mapping file can contain v1, v2, AND v3 entries simultaneously
-   - No forced migration timeline
-   - JSON Schema uses `oneOf` to validate all three formats
+2. **Writing:** 
+   - Migration tool: v1.0 → v1.1, v2.0 → v2.1
+   - All other tools: Always write v3.0
 
-3. **Reading vs Writing Asymmetry**:
-   - **Reading**: Tools must handle all three versions
-   - **Writing**: Tools always create v3 (never v1 or v2)
-
-4. **Upgrade Paths**:
-   | From | To | Trigger |
-   |------|-----|---------|
-   | v1 | v3 | `apply-verification` processes the entry |
-   | v2 | v3 | `apply-verification` or `migrate-v3` |
-   | v3 | v3 | `apply-verification` updates in place |
-
-5. **Validation**: 
-   - v1 entries remain valid per existing schema
-   - v2 entries remain valid per existing schema  
-   - v3 entries require `misra_add6` block and per-context MISRA reference fields
+3. **Validation:** JSON Schema uses `oneOf` to accept all versions
 
 ### Testing Checklist
 
 **Phase 0 Tests:**
-- [ ] `schema_version.py` detects v1, v2, v3 correctly
-- [ ] `is_v1()`, `is_v2()`, `is_v3()` functions work
-- [ ] `convert_v1_to_v3_current_state()` produces valid structure
+- [ ] `schema_version.py` detects all five versions correctly
+- [ ] `is_v1_1()`, `is_v2_1()`, `is_v3()` functions work
+- [ ] `has_add6_data()` correctly identifies enriched entries
 - [ ] `get_misra_rust_applicability_path()` returns correct path
 
 **Phase 1 Tests:**
-- [ ] v3 mapping schema validates v3 entries
-- [ ] v3 batch report schema validates v3 reports
-- [ ] v3 decision file schema validates v3 decisions
-- [ ] Mixed v1/v2/v3 mapping file validates (all entries pass)
+- [ ] v1.1 mapping entries validate against schema
+- [ ] v2.1 mapping entries validate against schema
+- [ ] v3.0 mapping entries validate against schema
+- [ ] v1.1/v2.1/v3.0 decision files validate against schema
+- [ ] v3.0 batch reports validate against schema
+- [ ] Mixed-version mapping file validates (all entries pass)
 
 **Phase 2 Tests:**
-- [ ] `verify-batch` produces v3 batch reports
-- [ ] `verify-batch` converts v1 entries to v3 structure in `current_state`
-- [ ] `verify-batch` includes `misra_add6` block from ADD-6 data
-- [ ] `record-decision` creates v3 decision files with `misra_add6_snapshot`
-- [ ] `apply-verification` upgrades v1 entries to v3
-- [ ] `apply-verification` upgrades v2 entries to v3
-- [ ] `apply-verification` updates existing v3 entries
+- [ ] `migrate-mappings --dry-run` reports correct counts
+- [ ] `migrate-mappings` correctly enriches v1.0 → v1.1
+- [ ] `migrate-mappings` correctly enriches v2.0 → v2.1
+- [ ] Already-enriched entries are skipped
+- [ ] Missing ADD-6 data is warned but doesn't fail
 
 **Phase 3 Tests:**
-- [ ] `merge-decisions` handles v3 decision files
-- [ ] `search-fls-deep` displays ADD-6 context in output
-- [ ] `search-fls` with `--for-guideline` displays ADD-6 context
+- [ ] `verify-batch` produces v3.0 batch reports with `misra_add6`
+- [ ] `record-decision` creates v3.0 decision files with `misra_add6_snapshot`
+- [ ] `apply-verification` handles v1.1/v2.1 inputs correctly
+- [ ] `apply-verification` writes v3.0 outputs
+- [ ] `apply-verification` warns on ADD-6 mismatches
+- [ ] `merge-decisions` handles v3.0 decision files
 
 **Phase 4 Tests:**
-- [ ] `migrate-v3 --dry-run` reports correct counts
-- [ ] `migrate-v3` upgrades v2 entries to v3 with ADD-6 data
-- [ ] Validation tools accept v3 entries
+- [ ] `search-fls-deep` displays ADD-6 context with expanded rationale codes
+- [ ] `search-fls-deep --no-add6` suppresses ADD-6 display
+- [ ] `search-fls --for-guideline` displays ADD-6 context
+
+**Phase 5 Tests:**
+- [ ] Validation tools accept v1.1/v2.1/v3.0 entries
 - [ ] Validation tools warn on missing ADD-6 data
 
 ---
@@ -1320,16 +1021,18 @@ Phase 4: Migration & Documentation (Tasks 10-12)
 
 If issues arise during migration:
 
-1. **Schema Rollback**: Remove v3 from schema enum; v3 entries become invalid
-2. **Data Rollback**: Use git to revert mapping file changes
-3. **Tool Rollback**: Revert code changes; tools continue supporting v2
+1. **Schema Rollback:** Revert schema changes; enriched entries become invalid until re-reverted
+
+2. **Data Rollback:** Use git to revert mapping file changes
+
+3. **Tool Rollback:** Revert code changes; tools continue supporting v1.0/v2.0
 
 ### Checkpoints
 
-Before each phase, create a git tag:
-- `pre-v3-schema-update`
-- `pre-v3-tool-update`
-- `pre-v3-migration`
+Create git tags before each phase:
+- `pre-schema-v1.1-v2.1-v3` (before Phase 0)
+- `pre-migration-enrichment` (before Phase 2)
+- `post-migration-enrichment` (after Phase 2)
 
 ---
 
@@ -1339,71 +1042,53 @@ Before each phase, create a git tag:
 
 | Task | Description | Status | Notes |
 |------|-------------|--------|-------|
-| 0 | Update `schema_version.py` | ⬜ Not Started | Add v3 detection, conversion helpers |
-
-**Phase 0 Checkpoint:** Create git tag `pre-v3-foundation` before starting.
+| 0a | Update `schema_version.py` | ⬜ Not Started | Add v1.1/v2.1/v3.0 detection |
+| 0b | Add path helper to `paths.py` | ⬜ Not Started | `get_misra_rust_applicability_path()` |
 
 ### Phase 1: Schema Updates
 
 | Task | Description | Status | Notes |
 |------|-------------|--------|-------|
-| 1 | Update `fls_mapping.schema.json` | ⬜ Not Started | Add `misra_add6` object, v3 entry type, per-context MISRA fields |
-| 2 | Update `batch_report.schema.json` | ⬜ Not Started | Add `misra_add6` to guideline entry |
-| 3 | Update `decision_file.schema.json` | ⬜ Not Started | Add `misra_add6_snapshot` to v3 |
+| 1a | Update `fls_mapping.schema.json` | ⬜ Not Started | Add v1.1, v2.1, v3.0 definitions |
+| 1b | Update `decision_file.schema.json` | ⬜ Not Started | Add v1.1, v2.1, v3.0 definitions |
+| 1c | Update `batch_report.schema.json` | ⬜ Not Started | Add v3.0, `misra_add6` in guideline entry |
 
-**Phase 1 Checkpoint:** Create git tag `pre-v3-schema-update` before starting.
-
-### Phase 2: Core Tool Updates
+### Phase 2: Migration Tools
 
 | Task | Description | Status | Notes |
 |------|-------------|--------|-------|
-| 4 | Modify `batch.py` | ⬜ Not Started | Load ADD-6, include in batch reports |
-| 5 | Modify `record.py` | ⬜ Not Started | Capture ADD-6 snapshot in decisions |
-| 6 | Modify `apply.py` | ⬜ Not Started | Write v3 mapping entries with ADD-6 |
+| 2a | Write `migrate-mappings` tool | ⬜ Not Started | v1.0→v1.1, v2.0→v2.1 enrichment |
+| 2b | Run migration on `misra_c_to_fls.json` | ⬜ Not Started | After 2a complete |
 
-**Phase 2 Checkpoint:** Create git tag `pre-v3-tool-update` before starting.
-
-### Phase 3: Supporting Updates
+### Phase 3: Core Tool Updates
 
 | Task | Description | Status | Notes |
 |------|-------------|--------|-------|
-| 7 | Modify `merge.py` | ⬜ Not Started | Handle v3 decision files |
-| 8 | Enhance `search_deep.py` | ⬜ Not Started | Display ADD-6 context in output |
-| 9 | Enhance `search.py` | ⬜ Not Started | Optional `--for-guideline` ADD-6 display |
+| 3a | Update `batch.py` | ⬜ Not Started | Generate v3.0 batch reports |
+| 3b | Update `record.py` | ⬜ Not Started | Generate v3.0 decision files |
+| 3c | Update `apply.py` | ⬜ Not Started | Handle all versions, write v3.0 |
+| 3d | Update `merge.py` | ⬜ Not Started | Handle v3.0 decision files |
 
-### Phase 4: Migration & Documentation
+### Phase 4: Search Enhancements
 
 | Task | Description | Status | Notes |
 |------|-------------|--------|-------|
-| 10 | Write `migrate_v3.py` | ⬜ Not Started | Migrate existing v2 entries to v3 |
-| 11 | Update `AGENTS.md` | ⬜ Not Started | Document v3 schema and workflows |
-| 12 | Update validation tools | ⬜ Not Started | Support v3 schema validation |
+| 4a | Enhance `search_deep.py` | ⬜ Not Started | Display ADD-6 with expanded codes |
+| 4b | Enhance `search.py` | ⬜ Not Started | Optional `--for-guideline` ADD-6 display |
 
-**Phase 4 Checkpoint:** Create git tag `pre-v3-migration` before running migration.
+### Phase 5: Validation & Documentation
+
+| Task | Description | Status | Notes |
+|------|-------------|--------|-------|
+| 5a | Update validation tools | ⬜ Not Started | Support v1.1/v2.1/v3.0 |
+| 5b | Update `AGENTS.md` | ⬜ Not Started | Document all schema versions |
+| 5c | Update this migration doc | ⬜ Not Started | Mark complete |
 
 ### Session Log
 
 | Session | Date | Tasks Completed | Notes |
 |---------|------|-----------------|-------|
-| - | - | - | No work started yet |
-
----
-
-## Open Questions
-
-1. **ADD-6 Version Tracking**: Should we track which ADD-6 version was used? (Currently proposed: `source_version: "ADD-6:2025"`)
-
-2. **Mismatch Handling**: What if ADD-6 data changes between decision recording and apply? Options:
-   - Warn only (current proposal)
-   - Fail and require re-verification
-   - Auto-update snapshot
-
-3. **Missing ADD-6 Data**: For guidelines not in ADD-6, should we:
-   - Allow v3 with null `misra_add6`? (current proposal)
-   - Require v2 for such guidelines?
-   - Synthesize placeholder ADD-6 data?
-
-4. **Rationale Code Display**: Should search tools explain rationale codes? E.g., "UB (Undefined Behavior)" vs just "UB"
+| 1 | 2026-01-03 | - | Revised plan from v3-only to v1.1/v2.1/v3.0 scheme |
 
 ---
 
@@ -1415,3 +1100,19 @@ Before each phase, create a git tag:
 | `IDB` | Implementation-defined Behaviour | Guideline addresses implementation-defined behavior |
 | `CQ` | Code Quality | Guideline improves code quality/maintainability |
 | `DC` | Design Consideration | Guideline addresses design/architecture concerns |
+
+---
+
+## Appendix: ADD-6 Field Reference
+
+| Field | Values | Description |
+|-------|--------|-------------|
+| `misra_category` | Required, Advisory, Mandatory | Original MISRA C category |
+| `decidability` | Decidable, Undecidable, n/a | Can static analysis check this? |
+| `scope` | STU, System, n/a | Single translation unit or system-wide analysis |
+| `rationale_codes` | [UB, IDB, CQ, DC] | Why guideline exists (array) |
+| `applicability_all_rust` | Yes, No, Partial | MISRA's all-Rust applicability |
+| `applicability_safe_rust` | Yes, No, Partial | MISRA's safe-Rust applicability |
+| `adjusted_category` | required, advisory, recommended, disapplied, implicit, n_a | MISRA's Rust-adjusted category |
+| `comment` | string | MISRA's Rust-specific notes |
+| `source_version` | string | ADD-6 version (e.g., "ADD-6:2025") |
