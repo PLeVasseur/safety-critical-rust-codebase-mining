@@ -605,9 +605,21 @@ Chapter files documenting iceoryx2's use of FLS constructs. Schema: `iceoryx2-fl
 ### coding-standards-fls-mapping/ Schema
 
 **standards/*.json** - Rule listings per standard
-**mappings/*.json** - FLS mappings with per-context verification (v2 schema):
+**mappings/*.json** - FLS mappings with per-context verification:
 
-**v1 Structure (legacy):**
+#### Schema Version Semantics
+
+| Version | Type | Description |
+|---------|------|-------------|
+| v1.0 | Original | Flat structure, no ADD-6 |
+| v1.1 | Enriched | v1.0 + `misra_add6` block (via migration) |
+| v2.0 | Original | Per-context structure, no ADD-6 |
+| v2.1 | Enriched | v2.0 + `misra_add6` block (via migration) |
+| v3.0 | Current | Per-context + ADD-6, fresh verification |
+
+**Key distinction:** v1.1/v2.1 = Enriched legacy data (ADD-6 added via migration tool), v3.0 = Fresh verification decisions.
+
+**v1.x Structure (legacy):**
 ```json
 {
   "schema_version": "1.0",
@@ -622,12 +634,54 @@ Chapter files documenting iceoryx2's use of FLS constructs. Schema: `iceoryx2-fl
 }
 ```
 
-**v2 Structure (current):**
+**v2.x Structure (legacy):**
 ```json
 {
   "schema_version": "2.0",
   "guideline_id": "Rule 11.1",
   "guideline_title": "Conversions shall not be performed...",
+  "all_rust": {
+    "applicability": "yes",
+    "adjusted_category": "advisory",
+    "rationale_type": "direct_mapping",
+    "confidence": "high",
+    "accepted_matches": [...],
+    "rejected_matches": [],
+    "verified": true,
+    "verified_by_session": 1,
+    "notes": "..."
+  },
+  "safe_rust": {
+    "applicability": "no",
+    "adjusted_category": "n_a",
+    "rationale_type": "rust_prevents",
+    "confidence": "high",
+    "accepted_matches": [...],
+    "rejected_matches": [],
+    "verified": true,
+    "verified_by_session": 1,
+    "notes": "..."
+  }
+}
+```
+
+**v3.0 Structure (current):**
+```json
+{
+  "schema_version": "3.0",
+  "guideline_id": "Rule 11.1",
+  "guideline_title": "Conversions shall not be performed...",
+  "misra_add6": {
+    "misra_category": "Required",
+    "decidability": "Undecidable",
+    "scope": "System",
+    "rationale_codes": ["UB", "DC"],
+    "applicability_all_rust": "Yes",
+    "applicability_safe_rust": "No",
+    "adjusted_category": "disapplied",
+    "comment": "Safe Rust type system prevents arbitrary pointer casts",
+    "source_version": "ADD-6:2025"
+  },
   "all_rust": {
     "applicability": "yes",
     "adjusted_category": "advisory",
@@ -853,7 +907,7 @@ uv run validate-fls --audit-samples                    # Sample quality audit
 
 The verification workflow uses a 4-phase process with dedicated tooling.
 
-**Schema Version:** The verification workflow now uses **v2.0 schema** with per-context verification. Each guideline is verified independently for two contexts:
+**Schema Version:** The verification workflow now uses **v3.0 schema** with per-context verification and MISRA ADD-6 metadata. Each guideline is verified independently for two contexts:
 - **`all_rust`** - Applicability when using all of Rust (including unsafe)
 - **`safe_rust`** - Applicability when restricted to safe Rust only
 
@@ -876,7 +930,7 @@ This shows:
 - Whether a batch report exists in `cache/verification/`
 - Whether a decisions directory exists (for parallel mode)
 - Progress from decision files (valid/invalid counts)
-- Schema version information (v1/v2 entry counts)
+- Schema version information (v1.x/v2.x/v3.0 entry counts, ADD-6 coverage)
 - Suggested worker assignments for remaining guidelines
 - If resuming, which guideline to continue from
 - Suggested command for Phase 1 (if batch report doesn't exist)
@@ -913,8 +967,7 @@ uv run verify-batch \
     --standard misra-c \
     --batch BATCH_ID \
     --session SESSION_ID \
-    --mode llm \
-    --schema-version 2.0
+    --mode llm
 ```
 
 **What it extracts:**
@@ -931,8 +984,8 @@ See `coding-standards-fls-mapping/schema/batch_report.schema.json` for required 
 - `--mode human`: Markdown summary for quick review
 
 **Schema version:**
-- `--schema-version 2.0` (default): Generates v2 batch reports with per-context verification decisions
-- `--schema-version 1.0`: Legacy flat structure (not recommended for new verification)
+- `--schema-version 3.0` (default): Generates v3.0 batch reports with per-context verification decisions and ADD-6 metadata
+- `--schema-version 2.0`: Legacy v2 batch reports (no ADD-6 metadata)
 
 **Thresholds** (configurable via CLI):
 
@@ -983,7 +1036,7 @@ uv run check-progress --standard misra-c --workers 3
 
 ##### Recording Decisions (Parallel-Safe)
 
-Use `--batch` to write decisions to individual files (enables parallel verification). **v2 requires `--context` to specify which context is being verified:**
+Use `--batch` to write decisions to individual files (enables parallel verification). **v3 requires `--context` to specify which context is being verified:**
 
 ```bash
 uv run record-decision \
@@ -1005,7 +1058,7 @@ uv run record-decision \
 
 Each guideline has a single decision file (e.g., `Dir_1.1.json`) containing both contexts. Recording a decision for one context preserves the other context's existing data (or scaffolds it as null if not yet recorded).
 
-**New v2 required parameters:**
+**Required context parameters:**
 - `--context {all_rust,safe_rust}`: Which context this decision applies to
 - `--applicability {yes,no,partial}`: Whether the guideline applies in this context
 - `--adjusted-category {required,advisory,recommended,disapplied,implicit,n_a}`: MISRA adjusted category for Rust
@@ -1091,11 +1144,11 @@ Process the batch report JSON and for each guideline:
    **Required search protocol** (mandatory for each guideline):
    
    ```bash
-   # Step 1: Deep search (always first)
+   # Step 1: Deep search (always first) - displays ADD-6 context automatically
    uv run search-fls-deep --standard misra-c --guideline "Rule X.Y"
    
-   # Step 2: C/MISRA terminology query
-   uv run search-fls --query "<C concepts from rule text>" --top 10
+   # Step 2: C/MISRA terminology query (use --for-guideline to show ADD-6 context)
+   uv run search-fls --query "<C concepts from rule text>" --top 10 --for-guideline "Rule X.Y"
    
    # Step 3: Rust terminology query  
    uv run search-fls --query "<Rust equivalent concepts>" --top 10
@@ -1103,6 +1156,10 @@ Process the batch report JSON and for each guideline:
    # Step 4: Additional angles as needed (safety concepts, related mechanisms)
    uv run search-fls --query "<semantic/safety concepts>" --top 10
    ```
+   
+   **Search tool ADD-6 display:**
+   - `search-fls-deep` displays MISRA ADD-6 context (category, rationale codes, applicability) by default. Use `--no-add6` to suppress.
+   - `search-fls` can display ADD-6 context with `--for-guideline "Rule X.Y"` parameter.
 
    **Query style guide** (use multiple angles to maximize coverage):
    
@@ -1317,7 +1374,7 @@ This means:
        --notes "Optional notes about the decision"
    ```
 
-   **v2 Required Parameters:**
+   **Required Parameters:**
    - `--context {all_rust,safe_rust}`: Which context this decision applies to
    - `--applicability {yes,no,partial}`: Whether the guideline applies in this context
    - `--adjusted-category`: MISRA adjusted category for Rust (`required`, `advisory`, `recommended`, `disapplied`, `implicit`, `n_a`)
@@ -1526,7 +1583,7 @@ This is also automatically called at the end of `extract-fls-content`, so the li
 
 ### Applicability Values
 
-**v2 uses simplified `applicability` values per context:**
+**v2/v3 uses simplified `applicability` values per context:**
 
 | Value | Description |
 |-------|-------------|
@@ -1534,7 +1591,7 @@ This is also automatically called at the end of `extract-fls-content`, so the li
 | `no` | Guideline does not apply in this context |
 | `partial` | Some aspects of the guideline apply |
 
-**v2 `adjusted_category` values (per MISRA ADD-6):**
+**v2/v3 `adjusted_category` values (per MISRA ADD-6):**
 
 | Value | Description |
 |-------|-------------|
@@ -1682,7 +1739,7 @@ uv run reset-batch --standard misra-c --batch 3 --dry-run
 uv run reset-verification --standard misra-c
 ```
 
-**v2 context reset:** The `--context` flag allows selective reset of only one context while preserving the other. This is useful when re-verifying decisions for one context without losing work on the other.
+**Context reset:** The `--context` flag allows selective reset of only one context while preserving the other. This is useful when re-verifying decisions for one context without losing work on the other.
 
 This clears `verification_decision` fields in the batch report and resets `verified` status in `verification_progress.json` for affected guidelines and contexts.
 

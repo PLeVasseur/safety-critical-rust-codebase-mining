@@ -58,6 +58,7 @@ recompute-similarity = "fls_tools.standards.verification.recompute:main"
 scaffold-progress = "fls_tools.standards.verification.scaffold:main"
 remediate-decisions = "fls_tools.standards.verification.remediate:main"
 check-guideline = "fls_tools.standards.verification.batch_check:main"
+migrate-mappings = "fls_tools.standards.verification.migrate_mappings:main"
 
 # Pipeline 2: Standards -> FLS (validation)
 validate-standards = "fls_tools.standards.validation.standards:main"

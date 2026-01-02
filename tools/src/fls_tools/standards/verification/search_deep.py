@@ -42,6 +42,7 @@ from fls_tools.shared import (
     get_standard_query_embeddings_path,
     get_standard_rationale_embeddings_path,
     get_standard_amplification_embeddings_path,
+    get_misra_rust_applicability_path,
     CATEGORY_NAMES,
     CONCEPT_BOOST_ADDITIVE,
     CONCEPT_ONLY_BASE_SCORE,
@@ -50,6 +51,14 @@ from fls_tools.shared import (
     VALID_STANDARDS,
     generate_search_id,
 )
+
+# Rationale code expansions for display
+RATIONALE_CODE_NAMES = {
+    "UB": "Undefined Behaviour",
+    "IDB": "Implementation-defined Behaviour",
+    "CQ": "Code Quality",
+    "DC": "Design Consideration",
+}
 
 
 def load_embeddings(path: Path) -> tuple[list[str], np.ndarray, dict, dict]:
@@ -166,6 +175,33 @@ def load_precomputed_similarity(root: Path, standard: str) -> dict:
         data = json.load(f)
     
     return data.get("results", {})
+
+
+def load_add6_data(root: Path, guideline_id: str) -> dict | None:
+    """Load ADD-6 data for a specific guideline."""
+    add6_path = get_misra_rust_applicability_path(root)
+    if not add6_path.exists():
+        return None
+    
+    with open(add6_path) as f:
+        data = json.load(f)
+    
+    guidelines = data.get("guidelines", {})
+    return guidelines.get(guideline_id)
+
+
+def format_rationale_codes(codes: list[str]) -> str:
+    """Format rationale codes with full names."""
+    if not codes:
+        return "N/A"
+    parts = []
+    for code in codes:
+        full_name = RATIONALE_CODE_NAMES.get(code)
+        if full_name:
+            parts.append(f"{code} ({full_name})")
+        else:
+            parts.append(code)
+    return ", ".join(parts)
 
 
 def search_fls(
@@ -401,6 +437,7 @@ def deep_search(
     top_n: int = 15,
     use_concept_boost: bool = True,
     use_see_also: bool = True,
+    include_add6: bool = True,
 ) -> dict:
     """
     Perform deep search for a guideline using all embedding types.
@@ -507,9 +544,15 @@ def deep_search(
         merged_sections = apply_see_also(merged_sections, see_also_refs, precomputed, "section")
         merged_paragraphs = apply_see_also(merged_paragraphs, see_also_refs, precomputed, "paragraph")
     
+    # Load ADD-6 data if requested
+    add6_data = None
+    if include_add6:
+        add6_data = load_add6_data(root, guideline_id)
+    
     return {
         "guideline_id": guideline_id,
         "guideline_title": guideline.get("title", "").split("\n")[0][:100],
+        "misra_add6": add6_data,
         "embeddings_used": [e[0] for e in guideline_embeddings],
         "embedding_sources": {e[0]: e[2] for e in guideline_embeddings},
         "per_embedding_results": per_embedding_results,
@@ -520,7 +563,7 @@ def deep_search(
     }
 
 
-def format_results(results: dict, mode: str, top_n: int) -> None:
+def format_results(results: dict, mode: str, top_n: int, show_add6: bool = True) -> None:
     """Format and print results."""
     if "error" in results:
         print(f"ERROR: {results['error']}")
@@ -530,7 +573,25 @@ def format_results(results: dict, mode: str, top_n: int) -> None:
     print(f"DEEP SEARCH RESULTS: {results['guideline_id']}")
     print(f"{'='*70}")
     print(f"Title: {results['guideline_title']}")
-    print(f"Embeddings used: {len(results['embeddings_used'])}")
+    
+    # Display ADD-6 context if available and not suppressed
+    add6 = results.get("misra_add6")
+    if show_add6 and add6:
+        print(f"\nMISRA ADD-6 Context:")
+        print(f"  Original Category: {add6.get('misra_category', 'N/A')}")
+        print(f"  Decidability: {add6.get('decidability', 'N/A')}")
+        print(f"  Scope: {add6.get('scope', 'N/A')}")
+        rationale = format_rationale_codes(add6.get("rationale", []))
+        print(f"  Rationale: {rationale}")
+        all_rust = add6.get("applicability_all_rust", "N/A")
+        safe_rust = add6.get("applicability_safe_rust", "N/A")
+        adjusted = add6.get("adjusted_category", "N/A")
+        print(f"  All Rust: {all_rust} → {adjusted}")
+        print(f"  Safe Rust: {safe_rust}")
+        if add6.get("comment"):
+            print(f"  Comment: {add6.get('comment')}")
+    
+    print(f"\nEmbeddings used: {len(results['embeddings_used'])}")
     for eid in results['embeddings_used']:
         source = results['embedding_sources'].get(eid, "unknown")
         print(f"  - {eid} ({source})")
@@ -607,6 +668,11 @@ def main():
         help="Disable see-also integration",
     )
     parser.add_argument(
+        "--no-add6",
+        action="store_true",
+        help="Suppress MISRA ADD-6 context display",
+    )
+    parser.add_argument(
         "--json",
         action="store_true",
         help="Output results as JSON",
@@ -630,6 +696,7 @@ def main():
         top_n=args.top,
         use_concept_boost=not args.no_concept_boost,
         use_see_also=not args.no_see_also,
+        include_add6=not args.no_add6,
     )
     
     if args.json:
@@ -647,7 +714,7 @@ def main():
         
         print(json.dumps(clean_for_json(results), indent=2))
     else:
-        format_results(results, args.mode, args.top)
+        format_results(results, args.mode, args.top, show_add6=not args.no_add6)
     
     # Summary stats
     if not args.json:

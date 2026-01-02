@@ -26,9 +26,18 @@ from fls_tools.shared import (
     get_fls_index_path,
     get_fls_section_embeddings_path,
     get_fls_paragraph_embeddings_path,
+    get_misra_rust_applicability_path,
     CATEGORY_NAMES,
     generate_search_id,
 )
+
+# Rationale code expansions for display
+RATIONALE_CODE_NAMES = {
+    "UB": "Undefined Behaviour",
+    "IDB": "Implementation-defined Behaviour",
+    "CQ": "Code Quality",
+    "DC": "Design Consideration",
+}
 
 
 def load_embeddings(embeddings_path: Path) -> tuple[list[str], np.ndarray, dict]:
@@ -186,6 +195,50 @@ def get_section_content(chapters: dict, fls_id: str) -> dict | None:
     return None
 
 
+def load_add6_data(root: Path, guideline_id: str) -> dict | None:
+    """Load ADD-6 data for a specific guideline."""
+    add6_path = get_misra_rust_applicability_path(root)
+    if not add6_path.exists():
+        return None
+    
+    with open(add6_path) as f:
+        data = json.load(f)
+    
+    guidelines = data.get("guidelines", {})
+    return guidelines.get(guideline_id)
+
+
+def format_rationale_codes(codes: list[str]) -> str:
+    """Format rationale codes with full names."""
+    if not codes:
+        return "N/A"
+    parts = []
+    for code in codes:
+        full_name = RATIONALE_CODE_NAMES.get(code)
+        if full_name:
+            parts.append(f"{code} ({full_name})")
+        else:
+            parts.append(code)
+    return ", ".join(parts)
+
+
+def display_add6_header(add6: dict) -> None:
+    """Display ADD-6 context as header."""
+    print(f"\nMISRA ADD-6 Context:")
+    print(f"  Original Category: {add6.get('misra_category', 'N/A')}")
+    print(f"  Decidability: {add6.get('decidability', 'N/A')}")
+    print(f"  Scope: {add6.get('scope', 'N/A')}")
+    rationale = format_rationale_codes(add6.get("rationale", []))
+    print(f"  Rationale: {rationale}")
+    all_rust = add6.get("applicability_all_rust", "N/A")
+    safe_rust = add6.get("applicability_safe_rust", "N/A")
+    adjusted = add6.get("adjusted_category", "N/A")
+    print(f"  All Rust: {all_rust} → {adjusted}")
+    print(f"  Safe Rust: {safe_rust}")
+    if add6.get("comment"):
+        print(f"  Comment: {add6.get('comment')}")
+
+
 def format_results(results: list[dict], verbose: bool, chapters: dict) -> None:
     """Format and print search results."""
     if not results:
@@ -249,6 +302,13 @@ def main():
         action="store_true",
         help="Output results as JSON",
     )
+    parser.add_argument(
+        "--for-guideline",
+        type=str,
+        default=None,
+        metavar="ID",
+        help="Display ADD-6 context for a guideline (e.g., 'Rule 21.3')",
+    )
     
     args = parser.parse_args()
     
@@ -259,6 +319,16 @@ def main():
     search_id = generate_search_id()
     print(f"Search ID: {search_id}")
     print()
+    
+    # Display ADD-6 context if --for-guideline is specified
+    if args.for_guideline:
+        add6 = load_add6_data(root, args.for_guideline)
+        if add6:
+            print(f"Guideline: {args.for_guideline}")
+            display_add6_header(add6)
+            print()
+        else:
+            print(f"Note: No ADD-6 data found for '{args.for_guideline}'", file=sys.stderr)
     
     # Load FLS chapters for metadata
     print("Loading FLS chapters...", file=sys.stderr)

@@ -36,6 +36,7 @@ from fls_tools.shared import (
     get_guideline_schema_version,
     is_v1,
     is_v2,
+    has_add6_data,
 )
 
 # Use shared path utilities to get correct paths
@@ -136,12 +137,12 @@ def validate_schema(data: dict, schema: dict, filename: str) -> list[str]:
 def validate_fls_ids(data: dict, valid_fls_ids: set[str], filename: str) -> list[str]:
     """Validate that all FLS IDs in a mapping file are valid.
     
-    Handles both v1.0 (flat) and v2.0 (per-context) formats.
+    Handles v1.0/v1.1 (flat) and v2.0/v2.1/v3.0 (per-context) formats.
     
     Checks FLS IDs in:
-    - fls_ids array (v1)
-    - accepted_matches array (v1 or v2 context)
-    - rejected_matches array (v1 or v2 context)
+    - fls_ids array (v1.x)
+    - accepted_matches array (v1.x or v2.x context)
+    - rejected_matches array (v1.x or v2.x context)
     """
     errors = []
 
@@ -159,8 +160,8 @@ def validate_fls_ids(data: dict, valid_fls_ids: set[str], filename: str) -> list
         guideline_id = mapping.get("guideline_id", "unknown")
         schema_version = get_guideline_schema_version(mapping)
         
-        if schema_version == "1.0":
-            # v1: Check flat structure
+        if schema_version in ("1.0", "1.1"):
+            # v1.x: Check flat structure
             fls_ids = mapping.get("fls_ids", [])
             for fls_id in fls_ids:
                 if fls_id not in valid_fls_ids:
@@ -169,8 +170,8 @@ def validate_fls_ids(data: dict, valid_fls_ids: set[str], filename: str) -> list
             check_matches(mapping.get("accepted_matches", []), "accepted_matches", guideline_id)
             check_matches(mapping.get("rejected_matches", []), "rejected_matches", guideline_id)
         
-        elif schema_version == "2.0":
-            # v2: Check per-context structure
+        elif schema_version in ("2.0", "2.1", "3.0"):
+            # v2.x/v3.x: Check per-context structure
             for context in ["all_rust", "safe_rust"]:
                 ctx_data = mapping.get(context, {})
                 check_matches(ctx_data.get("accepted_matches", []), f"{context}.accepted_matches", guideline_id)
@@ -200,13 +201,17 @@ def validate_standards_file(filepath: Path, schema: dict) -> tuple[list[str], di
 
 def validate_mapping_file(
     filepath: Path, schema: dict, valid_fls_ids: set[str]
-) -> tuple[list[str], dict]:
-    """Validate a mapping file and return errors and statistics.
+) -> tuple[list[str], dict, list[str]]:
+    """Validate a mapping file and return errors, statistics, and warnings.
     
-    Handles both v1.0 (flat) and v2.0 (per-context) formats.
+    Handles v1.0/v1.1 (flat) and v2.0/v2.1/v3.0 (per-context) formats.
+    
+    Returns:
+        (errors, stats, warnings)
     """
     data = load_json(filepath)
     errors = validate_schema(data, schema, filepath.name)
+    warnings = []
 
     # Validate FLS IDs
     fls_errors = validate_fls_ids(data, valid_fls_ids, filepath.name)
@@ -215,13 +220,28 @@ def validate_mapping_file(
     # Compute statistics for both applicability dimensions
     mappings = data.get("mappings", [])
     
-    # Count v1 vs v2 entries
-    v1_count = sum(1 for m in mappings if get_guideline_schema_version(m) == "1.0")
-    v2_count = sum(1 for m in mappings if get_guideline_schema_version(m) == "2.0")
+    # Count entries by schema version
+    version_counts = {
+        "1.0": 0, "1.1": 0, "2.0": 0, "2.1": 0, "3.0": 0
+    }
+    for m in mappings:
+        v = get_guideline_schema_version(m)
+        if v in version_counts:
+            version_counts[v] += 1
+    
+    # Count entries with ADD-6 data
+    add6_count = sum(1 for m in mappings if has_add6_data(m))
+    
+    # Warn if enriched versions (1.1, 2.1, 3.0) are missing ADD-6 data
+    for m in mappings:
+        v = get_guideline_schema_version(m)
+        if v in ("1.1", "2.1", "3.0") and not has_add6_data(m):
+            gid = m.get("guideline_id", "unknown")
+            warnings.append(f"{filepath.name}: {gid}: v{v} entry missing misra_add6 block")
     
     def count_v1_applicability(field: str) -> dict[str, int]:
-        """Count v1 applicability values for a given field."""
-        v1_mappings = [m for m in mappings if get_guideline_schema_version(m) == "1.0"]
+        """Count v1.x applicability values for a given field."""
+        v1_mappings = [m for m in mappings if get_guideline_schema_version(m) in ("1.0", "1.1")]
         return {
             "direct": sum(1 for m in v1_mappings if m.get(field) == "direct"),
             "partial": sum(1 for m in v1_mappings if m.get(field) == "partial"),
@@ -231,8 +251,8 @@ def validate_mapping_file(
         }
     
     def count_v2_applicability(context: str) -> dict[str, int]:
-        """Count v2 applicability values for a given context."""
-        v2_mappings = [m for m in mappings if get_guideline_schema_version(m) == "2.0"]
+        """Count v2.x/v3.x applicability values for a given context."""
+        v2_mappings = [m for m in mappings if get_guideline_schema_version(m) in ("2.0", "2.1", "3.0")]
         counts = {"yes": 0, "no": 0, "partial": 0}
         for m in v2_mappings:
             ctx = m.get(context, {})
@@ -241,21 +261,26 @@ def validate_mapping_file(
                 counts[app] += 1
         return counts
     
+    v1_total = version_counts["1.0"] + version_counts["1.1"]
+    v2_total = version_counts["2.0"] + version_counts["2.1"] + version_counts["3.0"]
+    
     stats = {
         "standard": data.get("standard", "unknown"),
         "total": len(mappings),
-        "v1_count": v1_count,
-        "v2_count": v2_count,
+        "version_counts": version_counts,
+        "v1_count": v1_total,
+        "v2_count": v2_total,
+        "add6_count": add6_count,
         "all_rust": count_v1_applicability("applicability_all_rust"),
         "safe_rust": count_v1_applicability("applicability_safe_rust"),
     }
     
-    # Add v2 stats if any v2 entries exist
-    if v2_count > 0:
+    # Add v2 stats if any v2+ entries exist
+    if v2_total > 0:
         stats["all_rust_v2"] = count_v2_applicability("all_rust")
         stats["safe_rust_v2"] = count_v2_applicability("safe_rust")
 
-    return errors, stats
+    return errors, stats, warnings
 
 
 def check_guideline_coverage(standards_file: Path, mapping_file: Path) -> list[str]:
@@ -386,9 +411,11 @@ def main():
         if not mapping_files:
             print("\n  No mapping files found (expected in mappings/ directory)")
         else:
+            all_warnings = []
             for filepath in sorted(mapping_files):
                 print(f"\n  {filepath.name}:")
-                errors, stats = validate_mapping_file(filepath, mapping_schema, valid_fls_ids)
+                errors, stats, warnings = validate_mapping_file(filepath, mapping_schema, valid_fls_ids)
+                all_warnings.extend(warnings)
 
                 schema_err = [e for e in errors if "Unknown FLS ID" not in e]
                 fls_err = [e for e in errors if "Unknown FLS ID" in e]
@@ -405,21 +432,39 @@ def main():
                     for e in fls_err[:3]:
                         print(f"      - {e}")
 
+                if warnings:
+                    print(f"    Warnings: {len(warnings)}")
+                    for w in warnings[:3]:
+                        print(f"      - {w}")
+
                 if not errors:
                     print(f"    OK - {stats['standard']} ({stats['total']} guidelines)")
-                    print(f"       Schema versions: v1={stats['v1_count']}, v2={stats['v2_count']}")
+                    
+                    # Show version breakdown
+                    vc = stats.get("version_counts", {})
+                    version_parts = []
+                    for v in ["1.0", "1.1", "2.0", "2.1", "3.0"]:
+                        if vc.get(v, 0) > 0:
+                            version_parts.append(f"v{v}={vc[v]}")
+                    if version_parts:
+                        print(f"       Schema versions: {', '.join(version_parts)}")
+                    
+                    # Show ADD-6 coverage
+                    add6_count = stats.get("add6_count", 0)
+                    total = stats.get("total", 0)
+                    print(f"       ADD-6 data: {add6_count}/{total} entries")
                     
                     if stats['v1_count'] > 0:
                         all_rust = stats["all_rust"]
                         safe_rust = stats["safe_rust"]
                         print(
-                            f"       [v1] All Rust:  {all_rust['direct']} direct, "
+                            f"       [v1.x] All Rust:  {all_rust['direct']} direct, "
                             f"{all_rust['partial']} partial, "
                             f"{all_rust['not_applicable']} N/A, "
                             f"{all_rust['rust_prevents']} rust_prevents"
                         )
                         print(
-                            f"       [v1] Safe Rust: {safe_rust['direct']} direct, "
+                            f"       [v1.x] Safe Rust: {safe_rust['direct']} direct, "
                             f"{safe_rust['partial']} partial, "
                             f"{safe_rust['not_applicable']} N/A, "
                             f"{safe_rust['rust_prevents']} rust_prevents"
@@ -429,12 +474,12 @@ def main():
                         all_rust_v2 = stats.get("all_rust_v2", {})
                         safe_rust_v2 = stats.get("safe_rust_v2", {})
                         print(
-                            f"       [v2] All Rust:  {all_rust_v2.get('yes', 0)} yes, "
+                            f"       [v2.x+] All Rust:  {all_rust_v2.get('yes', 0)} yes, "
                             f"{all_rust_v2.get('partial', 0)} partial, "
                             f"{all_rust_v2.get('no', 0)} no"
                         )
                         print(
-                            f"       [v2] Safe Rust: {safe_rust_v2.get('yes', 0)} yes, "
+                            f"       [v2.x+] Safe Rust: {safe_rust_v2.get('yes', 0)} yes, "
                             f"{safe_rust_v2.get('partial', 0)} partial, "
                             f"{safe_rust_v2.get('no', 0)} no"
                         )

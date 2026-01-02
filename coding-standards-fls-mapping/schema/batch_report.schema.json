@@ -2,13 +2,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "batch_report.schema.json",
   "title": "Verification Batch Report",
-  "description": "Schema for batch verification reports. Supports v1.0 (flat) and v2.0 (per-context) formats.",
+  "description": "Schema for batch verification reports. Supports v1.0 (flat), v2.0 (per-context), and v3.0 (per-context + ADD-6) formats.",
   "type": "object",
   "required": ["schema_version", "batch_id", "session_id", "generated_date", "standard", "thresholds", "guidelines", "applicability_changes", "summary"],
   "properties": {
     "schema_version": {
       "type": "string",
-      "enum": ["1.0", "2.0"],
+      "enum": ["1.0", "2.0", "3.0"],
       "description": "Schema version identifier"
     },
     "batch_id": {
@@ -101,6 +101,55 @@
     }
   },
   "$defs": {
+    "misra_add6": {
+      "type": "object",
+      "description": "MISRA ADD-6 Rust applicability data for this guideline",
+      "required": ["misra_category", "decidability", "scope", "rationale_codes"],
+      "properties": {
+        "misra_category": {
+          "type": "string",
+          "enum": ["Required", "Advisory", "Mandatory"],
+          "description": "Original MISRA C category"
+        },
+        "decidability": {
+          "type": "string",
+          "enum": ["Decidable", "Undecidable", "n/a"],
+          "description": "Whether static analysis can check this guideline"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["STU", "System", "n/a"],
+          "description": "Analysis scope: STU (single translation unit) or System"
+        },
+        "rationale_codes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["UB", "IDB", "CQ", "DC"]
+          },
+          "description": "Why this guideline exists: UB, IDB, CQ, DC"
+        },
+        "applicability_all_rust": {
+          "type": "string",
+          "enum": ["Yes", "No", "Partial"],
+          "description": "MISRA's assessment: does this guideline apply to all Rust?"
+        },
+        "applicability_safe_rust": {
+          "type": "string",
+          "enum": ["Yes", "No", "Partial"],
+          "description": "MISRA's assessment: does this guideline apply to safe Rust?"
+        },
+        "adjusted_category": {
+          "type": "string",
+          "enum": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a"],
+          "description": "MISRA's adjusted category for Rust"
+        },
+        "comment": {
+          "type": ["string", "null"],
+          "description": "MISRA's Rust-specific notes"
+        }
+      }
+    },
     "guideline_entry": {
       "type": "object",
       "description": "A single guideline entry in the batch report",
@@ -114,17 +163,25 @@
           "type": "string",
           "description": "Title/summary of the guideline"
         },
+        "misra_add6": {
+          "$ref": "#/$defs/misra_add6",
+          "description": "MISRA ADD-6 Rust applicability data (required for v3.0 batch reports)"
+        },
         "current_state": {
           "type": "object",
           "description": "Current state of the guideline mapping from misra_c_to_fls.json",
           "properties": {
+            "schema_version": { "type": ["string", "null"] },
             "applicability_all_rust": { "type": ["string", "null"] },
             "applicability_safe_rust": { "type": ["string", "null"] },
             "confidence": { "type": ["string", "null"] },
             "fls_rationale_type": { "type": ["string", "null"] },
             "accepted_matches": { "type": "array" },
             "rejected_matches": { "type": "array" },
-            "notes": { "type": ["string", "null"] }
+            "notes": { "type": ["string", "null"] },
+            "all_rust": { "type": "object" },
+            "safe_rust": { "type": "object" },
+            "misra_add6": { "$ref": "#/$defs/misra_add6" }
           }
         },
         "rationale": {

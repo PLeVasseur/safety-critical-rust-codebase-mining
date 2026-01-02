@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """
-merge_decisions.py - Merge v2 per-guideline decision files into a batch report.
+merge_decisions.py - Merge decision files into a batch report.
 
 This tool merges individual decision files from a decisions directory back into
-a batch report for Phase 3 review. Supports v2 per-context decisions.
+a batch report for Phase 3 review. Supports v2.0, v2.1, and v3.0 decision files.
 
 Features:
-- Merges v2 decision files with all_rust and safe_rust contexts
+- Merges v2.0/v2.1/v3.0 decision files with all_rust and safe_rust contexts
 - Populates verification_decision fields in batch report
 - Aggregates proposed changes to top-level applicability_changes array
 - Updates summary statistics with per-context counts
 - Validates for duplicate search UUIDs across all decision files
+- Preserves misra_add6_snapshot from v2.1/v3.0 decision files
+- Warns if ADD-6 snapshot mismatches batch report's misra_add6
 
 Usage:
     # Using --batch for automatic path resolution (recommended):
@@ -40,6 +42,7 @@ from fls_tools.shared import (
     validate_path_in_project,
     PathOutsideProjectError,
     VALID_STANDARDS,
+    check_add6_mismatch,
 )
 
 
@@ -168,7 +171,7 @@ def load_decision_files(
     return valid_decisions, errors_by_file
 
 
-def check_duplicate_search_ids_v2(decisions: list[dict]) -> dict[str, list[str]]:
+def check_duplicate_search_ids(decisions: list[dict]) -> dict[str, list[str]]:
     """
     Check for duplicate search IDs with context-aware rules.
     
@@ -177,6 +180,8 @@ def check_duplicate_search_ids_v2(decisions: list[dict]) -> dict[str, list[str]]
        contexts within the SAME guideline (the deep search is guideline-specific)
     2. All other search UUIDs (search-fls, etc.) must be unique per context
     3. Any UUID reuse across DIFFERENT guidelines is always flagged
+    
+    Supports v1.0, v1.1, v2.0, v2.1, and v3.0 decision files.
     
     Returns:
         Dict mapping duplicate search_id -> list of usages that violate rules
@@ -188,7 +193,8 @@ def check_duplicate_search_ids_v2(decisions: list[dict]) -> dict[str, list[str]]
         guideline_id = decision.get("guideline_id", "(unknown)")
         schema_version = decision.get("schema_version", "1.0")
         
-        if schema_version == "2.0":
+        # v2.0, v2.1, v3.0 have per-context structure
+        if schema_version in ("2.0", "2.1", "3.0"):
             for context in ["all_rust", "safe_rust"]:
                 ctx_data = decision.get(context, {})
                 search_tools = ctx_data.get("search_tools_used", [])
@@ -199,7 +205,7 @@ def check_duplicate_search_ids_v2(decisions: list[dict]) -> dict[str, list[str]]
                     if search_id:
                         search_id_usage[search_id].append((guideline_id, context, tool_name))
         else:
-            # v1: flat structure
+            # v1.0, v1.1: flat structure
             search_tools = decision.get("search_tools_used", [])
             if isinstance(search_tools, list):
                 for tool in search_tools:
@@ -232,19 +238,23 @@ def check_duplicate_search_ids_v2(decisions: list[dict]) -> dict[str, list[str]]
     return duplicates
 
 
-def merge_v2_decisions_into_report(
+def merge_decisions_into_report(
     report: dict,
     decisions: list[dict],
-) -> tuple[int, int, list[str], dict]:
+) -> tuple[int, int, list[str], dict, list[tuple[str, list[str]]]]:
     """
-    Merge v2 decisions into a batch report.
+    Merge v2.0/v2.1/v3.0 decisions into a batch report.
+    
+    Preserves misra_add6_snapshot from v2.1/v3.0 decision files and validates
+    against the batch report's misra_add6 block.
     
     Returns:
-        (merged_count, skipped_count, skipped_guidelines, context_counts)
+        (merged_count, skipped_count, skipped_guidelines, context_counts, add6_mismatches)
     """
     merged_count = 0
     skipped_count = 0
     skipped_guidelines = []
+    add6_mismatches = []
     
     # Per-context counts
     all_rust_merged = 0
@@ -272,8 +282,9 @@ def merge_v2_decisions_into_report(
         
         schema_version = decision.get("schema_version", "1.0")
         
-        if schema_version == "2.0":
-            # v2: merge per-context
+        # v2.0, v2.1, v3.0: per-context structure
+        if schema_version in ("2.0", "2.1", "3.0"):
+            # Merge per-context decisions
             verification_decision = {
                 "all_rust": decision.get("all_rust", {}),
                 "safe_rust": decision.get("safe_rust", {}),
@@ -309,8 +320,18 @@ def merge_v2_decisions_into_report(
                             report["applicability_changes"] = []
                         report["applicability_changes"].append(change_entry)
                         existing_changes[key] = len(report["applicability_changes"]) - 1
+            
+            # Check ADD-6 snapshot consistency for v2.1/v3.0
+            if schema_version in ("2.1", "3.0"):
+                decision_add6 = decision.get("misra_add6_snapshot")
+                report_add6 = report["guidelines"][idx].get("misra_add6")
+                
+                if decision_add6 and report_add6:
+                    mismatches = check_add6_mismatch(decision_add6, report_add6)
+                    if mismatches:
+                        add6_mismatches.append((guideline_id, mismatches))
         else:
-            # v1: convert to v2 structure for the report
+            # v1.0, v1.1: convert flat structure to per-context for the report
             # Both contexts get the same decision
             ctx_decision = {
                 "decision": decision.get("decision"),
@@ -340,7 +361,7 @@ def merge_v2_decisions_into_report(
         "safe_rust_merged": safe_rust_merged,
     }
     
-    return merged_count, skipped_count, skipped_guidelines, context_counts
+    return merged_count, skipped_count, skipped_guidelines, context_counts, add6_mismatches
 
 
 def main():
@@ -474,14 +495,17 @@ def main():
         print("No valid decision files found.")
         sys.exit(0)
     
-    # Count v1 vs v2 decisions
-    v1_count = sum(1 for d in decisions if d.get("schema_version", "1.0") == "1.0")
-    v2_count = sum(1 for d in decisions if d.get("schema_version") == "2.0")
+    # Count decision file versions
+    version_counts = defaultdict(int)
+    for d in decisions:
+        version = d.get("schema_version", "1.0")
+        version_counts[version] += 1
     
-    print(f"Found {len(decisions)} valid decision file(s) (v1: {v1_count}, v2: {v2_count})")
+    version_info = ", ".join(f"v{v}: {c}" for v, c in sorted(version_counts.items()))
+    print(f"Found {len(decisions)} valid decision file(s) ({version_info})")
     
     # Check for duplicate search IDs
-    duplicates = check_duplicate_search_ids_v2(decisions)
+    duplicates = check_duplicate_search_ids(decisions)
     if duplicates:
         print("\nERROR: Duplicate search IDs detected:", file=sys.stderr)
         for search_id, usages in list(duplicates.items())[:5]:
@@ -493,9 +517,20 @@ def main():
     
     # Merge decisions
     print(f"\nMerging decisions into batch report...")
-    merged_count, skipped_count, skipped_guidelines, context_counts = merge_v2_decisions_into_report(
+    merged_count, skipped_count, skipped_guidelines, context_counts, add6_mismatches = merge_decisions_into_report(
         report, decisions
     )
+    
+    # Report ADD-6 mismatches as warnings
+    if add6_mismatches:
+        print(f"\nWARNING: ADD-6 data mismatch for {len(add6_mismatches)} guideline(s):", file=sys.stderr)
+        print("  (decision snapshot differs from batch report)", file=sys.stderr)
+        for gid, diffs in add6_mismatches[:5]:
+            print(f"  {gid}:", file=sys.stderr)
+            for diff in diffs[:2]:
+                print(f"    {diff}", file=sys.stderr)
+        if len(add6_mismatches) > 5:
+            print(f"  ... and {len(add6_mismatches) - 5} more", file=sys.stderr)
     
     # Update summary
     update_summary_v2(report)

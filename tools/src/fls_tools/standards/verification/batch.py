@@ -3,25 +3,24 @@
 verify_batch.py - Phase 1: Data Gathering for FLS Verification
 
 This script extracts all relevant data for a batch of guidelines:
+- MISRA ADD-6 data for each guideline
 - Similarity matches (section and paragraph) above thresholds
 - Rationale from extracted text
 - Wide-shot FLS content (matched sections + siblings + all rubrics)
 - Current mapping state
 
-Supports two schema versions:
-- v1.0: Flat verification_decision structure (legacy)
-- v2.0: Per-context verification_decision with all_rust and safe_rust sections (default)
+Supports schema versions:
+- v1.0: Flat verification_decision structure (legacy, read-only)
+- v2.0: Per-context verification_decision (legacy, read-only)
+- v3.0: Per-context + ADD-6 data (default for new batch reports)
 
 Two output modes:
 - LLM mode: Full JSON optimized for LLM consumption
 - Human mode: Markdown report with JSON snippets for quick review
 
 Usage:
-    # Generate v2 batch report (default)
+    # Generate v3 batch report (default)
     uv run verify-batch --standard misra-c --batch 3 --session 1 --mode llm
-    
-    # Generate v1 batch report (legacy)
-    uv run verify-batch --standard misra-c --batch 3 --session 1 --schema-version 1.0
     
     # Human-readable report
     uv run verify-batch --standard misra-c --batch 3 --mode human
@@ -48,6 +47,7 @@ from fls_tools.shared import (
     get_verification_progress_path,
     get_coding_standards_dir,
     get_batch_report_path,
+    get_misra_rust_applicability_path,
     resolve_path,
     validate_path_in_project,
     PathOutsideProjectError,
@@ -57,6 +57,8 @@ from fls_tools.shared import (
     DEFAULT_SECTION_THRESHOLD,
     DEFAULT_PARAGRAPH_THRESHOLD,
     SchemaVersion,
+    get_guideline_schema_version,
+    build_misra_add6_block,
 )
 
 
@@ -101,6 +103,17 @@ def validate_batch_report(report: dict, schema: dict | None) -> list[str]:
     return errors
 
 
+def load_add6_data(root: Path) -> dict:
+    """Load MISRA ADD-6 Rust applicability data."""
+    add6_path = get_misra_rust_applicability_path(root)
+    if not add6_path.exists():
+        print(f"WARNING: ADD-6 data not found: {add6_path}", file=sys.stderr)
+        return {}
+    with open(add6_path) as f:
+        data = json.load(f)
+    return data.get("guidelines", {})
+
+
 def load_all_data(root: Path, standard: str) -> dict:
     """Load all required data sources for a standard."""
     data = {}
@@ -129,6 +142,10 @@ def load_all_data(root: Path, standard: str) -> dict:
         print("       Run the text extraction first.", file=sys.stderr)
         sys.exit(1)
     data["extracted_text"] = load_json(extracted_text_path, f"{standard} extracted text")
+    
+    # ADD-6 data
+    data["add6"] = load_add6_data(root)
+    print(f"  Loaded ADD-6 data for {len(data['add6'])} guidelines", file=sys.stderr)
     
     # FLS chapter files
     fls_dir = get_fls_dir(root)
@@ -312,7 +329,7 @@ def extract_fls_content(data: dict, similarity_data: dict) -> dict:
 
 
 def build_scaffolded_context_decision() -> dict:
-    """Build a scaffolded v2 context decision structure."""
+    """Build a scaffolded v2/v3 context decision structure."""
     return {
         "decision": None,           # Required: "accept_with_modifications", "accept_no_matches", "accept_existing", "reject", "pending"
         "applicability": None,      # Required: "yes", "no", "partial"
@@ -340,36 +357,45 @@ def build_scaffolded_v1_decision() -> dict:
 
 
 def build_scaffolded_v2_decision() -> dict:
-    """Build a scaffolded v2 verification decision structure."""
+    """Build a scaffolded v2/v3 verification decision structure."""
     return {
         "all_rust": build_scaffolded_context_decision(),
         "safe_rust": build_scaffolded_context_decision(),
     }
 
 
-def build_guideline_entry(
-    data: dict,
-    guideline_id: str,
-    section_threshold: float,
-    paragraph_threshold: float,
-    schema_version: SchemaVersion = "2.0",
-) -> dict:
-    """Build a complete guideline entry for the batch report."""
-    mapping = get_mapping(data, guideline_id)
-    rationale = get_rationale(data, guideline_id)
-    similarity_data = get_similarity_data(data, guideline_id, section_threshold, paragraph_threshold)
-    fls_content = extract_fls_content(data, similarity_data)
+def build_current_state_from_mapping(mapping: dict) -> dict:
+    """
+    Build current_state from a mapping entry.
     
-    # Build verification_decision based on schema version
-    if schema_version == "2.0":
-        verification_decision = build_scaffolded_v2_decision()
+    Handles v1.0, v1.1, v2.0, v2.1, v3.0 mapping formats.
+    """
+    version = get_guideline_schema_version(mapping)
+    
+    # For v2/v2.1/v3 entries, include both flat (for backwards compat) and per-context
+    if version in ("2.0", "2.1", "3.0"):
+        all_rust = mapping.get("all_rust", {})
+        safe_rust = mapping.get("safe_rust", {})
+        return {
+            "schema_version": version,
+            # v1-style fields for backwards compatibility
+            "applicability_all_rust": all_rust.get("applicability"),
+            "applicability_safe_rust": safe_rust.get("applicability"),
+            "confidence": all_rust.get("confidence"),
+            "fls_rationale_type": all_rust.get("rationale_type"),
+            "accepted_matches": all_rust.get("accepted_matches", []),
+            "rejected_matches": all_rust.get("rejected_matches", []),
+            "notes": all_rust.get("notes"),
+            # Full per-context data
+            "all_rust": all_rust,
+            "safe_rust": safe_rust,
+            # ADD-6 if present
+            "misra_add6": mapping.get("misra_add6"),
+        }
     else:
-        verification_decision = build_scaffolded_v1_decision()
-    
-    return {
-        "guideline_id": guideline_id,
-        "guideline_title": mapping.get("guideline_title", ""),
-        "current_state": {
+        # v1.0 or v1.1 entry
+        return {
+            "schema_version": version,
             "applicability_all_rust": mapping.get("applicability_all_rust"),
             "applicability_safe_rust": mapping.get("applicability_safe_rust"),
             "confidence": mapping.get("confidence"),
@@ -377,7 +403,40 @@ def build_guideline_entry(
             "accepted_matches": mapping.get("accepted_matches", []),
             "rejected_matches": mapping.get("rejected_matches", []),
             "notes": mapping.get("notes"),
-        },
+            # ADD-6 if present (v1.1)
+            "misra_add6": mapping.get("misra_add6"),
+        }
+
+
+def build_guideline_entry(
+    data: dict,
+    guideline_id: str,
+    section_threshold: float,
+    paragraph_threshold: float,
+    schema_version: SchemaVersion = "3.0",
+) -> dict:
+    """Build a complete guideline entry for the batch report."""
+    mapping = get_mapping(data, guideline_id)
+    rationale = get_rationale(data, guideline_id)
+    similarity_data = get_similarity_data(data, guideline_id, section_threshold, paragraph_threshold)
+    fls_content = extract_fls_content(data, similarity_data)
+    
+    # Get ADD-6 data for this guideline
+    add6 = data.get("add6", {}).get(guideline_id)
+    
+    # Build verification_decision based on schema version
+    if schema_version in ("2.0", "3.0"):
+        verification_decision = build_scaffolded_v2_decision()
+    else:
+        verification_decision = build_scaffolded_v1_decision()
+    
+    # Build current_state from mapping (handles all versions)
+    current_state = build_current_state_from_mapping(mapping)
+    
+    entry = {
+        "guideline_id": guideline_id,
+        "guideline_title": mapping.get("guideline_title", ""),
+        "current_state": current_state,
         "rationale": rationale,
         "similarity_data": similarity_data,
         "fls_content": fls_content,
@@ -385,6 +444,14 @@ def build_guideline_entry(
         # See coding-standards-fls-mapping/schema/batch_report.schema.json for required fields
         "verification_decision": verification_decision,
     }
+    
+    # For v3.0 batch reports, include ADD-6 data at the guideline level
+    if schema_version == "3.0" and add6:
+        entry["misra_add6"] = build_misra_add6_block(add6)
+    elif schema_version == "3.0" and not add6:
+        print(f"  WARNING: No ADD-6 data for {guideline_id}", file=sys.stderr)
+    
+    return entry
 
 
 def build_batch_report(
@@ -394,7 +461,7 @@ def build_batch_report(
     session_id: int,
     section_threshold: float,
     paragraph_threshold: float,
-    schema_version: SchemaVersion = "2.0",
+    schema_version: SchemaVersion = "3.0",
 ) -> dict:
     """Build the complete batch report."""
     guideline_ids = get_batch_guidelines(data, batch_id)
@@ -417,8 +484,8 @@ def build_batch_report(
         "applicability_changes_approved": 0,
     }
     
-    # Add per-context counts for v2
-    if schema_version == "2.0":
+    # Add per-context counts for v2/v3
+    if schema_version in ("2.0", "3.0"):
         summary["all_rust_verified_count"] = 0
         summary["safe_rust_verified_count"] = 0
     
@@ -575,9 +642,9 @@ def main():
     parser.add_argument(
         "--schema-version",
         type=str,
-        choices=["1.0", "2.0"],
-        default="2.0",
-        help="Schema version to generate (default: 2.0)",
+        choices=["1.0", "2.0", "3.0"],
+        default="3.0",
+        help="Schema version to generate (default: 3.0)",
     )
     
     args = parser.parse_args()

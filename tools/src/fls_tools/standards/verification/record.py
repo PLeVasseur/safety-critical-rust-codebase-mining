@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-record_decision.py - Record a v2 verification decision for a guideline.
+record_decision.py - Record a v3 verification decision for a guideline.
 
-This tool records verification decisions in v2 format (per-context).
+This tool records verification decisions in v3 format (per-context + ADD-6 snapshot).
 Each guideline has independent decisions for all_rust and safe_rust contexts.
 
 Features:
-- Always writes v2 format decision files
+- Always writes v3 format decision files (includes misra_add6_snapshot)
 - Single decision file per guideline contains both contexts
 - Recording one context preserves the other context's data
 - Validates decisions against schema
@@ -79,6 +79,7 @@ from fls_tools.shared import (
     get_project_root,
     get_coding_standards_dir,
     get_batch_decisions_dir,
+    get_misra_rust_applicability_path,
     resolve_path,
     validate_path_in_project,
     PathOutsideProjectError,
@@ -86,6 +87,7 @@ from fls_tools.shared import (
     validate_search_id,
     load_valid_fls_ids,
     validate_fls_id,
+    build_misra_add6_snapshot,
 )
 
 
@@ -291,7 +293,7 @@ def build_scaffolded_context() -> dict:
 
 
 def build_v2_decision_file(guideline_id: str) -> dict:
-    """Build a new v2 decision file with scaffolded contexts."""
+    """Build a new v2 decision file with scaffolded contexts (legacy)."""
     return {
         "schema_version": "2.0",
         "guideline_id": guideline_id,
@@ -301,9 +303,31 @@ def build_v2_decision_file(guideline_id: str) -> dict:
     }
 
 
+def load_add6_data(root: Path) -> dict:
+    """Load MISRA ADD-6 Rust applicability data."""
+    add6_path = get_misra_rust_applicability_path(root)
+    if not add6_path.exists():
+        return {}
+    with open(add6_path) as f:
+        data = json.load(f)
+    return data.get("guidelines", {})
+
+
+def build_v3_decision_file(guideline_id: str, add6_snapshot: dict | None) -> dict:
+    """Build a new v3 decision file with ADD-6 snapshot and scaffolded contexts."""
+    return {
+        "schema_version": "3.0",
+        "guideline_id": guideline_id,
+        "misra_add6_snapshot": add6_snapshot,
+        "all_rust": build_scaffolded_context(),
+        "safe_rust": build_scaffolded_context(),
+        "recorded_at": None,
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Record a v2 verification decision for a guideline (per-context)"
+        description="Record a v3 verification decision for a guideline (per-context + ADD-6)"
     )
     parser.add_argument(
         "--standard",
@@ -512,6 +536,15 @@ Use --force-no-matches only for exceptional cases (requires --notes).
             print(f"ERROR: {e}", file=sys.stderr)
             sys.exit(1)
     
+    # Load ADD-6 data
+    add6_all = load_add6_data(root)
+    add6 = add6_all.get(args.guideline)
+    if not add6:
+        print(f"WARNING: No ADD-6 data found for {args.guideline}", file=sys.stderr)
+        add6_snapshot = None
+    else:
+        add6_snapshot = build_misra_add6_snapshot(add6)
+    
     # Determine output path
     output_dir = get_batch_decisions_dir(root, args.standard, args.batch)
     filename = guideline_id_to_filename(args.guideline)
@@ -520,12 +553,18 @@ Use --force-no-matches only for exceptional cases (requires --notes).
     # Load existing decision file or create new one
     if output_path.exists():
         decision_file = load_json(output_path)
-        # Validate it's v2
-        if decision_file.get("schema_version") != "2.0":
-            print(f"ERROR: Existing decision file is not v2 format: {output_path}", file=sys.stderr)
+        # Accept v2.0, v2.1, or v3.0 - upgrade to v3.0 if needed
+        existing_version = decision_file.get("schema_version")
+        if existing_version not in ("2.0", "2.1", "3.0"):
+            print(f"ERROR: Existing decision file has unsupported version: {existing_version}", file=sys.stderr)
             sys.exit(1)
+        # Upgrade to v3.0 if needed
+        if existing_version in ("2.0", "2.1"):
+            decision_file["schema_version"] = "3.0"
+            if "misra_add6_snapshot" not in decision_file and add6_snapshot:
+                decision_file["misra_add6_snapshot"] = add6_snapshot
     else:
-        decision_file = build_v2_decision_file(args.guideline)
+        decision_file = build_v3_decision_file(args.guideline, add6_snapshot)
     
     # Build the context decision
     context_decision = {

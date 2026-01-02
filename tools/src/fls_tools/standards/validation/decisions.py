@@ -122,14 +122,14 @@ def validate_decision_file(
             if not reason or not reason.strip():
                 errors.append(f"{prefix}[{i}]: Empty reason field")
     
-    if schema_version == "2.0":
-        # v2: validate each context
+    if schema_version in ("2.0", "2.1", "3.0"):
+        # v2.x/v3.x: validate each context
         for context in ["all_rust", "safe_rust"]:
             ctx_data = data.get(context, {})
             validate_matches(ctx_data.get("accepted_matches", []), f"{context}.accepted_matches")
             validate_matches(ctx_data.get("rejected_matches", []), f"{context}.rejected_matches")
     else:
-        # v1: flat structure
+        # v1.x: flat structure
         validate_matches(data.get("accepted_matches", []), "accepted_matches")
         validate_matches(data.get("rejected_matches", []), "rejected_matches")
     
@@ -193,7 +193,7 @@ def validate_decisions_directory(
                     guideline_id_to_file[gid] = path.name
                 
                 # Track per-context decisions
-                if schema_version == "2.0":
+                if schema_version in ("2.0", "2.1", "3.0"):
                     v2_count += 1
                     ar = data.get("all_rust", {})
                     sr = data.get("safe_rust", {})
@@ -206,7 +206,7 @@ def validate_decisions_directory(
                         both_decided.add(gid)
                 else:
                     v1_count += 1
-                    # v1: single decision applies to both
+                    # v1.x: single decision applies to both
                     if data.get("decision"):
                         all_rust_decided.add(gid)
                         safe_rust_decided.add(gid)
@@ -298,8 +298,8 @@ def main():
     
     # Print results
     print(f"Found {total_count} decision files")
-    print(f"  v1 format: {result['v1_count']}")
-    print(f"  v2 format: {result['v2_count']}")
+    print(f"  v1.x format: {result['v1_count']}")
+    print(f"  v2.x/v3.x format: {result['v2_count']}")
     print()
     
     # Per-context progress (v2)

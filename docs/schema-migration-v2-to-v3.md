@@ -6,7 +6,7 @@ This document outlines the plan to:
 
 **Created:** 2026-01-03  
 **Last Updated:** 2026-01-03  
-**Status:** Not Started
+**Status:** Complete
 
 ---
 
@@ -14,14 +14,14 @@ This document outlines the plan to:
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| Phase 0 | Foundation - `schema_version.py` and `paths.py` | ⬜ Not Started |
-| Phase 1 | Schema Updates - Add v1.1, v2.1, v3.0 definitions | ⬜ Not Started |
-| Phase 2 | Migration Tools - Enrich existing entries | ⬜ Not Started |
-| Phase 3 | Core Tool Updates - Generate v3.0 going forward | ⬜ Not Started |
-| Phase 4 | Search Enhancements - Display ADD-6 context | ⬜ Not Started |
-| Phase 5 | Validation & Documentation | ⬜ Not Started |
+| Phase 0 | Foundation - `schema_version.py` and `paths.py` | ✅ Complete |
+| Phase 1 | Schema Updates - Add v1.1, v2.1, v3.0 definitions | ✅ Complete |
+| Phase 2 | Migration Tools - Enrich existing entries | ✅ Complete |
+| Phase 3 | Core Tool Updates - Generate v3.0 going forward | ✅ Complete |
+| Phase 4 | Search Enhancements - Display ADD-6 context | ✅ Complete |
+| Phase 5 | Validation & Documentation | ✅ Complete |
 
-**Next Action:** Start Phase 0 - Update `schema_version.py` with v1.1/v2.1/v3.0 support.
+**Status:** All migration tasks complete. v3.0 schema is now the default for verification.
 
 ---
 
@@ -1042,53 +1042,56 @@ Create git tags before each phase:
 
 | Task | Description | Status | Notes |
 |------|-------------|--------|-------|
-| 0a | Update `schema_version.py` | ⬜ Not Started | Add v1.1/v2.1/v3.0 detection |
-| 0b | Add path helper to `paths.py` | ⬜ Not Started | `get_misra_rust_applicability_path()` |
+| 0a | Update `schema_version.py` | ✅ Complete | Added v1.1/v2.1/v3.0 detection, `build_misra_add6_block()`, `check_add6_mismatch()` |
+| 0b | Add path helper to `paths.py` | ✅ Complete | `get_misra_rust_applicability_path()` already existed |
 
 ### Phase 1: Schema Updates
 
 | Task | Description | Status | Notes |
 |------|-------------|--------|-------|
-| 1a | Update `fls_mapping.schema.json` | ⬜ Not Started | Add v1.1, v2.1, v3.0 definitions |
-| 1b | Update `decision_file.schema.json` | ⬜ Not Started | Add v1.1, v2.1, v3.0 definitions |
-| 1c | Update `batch_report.schema.json` | ⬜ Not Started | Add v3.0, `misra_add6` in guideline entry |
+| 1a | Update `fls_mapping.schema.json` | ✅ Complete | Added v1.1, v2.1, v3.0 definitions with `misra_add6` |
+| 1b | Update `decision_file.schema.json` | ✅ Complete | Added v1.1, v2.1, v3.0 definitions with `misra_add6_snapshot` |
+| 1c | Update `batch_report.schema.json` | ✅ Complete | Added v3.0, `misra_add6` in guideline entry |
 
 ### Phase 2: Migration Tools
 
 | Task | Description | Status | Notes |
 |------|-------------|--------|-------|
-| 2a | Write `migrate-mappings` tool | ⬜ Not Started | v1.0→v1.1, v2.0→v2.1 enrichment |
-| 2b | Run migration on `misra_c_to_fls.json` | ⬜ Not Started | After 2a complete |
+| 2a | Write `migrate-mappings` tool | ✅ Complete | Created `migrate_mappings.py`, entry point added |
+| 2b | Run migration on `misra_c_to_fls.json` | ✅ Complete | 115 v1.0→v1.1, 108 v2.0→v2.1, 223/223 have ADD-6 |
 
 ### Phase 3: Core Tool Updates
 
 | Task | Description | Status | Notes |
 |------|-------------|--------|-------|
-| 3a | Update `batch.py` | ⬜ Not Started | Generate v3.0 batch reports |
-| 3b | Update `record.py` | ⬜ Not Started | Generate v3.0 decision files |
-| 3c | Update `apply.py` | ⬜ Not Started | Handle all versions, write v3.0 |
-| 3d | Update `merge.py` | ⬜ Not Started | Handle v3.0 decision files |
+| 3a | Update `batch.py` | ✅ Complete | Generates v3.0 batch reports with `misra_add6` |
+| 3b | Update `record.py` | ✅ Complete | Creates v3.0 decision files with `misra_add6_snapshot` |
+| 3c | Update `apply.py` | ✅ Complete | Upgrades all entries to v3.0, tracks version stats, warns on ADD-6 mismatch |
+| 3d | Update `merge.py` | ✅ Complete | Handles v2.0/v2.1/v3.0 decision files, preserves ADD-6 snapshot |
 
 ### Phase 4: Search Enhancements
 
 | Task | Description | Status | Notes |
 |------|-------------|--------|-------|
-| 4a | Enhance `search_deep.py` | ⬜ Not Started | Display ADD-6 with expanded codes |
-| 4b | Enhance `search.py` | ⬜ Not Started | Optional `--for-guideline` ADD-6 display |
+| 4a | Enhance `search_deep.py` | ✅ Complete | Displays ADD-6 with expanded rationale codes, `--no-add6` flag |
+| 4b | Enhance `search.py` | ✅ Complete | Added `--for-guideline` parameter for ADD-6 display |
 
 ### Phase 5: Validation & Documentation
 
 | Task | Description | Status | Notes |
 |------|-------------|--------|-------|
-| 5a | Update validation tools | ⬜ Not Started | Support v1.1/v2.1/v3.0 |
-| 5b | Update `AGENTS.md` | ⬜ Not Started | Document all schema versions |
-| 5c | Update this migration doc | ⬜ Not Started | Mark complete |
+| 5a | Update validation tools | ✅ Complete | `standards.py` and `decisions.py` handle v1.1/v2.1/v3.0 |
+| 5b | Update `AGENTS.md` | ✅ Complete | Added v3.0 structure, version semantics table, search tool ADD-6 docs |
+| 5c | Update this migration doc | ✅ Complete | This update |
 
 ### Session Log
 
 | Session | Date | Tasks Completed | Notes |
 |---------|------|-----------------|-------|
-| 1 | 2026-01-03 | - | Revised plan from v3-only to v1.1/v2.1/v3.0 scheme |
+| 1 | 2026-01-03 | Plan revision | Revised plan from v3-only to v1.1/v2.1/v3.0 scheme |
+| 2 | 2026-01-03 | Phase 0, 1, 2 | Foundation, schemas, migration tool, ran migration |
+| 3 | 2026-01-03 | Phase 3, 4, 5a | Core tools, search enhancements, validation tools |
+| 4 | 2026-01-03 | Phase 5b, 5c | AGENTS.md documentation, migration doc finalization |
 
 ---
 

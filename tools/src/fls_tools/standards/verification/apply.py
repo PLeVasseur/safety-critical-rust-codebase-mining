@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
-apply_verification.py - Phase 4: Apply Verified Changes (v1 to v2 Migration)
+apply_verification.py - Phase 4: Apply Verified Changes (Upgrade to v3)
 
-This script applies verified decisions from a v2 batch report to:
-- misra_c_to_fls.json: Update to v2 format with per-context decisions
+This script applies verified decisions from a v3 batch report to:
+- misra_c_to_fls.json: Update to v3 format with per-context decisions + ADD-6
 - verification_progress.json: Mark guidelines as verified per-context
 
-**IMPORTANT: This is where v1 to v2 migration happens.**
+**IMPORTANT: This is where schema upgrades happen.**
 
-When applying v2 decisions to v1 entries, the entries are converted to v2 format.
+When applying v3 decisions, entries are upgraded to v3.0 format regardless
+of their original version (v1.0, v1.1, v2.0, v2.1).
 
 Usage:
     uv run apply-verification --standard misra-c --batch 1 --session 1
@@ -30,12 +31,15 @@ from fls_tools.shared import (
     get_verification_progress_path,
     get_coding_standards_dir,
     get_batch_report_path,
+    get_misra_rust_applicability_path,
     resolve_path,
     validate_path_in_project,
     PathOutsideProjectError,
     VALID_STANDARDS,
     get_guideline_schema_version,
     convert_v1_applicability_to_v2,
+    build_misra_add6_block,
+    check_add6_mismatch,
 )
 
 
@@ -65,16 +69,29 @@ def load_batch_report_schema(root: Path) -> dict | None:
         return json.load(f)
 
 
-def validate_batch_report_v2(report: dict) -> list[str]:
+def load_add6_data(root: Path) -> dict:
+    """Load ADD-6 data from misra_rust_applicability.json."""
+    add6_path = get_misra_rust_applicability_path(root)
+    if not add6_path.exists():
+        print(f"WARNING: ADD-6 data not found: {add6_path}", file=sys.stderr)
+        return {}
+    with open(add6_path) as f:
+        data = json.load(f)
+    return data.get("guidelines", {})
+
+
+def validate_batch_report(report: dict) -> list[str]:
     """
-    Validate that a v2 batch report is ready to apply.
+    Validate that a batch report is ready to apply.
     
+    Accepts v2.0, v2.1, or v3.0 batch reports.
     Checks that verification_decision has both contexts with decisions.
     """
     errors = []
     
-    if report.get("schema_version") != "2.0":
-        errors.append(f"Expected v2 batch report, got {report.get('schema_version', '1.0')}")
+    schema_version = report.get("schema_version", "1.0")
+    if schema_version not in ("2.0", "3.0"):
+        errors.append(f"Expected v2.0 or v3.0 batch report, got {schema_version}")
         return errors
     
     if not report.get("guidelines"):
@@ -98,15 +115,15 @@ def validate_batch_report_v2(report: dict) -> list[str]:
     return errors
 
 
-def migrate_v1_to_v2_entry(v1_entry: dict) -> dict:
+def migrate_v1_to_v3_entry(v1_entry: dict, add6_data: dict | None) -> dict:
     """
-    Convert a v1 mapping entry to v2 structure.
+    Convert a v1.0 or v1.1 mapping entry to v3.0 structure.
     
     The v1 data is split into both contexts as a starting point.
     The actual verified data will be applied on top.
     """
-    return {
-        "schema_version": "2.0",
+    entry = {
+        "schema_version": "3.0",
         "guideline_id": v1_entry["guideline_id"],
         "guideline_title": v1_entry.get("guideline_title", ""),
         "guideline_type": v1_entry.get("guideline_type", "rule"),
@@ -133,6 +150,28 @@ def migrate_v1_to_v2_entry(v1_entry: dict) -> dict:
             "notes": v1_entry.get("notes"),
         },
     }
+    
+    # Add ADD-6 block if available
+    if add6_data:
+        entry["misra_add6"] = build_misra_add6_block(add6_data)
+    
+    return entry
+
+
+def migrate_v2_to_v3_entry(v2_entry: dict, add6_data: dict | None) -> dict:
+    """
+    Convert a v2.0 or v2.1 mapping entry to v3.0 structure.
+    
+    Preserves the existing per-context structure and adds/updates misra_add6.
+    """
+    entry = deepcopy(v2_entry)
+    entry["schema_version"] = "3.0"
+    
+    # Add or update ADD-6 block
+    if add6_data:
+        entry["misra_add6"] = build_misra_add6_block(add6_data)
+    
+    return entry
 
 
 def apply_v2_decision_to_context(
@@ -162,17 +201,20 @@ def apply_v2_decision_to_context(
     entry[context] = ctx
 
 
-def update_mappings_v2(
+def update_mappings_to_v3(
     mappings: dict,
     report: dict,
     session_id: int,
     apply_applicability_changes: bool,
-) -> tuple[dict, int, int]:
+    add6_all: dict,
+) -> tuple[dict, int, dict]:
     """
-    Update mappings with v2 decisions, migrating v1 entries as needed.
+    Update mappings with decisions, upgrading all entries to v3.0.
     
     Returns:
-        (updated_mappings, guidelines_updated, guidelines_migrated)
+        (updated_mappings, guidelines_updated, upgrade_stats)
+    
+    upgrade_stats is a dict with keys like "v1.0→v3.0", "v1.1→v3.0", etc.
     """
     # Build lookup by guideline_id
     mapping_lookup = {m["guideline_id"]: (i, m) for i, m in enumerate(mappings["mappings"])}
@@ -191,7 +233,14 @@ def update_mappings_v2(
                 approved_changes[gid][ctx].append(change)
     
     updated_count = 0
-    migrated_count = 0
+    upgrade_stats = {
+        "v1.0→v3.0": 0,
+        "v1.1→v3.0": 0,
+        "v2.0→v3.0": 0,
+        "v2.1→v3.0": 0,
+        "v3.0 updated": 0,
+    }
+    add6_mismatches = []
     
     for g in report["guidelines"]:
         gid = g["guideline_id"]
@@ -206,15 +255,31 @@ def update_mappings_v2(
         
         idx, existing = mapping_lookup[gid]
         existing_version = get_guideline_schema_version(existing)
+        add6_data = add6_all.get(gid)
         
-        # Migrate v1 to v2 if needed
-        if existing_version == "1.0":
-            entry = migrate_v1_to_v2_entry(existing)
-            migrated_count += 1
+        # Migrate to v3.0 based on existing version
+        if existing_version in ("1.0", "1.1"):
+            entry = migrate_v1_to_v3_entry(existing, add6_data)
+            upgrade_stats[f"{existing_version}→v3.0"] += 1
+        elif existing_version in ("2.0", "2.1"):
+            entry = migrate_v2_to_v3_entry(existing, add6_data)
+            upgrade_stats[f"{existing_version}→v3.0"] += 1
         else:
+            # Already v3.0
             entry = deepcopy(existing)
+            # Ensure ADD-6 block is present/updated
+            if add6_data:
+                entry["misra_add6"] = build_misra_add6_block(add6_data)
+            upgrade_stats["v3.0 updated"] += 1
         
-        # Apply v2 decisions to each context
+        # Check for ADD-6 mismatch if batch report has misra_add6
+        batch_add6 = g.get("misra_add6")
+        if batch_add6 and add6_data:
+            mismatches = check_add6_mismatch(batch_add6, add6_data)
+            if mismatches:
+                add6_mismatches.append((gid, mismatches))
+        
+        # Apply decisions to each context
         for context in ["all_rust", "safe_rust"]:
             ctx_decision = vd.get(context, {})
             if ctx_decision.get("decision") is not None:
@@ -232,7 +297,17 @@ def update_mappings_v2(
         mappings["mappings"][idx] = entry
         updated_count += 1
     
-    return mappings, updated_count, migrated_count
+    # Report ADD-6 mismatches as warnings
+    if add6_mismatches:
+        print(f"\nWARNING: ADD-6 data changed for {len(add6_mismatches)} guideline(s):", file=sys.stderr)
+        for gid, diffs in add6_mismatches[:5]:
+            print(f"  {gid}:", file=sys.stderr)
+            for diff in diffs[:3]:
+                print(f"    {diff}", file=sys.stderr)
+        if len(add6_mismatches) > 5:
+            print(f"  ... and {len(add6_mismatches) - 5} more", file=sys.stderr)
+    
+    return mappings, updated_count, upgrade_stats
 
 
 def update_progress_v2(
@@ -372,7 +447,7 @@ def run_validation(root: Path) -> bool:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Phase 4: Apply v2 verified changes (migrates v1 entries to v2)"
+        description="Phase 4: Apply verified changes (upgrades all entries to v3.0)"
     )
     parser.add_argument(
         "--standard",
@@ -441,7 +516,7 @@ def main():
     print(f"Batch report schema: {report_version}", file=sys.stderr)
     
     # Validate batch report
-    errors = validate_batch_report_v2(report)
+    errors = validate_batch_report(report)
     if errors:
         print("ERROR: Batch report validation failed:", file=sys.stderr)
         for e in errors[:10]:
@@ -460,6 +535,11 @@ def main():
         if args.apply_applicability_changes:
             print("  Only approved changes will be applied.", file=sys.stderr)
     
+    # Load ADD-6 data
+    add6_all = load_add6_data(root)
+    if not add6_all:
+        print("WARNING: No ADD-6 data available. Entries will not have misra_add6 blocks.", file=sys.stderr)
+    
     # Load current files
     mappings_path = get_standard_mappings_path(root, args.standard)
     progress_path = get_verification_progress_path(root, args.standard)
@@ -467,11 +547,11 @@ def main():
     mappings = load_json(mappings_path, "Mappings")
     progress = load_json(progress_path, "Verification progress")
     
-    # Apply updates
+    # Apply updates (always output v3.0)
     print(f"\nApplying changes from batch {report['batch_id']}...", file=sys.stderr)
     
-    updated_mappings, mapping_count, migrated_count = update_mappings_v2(
-        mappings, report, args.session, args.apply_applicability_changes
+    updated_mappings, mapping_count, upgrade_stats = update_mappings_to_v3(
+        mappings, report, args.session, args.apply_applicability_changes, add6_all
     )
     updated_progress, all_rust_count, safe_rust_count = update_progress_v2(
         progress, report, args.session
@@ -479,7 +559,10 @@ def main():
     
     print(f"\nSummary:", file=sys.stderr)
     print(f"  Guidelines updated: {mapping_count}", file=sys.stderr)
-    print(f"  v1 entries migrated to v2: {migrated_count}", file=sys.stderr)
+    print(f"  Upgrades:", file=sys.stderr)
+    for upgrade_type, count in upgrade_stats.items():
+        if count > 0:
+            print(f"    {upgrade_type}: {count}", file=sys.stderr)
     print(f"  all_rust contexts verified: {all_rust_count}", file=sys.stderr)
     print(f"  safe_rust contexts verified: {safe_rust_count}", file=sys.stderr)
     

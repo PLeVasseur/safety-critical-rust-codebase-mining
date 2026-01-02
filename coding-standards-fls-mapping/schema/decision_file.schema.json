@@ -2,12 +2,64 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "decision_file.schema.json",
   "title": "Verification Decision File",
-  "description": "Schema for individual guideline verification decision files. Supports v1.0 (flat) and v2.0 (per-context) formats.",
+  "description": "Schema for individual guideline verification decision files. Supports v1.0, v1.1, v2.0, v2.1, and v3.0 formats.",
   "oneOf": [
     { "$ref": "#/$defs/decision_file_v1" },
-    { "$ref": "#/$defs/decision_file_v2" }
+    { "$ref": "#/$defs/decision_file_v1_1" },
+    { "$ref": "#/$defs/decision_file_v2" },
+    { "$ref": "#/$defs/decision_file_v2_1" },
+    { "$ref": "#/$defs/decision_file_v3" }
   ],
   "$defs": {
+    "misra_add6_snapshot": {
+      "type": "object",
+      "description": "MISRA ADD-6 data snapshot captured at decision time",
+      "required": ["misra_category", "decidability", "scope", "rationale_codes"],
+      "properties": {
+        "misra_category": {
+          "type": "string",
+          "enum": ["Required", "Advisory", "Mandatory"],
+          "description": "Original MISRA C category"
+        },
+        "decidability": {
+          "type": "string",
+          "enum": ["Decidable", "Undecidable", "n/a"],
+          "description": "Whether static analysis can check this guideline"
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["STU", "System", "n/a"],
+          "description": "Analysis scope: STU (single translation unit) or System"
+        },
+        "rationale_codes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["UB", "IDB", "CQ", "DC"]
+          },
+          "description": "Why this guideline exists: UB, IDB, CQ, DC"
+        },
+        "applicability_all_rust": {
+          "type": "string",
+          "enum": ["Yes", "No", "Partial"],
+          "description": "MISRA's assessment: does this guideline apply to all Rust?"
+        },
+        "applicability_safe_rust": {
+          "type": "string",
+          "enum": ["Yes", "No", "Partial"],
+          "description": "MISRA's assessment: does this guideline apply to safe Rust?"
+        },
+        "adjusted_category": {
+          "type": "string",
+          "enum": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a"],
+          "description": "MISRA's adjusted category for Rust"
+        },
+        "comment": {
+          "type": ["string", "null"],
+          "description": "MISRA's Rust-specific notes"
+        }
+      }
+    },
     "decision_file_v1": {
       "type": "object",
       "description": "v1.0 format: Flat decision structure",
@@ -110,6 +162,173 @@
         "guideline_id": {
           "type": "string",
           "description": "MISRA guideline ID (e.g., 'Rule 10.1', 'Dir 4.1')"
+        },
+        "all_rust": {
+          "oneOf": [
+            { "$ref": "#/$defs/context_decision_complete" },
+            { "$ref": "#/$defs/context_decision_scaffolded" }
+          ],
+          "description": "Verification decision for ALL Rust code (including unsafe)"
+        },
+        "safe_rust": {
+          "oneOf": [
+            { "$ref": "#/$defs/context_decision_complete" },
+            { "$ref": "#/$defs/context_decision_scaffolded" }
+          ],
+          "description": "Verification decision for SAFE Rust code only"
+        },
+        "recorded_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of last update (null if never recorded)"
+        }
+      }
+    },
+    "decision_file_v1_1": {
+      "type": "object",
+      "description": "v1.1 format: v1.0 + MISRA ADD-6 snapshot (enriched via migration)",
+      "required": [
+        "schema_version",
+        "guideline_id",
+        "misra_add6_snapshot",
+        "decision",
+        "confidence",
+        "fls_rationale_type",
+        "accepted_matches",
+        "rejected_matches",
+        "search_tools_used",
+        "recorded_at"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "1.1",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "MISRA guideline ID (e.g., 'Rule 10.1', 'Dir 4.1')"
+        },
+        "misra_add6_snapshot": {
+          "$ref": "#/$defs/misra_add6_snapshot",
+          "description": "MISRA ADD-6 data captured at decision time"
+        },
+        "decision": {
+          "type": "string",
+          "enum": ["accept_with_modifications", "accept_no_matches", "accept_existing", "reject"],
+          "description": "The verification decision type"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Confidence level in the verification decision"
+        },
+        "fls_rationale_type": {
+          "type": "string",
+          "enum": ["direct_mapping", "rust_alternative", "rust_prevents", "no_equivalent", "partial_mapping"],
+          "description": "Type of relationship between the guideline and FLS"
+        },
+        "accepted_matches": {
+          "type": "array",
+          "description": "FLS sections accepted as matches",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "rejected_matches": {
+          "type": "array",
+          "description": "FLS sections explicitly rejected",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "Additional notes about the decision"
+        },
+        "search_tools_used": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Search tools used during verification",
+          "items": { "$ref": "#/$defs/search_tool_usage" }
+        },
+        "proposed_applicability_change": {
+          "type": ["object", "null"],
+          "description": "Proposed change to applicability fields (requires human approval)"
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when decision was recorded"
+        }
+      }
+    },
+    "decision_file_v2_1": {
+      "type": "object",
+      "description": "v2.1 format: v2.0 + MISRA ADD-6 snapshot (enriched via migration)",
+      "required": [
+        "schema_version",
+        "guideline_id",
+        "misra_add6_snapshot",
+        "all_rust",
+        "safe_rust",
+        "recorded_at"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "2.1",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "MISRA guideline ID (e.g., 'Rule 10.1', 'Dir 4.1')"
+        },
+        "misra_add6_snapshot": {
+          "$ref": "#/$defs/misra_add6_snapshot",
+          "description": "MISRA ADD-6 data captured at decision time"
+        },
+        "all_rust": {
+          "oneOf": [
+            { "$ref": "#/$defs/context_decision_complete" },
+            { "$ref": "#/$defs/context_decision_scaffolded" }
+          ],
+          "description": "Verification decision for ALL Rust code (including unsafe)"
+        },
+        "safe_rust": {
+          "oneOf": [
+            { "$ref": "#/$defs/context_decision_complete" },
+            { "$ref": "#/$defs/context_decision_scaffolded" }
+          ],
+          "description": "Verification decision for SAFE Rust code only"
+        },
+        "recorded_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of last update (null if never recorded)"
+        }
+      }
+    },
+    "decision_file_v3": {
+      "type": "object",
+      "description": "v3.0 format: Per-context + MISRA ADD-6 snapshot, created by fresh verification (structurally same as v2.1)",
+      "required": [
+        "schema_version",
+        "guideline_id",
+        "misra_add6_snapshot",
+        "all_rust",
+        "safe_rust",
+        "recorded_at"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "3.0",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "MISRA guideline ID (e.g., 'Rule 10.1', 'Dir 4.1')"
+        },
+        "misra_add6_snapshot": {
+          "$ref": "#/$defs/misra_add6_snapshot",
+          "description": "MISRA ADD-6 data captured at decision time"
         },
         "all_rust": {
           "oneOf": [
