@@ -409,6 +409,11 @@ def main():
         action="store_true",
         help="Show what would be merged without writing to file",
     )
+    parser.add_argument(
+        "--skip-uuid-validation",
+        action="store_true",
+        help="Skip duplicate UUID validation (use for legacy decisions only)",
+    )
     
     args = parser.parse_args()
     
@@ -505,15 +510,19 @@ def main():
     print(f"Found {len(decisions)} valid decision file(s) ({version_info})")
     
     # Check for duplicate search IDs
-    duplicates = check_duplicate_search_ids(decisions)
-    if duplicates:
-        print("\nERROR: Duplicate search IDs detected:", file=sys.stderr)
-        for search_id, usages in list(duplicates.items())[:5]:
-            print(f"  UUID {search_id[:8]}... used by: {', '.join(usages)}", file=sys.stderr)
-        if len(duplicates) > 5:
-            print(f"  ... and {len(duplicates) - 5} more duplicates", file=sys.stderr)
-        print("\nEach search execution can only be claimed by one guideline.", file=sys.stderr)
-        sys.exit(1)
+    if not args.skip_uuid_validation:
+        duplicates = check_duplicate_search_ids(decisions)
+        if duplicates:
+            print("\nERROR: Duplicate search IDs detected:", file=sys.stderr)
+            for search_id, usages in list(duplicates.items())[:5]:
+                print(f"  UUID {search_id[:8]}... used by: {', '.join(usages)}", file=sys.stderr)
+            if len(duplicates) > 5:
+                print(f"  ... and {len(duplicates) - 5} more duplicates", file=sys.stderr)
+            print("\nEach search execution can only be claimed by one guideline.", file=sys.stderr)
+            print("\nFor legacy decisions, use --skip-uuid-validation to bypass this check.", file=sys.stderr)
+            sys.exit(1)
+    else:
+        print("WARNING: Skipping UUID validation for legacy decisions", file=sys.stderr)
     
     # Merge decisions
     print(f"\nMerging decisions into batch report...")

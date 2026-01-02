@@ -90,8 +90,8 @@ def validate_batch_report(report: dict) -> list[str]:
     errors = []
     
     schema_version = report.get("schema_version", "1.0")
-    if schema_version not in ("2.0", "3.0"):
-        errors.append(f"Expected v2.0 or v3.0 batch report, got {schema_version}")
+    if schema_version not in ("2.0", "2.1", "3.0"):
+        errors.append(f"Expected v2.0, v2.1, or v3.0 batch report, got {schema_version}")
         return errors
     
     if not report.get("guidelines"):
@@ -260,10 +260,10 @@ def update_mappings_to_v3(
         # Migrate to v3.0 based on existing version
         if existing_version in ("1.0", "1.1"):
             entry = migrate_v1_to_v3_entry(existing, add6_data)
-            upgrade_stats[f"{existing_version}→v3.0"] += 1
+            upgrade_stats[f"v{existing_version}→v3.0"] += 1
         elif existing_version in ("2.0", "2.1"):
             entry = migrate_v2_to_v3_entry(existing, add6_data)
-            upgrade_stats[f"{existing_version}→v3.0"] += 1
+            upgrade_stats[f"v{existing_version}→v3.0"] += 1
         else:
             # Already v3.0
             entry = deepcopy(existing)

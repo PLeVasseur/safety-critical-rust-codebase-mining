@@ -58,6 +58,16 @@ def is_v3(data: Dict[str, Any]) -> bool:
     return detect_schema_version(data) == "3.0"
 
 
+def is_v1_family(data: Dict[str, Any]) -> bool:
+    """Check if data is v1 family (v1.0 or v1.1 - flat structure)."""
+    return detect_schema_version(data) in ("1.0", "1.1")
+
+
+def is_v2_family(data: Dict[str, Any]) -> bool:
+    """Check if data is v2 family (v2.0, v2.1, or v3.0 - per-context structure)."""
+    return detect_schema_version(data) in ("2.0", "2.1", "3.0")
+
+
 def has_add6_data(data: Dict[str, Any]) -> bool:
     """Check if entry has misra_add6 or misra_add6_snapshot block."""
     return "misra_add6" in data or "misra_add6_snapshot" in data

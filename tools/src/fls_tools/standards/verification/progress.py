@@ -30,6 +30,8 @@ from fls_tools.shared import (
     get_guideline_schema_version,
     is_v1,
     is_v2,
+    is_v1_family,
+    is_v2_family,
 )
 
 
@@ -46,25 +48,23 @@ def is_context_verified_in_decision(decision: dict, context: str) -> bool:
     if not decision:
         return False
     
-    version = decision.get("schema_version", "1.0")
-    
-    if version == "2.0":
+    # v2 family (v2.0, v2.1, v3.0) has per-context structure
+    if is_v2_family(decision):
         ctx_data = decision.get(context, {})
         return ctx_data.get("decision") is not None
     else:
-        # v1: both contexts share the same decision
+        # v1 family: both contexts share the same decision
         return decision.get("decision") is not None
 
 
 def is_context_verified_in_mapping(entry: dict, context: str) -> bool:
     """Check if a context is verified in a mapping file entry."""
-    version = get_guideline_schema_version(entry)
-    
-    if version == "2.0":
+    # v2 family (v2.0, v2.1, v3.0) has per-context structure
+    if is_v2_family(entry):
         ctx_data = entry.get(context, {})
         return ctx_data.get("verified", False)
     else:
-        # v1: check confidence (high = verified)
+        # v1 family: check confidence (high = verified)
         return entry.get("confidence") == "high"
 
 
@@ -81,7 +81,8 @@ def find_batch_reports(cache_dir: Path) -> list[dict]:
                 version = data.get("schema_version", "1.0")
                 total = len(data.get("guidelines", []))
                 
-                if version == "2.0":
+                # v2 family (v2.0, v2.1, v3.0) has per-context structure
+                if is_v2_family(data):
                     # Count per-context verification
                     all_rust_verified = 0
                     safe_rust_verified = 0
@@ -107,7 +108,7 @@ def find_batch_reports(cache_dir: Path) -> list[dict]:
                         "generated_date": data.get("generated_date"),
                     })
                 else:
-                    # v1 report
+                    # v1 family report
                     verified = sum(
                         1 for g in data.get("guidelines", [])
                         if g.get("verification_decision", {}).get("decision")
@@ -198,8 +199,8 @@ def analyze_decisions_directory_v2(
         if is_valid and guideline_id and data:
             valid_count += 1
             
-            version = data.get("schema_version", "1.0")
-            if version == "2.0":
+            # v2 family (v2.0, v2.1, v3.0) has per-context structure
+            if is_v2_family(data):
                 ar = data.get("all_rust", {})
                 sr = data.get("safe_rust", {})
                 
@@ -210,7 +211,7 @@ def analyze_decisions_directory_v2(
                 if ar.get("decision") and sr.get("decision"):
                     both_decided.add(guideline_id)
             else:
-                # v1: counts as both
+                # v1 family: counts as both
                 if data.get("decision"):
                     all_rust_decided.add(guideline_id)
                     safe_rust_decided.add(guideline_id)
@@ -286,9 +287,9 @@ def get_progress_from_mapping(root: Path, standard: str) -> dict:
     
     for entry in data.get("mappings", []):
         total += 1
-        version = get_guideline_schema_version(entry)
         
-        if version == "2.0":
+        # v2 family (v2.0, v2.1, v3.0) has per-context structure
+        if is_v2_family(entry):
             v2_count += 1
             ar_verified = entry.get("all_rust", {}).get("verified", False)
             sr_verified = entry.get("safe_rust", {}).get("verified", False)
@@ -301,7 +302,7 @@ def get_progress_from_mapping(root: Path, standard: str) -> dict:
                 both_verified += 1
         else:
             v1_count += 1
-            # v1: confidence=high means verified (both contexts)
+            # v1 family: confidence=high means verified (both contexts)
             if entry.get("confidence") == "high":
                 all_rust_verified += 1
                 safe_rust_verified += 1
@@ -481,7 +482,8 @@ def main():
             print(f"  Session: {latest['session_id']}")
             print(f"  Schema: {latest.get('schema_version', '1.0')}")
             
-            if latest.get("schema_version") == "2.0":
+            # v2 family (v2.0, v2.1, v3.0) has per-context tracking
+            if latest.get("schema_version") in ("2.0", "2.1", "3.0"):
                 ar = latest.get("all_rust_verified", 0)
                 sr = latest.get("safe_rust_verified", 0)
                 both = latest.get("both_verified", 0)
