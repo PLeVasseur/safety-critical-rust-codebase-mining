@@ -1,0 +1,74 @@
+{
+  "source": "Rustonomicon",
+  "source_repo": "https://github.com/rust-lang/nomicon",
+  "extraction_date": "2026-01-03",
+  "chapter": 13,
+  "title": "Beneath `std`",
+  "file": "beneath-std.md",
+  "sections": [
+    {
+      "id": "nomicon_beneath_std",
+      "title": "Beneath `std`",
+      "level": 1,
+      "content": "This section documents features that are normally provided by the `std` crate and\nthat `#![no_std]` developers have to deal with (i.e. provide) to build\n`#![no_std]` binary crates.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_beneath_std_p1": "This section documents features that are normally provided by the `std` crate and\nthat `#![no_std]` developers have to deal with (i.e. provide) to build\n`#![no_std]` binary crates."
+      }
+    },
+    {
+      "id": "nomicon_using_libc",
+      "title": "Using `libc`",
+      "level": 2,
+      "content": "In order to build a `#[no_std]` executable we will need `libc` as a dependency.\nWe can specify this using our `Cargo.toml` file:\n\n[dependencies]\nlibc = { version = \"0.2.146\", default-features = false }\n\nNote that the default features have been disabled. This is a critical step -\n**the default features of `libc` include the `std` crate and so must be\ndisabled.**\n\nAlternatively, we can use the unstable `rustc_private` private feature together\nwith an `extern crate libc;` declaration as shown in the examples below. Note that\nwindows-msvc targets do not require a libc, and correspondingly there is no `libc`\ncrate in their sysroot. We do not need the `extern crate libc;` below, and having it\non a windows-msvc target would be a compile error.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_using_libc_p1": "In order to build a `#[no_std]` executable we will need `libc` as a dependency.\nWe can specify this using our `Cargo.toml` file:",
+        "nomicon_using_libc_p2": "[dependencies]\nlibc = { version = \"0.2.146\", default-features = false }",
+        "nomicon_using_libc_p3": "Note that the default features have been disabled. This is a critical step -\n**the default features of `libc` include the `std` crate and so must be\ndisabled.**",
+        "nomicon_using_libc_p4": "Alternatively, we can use the unstable `rustc_private` private feature together\nwith an `extern crate libc;` declaration as shown in the examples below. Note that\nwindows-msvc targets do not require a libc, and correspondingly there is no `libc`\ncrate in their sysroot. We do not need the `extern crate libc;` below, and having it\non a windows-msvc target would be a compile error."
+      }
+    },
+    {
+      "id": "nomicon_writing_an_executable_without_std",
+      "title": "Writing an executable without `std`",
+      "level": 2,
+      "content": "We will probably need a nightly version of the compiler to produce\na `#![no_std]` executable because on many platforms, we have to provide the\n`eh_personality` [lang item], which is unstable.\n\nYou will need to define a symbol for the entry point that is suitable for your target. For example, `main`, `_start`, `WinMain`, or whatever starting point is relevant for your target.\nAdditionally, you need to use the `#![no_main]` attribute to prevent the compiler from attempting to generate an entry point itself.\n\nAdditionally, it's required to define a panic handler function.\n\n#![feature(lang_items, core_intrinsics, rustc_private)]\n#![allow(internal_features)]\n#![no_std]\n#![no_main]\n\n// Necessary for `panic = \"unwind\"` builds on cfg(unix) platforms.\n#![feature(panic_unwind)]\nextern crate unwind;\n\n// Pull in the system libc library for what crt0.o likely requires.\n#[cfg(not(windows))]\nextern crate libc;\n\nuse core::ffi::{c_char, c_int};\nuse core::panic::PanicInfo;\n\n// Entry point for this program.\n#[unsafe(no_mangle)] // ensure that this symbol is included in the output as `main`\nextern \"C\" fn main(_argc: c_int, _argv: *const *const c_char) -> c_int {\n    0\n}\n\n// These functions are used by the compiler, but not for an empty program like this.\n// They are normally provided by `std`.\n#[lang = \"eh_personality\"]\nfn rust_eh_personality() {}\n#[panic_handler]\nfn panic_handler(_info: &PanicInfo) -> ! { core::intrinsics::abort() }\n\nIf you are working with a target that doesn't have binary releases of the\nstandard library available via rustup (this probably means you are building the\n`core` crate yourself) and need compiler-rt intrinsics (i.e. you are probably\ngetting linker errors when building an executable:\n``undefined reference to `__aeabi_memcpy'``), you need to manually link to the\n[`compiler_builtins` crate] to get those intrinsics and solve the linker errors.\n\n[`compiler_builtins` crate]: https://crates.io/crates/compiler_builtins\n[lang item]: https://doc.rust-lang.org/nightly/unstable-book/language-features/lang-items.html",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_writing_an_executable_without_std_p1": "We will probably need a nightly version of the compiler to produce\na `#![no_std]` executable because on many platforms, we have to provide the\n`eh_personality` [lang item], which is unstable.",
+        "nomicon_writing_an_executable_without_std_p2": "You will need to define a symbol for the entry point that is suitable for your target. For example, `main`, `_start`, `WinMain`, or whatever starting point is relevant for your target.\nAdditionally, you need to use the `#![no_main]` attribute to prevent the compiler from attempting to generate an entry point itself.",
+        "nomicon_writing_an_executable_without_std_p3": "Additionally, it's required to define a panic handler function.",
+        "nomicon_writing_an_executable_without_std_p4": "#![feature(lang_items, core_intrinsics, rustc_private)]\n#![allow(internal_features)]\n#![no_std]\n#![no_main]",
+        "nomicon_writing_an_executable_without_std_p5": "// Necessary for `panic = \"unwind\"` builds on cfg(unix) platforms.\n#![feature(panic_unwind)]\nextern crate unwind;",
+        "nomicon_writing_an_executable_without_std_p6": "// Pull in the system libc library for what crt0.o likely requires.\n#[cfg(not(windows))]\nextern crate libc;",
+        "nomicon_writing_an_executable_without_std_p7": "use core::ffi::{c_char, c_int};\nuse core::panic::PanicInfo;",
+        "nomicon_writing_an_executable_without_std_p8": "// Entry point for this program.\n#[unsafe(no_mangle)] // ensure that this symbol is included in the output as `main`\nextern \"C\" fn main(_argc: c_int, _argv: *const *const c_char) -> c_int {\n    0\n}",
+        "nomicon_writing_an_executable_without_std_p9": "// These functions are used by the compiler, but not for an empty program like this.\n// They are normally provided by `std`.\n#[lang = \"eh_personality\"]\nfn rust_eh_personality() {}\n#[panic_handler]\nfn panic_handler(_info: &PanicInfo) -> ! { core::intrinsics::abort() }",
+        "nomicon_writing_an_executable_without_std_p10": "If you are working with a target that doesn't have binary releases of the\nstandard library available via rustup (this probably means you are building the\n`core` crate yourself) and need compiler-rt intrinsics (i.e. you are probably\ngetting linker errors when building an executable:\n``undefined reference to `__aeabi_memcpy'``), you need to manually link to the\n[`compiler_builtins` crate] to get those intrinsics and solve the linker errors.",
+        "nomicon_writing_an_executable_without_std_p11": "[`compiler_builtins` crate]: https://crates.io/crates/compiler_builtins\n[lang item]: https://doc.rust-lang.org/nightly/unstable-book/language-features/lang-items.html"
+      }
+    }
+  ],
+  "ids": [
+    "nomicon_using_libc_p3",
+    "nomicon_writing_an_executable_without_std_p11",
+    "nomicon_writing_an_executable_without_std_p8",
+    "nomicon_writing_an_executable_without_std_p10",
+    "nomicon_writing_an_executable_without_std_p1",
+    "nomicon_using_libc",
+    "nomicon_writing_an_executable_without_std_p7",
+    "nomicon_writing_an_executable_without_std_p5",
+    "nomicon_using_libc_p1",
+    "nomicon_using_libc_p2",
+    "nomicon_beneath_std",
+    "nomicon_writing_an_executable_without_std",
+    "nomicon_using_libc_p4",
+    "nomicon_writing_an_executable_without_std_p4",
+    "nomicon_writing_an_executable_without_std_p3",
+    "nomicon_writing_an_executable_without_std_p6",
+    "nomicon_beneath_std_p1",
+    "nomicon_writing_an_executable_without_std_p2",
+    "nomicon_writing_an_executable_without_std_p9"
+  ]
+}

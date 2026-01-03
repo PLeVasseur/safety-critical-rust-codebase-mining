@@ -1,0 +1,136 @@
+{
+  "source": "Rust Reference",
+  "source_repo": "https://github.com/rust-lang/reference",
+  "extraction_date": "2026-01-03",
+  "chapter": 14,
+  "title": "Memory model",
+  "file": "memory-model.md",
+  "sections": [
+    {
+      "id": "memory",
+      "title": "Memory model",
+      "level": 1,
+      "content": "> [!WARNING]\n> The memory model of Rust is incomplete and not fully decided.",
+      "parent_id": null,
+      "paragraphs": {
+        "memory": "> [!WARNING]\n> The memory model of Rust is incomplete and not fully decided."
+      }
+    },
+    {
+      "id": "memory.bytes",
+      "title": "Bytes",
+      "level": 1,
+      "content": "The most basic unit of memory in Rust is a byte.\n\n> [!NOTE]\n> While bytes are typically lowered to hardware bytes, Rust uses an \"abstract\" notion of bytes that can make distinctions which are absent in hardware, such as being uninitialized, or storing part of a pointer. Those distinctions can affect whether your program has undefined behavior, so they still have tangible impact on how compiled Rust programs behave.\n\nEach byte may have one of the following values:\n\n* An initialized byte containing a `u8` value and optional provenance,\n\n* An uninitialized byte.\n\n> [!NOTE]\n> The above list is not yet guaranteed to be exhaustive.",
+      "parent_id": null,
+      "paragraphs": {
+        "memory.bytes.intro": "The most basic unit of memory in Rust is a byte.\n\n> [!NOTE]\n> While bytes are typically lowered to hardware bytes, Rust uses an \"abstract\" notion of bytes that can make distinctions which are absent in hardware, such as being uninitialized, or storing part of a pointer. Those distinctions can affect whether your program has undefined behavior, so they still have tangible impact on how compiled Rust programs behave.",
+        "memory.bytes.contents": "Each byte may have one of the following values:",
+        "memory.bytes.init": "* An initialized byte containing a `u8` value and optional provenance,",
+        "memory.bytes.uninit": "* An uninitialized byte.\n\n> [!NOTE]\n> The above list is not yet guaranteed to be exhaustive."
+      }
+    },
+    {
+      "id": "alloc",
+      "title": "Memory allocation and lifetime",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "alloc.static",
+      "title": "Memory allocation and lifetime",
+      "level": 1,
+      "content": "The _items_ of a program are those functions, modules, and types that have their\nvalue calculated at compile-time and stored uniquely in the memory image of the\nrust process. Items are neither dynamically allocated nor freed.",
+      "parent_id": null,
+      "paragraphs": {
+        "alloc.static": "The _items_ of a program are those functions, modules, and types that have their\nvalue calculated at compile-time and stored uniquely in the memory image of the\nrust process. Items are neither dynamically allocated nor freed."
+      }
+    },
+    {
+      "id": "alloc.dynamic",
+      "title": "Memory allocation and lifetime",
+      "level": 1,
+      "content": "The _heap_ is a general term that describes boxes.  The lifetime of an\nallocation in the heap depends on the lifetime of the box values pointing to\nit. Since box values may themselves be passed in and out of frames, or stored\nin the heap, heap allocations may outlive the frame they are allocated within.\nAn allocation in the heap is guaranteed to reside at a single location in the\nheap for the whole lifetime of the allocation - it will never be relocated as\na result of moving a box value.",
+      "parent_id": null,
+      "paragraphs": {
+        "alloc.dynamic": "The _heap_ is a general term that describes boxes.  The lifetime of an\nallocation in the heap depends on the lifetime of the box values pointing to\nit. Since box values may themselves be passed in and out of frames, or stored\nin the heap, heap allocations may outlive the frame they are allocated within.\nAn allocation in the heap is guaranteed to reside at a single location in the\nheap for the whole lifetime of the allocation - it will never be relocated as\na result of moving a box value."
+      }
+    },
+    {
+      "id": "variable",
+      "title": "Variables",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "variable.intro",
+      "title": "Variables",
+      "level": 1,
+      "content": "A _variable_ is a component of a stack frame, either a named function parameter,\nan anonymous temporary, or a named local\nvariable.",
+      "parent_id": null,
+      "paragraphs": {
+        "variable.intro": "A _variable_ is a component of a stack frame, either a named function parameter,\nan anonymous temporary, or a named local\nvariable."
+      }
+    },
+    {
+      "id": "variable.local",
+      "title": "Variables",
+      "level": 1,
+      "content": "A _local variable_ (or *stack-local* allocation) holds a value directly,\nallocated within the stack's memory. The value is a part of the stack frame.",
+      "parent_id": null,
+      "paragraphs": {
+        "variable.local": "A _local variable_ (or *stack-local* allocation) holds a value directly,\nallocated within the stack's memory. The value is a part of the stack frame."
+      }
+    },
+    {
+      "id": "variable.local-mut",
+      "title": "Variables",
+      "level": 1,
+      "content": "Local variables are immutable unless declared otherwise. For example:\n`let mut x = ...`.",
+      "parent_id": null,
+      "paragraphs": {
+        "variable.local-mut": "Local variables are immutable unless declared otherwise. For example:\n`let mut x = ...`."
+      }
+    },
+    {
+      "id": "variable.param-mut",
+      "title": "Variables",
+      "level": 1,
+      "content": "Function parameters are immutable unless declared with `mut`. The `mut` keyword\napplies only to the following parameter. For example: `|mut x, y|` and\n`fn f(mut x: Box<i32>, y: Box<i32>)` declare one mutable variable `x` and one\nimmutable variable `y`.",
+      "parent_id": null,
+      "paragraphs": {
+        "variable.param-mut": "Function parameters are immutable unless declared with `mut`. The `mut` keyword\napplies only to the following parameter. For example: `|mut x, y|` and\n`fn f(mut x: Box<i32>, y: Box<i32>)` declare one mutable variable `x` and one\nimmutable variable `y`."
+      }
+    },
+    {
+      "id": "variable.init",
+      "title": "Variables",
+      "level": 1,
+      "content": "Local variables are not initialized when allocated. Instead, the entire frame\nworth of local variables are allocated, on frame-entry, in an uninitialized\nstate. Subsequent statements within a function may or may not initialize the\nlocal variables. Local variables can be used only after they have been\ninitialized through all reachable control flow paths.\n\nIn this next example, `init_after_if` is initialized after the [`if` expression]\nwhile `uninit_after_if` is not because it is not initialized in the `else` case.\n\n# fn random_bool() -> bool { true }\nfn initialization_example() {\n    let init_after_if: ();\n    let uninit_after_if: ();\n\n    if random_bool() {\n        init_after_if = ();\n        uninit_after_if = ();\n    } else {\n        init_after_if = ();\n    }\n\n    init_after_if; // ok\n    // uninit_after_if; // err: use of possibly uninitialized `uninit_after_if`\n}\n\n[`if` expression]: expressions/if-expr.md#if-expressions",
+      "parent_id": null,
+      "paragraphs": {
+        "variable.init": "Local variables are not initialized when allocated. Instead, the entire frame\nworth of local variables are allocated, on frame-entry, in an uninitialized\nstate. Subsequent statements within a function may or may not initialize the\nlocal variables. Local variables can be used only after they have been\ninitialized through all reachable control flow paths.\n\nIn this next example, `init_after_if` is initialized after the [`if` expression]\nwhile `uninit_after_if` is not because it is not initialized in the `else` case.\n\n# fn random_bool() -> bool { true }\nfn initialization_example() {\n    let init_after_if: ();\n    let uninit_after_if: ();\n\n    if random_bool() {\n        init_after_if = ();\n        uninit_after_if = ();\n    } else {\n        init_after_if = ();\n    }\n\n    init_after_if; // ok\n    // uninit_after_if; // err: use of possibly uninitialized `uninit_after_if`\n}\n\n[`if` expression]: expressions/if-expr.md#if-expressions"
+      }
+    }
+  ],
+  "ids": [
+    "memory.bytes.init",
+    "memory.bytes.contents",
+    "variable",
+    "memory",
+    "alloc.static",
+    "variable.init",
+    "variable.param-mut",
+    "alloc.dynamic",
+    "variable.intro",
+    "variable.local-mut",
+    "alloc",
+    "memory.bytes.uninit",
+    "variable.local",
+    "memory.bytes",
+    "memory.bytes.intro"
+  ]
+}

@@ -1,0 +1,234 @@
+{
+  "source": "Rustonomicon",
+  "source_repo": "https://github.com/rust-lang/nomicon",
+  "extraction_date": "2026-01-03",
+  "chapter": 5,
+  "title": "Type Conversions",
+  "file": "conversions.md",
+  "sections": [
+    {
+      "id": "nomicon_type_conversions",
+      "title": "Type Conversions",
+      "level": 1,
+      "content": "At the end of the day, everything is just a pile of bits somewhere, and type\nsystems are just there to help us use those bits right. There are two common\nproblems with typing bits: needing to reinterpret those exact bits as a\ndifferent type, and needing to change the bits to have equivalent meaning for\na different type. Because Rust encourages encoding important properties in the\ntype system, these problems are incredibly pervasive. As such, Rust\nconsequently gives you several ways to solve them.\n\nFirst we'll look at the ways that Safe Rust gives you to reinterpret values.\nThe most trivial way to do this is to just destructure a value into its\nconstituent parts and then build a new type out of them. e.g.\n\nstruct Foo {\n    x: u32,\n    y: u16,\n}\n\nstruct Bar {\n    a: u32,\n    b: u16,\n}\n\nfn reinterpret(foo: Foo) -> Bar {\n    let Foo { x, y } = foo;\n    Bar { a: x, b: y }\n}\n\nBut this is, at best, annoying. For common conversions, Rust provides\nmore ergonomic alternatives.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_type_conversions_p1": "At the end of the day, everything is just a pile of bits somewhere, and type\nsystems are just there to help us use those bits right. There are two common\nproblems with typing bits: needing to reinterpret those exact bits as a\ndifferent type, and needing to change the bits to have equivalent meaning for\na different type. Because Rust encourages encoding important properties in the\ntype system, these problems are incredibly pervasive. As such, Rust\nconsequently gives you several ways to solve them.",
+        "nomicon_type_conversions_p2": "First we'll look at the ways that Safe Rust gives you to reinterpret values.\nThe most trivial way to do this is to just destructure a value into its\nconstituent parts and then build a new type out of them. e.g.",
+        "nomicon_type_conversions_p3": "struct Foo {\n    x: u32,\n    y: u16,\n}",
+        "nomicon_type_conversions_p4": "struct Bar {\n    a: u32,\n    b: u16,\n}",
+        "nomicon_type_conversions_p5": "fn reinterpret(foo: Foo) -> Bar {\n    let Foo { x, y } = foo;\n    Bar { a: x, b: y }\n}",
+        "nomicon_type_conversions_p6": "But this is, at best, annoying. For common conversions, Rust provides\nmore ergonomic alternatives."
+      }
+    },
+    {
+      "id": "nomicon_coercions",
+      "title": "Coercions",
+      "level": 1,
+      "content": "Types can implicitly be coerced to change in certain contexts.\nThese changes are generally just *weakening* of types, largely focused around pointers and lifetimes.\nThey mostly exist to make Rust \"just work\" in more cases, and are largely harmless.\n\nFor an exhaustive list of all the types of coercions, see the [Coercion types] section on the reference.\n\nNote that we do not perform coercions when matching traits (except for receivers, see the next page).\nIf there is an `impl` for some type `U` and `T` coerces to `U`, that does not constitute an implementation for `T`.\nFor example, the following will not type check, even though it is OK to coerce `t` to `&T` and there is an `impl` for `&T`:\n\n,compile_fail\ntrait Trait {}\n\nfn foo<X: Trait>(t: X) {}\n\nimpl<'a> Trait for &'a i32 {}\n\nfn main() {\n    let t: &mut i32 = &mut 0;\n    foo(t);\n}\n\nwhich fails like as follows:\n\nerror[E0277]: the trait bound `&mut i32: Trait` is not satisfied\n --> src/main.rs:9:9\n  |\n3 | fn foo<X: Trait>(t: X) {}\n  |           ----- required by this bound in `foo`\n...\n9 |     foo(t);\n  |         ^ the trait `Trait` is not implemented for `&mut i32`\n  |\n  = help: the following implementations were found:\n            <&'a i32 as Trait>\n  = note: `Trait` is implemented for `&i32`, but not for `&mut i32`\n\n[Coercion types]: ../reference/type-coercions.html#coercion-types\n[dot-operator]: ./dot-operator.html",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_coercions_p1": "Types can implicitly be coerced to change in certain contexts.\nThese changes are generally just *weakening* of types, largely focused around pointers and lifetimes.\nThey mostly exist to make Rust \"just work\" in more cases, and are largely harmless.",
+        "nomicon_coercions_p2": "For an exhaustive list of all the types of coercions, see the [Coercion types] section on the reference.",
+        "nomicon_coercions_p3": "Note that we do not perform coercions when matching traits (except for receivers, see the next page).\nIf there is an `impl` for some type `U` and `T` coerces to `U`, that does not constitute an implementation for `T`.\nFor example, the following will not type check, even though it is OK to coerce `t` to `&T` and there is an `impl` for `&T`:",
+        "nomicon_coercions_p4": ",compile_fail\ntrait Trait {}",
+        "nomicon_coercions_p5": "fn foo<X: Trait>(t: X) {}",
+        "nomicon_coercions_p6": "impl<'a> Trait for &'a i32 {}",
+        "nomicon_coercions_p7": "fn main() {\n    let t: &mut i32 = &mut 0;\n    foo(t);\n}",
+        "nomicon_coercions_p8": "which fails like as follows:",
+        "nomicon_coercions_p9": "error[E0277]: the trait bound `&mut i32: Trait` is not satisfied\n --> src/main.rs:9:9\n  |\n3 | fn foo<X: Trait>(t: X) {}\n  |           ----- required by this bound in `foo`\n...\n9 |     foo(t);\n  |         ^ the trait `Trait` is not implemented for `&mut i32`\n  |\n  = help: the following implementations were found:\n            <&'a i32 as Trait>\n  = note: `Trait` is implemented for `&i32`, but not for `&mut i32`",
+        "nomicon_coercions_p10": "[Coercion types]: ../reference/type-coercions.html#coercion-types\n[dot-operator]: ./dot-operator.html"
+      }
+    },
+    {
+      "id": "nomicon_the_dot_operator",
+      "title": "The Dot Operator",
+      "level": 1,
+      "content": "The dot operator will perform a lot of magic to convert types.\nIt will perform auto-referencing, auto-dereferencing, and coercion until types\nmatch.\nThe detailed mechanics of method lookup are defined here,\nbut here is a brief overview that outlines the main steps.\n\nSuppose we have a function `foo` that has a receiver (a `self`, `&self` or\n`&mut self` parameter).\nIf we call `value.foo()`, the compiler needs to determine what type `Self` is before\nit can call the correct implementation of the function.\nFor this example, we will say that `value` has type `T`.\n\nWe will use fully-qualified syntax to be more clear about exactly which\ntype we are calling a function on.\n\n- First, the compiler checks if it can call `T::foo(value)` directly.\nThis is called a \"by value\" method call.\n- If it can't call this function (for example, if the function has the wrong type\nor a trait isn't implemented for `Self`), then the compiler tries to add in an\nautomatic reference.\nThis means that the compiler tries `<&T>::foo(value)` and `<&mut T>::foo(value)`.\nThis is called an \"autoref\" method call.\n- If none of these candidates worked, it dereferences `T` and tries again.\nThis uses the `Deref` trait - if `T: Deref<Target = U>` then it tries again with\ntype `U` instead of `T`.\nIf it can't dereference `T`, it can also try _unsizing_ `T`.\nThis just means that if `T` has a size parameter known at compile time, it \"forgets\"\nit for the purpose of resolving methods.\nFor instance, this unsizing step can convert `[i32; 2]` into `[i32]` by \"forgetting\"\nthe size of the array.\n\nHere is an example of the method lookup algorithm:\n\n,ignore\nlet array: Rc<Box<[T; 3]>> = ...;\nlet first_entry = array[0];\n\nHow does the compiler actually compute `array[0]` when the array is behind so\nmany indirections?\nFirst, `array[0]` is really just syntax sugar for the `Index` trait -\nthe compiler will convert `array[0]` into `array.index(0)`.\nNow, the compiler checks to see if `array` implements `Index`, so that it can call\nthe function.\n\nThen, the compiler checks if `Rc<Box<[T; 3]>>` implements `Index`, but it\ndoes not, and neither do `&Rc<Box<[T; 3]>>` or `&mut Rc<Box<[T; 3]>>`.\nSince none of these worked, the compiler dereferences the `Rc<Box<[T; 3]>>` into\n`Box<[T; 3]>` and tries again.\n`Box<[T; 3]>`, `&Box<[T; 3]>`, and `&mut Box<[T; 3]>` do not implement `Index`,\nso it dereferences again.\n`[T; 3]` and its autorefs also do not implement `Index`.\nIt can't dereference `[T; 3]`, so the compiler unsizes it, giving `[T]`.\nFinally, `[T]` implements `Index`, so it can now call the actual `index` function.\n\nConsider the following more complicated example of the dot operator at work:\n\nfn do_stuff<T: Clone>(value: &T) {\n    let cloned = value.clone();\n}\n\nWhat type is `cloned`?\nFirst, the compiler checks if it can call by value.\nThe type of `value` is `&T`, and so the `clone` function has signature\n`fn clone(&T) -> T`.\nIt knows that `T: Clone`, so the compiler finds that `cloned: T`.\n\nWhat would happen if the `T: Clone` restriction was removed? It would not be able\nto call by value, since there is no implementation of `Clone` for `T`.\nSo the compiler tries to call by autoref.\nIn this case, the function has the signature `fn clone(&&T) -> &T` since\n`Self = &T`.\nThe compiler sees that `&T: Clone`, and then deduces that `cloned: &T`.\n\nHere is another example where the autoref behavior is used to create some subtle\neffects:",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_the_dot_operator_p1": "The dot operator will perform a lot of magic to convert types.\nIt will perform auto-referencing, auto-dereferencing, and coercion until types\nmatch.\nThe detailed mechanics of method lookup are defined here,\nbut here is a brief overview that outlines the main steps.",
+        "nomicon_the_dot_operator_p2": "Suppose we have a function `foo` that has a receiver (a `self`, `&self` or\n`&mut self` parameter).\nIf we call `value.foo()`, the compiler needs to determine what type `Self` is before\nit can call the correct implementation of the function.\nFor this example, we will say that `value` has type `T`.",
+        "nomicon_the_dot_operator_p3": "We will use fully-qualified syntax to be more clear about exactly which\ntype we are calling a function on.",
+        "nomicon_the_dot_operator_p4": "- First, the compiler checks if it can call `T::foo(value)` directly.\nThis is called a \"by value\" method call.\n- If it can't call this function (for example, if the function has the wrong type\nor a trait isn't implemented for `Self`), then the compiler tries to add in an\nautomatic reference.\nThis means that the compiler tries `<&T>::foo(value)` and `<&mut T>::foo(value)`.\nThis is called an \"autoref\" method call.\n- If none of these candidates worked, it dereferences `T` and tries again.\nThis uses the `Deref` trait - if `T: Deref<Target = U>` then it tries again with\ntype `U` instead of `T`.\nIf it can't dereference `T`, it can also try _unsizing_ `T`.\nThis just means that if `T` has a size parameter known at compile time, it \"forgets\"\nit for the purpose of resolving methods.\nFor instance, this unsizing step can convert `[i32; 2]` into `[i32]` by \"forgetting\"\nthe size of the array.",
+        "nomicon_the_dot_operator_p5": "Here is an example of the method lookup algorithm:",
+        "nomicon_the_dot_operator_p6": ",ignore\nlet array: Rc<Box<[T; 3]>> = ...;\nlet first_entry = array[0];",
+        "nomicon_the_dot_operator_p7": "How does the compiler actually compute `array[0]` when the array is behind so\nmany indirections?\nFirst, `array[0]` is really just syntax sugar for the `Index` trait -\nthe compiler will convert `array[0]` into `array.index(0)`.\nNow, the compiler checks to see if `array` implements `Index`, so that it can call\nthe function.",
+        "nomicon_the_dot_operator_p8": "Then, the compiler checks if `Rc<Box<[T; 3]>>` implements `Index`, but it\ndoes not, and neither do `&Rc<Box<[T; 3]>>` or `&mut Rc<Box<[T; 3]>>`.\nSince none of these worked, the compiler dereferences the `Rc<Box<[T; 3]>>` into\n`Box<[T; 3]>` and tries again.\n`Box<[T; 3]>`, `&Box<[T; 3]>`, and `&mut Box<[T; 3]>` do not implement `Index`,\nso it dereferences again.\n`[T; 3]` and its autorefs also do not implement `Index`.\nIt can't dereference `[T; 3]`, so the compiler unsizes it, giving `[T]`.\nFinally, `[T]` implements `Index`, so it can now call the actual `index` function.",
+        "nomicon_the_dot_operator_p9": "Consider the following more complicated example of the dot operator at work:",
+        "nomicon_the_dot_operator_p10": "fn do_stuff<T: Clone>(value: &T) {\n    let cloned = value.clone();\n}",
+        "nomicon_the_dot_operator_p11": "What type is `cloned`?\nFirst, the compiler checks if it can call by value.\nThe type of `value` is `&T`, and so the `clone` function has signature\n`fn clone(&T) -> T`.\nIt knows that `T: Clone`, so the compiler finds that `cloned: T`.",
+        "nomicon_the_dot_operator_p12": "What would happen if the `T: Clone` restriction was removed? It would not be able\nto call by value, since there is no implementation of `Clone` for `T`.\nSo the compiler tries to call by autoref.\nIn this case, the function has the signature `fn clone(&&T) -> &T` since\n`Self = &T`.\nThe compiler sees that `&T: Clone`, and then deduces that `cloned: &T`.",
+        "nomicon_the_dot_operator_p13": "Here is another example where the autoref behavior is used to create some subtle\neffects:",
+        "nomicon_the_dot_operator_p14": ""
+      }
+    },
+    {
+      "id": "nomicon_use_std_sync_arc",
+      "title": "use std::sync::Arc;",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "nomicon_derive_clone",
+      "title": "#[derive(Clone)]",
+      "level": 1,
+      "content": "struct Container<T>(Arc<T>);\n\nfn clone_containers<T>(foo: &Container<i32>, bar: &Container<T>) {\n    let foo_cloned = foo.clone();\n    let bar_cloned = bar.clone();\n}\n\nWhat types are `foo_cloned` and `bar_cloned`?\nWe know that `Container<i32>: Clone`, so the compiler calls `clone` by value to give\n`foo_cloned: Container<i32>`.\nHowever, `bar_cloned` actually has type `&Container<T>`.\nSurely this doesn't make sense - we added `#[derive(Clone)]` to `Container`, so it\nmust implement `Clone`!\nLooking closer, the code generated by the `derive` macro is (roughly):\n\n,ignore\nimpl<T> Clone for Container<T> where T: Clone {\n    fn clone(&self) -> Self {\n        Self(Arc::clone(&self.0))\n    }\n}\n\nThe derived `Clone` implementation is only defined where `T: Clone`,\nso there is no implementation for `Container<T>: Clone` for a generic `T`.\nThe compiler then looks to see if `&Container<T>` implements `Clone`, which it does.\nSo it deduces that `clone` is called by autoref, and so `bar_cloned` has type\n`&Container<T>`.\n\nWe can fix this by implementing `Clone` manually without requiring `T: Clone`:\n\n,ignore\nimpl<T> Clone for Container<T> {\n    fn clone(&self) -> Self {\n        Self(Arc::clone(&self.0))\n    }\n}\n\nNow, the type checker deduces that `bar_cloned: Container<T>`.\n\n[fqs]: ../book/ch19-03-advanced-traits.html#fully-qualified-syntax-for-disambiguation-calling-methods-with-the-same-name\n[method_lookup]: https://rustc-dev-guide.rust-lang.org/hir-typeck/method-lookup.html\n[index]: ../std/ops/trait.Index.html\n[clone]: ../std/clone/trait.Clone.html#derivable",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_derive_clone_p1": "struct Container<T>(Arc<T>);",
+        "nomicon_derive_clone_p2": "fn clone_containers<T>(foo: &Container<i32>, bar: &Container<T>) {\n    let foo_cloned = foo.clone();\n    let bar_cloned = bar.clone();\n}",
+        "nomicon_derive_clone_p3": "What types are `foo_cloned` and `bar_cloned`?\nWe know that `Container<i32>: Clone`, so the compiler calls `clone` by value to give\n`foo_cloned: Container<i32>`.\nHowever, `bar_cloned` actually has type `&Container<T>`.\nSurely this doesn't make sense - we added `#[derive(Clone)]` to `Container`, so it\nmust implement `Clone`!\nLooking closer, the code generated by the `derive` macro is (roughly):",
+        "nomicon_derive_clone_p4": ",ignore\nimpl<T> Clone for Container<T> where T: Clone {\n    fn clone(&self) -> Self {\n        Self(Arc::clone(&self.0))\n    }\n}",
+        "nomicon_derive_clone_p5": "The derived `Clone` implementation is only defined where `T: Clone`,\nso there is no implementation for `Container<T>: Clone` for a generic `T`.\nThe compiler then looks to see if `&Container<T>` implements `Clone`, which it does.\nSo it deduces that `clone` is called by autoref, and so `bar_cloned` has type\n`&Container<T>`.",
+        "nomicon_derive_clone_p6": "We can fix this by implementing `Clone` manually without requiring `T: Clone`:",
+        "nomicon_derive_clone_p7": ",ignore\nimpl<T> Clone for Container<T> {\n    fn clone(&self) -> Self {\n        Self(Arc::clone(&self.0))\n    }\n}",
+        "nomicon_derive_clone_p8": "Now, the type checker deduces that `bar_cloned: Container<T>`.",
+        "nomicon_derive_clone_p9": "[fqs]: ../book/ch19-03-advanced-traits.html#fully-qualified-syntax-for-disambiguation-calling-methods-with-the-same-name\n[method_lookup]: https://rustc-dev-guide.rust-lang.org/hir-typeck/method-lookup.html\n[index]: ../std/ops/trait.Index.html\n[clone]: ../std/clone/trait.Clone.html#derivable"
+      }
+    },
+    {
+      "id": "nomicon_casts",
+      "title": "Casts",
+      "level": 1,
+      "content": "Casts are a superset of coercions: every coercion can be explicitly invoked via a cast.\nHowever some conversions require a cast.\nWhile coercions are pervasive and largely harmless, these \"true casts\" are rare and potentially dangerous.\nAs such, casts must be explicitly invoked using the `as` keyword: `expr as Type`.\n\nYou can find an exhaustive list of all the true casts and casting semantics on the reference.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_casts_p1": "Casts are a superset of coercions: every coercion can be explicitly invoked via a cast.\nHowever some conversions require a cast.\nWhile coercions are pervasive and largely harmless, these \"true casts\" are rare and potentially dangerous.\nAs such, casts must be explicitly invoked using the `as` keyword: `expr as Type`.",
+        "nomicon_casts_p2": "You can find an exhaustive list of all the true casts and casting semantics on the reference."
+      }
+    },
+    {
+      "id": "nomicon_safety_of_casting",
+      "title": "Safety of casting",
+      "level": 2,
+      "content": "True casts generally revolve around raw pointers and the primitive numeric types.\nEven though they're dangerous, these casts are infallible at runtime.\nIf a cast triggers some subtle corner case no indication will be given that this occurred.\nThe cast will simply succeed.\nThat said, casts must be valid at the type level, or else they will be prevented statically.\nFor instance, `7u8 as bool` will not compile.\n\nThat said, casts aren't `unsafe` because they generally can't violate memory safety *on their own*.\nFor instance, converting an integer to a raw pointer can very easily lead to terrible things.\nHowever the act of creating the pointer itself is safe, because actually using a raw pointer is already marked as `unsafe`.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_safety_of_casting_p1": "True casts generally revolve around raw pointers and the primitive numeric types.\nEven though they're dangerous, these casts are infallible at runtime.\nIf a cast triggers some subtle corner case no indication will be given that this occurred.\nThe cast will simply succeed.\nThat said, casts must be valid at the type level, or else they will be prevented statically.\nFor instance, `7u8 as bool` will not compile.",
+        "nomicon_safety_of_casting_p2": "That said, casts aren't `unsafe` because they generally can't violate memory safety *on their own*.\nFor instance, converting an integer to a raw pointer can very easily lead to terrible things.\nHowever the act of creating the pointer itself is safe, because actually using a raw pointer is already marked as `unsafe`."
+      }
+    },
+    {
+      "id": "nomicon_some_notes_about_casting",
+      "title": "Some notes about casting",
+      "level": 2,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "nomicon_lengths_when_casting_raw_slices",
+      "title": "Lengths when casting raw slices",
+      "level": 3,
+      "content": "Note that lengths are not adjusted when casting raw slices; `*const [u16] as *const [u8]` creates a slice that only includes half of the original memory.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_lengths_when_casting_raw_slices_p1": "Note that lengths are not adjusted when casting raw slices; `*const [u16] as *const [u8]` creates a slice that only includes half of the original memory."
+      }
+    },
+    {
+      "id": "nomicon_transitivity",
+      "title": "Transitivity",
+      "level": 3,
+      "content": "Casting is not transitive, that is, even if `e as U1 as U2` is a valid expression, `e as U2` is not necessarily so.\n\n[cast list]: ../reference/expressions/operator-expr.html#type-cast-expressions\n[semantics list]: ../reference/expressions/operator-expr.html#semantics",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_transitivity_p1": "Casting is not transitive, that is, even if `e as U1 as U2` is a valid expression, `e as U2` is not necessarily so.",
+        "nomicon_transitivity_p2": "[cast list]: ../reference/expressions/operator-expr.html#type-cast-expressions\n[semantics list]: ../reference/expressions/operator-expr.html#semantics"
+      }
+    },
+    {
+      "id": "nomicon_transmutes",
+      "title": "Transmutes",
+      "level": 1,
+      "content": "Get out of our way type system! We're going to reinterpret these bits or die\ntrying! Even though this book is all about doing things that are unsafe, I\nreally can't emphasize enough that you should deeply think about finding Another Way\nthan the operations covered in this section. This is really, truly, the most\nhorribly unsafe thing you can do in Rust. The guardrails here are dental floss.\n\n`mem::transmute<T, U>` takes a value of type `T` and reinterprets\nit to have type `U`. The only restriction is that the `T` and `U` are verified\nto have the same size. The ways to cause Undefined Behavior with this are mind\nboggling.\n\n* First and foremost, creating an instance of *any* type with an invalid state\n  is going to cause arbitrary chaos that can't really be predicted. Do not\n  transmute `3` to `bool`. Even if you never *do* anything with the `bool`. Just\n  don't.\n\n* Transmute has an overloaded return type. If you do not specify the return type\n  it may produce a surprising type to satisfy inference.\n\n* Transmuting an `&` to `&mut` is Undefined Behavior. While certain usages may\n  *appear* safe, note that the Rust optimizer is free to assume that a shared\n  reference won't change through its lifetime and thus such transmutation will\n  run afoul of those assumptions. So:\n  * Transmuting an `&` to `&mut` is *always* Undefined Behavior.\n  * No you can't do it.\n  * No you're not special.\n\n* Transmuting to a reference without an explicitly provided lifetime\n  produces an [unbounded lifetime].\n\n* When transmuting between different compound types, you have to make sure they\n  are laid out the same way! If layouts differ, the wrong fields are going to\n  get filled with the wrong data, which will make you unhappy and can also be\n  Undefined Behavior (see above).\n\n  So how do you know if the layouts are the same? For `repr(C)` types and\n  `repr(transparent)` types, layout is precisely defined. But for your\n  run-of-the-mill `repr(Rust)`, it is not. Even different instances of the same\n  generic type can have wildly different layout. `Vec<i32>` and `Vec<u32>`\n  *might* have their fields in the same order, or they might not. The details of\n  what exactly is and is not guaranteed for data layout are still being worked\n  out over at the UCG WG.\n\n`mem::transmute_copy<T, U>` somehow manages to be *even more*\nwildly unsafe than this. It copies `size_of<U>` bytes out of an `&T` and\ninterprets them as a `U`.  The size check that `mem::transmute` has is gone (as\nit may be valid to copy out a prefix), though it is Undefined Behavior for `U`\nto be larger than `T`.\n\nAlso of course you can get all of the functionality of these functions using raw\npointer casts or `union`s, but without any of the lints or other basic sanity\nchecks. Raw pointer casts and `union`s do not magically avoid the above rules.\n\n[unbounded lifetime]: ./unbounded-lifetimes.md\n[transmute]: ../std/mem/fn.transmute.html\n[transmute_copy]: ../std/mem/fn.transmute_copy.html\n[ucg-layout]: https://rust-lang.github.io/unsafe-code-guidelines/layout.html",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_transmutes_p1": "Get out of our way type system! We're going to reinterpret these bits or die\ntrying! Even though this book is all about doing things that are unsafe, I\nreally can't emphasize enough that you should deeply think about finding Another Way\nthan the operations covered in this section. This is really, truly, the most\nhorribly unsafe thing you can do in Rust. The guardrails here are dental floss.",
+        "nomicon_transmutes_p2": "`mem::transmute<T, U>` takes a value of type `T` and reinterprets\nit to have type `U`. The only restriction is that the `T` and `U` are verified\nto have the same size. The ways to cause Undefined Behavior with this are mind\nboggling.",
+        "nomicon_transmutes_p3": "* First and foremost, creating an instance of *any* type with an invalid state\n  is going to cause arbitrary chaos that can't really be predicted. Do not\n  transmute `3` to `bool`. Even if you never *do* anything with the `bool`. Just\n  don't.",
+        "nomicon_transmutes_p4": "* Transmute has an overloaded return type. If you do not specify the return type\n  it may produce a surprising type to satisfy inference.",
+        "nomicon_transmutes_p5": "* Transmuting an `&` to `&mut` is Undefined Behavior. While certain usages may\n  *appear* safe, note that the Rust optimizer is free to assume that a shared\n  reference won't change through its lifetime and thus such transmutation will\n  run afoul of those assumptions. So:\n  * Transmuting an `&` to `&mut` is *always* Undefined Behavior.\n  * No you can't do it.\n  * No you're not special.",
+        "nomicon_transmutes_p6": "* Transmuting to a reference without an explicitly provided lifetime\n  produces an [unbounded lifetime].",
+        "nomicon_transmutes_p7": "* When transmuting between different compound types, you have to make sure they\n  are laid out the same way! If layouts differ, the wrong fields are going to\n  get filled with the wrong data, which will make you unhappy and can also be\n  Undefined Behavior (see above).",
+        "nomicon_transmutes_p8": "So how do you know if the layouts are the same? For `repr(C)` types and\n  `repr(transparent)` types, layout is precisely defined. But for your\n  run-of-the-mill `repr(Rust)`, it is not. Even different instances of the same\n  generic type can have wildly different layout. `Vec<i32>` and `Vec<u32>`\n  *might* have their fields in the same order, or they might not. The details of\n  what exactly is and is not guaranteed for data layout are still being worked\n  out over at the UCG WG.",
+        "nomicon_transmutes_p9": "`mem::transmute_copy<T, U>` somehow manages to be *even more*\nwildly unsafe than this. It copies `size_of<U>` bytes out of an `&T` and\ninterprets them as a `U`.  The size check that `mem::transmute` has is gone (as\nit may be valid to copy out a prefix), though it is Undefined Behavior for `U`\nto be larger than `T`.",
+        "nomicon_transmutes_p10": "Also of course you can get all of the functionality of these functions using raw\npointer casts or `union`s, but without any of the lints or other basic sanity\nchecks. Raw pointer casts and `union`s do not magically avoid the above rules.",
+        "nomicon_transmutes_p11": "[unbounded lifetime]: ./unbounded-lifetimes.md\n[transmute]: ../std/mem/fn.transmute.html\n[transmute_copy]: ../std/mem/fn.transmute_copy.html\n[ucg-layout]: https://rust-lang.github.io/unsafe-code-guidelines/layout.html"
+      }
+    }
+  ],
+  "ids": [
+    "nomicon_derive_clone_p4",
+    "nomicon_safety_of_casting_p1",
+    "nomicon_derive_clone_p7",
+    "nomicon_transitivity",
+    "nomicon_coercions_p4",
+    "nomicon_the_dot_operator_p6",
+    "nomicon_safety_of_casting",
+    "nomicon_derive_clone_p5",
+    "nomicon_transitivity_p2",
+    "nomicon_derive_clone_p3",
+    "nomicon_transmutes_p10",
+    "nomicon_type_conversions_p1",
+    "nomicon_derive_clone",
+    "nomicon_safety_of_casting_p2",
+    "nomicon_coercions_p8",
+    "nomicon_derive_clone_p9",
+    "nomicon_some_notes_about_casting",
+    "nomicon_coercions_p7",
+    "nomicon_coercions_p2",
+    "nomicon_transmutes_p11",
+    "nomicon_type_conversions_p6",
+    "nomicon_the_dot_operator_p4",
+    "nomicon_the_dot_operator",
+    "nomicon_transmutes_p8",
+    "nomicon_transmutes_p3",
+    "nomicon_transmutes_p6",
+    "nomicon_casts_p2",
+    "nomicon_coercions_p9",
+    "nomicon_transmutes_p4",
+    "nomicon_transitivity_p1",
+    "nomicon_type_conversions_p2",
+    "nomicon_derive_clone_p6",
+    "nomicon_coercions_p1",
+    "nomicon_the_dot_operator_p14",
+    "nomicon_the_dot_operator_p7",
+    "nomicon_the_dot_operator_p8",
+    "nomicon_coercions_p3",
+    "nomicon_coercions",
+    "nomicon_the_dot_operator_p5",
+    "nomicon_derive_clone_p2",
+    "nomicon_the_dot_operator_p12",
+    "nomicon_the_dot_operator_p13",
+    "nomicon_transmutes_p7",
+    "nomicon_transmutes",
+    "nomicon_lengths_when_casting_raw_slices_p1",
+    "nomicon_casts",
+    "nomicon_coercions_p5",
+    "nomicon_the_dot_operator_p9",
+    "nomicon_derive_clone_p8",
+    "nomicon_transmutes_p9",
+    "nomicon_transmutes_p5",
+    "nomicon_type_conversions_p5",
+    "nomicon_coercions_p6",
+    "nomicon_use_std_sync_arc",
+    "nomicon_transmutes_p2",
+    "nomicon_derive_clone_p1",
+    "nomicon_casts_p1",
+    "nomicon_transmutes_p1",
+    "nomicon_type_conversions_p4",
+    "nomicon_type_conversions",
+    "nomicon_the_dot_operator_p1",
+    "nomicon_type_conversions_p3",
+    "nomicon_coercions_p10",
+    "nomicon_the_dot_operator_p10",
+    "nomicon_the_dot_operator_p3",
+    "nomicon_the_dot_operator_p2",
+    "nomicon_lengths_when_casting_raw_slices",
+    "nomicon_the_dot_operator_p11"
+  ]
+}

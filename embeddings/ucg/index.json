@@ -1,0 +1,102 @@
+{
+  "source": "Unsafe Code Guidelines",
+  "source_repo": "https://github.com/rust-lang/unsafe-code-guidelines",
+  "extraction_date": "2026-01-03",
+  "total_chapters": 13,
+  "total_sections": 30,
+  "total_paragraphs": 115,
+  "total_ids": 145,
+  "chapters": [
+    {
+      "chapter": 1,
+      "title": "Introduction",
+      "file": "chapter_01.json",
+      "sections": 1,
+      "paragraphs": 3
+    },
+    {
+      "chapter": 2,
+      "title": "Glossary",
+      "file": "chapter_02.json",
+      "sections": 18,
+      "paragraphs": 79
+    },
+    {
+      "chapter": 4,
+      "title": "Structs and tuples",
+      "file": "chapter_04.json",
+      "sections": 1,
+      "paragraphs": 3
+    },
+    {
+      "chapter": 5,
+      "title": "Scalars",
+      "file": "chapter_05.json",
+      "sections": 1,
+      "paragraphs": 3
+    },
+    {
+      "chapter": 6,
+      "title": "Enums",
+      "file": "chapter_06.json",
+      "sections": 1,
+      "paragraphs": 3
+    },
+    {
+      "chapter": 7,
+      "title": "Unions",
+      "file": "chapter_07.json",
+      "sections": 1,
+      "paragraphs": 3
+    },
+    {
+      "chapter": 8,
+      "title": "Pointers",
+      "file": "chapter_08.json",
+      "sections": 1,
+      "paragraphs": 3
+    },
+    {
+      "chapter": 9,
+      "title": "Function pointers",
+      "file": "chapter_09.json",
+      "sections": 1,
+      "paragraphs": 3
+    },
+    {
+      "chapter": 10,
+      "title": "Arrays and Slices",
+      "file": "chapter_10.json",
+      "sections": 1,
+      "paragraphs": 3
+    },
+    {
+      "chapter": 11,
+      "title": "Packed SIMD vectors",
+      "file": "chapter_11.json",
+      "sections": 1,
+      "paragraphs": 3
+    },
+    {
+      "chapter": 13,
+      "title": "Unions",
+      "file": "chapter_13.json",
+      "sections": 1,
+      "paragraphs": 3
+    },
+    {
+      "chapter": 14,
+      "title": "Function Pointers",
+      "file": "chapter_14.json",
+      "sections": 1,
+      "paragraphs": 3
+    },
+    {
+      "chapter": 16,
+      "title": "Return value optimization",
+      "file": "chapter_16.json",
+      "sections": 1,
+      "paragraphs": 3
+    }
+  ]
+}

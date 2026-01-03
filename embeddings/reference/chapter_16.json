@@ -1,0 +1,234 @@
+{
+  "source": "Rust Reference",
+  "source_repo": "https://github.com/rust-lang/reference",
+  "extraction_date": "2026-01-03",
+  "chapter": 16,
+  "title": "Linkage",
+  "file": "linkage.md",
+  "sections": [
+    {
+      "id": "link",
+      "title": "Linkage",
+      "level": 1,
+      "content": "> [!NOTE]\n> This section is described more in terms of the compiler than of the language.",
+      "parent_id": null,
+      "paragraphs": {
+        "link": "> [!NOTE]\n> This section is described more in terms of the compiler than of the language."
+      }
+    },
+    {
+      "id": "link.intro",
+      "title": "Linkage",
+      "level": 1,
+      "content": "The compiler supports various methods to link crates together both\nstatically and dynamically. This section will explore the various methods to\nlink crates together, and more information about native libraries can be\nfound in the FFI section of the book.\n\n[ffi]: ../book/ch19-01-unsafe-rust.html#using-extern-functions-to-call-external-code",
+      "parent_id": null,
+      "paragraphs": {
+        "link.intro": "The compiler supports various methods to link crates together both\nstatically and dynamically. This section will explore the various methods to\nlink crates together, and more information about native libraries can be\nfound in the FFI section of the book.\n\n[ffi]: ../book/ch19-01-unsafe-rust.html#using-extern-functions-to-call-external-code"
+      }
+    },
+    {
+      "id": "link.type",
+      "title": "Linkage",
+      "level": 1,
+      "content": "In one session of compilation, the compiler can generate multiple artifacts\nthrough the usage of either command line flags or the `crate_type` attribute.\nIf one or more command line flags are specified, all `crate_type` attributes will\nbe ignored in favor of only building the artifacts specified by command line.",
+      "parent_id": null,
+      "paragraphs": {
+        "link.type": "In one session of compilation, the compiler can generate multiple artifacts\nthrough the usage of either command line flags or the `crate_type` attribute.\nIf one or more command line flags are specified, all `crate_type` attributes will\nbe ignored in favor of only building the artifacts specified by command line."
+      }
+    },
+    {
+      "id": "link.bin",
+      "title": "Linkage",
+      "level": 1,
+      "content": "* `--crate-type=bin`, `#![crate_type = \"bin\"]` - A runnable executable will be\n  produced. This requires that there is a `main` function in the crate which\n  will be run when the program begins executing. This will link in all Rust and\n  native dependencies, producing a single distributable binary.\n  This is the default crate type.",
+      "parent_id": null,
+      "paragraphs": {
+        "link.bin": "* `--crate-type=bin`, `#![crate_type = \"bin\"]` - A runnable executable will be\n  produced. This requires that there is a `main` function in the crate which\n  will be run when the program begins executing. This will link in all Rust and\n  native dependencies, producing a single distributable binary.\n  This is the default crate type."
+      }
+    },
+    {
+      "id": "link.lib",
+      "title": "Linkage",
+      "level": 1,
+      "content": "* `--crate-type=lib`, `#![crate_type = \"lib\"]` - A Rust library will be produced.\n  This is an ambiguous concept as to what exactly is produced because a library\n  can manifest itself in several forms. The purpose of this generic `lib` option\n  is to generate the \"compiler recommended\" style of library. The output library\n  will always be usable by rustc, but the actual type of library may change from\n  time-to-time. The remaining output types are all different flavors of\n  libraries, and the `lib` type can be seen as an alias for one of them (but the\n  actual one is compiler-defined).",
+      "parent_id": null,
+      "paragraphs": {
+        "link.lib": "* `--crate-type=lib`, `#![crate_type = \"lib\"]` - A Rust library will be produced.\n  This is an ambiguous concept as to what exactly is produced because a library\n  can manifest itself in several forms. The purpose of this generic `lib` option\n  is to generate the \"compiler recommended\" style of library. The output library\n  will always be usable by rustc, but the actual type of library may change from\n  time-to-time. The remaining output types are all different flavors of\n  libraries, and the `lib` type can be seen as an alias for one of them (but the\n  actual one is compiler-defined)."
+      }
+    },
+    {
+      "id": "link.dylib",
+      "title": "Linkage",
+      "level": 1,
+      "content": "* `--crate-type=dylib`, `#![crate_type = \"dylib\"]` - A dynamic Rust library will\n  be produced. This is different from the `lib` output type in that this forces\n  dynamic library generation. The resulting dynamic library can be used as a\n  dependency for other libraries and/or executables. This output type will\n  create `*.so` files on Linux, `*.dylib` files on macOS, and `*.dll` files on\n  Windows.",
+      "parent_id": null,
+      "paragraphs": {
+        "link.dylib": "* `--crate-type=dylib`, `#![crate_type = \"dylib\"]` - A dynamic Rust library will\n  be produced. This is different from the `lib` output type in that this forces\n  dynamic library generation. The resulting dynamic library can be used as a\n  dependency for other libraries and/or executables. This output type will\n  create `*.so` files on Linux, `*.dylib` files on macOS, and `*.dll` files on\n  Windows."
+      }
+    },
+    {
+      "id": "link.staticlib",
+      "title": "Linkage",
+      "level": 1,
+      "content": "* `--crate-type=staticlib`, `#![crate_type = \"staticlib\"]` - A static system\n  library will be produced. This is different from other library outputs in that\n  the compiler will never attempt to link to `staticlib` outputs. The\n  purpose of this output type is to create a static library containing all of\n  the local crate's code along with all upstream dependencies. This output type\n  will create `*.a` files on Linux, macOS and Windows (MinGW), and `*.lib` files\n  on Windows (MSVC). This format is recommended for use in situations such as\n  linking Rust code into an existing non-Rust application because it will not\n  have dynamic dependencies on other Rust code.\n\n  Note that any dynamic dependencies that the static library may have (such as\n  dependencies on system libraries, or dependencies on Rust libraries that are\n  compiled as dynamic libraries) will have to be specified manually when\n  linking that static library from somewhere. The `--print=native-static-libs` flag may help with this.\n\n  Note that, because the resulting static library contains the code of all the\n  dependencies, including the standard library, and also exports all public\n  symbols of them, linking the static library into an executable or shared\n  library may need special care. In case of a shared library the list of\n  exported symbols will have to be limited via e.g. a linker or symbol version\n  script, exported symbols list (macOS), or module definition file (Windows).\n  Additionally, unused sections can be removed to remove all code of\n  dependencies that is not actually used (e.g. `--gc-sections` or `-dead_strip`\n  for macOS).",
+      "parent_id": null,
+      "paragraphs": {
+        "link.staticlib": "* `--crate-type=staticlib`, `#![crate_type = \"staticlib\"]` - A static system\n  library will be produced. This is different from other library outputs in that\n  the compiler will never attempt to link to `staticlib` outputs. The\n  purpose of this output type is to create a static library containing all of\n  the local crate's code along with all upstream dependencies. This output type\n  will create `*.a` files on Linux, macOS and Windows (MinGW), and `*.lib` files\n  on Windows (MSVC). This format is recommended for use in situations such as\n  linking Rust code into an existing non-Rust application because it will not\n  have dynamic dependencies on other Rust code.\n\n  Note that any dynamic dependencies that the static library may have (such as\n  dependencies on system libraries, or dependencies on Rust libraries that are\n  compiled as dynamic libraries) will have to be specified manually when\n  linking that static library from somewhere. The `--print=native-static-libs` flag may help with this.\n\n  Note that, because the resulting static library contains the code of all the\n  dependencies, including the standard library, and also exports all public\n  symbols of them, linking the static library into an executable or shared\n  library may need special care. In case of a shared library the list of\n  exported symbols will have to be limited via e.g. a linker or symbol version\n  script, exported symbols list (macOS), or module definition file (Windows).\n  Additionally, unused sections can be removed to remove all code of\n  dependencies that is not actually used (e.g. `--gc-sections` or `-dead_strip`\n  for macOS)."
+      }
+    },
+    {
+      "id": "link.cdylib",
+      "title": "Linkage",
+      "level": 1,
+      "content": "* `--crate-type=cdylib`, `#![crate_type = \"cdylib\"]` - A dynamic system\n  library will be produced.  This is used when compiling\n  a dynamic library to be loaded from another language.  This output type will\n  create `*.so` files on Linux, `*.dylib` files on macOS, and `*.dll` files on\n  Windows.",
+      "parent_id": null,
+      "paragraphs": {
+        "link.cdylib": "* `--crate-type=cdylib`, `#![crate_type = \"cdylib\"]` - A dynamic system\n  library will be produced.  This is used when compiling\n  a dynamic library to be loaded from another language.  This output type will\n  create `*.so` files on Linux, `*.dylib` files on macOS, and `*.dll` files on\n  Windows."
+      }
+    },
+    {
+      "id": "link.rlib",
+      "title": "Linkage",
+      "level": 1,
+      "content": "* `--crate-type=rlib`, `#![crate_type = \"rlib\"]` - A \"Rust library\" file will be\n  produced. This is used as an intermediate artifact and can be thought of as a\n  \"static Rust library\". These `rlib` files, unlike `staticlib` files, are\n  interpreted by the compiler in future linkage. This essentially means\n  that `rustc` will look for metadata in `rlib` files like it looks for metadata\n  in dynamic libraries. This form of output is used to produce statically linked\n  executables as well as `staticlib` outputs.",
+      "parent_id": null,
+      "paragraphs": {
+        "link.rlib": "* `--crate-type=rlib`, `#![crate_type = \"rlib\"]` - A \"Rust library\" file will be\n  produced. This is used as an intermediate artifact and can be thought of as a\n  \"static Rust library\". These `rlib` files, unlike `staticlib` files, are\n  interpreted by the compiler in future linkage. This essentially means\n  that `rustc` will look for metadata in `rlib` files like it looks for metadata\n  in dynamic libraries. This form of output is used to produce statically linked\n  executables as well as `staticlib` outputs."
+      }
+    },
+    {
+      "id": "link.proc-macro",
+      "title": "Linkage",
+      "level": 1,
+      "content": "* `--crate-type=proc-macro`, `#![crate_type = \"proc-macro\"]` - The output\n  produced is not specified, but if a `-L` path is provided to it then the\n  compiler will recognize the output artifacts as a macro and it can be loaded\n  for a program. Crates compiled with this crate type  must only export\n  [procedural macros]. The compiler will automatically set the `proc_macro`\n  [configuration option]. The crates are always compiled with the same target\n  that the compiler itself was built with. For example, if you are executing\n  the compiler from Linux with an `x86_64` CPU, the target will be\n  `x86_64-unknown-linux-gnu` even if the crate is a dependency of another crate\n  being built for a different target.",
+      "parent_id": null,
+      "paragraphs": {
+        "link.proc-macro": "* `--crate-type=proc-macro`, `#![crate_type = \"proc-macro\"]` - The output\n  produced is not specified, but if a `-L` path is provided to it then the\n  compiler will recognize the output artifacts as a macro and it can be loaded\n  for a program. Crates compiled with this crate type  must only export\n  [procedural macros]. The compiler will automatically set the `proc_macro`\n  [configuration option]. The crates are always compiled with the same target\n  that the compiler itself was built with. For example, if you are executing\n  the compiler from Linux with an `x86_64` CPU, the target will be\n  `x86_64-unknown-linux-gnu` even if the crate is a dependency of another crate\n  being built for a different target."
+      }
+    },
+    {
+      "id": "link.repetition",
+      "title": "Linkage",
+      "level": 1,
+      "content": "Note that these outputs are stackable in the sense that if multiple are\nspecified, then the compiler will produce each form of output without\nhaving to recompile. However, this only applies for outputs specified by the\nsame method. If only `crate_type` attributes are specified, then they will all\nbe built, but if one or more `--crate-type` command line flags are specified,\nthen only those outputs will be built.",
+      "parent_id": null,
+      "paragraphs": {
+        "link.repetition": "Note that these outputs are stackable in the sense that if multiple are\nspecified, then the compiler will produce each form of output without\nhaving to recompile. However, this only applies for outputs specified by the\nsame method. If only `crate_type` attributes are specified, then they will all\nbe built, but if one or more `--crate-type` command line flags are specified,\nthen only those outputs will be built."
+      }
+    },
+    {
+      "id": "link.dependency",
+      "title": "Linkage",
+      "level": 1,
+      "content": "With all these different kinds of outputs, if crate A depends on crate B, then\nthe compiler could find B in various different forms throughout the system. The\nonly forms looked for by the compiler, however, are the `rlib` format and the\ndynamic library format. With these two options for a dependent library, the\ncompiler must at some point make a choice between these two formats. With this\nin mind, the compiler follows these rules when determining what format of\ndependencies will be used:",
+      "parent_id": null,
+      "paragraphs": {
+        "link.dependency": "With all these different kinds of outputs, if crate A depends on crate B, then\nthe compiler could find B in various different forms throughout the system. The\nonly forms looked for by the compiler, however, are the `rlib` format and the\ndynamic library format. With these two options for a dependent library, the\ncompiler must at some point make a choice between these two formats. With this\nin mind, the compiler follows these rules when determining what format of\ndependencies will be used:"
+      }
+    },
+    {
+      "id": "link.dependency-staticlib",
+      "title": "Linkage",
+      "level": 1,
+      "content": "1. If a static library is being produced, all upstream dependencies are\n   required to be available in `rlib` formats. This requirement stems from the\n   reason that a dynamic library cannot be converted into a static format.\n\n   Note that it is impossible to link in native dynamic dependencies to a static\n   library, and in this case warnings will be printed about all unlinked native\n   dynamic dependencies.",
+      "parent_id": null,
+      "paragraphs": {
+        "link.dependency-staticlib": "1. If a static library is being produced, all upstream dependencies are\n   required to be available in `rlib` formats. This requirement stems from the\n   reason that a dynamic library cannot be converted into a static format.\n\n   Note that it is impossible to link in native dynamic dependencies to a static\n   library, and in this case warnings will be printed about all unlinked native\n   dynamic dependencies."
+      }
+    },
+    {
+      "id": "link.dependency-rlib",
+      "title": "Linkage",
+      "level": 1,
+      "content": "2. If an `rlib` file is being produced, then there are no restrictions on what\n   format the upstream dependencies are available in. It is simply required that\n   all upstream dependencies be available for reading metadata from.\n\n   The reason for this is that `rlib` files do not contain any of their upstream\n   dependencies. It wouldn't be very efficient for all `rlib` files to contain a\n   copy of `libstd.rlib`!",
+      "parent_id": null,
+      "paragraphs": {
+        "link.dependency-rlib": "2. If an `rlib` file is being produced, then there are no restrictions on what\n   format the upstream dependencies are available in. It is simply required that\n   all upstream dependencies be available for reading metadata from.\n\n   The reason for this is that `rlib` files do not contain any of their upstream\n   dependencies. It wouldn't be very efficient for all `rlib` files to contain a\n   copy of `libstd.rlib`!"
+      }
+    },
+    {
+      "id": "link.dependency-prefer-dynamic",
+      "title": "Linkage",
+      "level": 1,
+      "content": "3. If an executable is being produced and the `-C prefer-dynamic` flag is not\n   specified, then dependencies are first attempted to be found in the `rlib`\n   format. If some dependencies are not available in an rlib format, then\n   dynamic linking is attempted (see below).",
+      "parent_id": null,
+      "paragraphs": {
+        "link.dependency-prefer-dynamic": "3. If an executable is being produced and the `-C prefer-dynamic` flag is not\n   specified, then dependencies are first attempted to be found in the `rlib`\n   format. If some dependencies are not available in an rlib format, then\n   dynamic linking is attempted (see below)."
+      }
+    },
+    {
+      "id": "link.dependency-dynamic",
+      "title": "Linkage",
+      "level": 1,
+      "content": "4. If a dynamic library or an executable that is being dynamically linked is\n   being produced, then the compiler will attempt to reconcile the available\n   dependencies in either the rlib or dylib format to create a final product.\n\n   A major goal of the compiler is to ensure that a library never appears more\n   than once in any artifact. For example, if dynamic libraries B and C were\n   each statically linked to library A, then a crate could not link to B and C\n   together because there would be two copies of A. The compiler allows mixing\n   the rlib and dylib formats, but this restriction must be satisfied.\n\n   The compiler currently implements no method of hinting what format a library\n   should be linked with. When dynamically linking, the compiler will attempt to\n   maximize dynamic dependencies while still allowing some dependencies to be\n   linked in via an rlib.\n\n   For most situations, having all libraries available as a dylib is recommended\n   if dynamically linking. For other situations, the compiler will emit a\n   warning if it is unable to determine which formats to link each library with.\n\nIn general, `--crate-type=bin` or `--crate-type=lib` should be sufficient for\nall compilation needs, and the other options are just available if more\nfine-grained control is desired over the output format of a crate.",
+      "parent_id": null,
+      "paragraphs": {
+        "link.dependency-dynamic": "4. If a dynamic library or an executable that is being dynamically linked is\n   being produced, then the compiler will attempt to reconcile the available\n   dependencies in either the rlib or dylib format to create a final product.\n\n   A major goal of the compiler is to ensure that a library never appears more\n   than once in any artifact. For example, if dynamic libraries B and C were\n   each statically linked to library A, then a crate could not link to B and C\n   together because there would be two copies of A. The compiler allows mixing\n   the rlib and dylib formats, but this restriction must be satisfied.\n\n   The compiler currently implements no method of hinting what format a library\n   should be linked with. When dynamically linking, the compiler will attempt to\n   maximize dynamic dependencies while still allowing some dependencies to be\n   linked in via an rlib.\n\n   For most situations, having all libraries available as a dylib is recommended\n   if dynamically linking. For other situations, the compiler will emit a\n   warning if it is unable to determine which formats to link each library with.\n\nIn general, `--crate-type=bin` or `--crate-type=lib` should be sufficient for\nall compilation needs, and the other options are just available if more\nfine-grained control is desired over the output format of a crate."
+      }
+    },
+    {
+      "id": "link.crt",
+      "title": "Static and dynamic C runtimes",
+      "level": 1,
+      "content": "The standard library in general strives to support both statically linked and\ndynamically linked C runtimes for targets as appropriate. For example the\n`x86_64-pc-windows-msvc` and `x86_64-unknown-linux-musl` targets typically come\nwith both runtimes and the user selects which one they'd like. All targets in\nthe compiler have a default mode of linking to the C runtime. Typically targets\nare linked dynamically by default, but there are exceptions which are static by\ndefault such as:\n\n* `arm-unknown-linux-musleabi`\n* `arm-unknown-linux-musleabihf`\n* `armv7-unknown-linux-musleabihf`\n* `i686-unknown-linux-musl`\n* `x86_64-unknown-linux-musl`\n\nThe linkage of the C runtime is configured to respect the `crt-static` target\nfeature. These target features are typically configured from the command line\nvia flags to the compiler itself. For example to enable a static runtime you\nwould execute:\n\nrustc -C target-feature=+crt-static foo.rs\n\nwhereas to link dynamically to the C runtime you would execute:\n\nrustc -C target-feature=-crt-static foo.rs\n\nTargets which do not support switching between linkage of the C runtime will\nignore this flag. It's recommended to inspect the resulting binary to ensure\nthat it's linked as you would expect after the compiler succeeds.\n\nCrates may also learn about how the C runtime is being linked. Code on MSVC, for\nexample, needs to be compiled differently (e.g. with `/MT` or `/MD`) depending\non the runtime being linked. This is exported currently through the\n[`cfg` attribute `target_feature` option]:\n\n#[cfg(target_feature = \"crt-static\")]\nfn foo() {\n    println!(\"the C runtime should be statically linked\");\n}\n\n#[cfg(not(target_feature = \"crt-static\"))]\nfn foo() {\n    println!(\"the C runtime should be dynamically linked\");\n}\n\nAlso note that Cargo build scripts can learn about this feature through\nenvironment variables. In a build script you can detect the linkage\nvia:\n\nuse std::env;\n\nfn main() {\n    let linkage = env::var(\"CARGO_CFG_TARGET_FEATURE\").unwrap_or(String::new());\n\n    if linkage.contains(\"crt-static\") {\n        println!(\"the C runtime will be statically linked\");\n    } else {\n        println!(\"the C runtime will be dynamically linked\");\n    }\n}\n\n[cargo]: ../cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts\n\nTo use this feature locally, you typically will use the `RUSTFLAGS` environment\nvariable to specify flags to the compiler through Cargo. For example to compile\na statically linked binary on MSVC you would execute:\n\nRUSTFLAGS='-C target-feature=+crt-static' cargo build --target x86_64-pc-windows-msvc",
+      "parent_id": null,
+      "paragraphs": {
+        "link.crt.intro": "The standard library in general strives to support both statically linked and\ndynamically linked C runtimes for targets as appropriate. For example the\n`x86_64-pc-windows-msvc` and `x86_64-unknown-linux-musl` targets typically come\nwith both runtimes and the user selects which one they'd like. All targets in\nthe compiler have a default mode of linking to the C runtime. Typically targets\nare linked dynamically by default, but there are exceptions which are static by\ndefault such as:\n\n* `arm-unknown-linux-musleabi`\n* `arm-unknown-linux-musleabihf`\n* `armv7-unknown-linux-musleabihf`\n* `i686-unknown-linux-musl`\n* `x86_64-unknown-linux-musl`",
+        "link.crt.crt-static": "The linkage of the C runtime is configured to respect the `crt-static` target\nfeature. These target features are typically configured from the command line\nvia flags to the compiler itself. For example to enable a static runtime you\nwould execute:\n\nrustc -C target-feature=+crt-static foo.rs\n\nwhereas to link dynamically to the C runtime you would execute:\n\nrustc -C target-feature=-crt-static foo.rs",
+        "link.crt.ineffective": "Targets which do not support switching between linkage of the C runtime will\nignore this flag. It's recommended to inspect the resulting binary to ensure\nthat it's linked as you would expect after the compiler succeeds.",
+        "link.crt.target_feature": "Crates may also learn about how the C runtime is being linked. Code on MSVC, for\nexample, needs to be compiled differently (e.g. with `/MT` or `/MD`) depending\non the runtime being linked. This is exported currently through the\n[`cfg` attribute `target_feature` option]:\n\n#[cfg(target_feature = \"crt-static\")]\nfn foo() {\n    println!(\"the C runtime should be statically linked\");\n}\n\n#[cfg(not(target_feature = \"crt-static\"))]\nfn foo() {\n    println!(\"the C runtime should be dynamically linked\");\n}\n\nAlso note that Cargo build scripts can learn about this feature through\nenvironment variables. In a build script you can detect the linkage\nvia:\n\nuse std::env;\n\nfn main() {\n    let linkage = env::var(\"CARGO_CFG_TARGET_FEATURE\").unwrap_or(String::new());\n\n    if linkage.contains(\"crt-static\") {\n        println!(\"the C runtime will be statically linked\");\n    } else {\n        println!(\"the C runtime will be dynamically linked\");\n    }\n}\n\n[cargo]: ../cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts\n\nTo use this feature locally, you typically will use the `RUSTFLAGS` environment\nvariable to specify flags to the compiler through Cargo. For example to compile\na statically linked binary on MSVC you would execute:\n\nRUSTFLAGS='-C target-feature=+crt-static' cargo build --target x86_64-pc-windows-msvc"
+      }
+    },
+    {
+      "id": "link.foreign-code",
+      "title": "Mixed Rust and foreign codebases",
+      "level": 2,
+      "content": "If you are mixing Rust with foreign code (e.g. C, C++) and wish to make a single\nbinary containing both types of code, you have two approaches for the final\nbinary link:\n\n* Use `rustc`. Pass any non-Rust libraries using `-L <directory>` and `-l<library>`\n  rustc arguments, and/or `#[link]` directives in your Rust code. If you need to\n  link against `.o` files you can use `-Clink-arg=file.o`.\n* Use your foreign linker. In this case, you first need to generate a Rust `staticlib`\n  target and pass that into your foreign linker invocation. If you need to link\n  multiple Rust subsystems, you will need to generate a _single_ `staticlib`\n  perhaps using lots of `extern crate` statements to include multiple Rust `rlib`s.\n  Multiple Rust `staticlib` files are likely to conflict.\n\nPassing `rlib`s directly into your foreign linker is currently unsupported.\n\n> [!NOTE]\n> Rust code compiled or linked with a different instance of the Rust runtime counts as \"foreign code\" for the purpose of this section.",
+      "parent_id": null,
+      "paragraphs": {
+        "link.foreign-code.foreign-linkers": "If you are mixing Rust with foreign code (e.g. C, C++) and wish to make a single\nbinary containing both types of code, you have two approaches for the final\nbinary link:\n\n* Use `rustc`. Pass any non-Rust libraries using `-L <directory>` and `-l<library>`\n  rustc arguments, and/or `#[link]` directives in your Rust code. If you need to\n  link against `.o` files you can use `-Clink-arg=file.o`.\n* Use your foreign linker. In this case, you first need to generate a Rust `staticlib`\n  target and pass that into your foreign linker invocation. If you need to link\n  multiple Rust subsystems, you will need to generate a _single_ `staticlib`\n  perhaps using lots of `extern crate` statements to include multiple Rust `rlib`s.\n  Multiple Rust `staticlib` files are likely to conflict.\n\nPassing `rlib`s directly into your foreign linker is currently unsupported.\n\n> [!NOTE]\n> Rust code compiled or linked with a different instance of the Rust runtime counts as \"foreign code\" for the purpose of this section."
+      }
+    },
+    {
+      "id": "link.unwinding",
+      "title": "Prohibited linkage and unwinding",
+      "level": 2,
+      "content": "Panic unwinding can only be used if the binary is built consistently according to the following rules.\n\nA Rust artifact is called *potentially unwinding* if any of the following conditions is met:\n- The artifact uses the `unwind` panic handler.\n- The artifact contains a crate built with the `unwind` [panic strategy] that makes a call to a function using a `-unwind` ABI.\n- The artifact makes a `\"Rust\"` ABI call to code running in another Rust artifact that has a separate copy of the Rust runtime, and that other artifact is potentially unwinding.\n\n> [!NOTE]\n> This definition captures whether a `\"Rust\"` ABI call inside a Rust artifact can ever unwind.\n\nIf a Rust artifact is potentially unwinding, then all its crates must be built with the `unwind` [panic strategy]. Otherwise, unwinding can cause undefined behavior.\n\n> [!NOTE]\n> If you are using `rustc` to link, these rules are enforced automatically. If you are *not* using `rustc` to link, you must take care to ensure that unwinding is handled consistently across the entire binary. Linking without `rustc` includes using `dlopen` or similar facilities where linking is done by the system runtime without `rustc` being involved. This can only happen when mixing code with different [`-C panic`] flags, so most users do not have to be concerned about this.\n\n> [!NOTE]\n> To guarantee that a library will be sound (and linkable with `rustc`) regardless of the panic runtime used at link-time, the [`ffi_unwind_calls` lint] may be used. The lint flags any calls to `-unwind` foreign functions or function pointers.\n\n[`cfg` attribute `target_feature` option]: conditional-compilation.md#target_feature\n[`ffi_unwind_calls` lint]: ../rustc/lints/listing/allowed-by-default.html#ffi-unwind-calls\n[configuration option]: conditional-compilation.md\n[procedural macros]: procedural-macros.md\n[panic strategy]: panic.md#panic-strategy\n[`-C panic`]: ../rustc/codegen-options/index.html#panic",
+      "parent_id": null,
+      "paragraphs": {
+        "link.unwinding.intro": "Panic unwinding can only be used if the binary is built consistently according to the following rules.",
+        "link.unwinding.potential": "A Rust artifact is called *potentially unwinding* if any of the following conditions is met:\n- The artifact uses the `unwind` panic handler.\n- The artifact contains a crate built with the `unwind` [panic strategy] that makes a call to a function using a `-unwind` ABI.\n- The artifact makes a `\"Rust\"` ABI call to code running in another Rust artifact that has a separate copy of the Rust runtime, and that other artifact is potentially unwinding.\n\n> [!NOTE]\n> This definition captures whether a `\"Rust\"` ABI call inside a Rust artifact can ever unwind.",
+        "link.unwinding.prohibited": "If a Rust artifact is potentially unwinding, then all its crates must be built with the `unwind` [panic strategy]. Otherwise, unwinding can cause undefined behavior.\n\n> [!NOTE]\n> If you are using `rustc` to link, these rules are enforced automatically. If you are *not* using `rustc` to link, you must take care to ensure that unwinding is handled consistently across the entire binary. Linking without `rustc` includes using `dlopen` or similar facilities where linking is done by the system runtime without `rustc` being involved. This can only happen when mixing code with different [`-C panic`] flags, so most users do not have to be concerned about this.\n\n> [!NOTE]\n> To guarantee that a library will be sound (and linkable with `rustc`) regardless of the panic runtime used at link-time, the [`ffi_unwind_calls` lint] may be used. The lint flags any calls to `-unwind` foreign functions or function pointers.\n\n[`cfg` attribute `target_feature` option]: conditional-compilation.md#target_feature\n[`ffi_unwind_calls` lint]: ../rustc/lints/listing/allowed-by-default.html#ffi-unwind-calls\n[configuration option]: conditional-compilation.md\n[procedural macros]: procedural-macros.md\n[panic strategy]: panic.md#panic-strategy\n[`-C panic`]: ../rustc/codegen-options/index.html#panic"
+      }
+    }
+  ],
+  "ids": [
+    "link.lib",
+    "link.crt.target_feature",
+    "link.repetition",
+    "link.bin",
+    "link.foreign-code.foreign-linkers",
+    "link.crt.crt-static",
+    "link.proc-macro",
+    "link.crt.intro",
+    "link.unwinding.prohibited",
+    "link.staticlib",
+    "link.dylib",
+    "link.dependency-dynamic",
+    "link.crt.ineffective",
+    "link.unwinding.potential",
+    "link.type",
+    "link",
+    "link.dependency-prefer-dynamic",
+    "link.rlib",
+    "link.dependency-rlib",
+    "link.unwinding",
+    "link.foreign-code",
+    "link.unwinding.intro",
+    "link.intro",
+    "link.cdylib",
+    "link.dependency-staticlib",
+    "link.crt",
+    "link.dependency"
+  ]
+}

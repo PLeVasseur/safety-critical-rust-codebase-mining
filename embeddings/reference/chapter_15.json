@@ -1,0 +1,128 @@
+{
+  "source": "Rust Reference",
+  "source_repo": "https://github.com/rust-lang/reference",
+  "extraction_date": "2026-01-03",
+  "chapter": 15,
+  "title": "Panic",
+  "file": "panic.md",
+  "sections": [
+    {
+      "id": "panic",
+      "title": "Panic",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "panic.intro",
+      "title": "Panic",
+      "level": 1,
+      "content": "Rust provides a mechanism to prevent a function from returning normally, and instead \"panic,\" which is a response to an error condition that is typically not expected to be recoverable within the context in which the error is encountered.",
+      "parent_id": null,
+      "paragraphs": {
+        "panic.intro": "Rust provides a mechanism to prevent a function from returning normally, and instead \"panic,\" which is a response to an error condition that is typically not expected to be recoverable within the context in which the error is encountered."
+      }
+    },
+    {
+      "id": "panic.lang-ops",
+      "title": "Panic",
+      "level": 1,
+      "content": "Some language constructs, such as out-of-bounds [array indexing], panic automatically.",
+      "parent_id": null,
+      "paragraphs": {
+        "panic.lang-ops": "Some language constructs, such as out-of-bounds [array indexing], panic automatically."
+      }
+    },
+    {
+      "id": "panic.control",
+      "title": "Panic",
+      "level": 1,
+      "content": "There are also language features that provide a level of control over panic behavior:\n\n* A _panic handler_ defines the behavior of a panic.\n* FFI ABIs may alter how panics behave.\n\n> [!NOTE]\n> The standard library provides the capability to explicitly panic via the `panic!` macro.",
+      "parent_id": null,
+      "paragraphs": {
+        "panic.control": "There are also language features that provide a level of control over panic behavior:\n\n* A _panic handler_ defines the behavior of a panic.\n* FFI ABIs may alter how panics behave.\n\n> [!NOTE]\n> The standard library provides the capability to explicitly panic via the `panic!` macro."
+      }
+    },
+    {
+      "id": "panic.panic_handler",
+      "title": "The `panic_handler` attribute",
+      "level": 1,
+      "content": "The *`panic_handler` attribute* can be applied to a function to define the behavior of panics.\n\nThe `panic_handler` attribute can only be applied to a function with signature `fn(&PanicInfo) -> !`.\n\n> [!NOTE]\n> The [`PanicInfo`] struct contains information about the location of the panic.\n\nThere must be a single `panic_handler` function in the dependency graph.\n\nBelow is shown a `panic_handler` function that logs the panic message and then halts the thread.\n\n<!-- ignore: test infrastructure can't handle no_std -->\n,ignore\n#![no_std]\n\nuse core::fmt::{self, Write};\nuse core::panic::PanicInfo;\n\nstruct Sink {\n    // ..\n#    _0: (),\n}\n#\n# impl Sink {\n#     fn new() -> Sink { Sink { _0: () }}\n# }\n#\n# impl fmt::Write for Sink {\n#     fn write_str(&mut self, _: &str) -> fmt::Result { Ok(()) }\n# }\n\n#[panic_handler]\nfn panic(info: &PanicInfo) -> ! {\n    let mut sink = Sink::new();\n\n    // logs \"panicked at '$reason', src/main.rs:27:4\" to some `sink`\n    let _ = writeln!(sink, \"{}\", info);\n\n    loop {}\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "panic.panic_handler.intro": "The *`panic_handler` attribute* can be applied to a function to define the behavior of panics.",
+        "panic.panic_handler.allowed-positions": "The `panic_handler` attribute can only be applied to a function with signature `fn(&PanicInfo) -> !`.\n\n> [!NOTE]\n> The [`PanicInfo`] struct contains information about the location of the panic.",
+        "panic.panic_handler.unique": "There must be a single `panic_handler` function in the dependency graph.\n\nBelow is shown a `panic_handler` function that logs the panic message and then halts the thread.\n\n<!-- ignore: test infrastructure can't handle no_std -->\n,ignore\n#![no_std]\n\nuse core::fmt::{self, Write};\nuse core::panic::PanicInfo;\n\nstruct Sink {\n    // ..\n#    _0: (),\n}\n#\n# impl Sink {\n#     fn new() -> Sink { Sink { _0: () }}\n# }\n#\n# impl fmt::Write for Sink {\n#     fn write_str(&mut self, _: &str) -> fmt::Result { Ok(()) }\n# }\n\n#[panic_handler]\nfn panic(info: &PanicInfo) -> ! {\n    let mut sink = Sink::new();\n\n    // logs \"panicked at '$reason', src/main.rs:27:4\" to some `sink`\n    let _ = writeln!(sink, \"{}\", info);\n\n    loop {}\n}"
+      }
+    },
+    {
+      "id": "panic.panic_handler.std",
+      "title": "Standard behavior",
+      "level": 1,
+      "content": "`std` provides two different panic handlers:\n\n* `unwind` --- unwinds the stack and is potentially recoverable.\n* `abort` ---- aborts the process and is non-recoverable.\n\nNot all targets may provide the `unwind` handler.\n\n> [!NOTE]\n> The panic handler used when linking with `std` can be set with the [`-C panic`] CLI flag. The default for most targets is `unwind`.\n>\n> The standard library's panic behavior can be modified at runtime with the [`std::panic::set_hook`] function.\n\nLinking a [`no_std`] binary, dylib, cdylib, or staticlib will require specifying your own panic handler.",
+      "parent_id": null,
+      "paragraphs": {
+        "panic.panic_handler.std.kinds": "`std` provides two different panic handlers:\n\n* `unwind` --- unwinds the stack and is potentially recoverable.\n* `abort` ---- aborts the process and is non-recoverable.\n\nNot all targets may provide the `unwind` handler.\n\n> [!NOTE]\n> The panic handler used when linking with `std` can be set with the [`-C panic`] CLI flag. The default for most targets is `unwind`.\n>\n> The standard library's panic behavior can be modified at runtime with the [`std::panic::set_hook`] function.",
+        "panic.panic_handler.std.no_std": "Linking a [`no_std`] binary, dylib, cdylib, or staticlib will require specifying your own panic handler."
+      }
+    },
+    {
+      "id": "panic.strategy",
+      "title": "Panic strategy",
+      "level": 3,
+      "content": "The _panic strategy_ defines the kind of panic behavior that a crate is built to support.\n\n> [!NOTE]\n> The panic strategy can be chosen in `rustc` with the [`-C panic`] CLI flag.\n>\n> When generating a binary, dylib, cdylib, or staticlib and linking with `std`, the `-C panic` CLI flag also influences which [panic handler] is used.\n\n> [!NOTE]\n> When compiling code with the `abort` panic strategy, the optimizer may assume that unwinding across Rust frames is impossible, which can result in both code-size and runtime speed improvements.\n\n> [!NOTE]\n> See [link.unwinding] for restrictions on linking crates with different panic strategies. An implication is that crates built with the `unwind` strategy can use the `abort` panic handler, but the `abort` strategy cannot use the `unwind` panic handler.",
+      "parent_id": null,
+      "paragraphs": {
+        "panic.strategy.intro": "The _panic strategy_ defines the kind of panic behavior that a crate is built to support.\n\n> [!NOTE]\n> The panic strategy can be chosen in `rustc` with the [`-C panic`] CLI flag.\n>\n> When generating a binary, dylib, cdylib, or staticlib and linking with `std`, the `-C panic` CLI flag also influences which [panic handler] is used.\n\n> [!NOTE]\n> When compiling code with the `abort` panic strategy, the optimizer may assume that unwinding across Rust frames is impossible, which can result in both code-size and runtime speed improvements.\n\n> [!NOTE]\n> See [link.unwinding] for restrictions on linking crates with different panic strategies. An implication is that crates built with the `unwind` strategy can use the `abort` panic handler, but the `abort` strategy cannot use the `unwind` panic handler."
+      }
+    },
+    {
+      "id": "panic.unwind",
+      "title": "Unwinding",
+      "level": 2,
+      "content": "Panicking may either be recoverable or non-recoverable, though it can be configured (by choosing a non-unwinding panic handler) to always be non-recoverable. (The converse is not true: the `unwind` handler does not guarantee that all panics are recoverable, only that panicking via the `panic!` macro and similar standard library mechanisms is recoverable.)\n\nWhen a panic occurs, the `unwind` handler \"unwinds\" Rust frames, just as C++'s `throw` unwinds C++ frames, until the panic reaches the point of recovery (for instance at a thread boundary). This means that as the panic traverses Rust frames, live objects in those frames that implement `Drop` will have their `drop` methods called. Thus, when normal execution resumes, no-longer-accessible objects will have been \"cleaned up\" just as if they had gone out of scope normally.\n\n> [!NOTE]\n> As long as this guarantee of resource-cleanup is preserved, \"unwinding\" may be implemented without actually using the mechanism used by C++ for the target platform.\n\n> [!NOTE]\n> The standard library provides two mechanisms for recovering from a panic, [`std::panic::catch_unwind`] (which enables recovery within the panicking thread) and [`std::thread::spawn`] (which automatically sets up panic recovery for the spawned thread so that other threads may continue running).",
+      "parent_id": null,
+      "paragraphs": {
+        "panic.unwind.intro": "Panicking may either be recoverable or non-recoverable, though it can be configured (by choosing a non-unwinding panic handler) to always be non-recoverable. (The converse is not true: the `unwind` handler does not guarantee that all panics are recoverable, only that panicking via the `panic!` macro and similar standard library mechanisms is recoverable.)",
+        "panic.unwind.destruction": "When a panic occurs, the `unwind` handler \"unwinds\" Rust frames, just as C++'s `throw` unwinds C++ frames, until the panic reaches the point of recovery (for instance at a thread boundary). This means that as the panic traverses Rust frames, live objects in those frames that implement `Drop` will have their `drop` methods called. Thus, when normal execution resumes, no-longer-accessible objects will have been \"cleaned up\" just as if they had gone out of scope normally.\n\n> [!NOTE]\n> As long as this guarantee of resource-cleanup is preserved, \"unwinding\" may be implemented without actually using the mechanism used by C++ for the target platform.\n\n> [!NOTE]\n> The standard library provides two mechanisms for recovering from a panic, [`std::panic::catch_unwind`] (which enables recovery within the panicking thread) and [`std::thread::spawn`] (which automatically sets up panic recovery for the spawned thread so that other threads may continue running)."
+      }
+    },
+    {
+      "id": "panic.unwind.ffi",
+      "title": "Unwinding across FFI boundaries",
+      "level": 2,
+      "content": "It is possible to unwind across FFI boundaries using an appropriate ABI declaration. While useful in certain cases, this creates unique opportunities for undefined behavior, especially when multiple language runtimes are involved.\n\nUnwinding with the wrong ABI is undefined behavior:\n\n* Causing an unwind into Rust code from a foreign function that was called via a function declaration or pointer declared with a non-unwinding ABI, such as `\"C\"`, `\"system\"`, etc. (For example, this case occurs when such a function written in C++ throws an exception that is uncaught and propagates to Rust.)\n* Calling a Rust `extern` function that unwinds (with `extern \"C-unwind\"` or another ABI that permits unwinding) from code that does not support unwinding, such as code compiled with GCC or Clang using `-fno-exceptions`\n\nCatching a foreign unwinding operation (such as a C++ exception) using [`std::panic::catch_unwind`], [`std::thread::JoinHandle::join`], or by letting it propagate beyond the Rust `main()` function or thread root will have one of two behaviors, and it is unspecified which will occur:\n\n* The process aborts.\n* The function returns a [`Result::Err`] containing an opaque type.\n\n> [!NOTE]\n> Rust code compiled or linked with a different instance of the Rust standard library counts as a \"foreign exception\" for the purpose of this guarantee. Thus, a library that uses `panic!` and is linked against one version of the Rust standard library, invoked from an application that uses a different version of the standard library, may cause the entire application to abort even if the library is only used within a child thread.\n\nThere are currently no guarantees about the behavior that occurs when a foreign runtime attempts to dispose of, or rethrow, a Rust `panic` payload. In other words, an unwind originated from a Rust runtime must either lead to termination of the process or be caught by the same runtime.\n\n[`-C panic`]: ../rustc/codegen-options/index.html#panic\n[`no_std`]: names/preludes.md#the-no_std-attribute\n[`PanicInfo`]: core::panic::PanicInfo\n[array indexing]: expressions/array-expr.md#array-and-slice-indexing-expressions\n[attribute]: attributes.md\n[destructors]: destructors.md\n_handler-attribute\n[runtime]: runtime.md\n[unwind-abi]: items/functions.md#unwinding",
+      "parent_id": null,
+      "paragraphs": {
+        "panic.unwind.ffi.intro": "It is possible to unwind across FFI boundaries using an appropriate ABI declaration. While useful in certain cases, this creates unique opportunities for undefined behavior, especially when multiple language runtimes are involved.",
+        "panic.unwind.ffi.undefined": "Unwinding with the wrong ABI is undefined behavior:\n\n* Causing an unwind into Rust code from a foreign function that was called via a function declaration or pointer declared with a non-unwinding ABI, such as `\"C\"`, `\"system\"`, etc. (For example, this case occurs when such a function written in C++ throws an exception that is uncaught and propagates to Rust.)\n* Calling a Rust `extern` function that unwinds (with `extern \"C-unwind\"` or another ABI that permits unwinding) from code that does not support unwinding, such as code compiled with GCC or Clang using `-fno-exceptions`",
+        "panic.unwind.ffi.catch-foreign": "Catching a foreign unwinding operation (such as a C++ exception) using [`std::panic::catch_unwind`], [`std::thread::JoinHandle::join`], or by letting it propagate beyond the Rust `main()` function or thread root will have one of two behaviors, and it is unspecified which will occur:\n\n* The process aborts.\n* The function returns a [`Result::Err`] containing an opaque type.\n\n> [!NOTE]\n> Rust code compiled or linked with a different instance of the Rust standard library counts as a \"foreign exception\" for the purpose of this guarantee. Thus, a library that uses `panic!` and is linked against one version of the Rust standard library, invoked from an application that uses a different version of the standard library, may cause the entire application to abort even if the library is only used within a child thread.",
+        "panic.unwind.ffi.dispose-panic": "There are currently no guarantees about the behavior that occurs when a foreign runtime attempts to dispose of, or rethrow, a Rust `panic` payload. In other words, an unwind originated from a Rust runtime must either lead to termination of the process or be caught by the same runtime.\n\n[`-C panic`]: ../rustc/codegen-options/index.html#panic\n[`no_std`]: names/preludes.md#the-no_std-attribute\n[`PanicInfo`]: core::panic::PanicInfo\n[array indexing]: expressions/array-expr.md#array-and-slice-indexing-expressions\n[attribute]: attributes.md\n[destructors]: destructors.md\n_handler-attribute\n[runtime]: runtime.md\n[unwind-abi]: items/functions.md#unwinding"
+      }
+    }
+  ],
+  "ids": [
+    "panic.unwind.ffi",
+    "panic.unwind.ffi.catch-foreign",
+    "panic.intro",
+    "panic.unwind.intro",
+    "panic.control",
+    "panic.panic_handler",
+    "panic.lang-ops",
+    "panic.panic_handler.allowed-positions",
+    "panic.unwind.destruction",
+    "panic.unwind.ffi.dispose-panic",
+    "panic.panic_handler.std",
+    "panic.unwind.ffi.intro",
+    "panic.panic_handler.intro",
+    "panic",
+    "panic.unwind",
+    "panic.panic_handler.unique",
+    "panic.unwind.ffi.undefined",
+    "panic.strategy.intro",
+    "panic.panic_handler.std.no_std",
+    "panic.panic_handler.std.kinds",
+    "panic.strategy"
+  ]
+}

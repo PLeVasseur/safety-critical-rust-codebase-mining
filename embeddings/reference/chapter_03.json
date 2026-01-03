@@ -1,0 +1,785 @@
+{
+  "source": "Rust Reference",
+  "source_repo": "https://github.com/rust-lang/reference",
+  "extraction_date": "2026-01-03",
+  "chapter": 3,
+  "title": "Lexical structure",
+  "file": "lexical-structure.md",
+  "sections": [
+    {
+      "id": "lexical_structure",
+      "title": "Lexical structure",
+      "level": 1,
+      "content": "# Lexical structure\n\n<!-- Editor Note: Oh, there's nothing here -->",
+      "parent_id": null,
+      "paragraphs": {
+        "lexical_structure_p1": "# Lexical structure\n\n<!-- Editor Note: Oh, there's nothing here -->"
+      }
+    },
+    {
+      "id": "input",
+      "title": "Input format",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "input.syntax",
+      "title": "Input format",
+      "level": 1,
+      "content": ",lexer\n@root CHAR -> <a Unicode scalar value>\n\nNUL -> U+0000",
+      "parent_id": null,
+      "paragraphs": {
+        "input.syntax": ",lexer\n@root CHAR -> <a Unicode scalar value>\n\nNUL -> U+0000"
+      }
+    },
+    {
+      "id": "input.intro",
+      "title": "Input format",
+      "level": 1,
+      "content": "This chapter describes how a source file is interpreted as a sequence of tokens.\n\nSee [Crates and source files] for a description of how programs are organised into files.",
+      "parent_id": null,
+      "paragraphs": {
+        "input.intro": "This chapter describes how a source file is interpreted as a sequence of tokens.\n\nSee [Crates and source files] for a description of how programs are organised into files."
+      }
+    },
+    {
+      "id": "input.encoding",
+      "title": "Source encoding",
+      "level": 1,
+      "content": "Each source file is interpreted as a sequence of Unicode characters encoded in UTF-8.\n\nIt is an error if the file is not valid UTF-8.",
+      "parent_id": null,
+      "paragraphs": {
+        "input.encoding.utf8": "Each source file is interpreted as a sequence of Unicode characters encoded in UTF-8.",
+        "input.encoding.invalid": "It is an error if the file is not valid UTF-8."
+      }
+    },
+    {
+      "id": "input.byte-order-mark",
+      "title": "Byte order mark removal",
+      "level": 2,
+      "content": "If the first character in the sequence is `U+FEFF` ([BYTE ORDER MARK]), it is removed.",
+      "parent_id": null,
+      "paragraphs": {
+        "input.byte-order-mark": "If the first character in the sequence is `U+FEFF` ([BYTE ORDER MARK]), it is removed."
+      }
+    },
+    {
+      "id": "input.crlf",
+      "title": "CRLF normalization",
+      "level": 2,
+      "content": "Each pair of characters `U+000D` (CR) immediately followed by `U+000A` (LF) is replaced by a single `U+000A` (LF). This happens once, not repeatedly, so after the normalization, there can still exist `U+000D` (CR) immediately followed by `U+000A` (LF) in the input (e.g. if the raw input contained \"CR CR LF LF\").\n\nOther occurrences of the character `U+000D` (CR) are left in place (they are treated as [whitespace]).",
+      "parent_id": null,
+      "paragraphs": {
+        "input.crlf": "Each pair of characters `U+000D` (CR) immediately followed by `U+000A` (LF) is replaced by a single `U+000A` (LF). This happens once, not repeatedly, so after the normalization, there can still exist `U+000D` (CR) immediately followed by `U+000A` (LF) in the input (e.g. if the raw input contained \"CR CR LF LF\").\n\nOther occurrences of the character `U+000D` (CR) are left in place (they are treated as [whitespace])."
+      }
+    },
+    {
+      "id": "input.shebang",
+      "title": "Shebang removal",
+      "level": 2,
+      "content": "If the remaining sequence begins with the characters `#!`, the characters up to and including the first `U+000A` (LF) are removed from the sequence.\n\nFor example, the first line of the following file would be ignored:\n\n<!-- ignore: tests don't like shebang -->\n,ignore\n#!/usr/bin/env rustx\n\nfn main() {\n    println!(\"Hello!\");\n}\n\nAs an exception, if the `#!` characters are followed (ignoring intervening [comments] or [whitespace]) by a `[` token, nothing is removed. This prevents an [inner attribute] at the start of a source file being removed.\n\n> [!NOTE]\n> The standard library [`include!`] macro applies byte order mark removal, CRLF normalization, and shebang removal to the file it reads. The [`include_str!`] and [`include_bytes!`] macros do not.",
+      "parent_id": null,
+      "paragraphs": {
+        "input.shebang.intro": "If the remaining sequence begins with the characters `#!`, the characters up to and including the first `U+000A` (LF) are removed from the sequence.\n\nFor example, the first line of the following file would be ignored:\n\n<!-- ignore: tests don't like shebang -->\n,ignore\n#!/usr/bin/env rustx\n\nfn main() {\n    println!(\"Hello!\");\n}",
+        "input.shebang.inner-attribute": "As an exception, if the `#!` characters are followed (ignoring intervening [comments] or [whitespace]) by a `[` token, nothing is removed. This prevents an [inner attribute] at the start of a source file being removed.\n\n> [!NOTE]\n> The standard library [`include!`] macro applies byte order mark removal, CRLF normalization, and shebang removal to the file it reads. The [`include_str!`] and [`include_bytes!`] macros do not."
+      }
+    },
+    {
+      "id": "input.tokenization",
+      "title": "Tokenization",
+      "level": 2,
+      "content": "The resulting sequence of characters is then converted into tokens as described in the remainder of this chapter.\n\n[inner attribute]: attributes.md\n[BYTE ORDER MARK]: https://en.wikipedia.org/wiki/Byte_order_mark#UTF-8\n[comments]: comments.md\n[Crates and source files]: crates-and-source-files.md\n[_shebang_]: https://en.wikipedia.org/wiki/Shebang_(Unix)\n[whitespace]: whitespace.md",
+      "parent_id": null,
+      "paragraphs": {
+        "input.tokenization": "The resulting sequence of characters is then converted into tokens as described in the remainder of this chapter.\n\n[inner attribute]: attributes.md\n[BYTE ORDER MARK]: https://en.wikipedia.org/wiki/Byte_order_mark#UTF-8\n[comments]: comments.md\n[Crates and source files]: crates-and-source-files.md\n[_shebang_]: https://en.wikipedia.org/wiki/Shebang_(Unix)\n[whitespace]: whitespace.md"
+      }
+    },
+    {
+      "id": "lex.keywords",
+      "title": "Keywords",
+      "level": 1,
+      "content": "Rust divides keywords into three categories:\n\n* strict\n* reserved\n* weak",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.keywords": "Rust divides keywords into three categories:\n\n* strict\n* reserved\n* weak"
+      }
+    },
+    {
+      "id": "lex.keywords.strict",
+      "title": "Strict keywords",
+      "level": 1,
+      "content": "These keywords can only be used in their correct contexts. They cannot be used as the names of:\n\n* [Items]\n* [Variables] and function parameters\n* Fields and [variants]\n* [Type parameters]\n* Lifetime parameters or [loop labels]\n* [Macros] or [attributes]\n* [Macro placeholders]\n* [Crates]\n\nThe following keywords are in all editions:\n\n- `_`\n- `as`\n- `async`\n- `await`\n- `break`\n- `const`\n- `continue`\n- `crate`\n- `dyn`\n- `else`\n- `enum`\n- `extern`\n- `false`\n- `fn`\n- `for`\n- `if`\n- `impl`\n- `in`\n- `let`\n- `loop`\n- `match`\n- `mod`\n- `move`\n- `mut`\n- `pub`\n- `ref`\n- `return`\n- `self`\n- `Self`\n- `static`\n- `struct`\n- `super`\n- `trait`\n- `true`\n- `type`\n- `unsafe`\n- `use`\n- `where`\n- `while`\n\n> [!EDITION-2018]\n> The following keywords were added in the 2018 edition:\n>\n> - `async`\n> - `await`\n> - `dyn`",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.keywords.strict.intro": "These keywords can only be used in their correct contexts. They cannot be used as the names of:\n\n* [Items]\n* [Variables] and function parameters\n* Fields and [variants]\n* [Type parameters]\n* Lifetime parameters or [loop labels]\n* [Macros] or [attributes]\n* [Macro placeholders]\n* [Crates]",
+        "lex.keywords.strict.list": "The following keywords are in all editions:\n\n- `_`\n- `as`\n- `async`\n- `await`\n- `break`\n- `const`\n- `continue`\n- `crate`\n- `dyn`\n- `else`\n- `enum`\n- `extern`\n- `false`\n- `fn`\n- `for`\n- `if`\n- `impl`\n- `in`\n- `let`\n- `loop`\n- `match`\n- `mod`\n- `move`\n- `mut`\n- `pub`\n- `ref`\n- `return`\n- `self`\n- `Self`\n- `static`\n- `struct`\n- `super`\n- `trait`\n- `true`\n- `type`\n- `unsafe`\n- `use`\n- `where`\n- `while`",
+        "lex.keywords.strict.edition2018": "> [!EDITION-2018]\n> The following keywords were added in the 2018 edition:\n>\n> - `async`\n> - `await`\n> - `dyn`"
+      }
+    },
+    {
+      "id": "lex.keywords.reserved",
+      "title": "Reserved keywords",
+      "level": 2,
+      "content": "These keywords aren't used yet, but they are reserved for future use. They have the same restrictions as strict keywords. The reasoning behind this is to make current programs forward compatible with future versions of Rust by forbidding them to use these keywords.\n\n- `abstract`\n- `become`\n- `box`\n- `do`\n- `final`\n- `gen`\n- `macro`\n- `override`\n- `priv`\n- `try`\n- `typeof`\n- `unsized`\n- `virtual`\n- `yield`\n\n> [!EDITION-2018]\n> The `try` keyword was added as a reserved keyword in the 2018 edition.\n\n> [!EDITION-2024]\n> The `gen` keyword was added as a reserved keyword in the 2024 edition.",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.keywords.reserved.intro": "These keywords aren't used yet, but they are reserved for future use. They have the same restrictions as strict keywords. The reasoning behind this is to make current programs forward compatible with future versions of Rust by forbidding them to use these keywords.",
+        "lex.keywords.reserved.list": "- `abstract`\n- `become`\n- `box`\n- `do`\n- `final`\n- `gen`\n- `macro`\n- `override`\n- `priv`\n- `try`\n- `typeof`\n- `unsized`\n- `virtual`\n- `yield`",
+        "lex.keywords.reserved.edition2018": "> [!EDITION-2018]\n> The `try` keyword was added as a reserved keyword in the 2018 edition.",
+        "lex.keywords.reserved.edition2024": "> [!EDITION-2024]\n> The `gen` keyword was added as a reserved keyword in the 2024 edition."
+      }
+    },
+    {
+      "id": "lex.keywords.weak",
+      "title": "Weak keywords",
+      "level": 2,
+      "content": "These keywords have special meaning only in certain contexts. For example, it is possible to declare a variable or method with the name `union`.\n\n- `'static`\n- `macro_rules`\n- `raw`\n- `safe`\n- `union`\n\n* `macro_rules` is used to create custom [macros].\n\n* `union` is used to declare a [union] and is only a keyword when used in a union declaration.\n\n* `'static` is used for the static lifetime and cannot be used as a [generic lifetime parameter] or [loop label]\n\n  ```compile_fail\n  // error[E0262]: invalid lifetime parameter name: `'static`\n  fn invalid_lifetime_parameter<'static>(s: &'static str) -> &'static str { s }\n  ```\n\n* `safe` is used for functions and statics, which has meaning in [external blocks].\n\n* `raw` is used for [raw borrow operators], and is only a keyword when matching a raw borrow operator form (such as `&raw const expr` or `&raw mut expr`).\n\n> [!EDITION-2018]\n> In the 2015 edition, [`dyn`] is a keyword when used in a type position followed by a path that does not start with `::` or `<`, a lifetime, a question mark, a `for` keyword or an opening parenthesis.\n>\n> Beginning in the 2018 edition, `dyn` has been promoted to a strict keyword.\n\n[items]: items.md\n[Variables]: variables.md\n[Type parameters]: types/parameters.md\n[loop labels]: expressions/loop-expr.md#loop-labels\n[Macros]: macros.md\n[attributes]: attributes.md\n[Macro placeholders]: macros-by-example.md\n[Crates]: crates-and-source-files.md\n[union]: items/unions.md\n[variants]: items/enumerations.md\n[`dyn`]: types/trait-object.md\n[loop label]: expressions/loop-expr.md#loop-labels\n[generic lifetime parameter]: items/generics.md\n[external blocks]: items/external-blocks.md\n[raw borrow operators]: expressions/operator-expr.md#raw-borrow-operators",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.keywords.weak.intro": "These keywords have special meaning only in certain contexts. For example, it is possible to declare a variable or method with the name `union`.\n\n- `'static`\n- `macro_rules`\n- `raw`\n- `safe`\n- `union`",
+        "lex.keywords.weak.macro_rules": "* `macro_rules` is used to create custom [macros].",
+        "lex.keywords.weak.union": "* `union` is used to declare a [union] and is only a keyword when used in a union declaration.",
+        "lex.keywords.weak.lifetime-static": "* `'static` is used for the static lifetime and cannot be used as a [generic lifetime parameter] or [loop label]\n\n  ```compile_fail\n  // error[E0262]: invalid lifetime parameter name: `'static`\n  fn invalid_lifetime_parameter<'static>(s: &'static str) -> &'static str { s }\n  ```",
+        "lex.keywords.weak.safe": "* `safe` is used for functions and statics, which has meaning in [external blocks].",
+        "lex.keywords.weak.raw": "* `raw` is used for [raw borrow operators], and is only a keyword when matching a raw borrow operator form (such as `&raw const expr` or `&raw mut expr`).",
+        "lex.keywords.weak.dyn.edition2018": "> [!EDITION-2018]\n> In the 2015 edition, [`dyn`] is a keyword when used in a type position followed by a path that does not start with `::` or `<`, a lifetime, a question mark, a `for` keyword or an opening parenthesis.\n>\n> Beginning in the 2018 edition, `dyn` has been promoted to a strict keyword.\n\n[items]: items.md\n[Variables]: variables.md\n[Type parameters]: types/parameters.md\n[loop labels]: expressions/loop-expr.md#loop-labels\n[Macros]: macros.md\n[attributes]: attributes.md\n[Macro placeholders]: macros-by-example.md\n[Crates]: crates-and-source-files.md\n[union]: items/unions.md\n[variants]: items/enumerations.md\n[`dyn`]: types/trait-object.md\n[loop label]: expressions/loop-expr.md#loop-labels\n[generic lifetime parameter]: items/generics.md\n[external blocks]: items/external-blocks.md\n[raw borrow operators]: expressions/operator-expr.md#raw-borrow-operators"
+      }
+    },
+    {
+      "id": "ident",
+      "title": "Identifiers",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "ident.syntax",
+      "title": "Identifiers",
+      "level": 1,
+      "content": ",lexer\nIDENTIFIER_OR_KEYWORD -> ( XID_Start | `_` ) XID_Continue*\n\nXID_Start -> <`XID_Start` defined by Unicode>\n\nXID_Continue -> <`XID_Continue` defined by Unicode>\n\nRAW_IDENTIFIER -> `r#` IDENTIFIER_OR_KEYWORD\n\nNON_KEYWORD_IDENTIFIER -> IDENTIFIER_OR_KEYWORD _except a strict or reserved keyword_\n\nIDENTIFIER -> NON_KEYWORD_IDENTIFIER | RAW_IDENTIFIER\n\nRESERVED_RAW_IDENTIFIER ->\n    `r#` (`_` | `crate` | `self` | `Self` | `super`) _not immediately followed by XID_Continue_\n\n<!-- When updating the version, update the UAX links, too. -->",
+      "parent_id": null,
+      "paragraphs": {
+        "ident.syntax": ",lexer\nIDENTIFIER_OR_KEYWORD -> ( XID_Start | `_` ) XID_Continue*\n\nXID_Start -> <`XID_Start` defined by Unicode>\n\nXID_Continue -> <`XID_Continue` defined by Unicode>\n\nRAW_IDENTIFIER -> `r#` IDENTIFIER_OR_KEYWORD\n\nNON_KEYWORD_IDENTIFIER -> IDENTIFIER_OR_KEYWORD _except a strict or reserved keyword_\n\nIDENTIFIER -> NON_KEYWORD_IDENTIFIER | RAW_IDENTIFIER\n\nRESERVED_RAW_IDENTIFIER ->\n    `r#` (`_` | `crate` | `self` | `Self` | `super`) _not immediately followed by XID_Continue_\n\n<!-- When updating the version, update the UAX links, too. -->"
+      }
+    },
+    {
+      "id": "ident.unicode",
+      "title": "Identifiers",
+      "level": 1,
+      "content": "Identifiers follow the specification in Unicode Standard Annex #31 for Unicode version 17.0, with the additions described below. Some examples of identifiers:\n\n* `foo`\n* `_identifier`\n* `r#true`\n* `\u041c\u043e\u0441\u043a\u0432\u0430`\n* `\u6771\u4eac`",
+      "parent_id": null,
+      "paragraphs": {
+        "ident.unicode": "Identifiers follow the specification in Unicode Standard Annex #31 for Unicode version 17.0, with the additions described below. Some examples of identifiers:\n\n* `foo`\n* `_identifier`\n* `r#true`\n* `\u041c\u043e\u0441\u043a\u0432\u0430`\n* `\u6771\u4eac`"
+      }
+    },
+    {
+      "id": "ident.profile",
+      "title": "Identifiers",
+      "level": 1,
+      "content": "The profile used from UAX #31 is:\n\n* Start := [`XID_Start`], plus the underscore character (U+005F)\n* Continue := [`XID_Continue`]\n* Medial := empty\n\n> [!NOTE]\n> Identifiers starting with an underscore are typically used to indicate an identifier that is intentionally unused, and will silence the unused warning in `rustc`.",
+      "parent_id": null,
+      "paragraphs": {
+        "ident.profile": "The profile used from UAX #31 is:\n\n* Start := [`XID_Start`], plus the underscore character (U+005F)\n* Continue := [`XID_Continue`]\n* Medial := empty\n\n> [!NOTE]\n> Identifiers starting with an underscore are typically used to indicate an identifier that is intentionally unused, and will silence the unused warning in `rustc`."
+      }
+    },
+    {
+      "id": "ident.keyword",
+      "title": "Identifiers",
+      "level": 1,
+      "content": "Identifiers may not be a [strict] or [reserved] keyword without the `r#` prefix described below in raw identifiers.",
+      "parent_id": null,
+      "paragraphs": {
+        "ident.keyword": "Identifiers may not be a [strict] or [reserved] keyword without the `r#` prefix described below in raw identifiers."
+      }
+    },
+    {
+      "id": "ident.zero-width-chars",
+      "title": "Identifiers",
+      "level": 1,
+      "content": "Zero width non-joiner (ZWNJ U+200C) and zero width joiner (ZWJ U+200D) characters are not allowed in identifiers.",
+      "parent_id": null,
+      "paragraphs": {
+        "ident.zero-width-chars": "Zero width non-joiner (ZWNJ U+200C) and zero width joiner (ZWJ U+200D) characters are not allowed in identifiers."
+      }
+    },
+    {
+      "id": "ident.ascii-limitations",
+      "title": "Identifiers",
+      "level": 1,
+      "content": "Identifiers are restricted to the ASCII subset of [`XID_Start`] and [`XID_Continue`] in the following situations:\n\n* [`extern crate`] declarations (except the [AsClause] identifier)\n* External crate names referenced in a [path]\n* [Module] names loaded from the filesystem without a [`path` attribute]\n* [`no_mangle`] attributed items\n* Item names in [external blocks]",
+      "parent_id": null,
+      "paragraphs": {
+        "ident.ascii-limitations": "Identifiers are restricted to the ASCII subset of [`XID_Start`] and [`XID_Continue`] in the following situations:\n\n* [`extern crate`] declarations (except the [AsClause] identifier)\n* External crate names referenced in a [path]\n* [Module] names loaded from the filesystem without a [`path` attribute]\n* [`no_mangle`] attributed items\n* Item names in [external blocks]"
+      }
+    },
+    {
+      "id": "ident.normalization",
+      "title": "Normalization",
+      "level": 1,
+      "content": "Identifiers are normalized using Normalization Form C (NFC) as defined in Unicode Standard Annex #15. Two identifiers are equal if their NFC forms are equal.\n\nProcedural and declarative macros receive normalized identifiers in their input.",
+      "parent_id": null,
+      "paragraphs": {
+        "ident.normalization": "Identifiers are normalized using Normalization Form C (NFC) as defined in Unicode Standard Annex #15. Two identifiers are equal if their NFC forms are equal.\n\nProcedural and declarative macros receive normalized identifiers in their input."
+      }
+    },
+    {
+      "id": "ident.raw",
+      "title": "Raw identifiers",
+      "level": 2,
+      "content": "A raw identifier is like a normal identifier, but prefixed by `r#`. (Note that the `r#` prefix is not included as part of the actual identifier.)\n\nUnlike a normal identifier, a raw identifier may be any strict or reserved keyword except the ones listed above for `RAW_IDENTIFIER`.\n\nIt is an error to use the [RESERVED_RAW_IDENTIFIER] token.\n\n[`extern crate`]: items/extern-crates.md\n[`no_mangle`]: abi.md#the-no_mangle-attribute\n[`path` attribute]: items/modules.md#the-path-attribute\n[`XID_Continue`]: http://unicode.org/cldr/utility/list-unicodeset.jsp?a=%5B%3AXID_Continue%3A%5D&abb=on&g=&i=\n[`XID_Start`]:  http://unicode.org/cldr/utility/list-unicodeset.jsp?a=%5B%3AXID_Start%3A%5D&abb=on&g=&i=\n[external blocks]: items/external-blocks.md\n[mbe]: macros-by-example.md\n[module]: items/modules.md\n[path]: paths.md\n[proc-macro]: procedural-macros.md\n[reserved]: keywords.md#reserved-keywords\n[strict]: keywords.md#strict-keywords\n[UAX15]: https://www.unicode.org/reports/tr15/tr15-57.html\n[UAX31]: https://www.unicode.org/reports/tr31/tr31-43.html",
+      "parent_id": null,
+      "paragraphs": {
+        "ident.raw.intro": "A raw identifier is like a normal identifier, but prefixed by `r#`. (Note that the `r#` prefix is not included as part of the actual identifier.)",
+        "ident.raw.allowed": "Unlike a normal identifier, a raw identifier may be any strict or reserved keyword except the ones listed above for `RAW_IDENTIFIER`.",
+        "ident.raw.reserved": "It is an error to use the [RESERVED_RAW_IDENTIFIER] token.\n\n[`extern crate`]: items/extern-crates.md\n[`no_mangle`]: abi.md#the-no_mangle-attribute\n[`path` attribute]: items/modules.md#the-path-attribute\n[`XID_Continue`]: http://unicode.org/cldr/utility/list-unicodeset.jsp?a=%5B%3AXID_Continue%3A%5D&abb=on&g=&i=\n[`XID_Start`]:  http://unicode.org/cldr/utility/list-unicodeset.jsp?a=%5B%3AXID_Start%3A%5D&abb=on&g=&i=\n[external blocks]: items/external-blocks.md\n[mbe]: macros-by-example.md\n[module]: items/modules.md\n[path]: paths.md\n[proc-macro]: procedural-macros.md\n[reserved]: keywords.md#reserved-keywords\n[strict]: keywords.md#strict-keywords\n[UAX15]: https://www.unicode.org/reports/tr15/tr15-57.html\n[UAX31]: https://www.unicode.org/reports/tr31/tr31-43.html"
+      }
+    },
+    {
+      "id": "comments",
+      "title": "Comments",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "comments.syntax",
+      "title": "Comments",
+      "level": 1,
+      "content": ",lexer\n@root LINE_COMMENT ->\n      `//` (~[`/` `!` LF] | `//`) ~LF*\n    | `//`\n\nBLOCK_COMMENT ->\n      `/*`\n        ( ~[`*` `!`] | `**` | BLOCK_COMMENT_OR_DOC )\n        ( BLOCK_COMMENT_OR_DOC | ~`*/` )*\n      `*/`\n    | `/**/`\n    | `/***/`\n\n@root INNER_LINE_DOC ->\n    `//!` ~[LF CR]*\n\nINNER_BLOCK_DOC ->\n    `/*!` ( BLOCK_COMMENT_OR_DOC | ~[`*/` CR] )* `*/`\n\n@root OUTER_LINE_DOC ->\n    `///` (~`/` ~[LF CR]*)?\n\nOUTER_BLOCK_DOC ->\n    `/**`\n      ( ~`*` | BLOCK_COMMENT_OR_DOC )\n      ( BLOCK_COMMENT_OR_DOC | ~[`*/` CR] )*\n    `*/`\n\n@root BLOCK_COMMENT_OR_DOC ->\n      BLOCK_COMMENT\n    | OUTER_BLOCK_DOC\n    | INNER_BLOCK_DOC",
+      "parent_id": null,
+      "paragraphs": {
+        "comments.syntax": ",lexer\n@root LINE_COMMENT ->\n      `//` (~[`/` `!` LF] | `//`) ~LF*\n    | `//`\n\nBLOCK_COMMENT ->\n      `/*`\n        ( ~[`*` `!`] | `**` | BLOCK_COMMENT_OR_DOC )\n        ( BLOCK_COMMENT_OR_DOC | ~`*/` )*\n      `*/`\n    | `/**/`\n    | `/***/`\n\n@root INNER_LINE_DOC ->\n    `//!` ~[LF CR]*\n\nINNER_BLOCK_DOC ->\n    `/*!` ( BLOCK_COMMENT_OR_DOC | ~[`*/` CR] )* `*/`\n\n@root OUTER_LINE_DOC ->\n    `///` (~`/` ~[LF CR]*)?\n\nOUTER_BLOCK_DOC ->\n    `/**`\n      ( ~`*` | BLOCK_COMMENT_OR_DOC )\n      ( BLOCK_COMMENT_OR_DOC | ~[`*/` CR] )*\n    `*/`\n\n@root BLOCK_COMMENT_OR_DOC ->\n      BLOCK_COMMENT\n    | OUTER_BLOCK_DOC\n    | INNER_BLOCK_DOC"
+      }
+    },
+    {
+      "id": "comments.normal",
+      "title": "Non-doc comments",
+      "level": 1,
+      "content": "Comments follow the general C++ style of line (`//`) and block (`/* ... */`) comment forms. Nested block comments are supported.\n\nNon-doc comments are interpreted as a form of whitespace.",
+      "parent_id": null,
+      "paragraphs": {
+        "comments.normal": "Comments follow the general C++ style of line (`//`) and block (`/* ... */`) comment forms. Nested block comments are supported.",
+        "comments.normal.tokenization": "Non-doc comments are interpreted as a form of whitespace."
+      }
+    },
+    {
+      "id": "comments.doc",
+      "title": "Doc comments",
+      "level": 2,
+      "content": "Line doc comments beginning with exactly _three_ slashes (`///`), and block doc comments (`/** ... */`), both outer doc comments, are interpreted as a special syntax for [`doc` attributes].\n\nThat is, they are equivalent to writing `#[doc=\"...\"]` around the body of the comment, i.e., `/// Foo` turns into `#[doc=\"Foo\"]` and `/** Bar */` turns into `#[doc=\"Bar\"]`. They must therefore appear before something that accepts an outer attribute.\n\nLine comments beginning with `//!` and block comments `/*! ... */` are doc comments that apply to the parent of the comment, rather than the item that follows.\n\nThat is, they are equivalent to writing `#![doc=\"...\"]` around the body of the comment. `//!` comments are usually used to document modules that occupy a source file.\n\nThe character `U+000D` (CR) is not allowed in doc comments.\n\n> [!NOTE]\n> It is conventional for doc comments to contain Markdown, as expected by `rustdoc`. However, the comment syntax does not respect any internal Markdown. ``/** `glob = \"*/*.rs\";` */`` terminates the comment at the first `*/`, and the remaining code would cause a syntax error. This slightly limits the content of block doc comments compared to line doc comments.\n\n> [!NOTE]\n> The sequence `U+000D` (CR) immediately followed by `U+000A` (LF) would have been previously transformed into a single `U+000A` (LF).\n\n## Examples\n\n//! A doc comment that applies to the implicit anonymous module of this crate\n\npub mod outer_module {\n\n    //!  - Inner line doc\n    //!! - Still an inner line doc (but with a bang at the beginning)\n\n    /*!  - Inner block doc */\n    /*!! - Still an inner block doc (but with a bang at the beginning) */\n\n    //   - Only a comment\n    ///  - Outer line doc (exactly 3 slashes)\n    //// - Only a comment\n\n    /*   - Only a comment */\n    /**  - Outer block doc (exactly) 2 asterisks */\n    /*** - Only a comment */\n\n    pub mod inner_module {}\n\n    pub mod nested_comments {\n        /* In Rust /* we can /* nest comments */ */ */\n\n        // All three types of block comments can contain or be nested inside\n        // any other type:\n\n        /*   /* */  /** */  /*! */  */\n        /*!  /* */  /** */  /*! */  */\n        /**  /* */  /** */  /*! */  */\n        pub mod dummy_item {}\n    }\n\n    pub mod degenerate_cases {\n        // empty inner line doc\n        //!\n\n        // empty inner block doc\n        /*!*/\n\n        // empty line comment\n        //\n\n        // empty outer line doc\n        ///\n\n        // empty block comment\n        /**/\n\n        pub mod dummy_item {}\n\n        // empty 2-asterisk block isn't a doc block, it is a block comment\n        /***/\n\n    }\n\n    /* The next one isn't allowed because outer doc comments\n       require an item that will receive the doc */\n\n    /// Where is my item?\n#   mod boo {}\n}\n\n[`doc` attributes]: ../rustdoc/the-doc-attribute.html",
+      "parent_id": null,
+      "paragraphs": {
+        "comments.doc.syntax": "Line doc comments beginning with exactly _three_ slashes (`///`), and block doc comments (`/** ... */`), both outer doc comments, are interpreted as a special syntax for [`doc` attributes].",
+        "comments.doc.attributes": "That is, they are equivalent to writing `#[doc=\"...\"]` around the body of the comment, i.e., `/// Foo` turns into `#[doc=\"Foo\"]` and `/** Bar */` turns into `#[doc=\"Bar\"]`. They must therefore appear before something that accepts an outer attribute.",
+        "comments.doc.inner-syntax": "Line comments beginning with `//!` and block comments `/*! ... */` are doc comments that apply to the parent of the comment, rather than the item that follows.",
+        "comments.doc.inner-attributes": "That is, they are equivalent to writing `#![doc=\"...\"]` around the body of the comment. `//!` comments are usually used to document modules that occupy a source file.",
+        "comments.doc.bare-crs": "The character `U+000D` (CR) is not allowed in doc comments.\n\n> [!NOTE]\n> It is conventional for doc comments to contain Markdown, as expected by `rustdoc`. However, the comment syntax does not respect any internal Markdown. ``/** `glob = \"*/*.rs\";` */`` terminates the comment at the first `*/`, and the remaining code would cause a syntax error. This slightly limits the content of block doc comments compared to line doc comments.\n\n> [!NOTE]\n> The sequence `U+000D` (CR) immediately followed by `U+000A` (LF) would have been previously transformed into a single `U+000A` (LF).\n\n## Examples\n\n//! A doc comment that applies to the implicit anonymous module of this crate\n\npub mod outer_module {\n\n    //!  - Inner line doc\n    //!! - Still an inner line doc (but with a bang at the beginning)\n\n    /*!  - Inner block doc */\n    /*!! - Still an inner block doc (but with a bang at the beginning) */\n\n    //   - Only a comment\n    ///  - Outer line doc (exactly 3 slashes)\n    //// - Only a comment\n\n    /*   - Only a comment */\n    /**  - Outer block doc (exactly) 2 asterisks */\n    /*** - Only a comment */\n\n    pub mod inner_module {}\n\n    pub mod nested_comments {\n        /* In Rust /* we can /* nest comments */ */ */\n\n        // All three types of block comments can contain or be nested inside\n        // any other type:\n\n        /*   /* */  /** */  /*! */  */\n        /*!  /* */  /** */  /*! */  */\n        /**  /* */  /** */  /*! */  */\n        pub mod dummy_item {}\n    }\n\n    pub mod degenerate_cases {\n        // empty inner line doc\n        //!\n\n        // empty inner block doc\n        /*!*/\n\n        // empty line comment\n        //\n\n        // empty outer line doc\n        ///\n\n        // empty block comment\n        /**/\n\n        pub mod dummy_item {}\n\n        // empty 2-asterisk block isn't a doc block, it is a block comment\n        /***/\n\n    }\n\n    /* The next one isn't allowed because outer doc comments\n       require an item that will receive the doc */\n\n    /// Where is my item?\n#   mod boo {}\n}\n\n[`doc` attributes]: ../rustdoc/the-doc-attribute.html"
+      }
+    },
+    {
+      "id": "lex.whitespace",
+      "title": "Whitespace",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "whitespace.syntax",
+      "title": "Whitespace",
+      "level": 1,
+      "content": ",lexer\n@root WHITESPACE ->\n      U+0009 // Horizontal tab, `'\\t'`\n    | U+000A // Line feed, `'\\n'`\n    | U+000B // Vertical tab\n    | U+000C // Form feed\n    | U+000D // Carriage return, `'\\r'`\n    | U+0020 // Space, `' '`\n    | U+0085 // Next line\n    | U+200E // Left-to-right mark\n    | U+200F // Right-to-left mark\n    | U+2028 // Line separator\n    | U+2029 // Paragraph separator\n\nTAB -> U+0009 // Horizontal tab, `'\\t'`\n\nLF -> U+000A  // Line feed, `'\\n'`\n\nCR -> U+000D  // Carriage return, `'\\r'`\n\nWhitespace is any non-empty string containing only characters that have the [`Pattern_White_Space`] Unicode property.\n\nRust is a \"free-form\" language, meaning that all forms of whitespace serve only to separate _tokens_ in the grammar, and have no semantic significance.\n\nA Rust program has identical meaning if each whitespace element is replaced with any other legal whitespace element, such as a single space character.\n\n[`Pattern_White_Space`]: https://www.unicode.org/reports/tr31/",
+      "parent_id": null,
+      "paragraphs": {
+        "whitespace.syntax": ",lexer\n@root WHITESPACE ->\n      U+0009 // Horizontal tab, `'\\t'`\n    | U+000A // Line feed, `'\\n'`\n    | U+000B // Vertical tab\n    | U+000C // Form feed\n    | U+000D // Carriage return, `'\\r'`\n    | U+0020 // Space, `' '`\n    | U+0085 // Next line\n    | U+200E // Left-to-right mark\n    | U+200F // Right-to-left mark\n    | U+2028 // Line separator\n    | U+2029 // Paragraph separator\n\nTAB -> U+0009 // Horizontal tab, `'\\t'`\n\nLF -> U+000A  // Line feed, `'\\n'`\n\nCR -> U+000D  // Carriage return, `'\\r'`",
+        "lex.whitespace.intro": "Whitespace is any non-empty string containing only characters that have the [`Pattern_White_Space`] Unicode property.",
+        "lex.whitespace.token-sep": "Rust is a \"free-form\" language, meaning that all forms of whitespace serve only to separate _tokens_ in the grammar, and have no semantic significance.",
+        "lex.whitespace.replacement": "A Rust program has identical meaning if each whitespace element is replaced with any other legal whitespace element, such as a single space character.\n\n[`Pattern_White_Space`]: https://www.unicode.org/reports/tr31/"
+      }
+    },
+    {
+      "id": "lex.token",
+      "title": "Tokens",
+      "level": 1,
+      "content": ",lexer\nToken ->\n      RESERVED_TOKEN\n    | RAW_IDENTIFIER\n    | CHAR_LITERAL\n    | STRING_LITERAL\n    | RAW_STRING_LITERAL\n    | BYTE_LITERAL\n    | BYTE_STRING_LITERAL\n    | RAW_BYTE_STRING_LITERAL\n    | C_STRING_LITERAL\n    | RAW_C_STRING_LITERAL\n    | FLOAT_LITERAL\n    | INTEGER_LITERAL\n    | LIFETIME_TOKEN\n    | PUNCTUATION\n    | IDENTIFIER_OR_KEYWORD\n\nTokens are primitive productions in the grammar defined by regular (non-recursive) languages.  Rust source input can be broken down into the following kinds of tokens:\n\n* [Keywords]\n* Identifiers\n* Literals\n* Lifetimes\n* Punctuation\n* Delimiters\n\nWithin this documentation's grammar, \"simple\" tokens are given in [string table production] form, and appear in `monospace` font.\n\n[string table production]: notation.md#string-table-productions",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.syntax": ",lexer\nToken ->\n      RESERVED_TOKEN\n    | RAW_IDENTIFIER\n    | CHAR_LITERAL\n    | STRING_LITERAL\n    | RAW_STRING_LITERAL\n    | BYTE_LITERAL\n    | BYTE_STRING_LITERAL\n    | RAW_BYTE_STRING_LITERAL\n    | C_STRING_LITERAL\n    | RAW_C_STRING_LITERAL\n    | FLOAT_LITERAL\n    | INTEGER_LITERAL\n    | LIFETIME_TOKEN\n    | PUNCTUATION\n    | IDENTIFIER_OR_KEYWORD",
+        "lex.token.intro": "Tokens are primitive productions in the grammar defined by regular (non-recursive) languages.  Rust source input can be broken down into the following kinds of tokens:\n\n* [Keywords]\n* Identifiers\n* Literals\n* Lifetimes\n* Punctuation\n* Delimiters\n\nWithin this documentation's grammar, \"simple\" tokens are given in [string table production] form, and appear in `monospace` font.\n\n[string table production]: notation.md#string-table-productions"
+      }
+    },
+    {
+      "id": "lex.token.literal",
+      "title": "Literals",
+      "level": 1,
+      "content": "Literals are tokens used in [literal expressions].\n\n### Examples\n\n#### Characters and strings\n\n|                                              | Example         | `#`&nbsp;sets[^nsets] | Characters  | Escapes             |\n|----------------------------------------------|-----------------|------------|-------------|---------------------|\n| Character             | `'H'`           | 0          | All Unicode | Quote & ASCII & Unicode |\n| String                   | `\"hello\"`       | 0          | All Unicode | Quote & ASCII & Unicode |\n| Raw string           | `r#\"hello\"#`    | <256       | All Unicode | `N/A`                                                      |\n| Byte                       | `b'H'`          | 0          | All ASCII   | Quote & Byte                               |\n| Byte string         | `b\"hello\"`      | 0          | All ASCII   | Quote & Byte                               |\n| Raw byte string | `br#\"hello\"#`   | <256       | All ASCII   | `N/A`                                                      |\n| C string               | `c\"hello\"`      | 0          | All Unicode | Quote & Byte & Unicode   |\n| Raw C string       | `cr#\"hello\"#`   | <256       | All Unicode | `N/A`                                                                           |\n\n[^nsets]: The number of `#`s on each side of the same literal must be equivalent.\n\n#### ASCII escapes\n\n|   | Name |\n|---|------|\n| `\\x41` | 7-bit character code (exactly 2 hex digits, up to 0x7F) |\n| `\\n` | Newline |\n| `\\r` | Carriage return |\n| `\\t` | Tab |\n| `\\\\` | Backslash |\n| `\\0` | Null |\n\n#### Byte escapes\n\n|   | Name |\n|---|------|\n| `\\x7F` | 8-bit character code (exactly 2 hex digits) |\n| `\\n` | Newline |\n| `\\r` | Carriage return |\n| `\\t` | Tab |\n| `\\\\` | Backslash |\n| `\\0` | Null |\n\n#### Unicode escapes\n\n|   | Name |\n|---|------|\n| `\\u{7FFF}` | 24-bit Unicode character code (up to 6 hex digits) |\n\n#### Quote escapes\n\n|   | Name |\n|---|------|\n| `\\'` | Single quote |\n| `\\\"` | Double quote |\n\n#### Numbers\n\n| Number literals[^nl] | Example | Exponentiation |\n|----------------------------------------|---------|----------------|\n| Decimal integer | `98_222` | `N/A` |\n| Hex integer | `0xff` | `N/A` |\n| Octal integer | `0o77` | `N/A` |\n| Binary integer | `0b1111_0000` | `N/A` |\n| Floating-point | `123.0E+77` | `Optional` |\n\n[^nl]: All number literals allow `_` as a visual separator: `1_234.0E+18f64`",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.literal": "Literals are tokens used in [literal expressions].\n\n### Examples\n\n#### Characters and strings\n\n|                                              | Example         | `#`&nbsp;sets[^nsets] | Characters  | Escapes             |\n|----------------------------------------------|-----------------|------------|-------------|---------------------|\n| Character             | `'H'`           | 0          | All Unicode | Quote & ASCII & Unicode |\n| String                   | `\"hello\"`       | 0          | All Unicode | Quote & ASCII & Unicode |\n| Raw string           | `r#\"hello\"#`    | <256       | All Unicode | `N/A`                                                      |\n| Byte                       | `b'H'`          | 0          | All ASCII   | Quote & Byte                               |\n| Byte string         | `b\"hello\"`      | 0          | All ASCII   | Quote & Byte                               |\n| Raw byte string | `br#\"hello\"#`   | <256       | All ASCII   | `N/A`                                                      |\n| C string               | `c\"hello\"`      | 0          | All Unicode | Quote & Byte & Unicode   |\n| Raw C string       | `cr#\"hello\"#`   | <256       | All Unicode | `N/A`                                                                           |\n\n[^nsets]: The number of `#`s on each side of the same literal must be equivalent.\n\n#### ASCII escapes\n\n|   | Name |\n|---|------|\n| `\\x41` | 7-bit character code (exactly 2 hex digits, up to 0x7F) |\n| `\\n` | Newline |\n| `\\r` | Carriage return |\n| `\\t` | Tab |\n| `\\\\` | Backslash |\n| `\\0` | Null |\n\n#### Byte escapes\n\n|   | Name |\n|---|------|\n| `\\x7F` | 8-bit character code (exactly 2 hex digits) |\n| `\\n` | Newline |\n| `\\r` | Carriage return |\n| `\\t` | Tab |\n| `\\\\` | Backslash |\n| `\\0` | Null |\n\n#### Unicode escapes\n\n|   | Name |\n|---|------|\n| `\\u{7FFF}` | 24-bit Unicode character code (up to 6 hex digits) |\n\n#### Quote escapes\n\n|   | Name |\n|---|------|\n| `\\'` | Single quote |\n| `\\\"` | Double quote |\n\n#### Numbers\n\n| Number literals[^nl] | Example | Exponentiation |\n|----------------------------------------|---------|----------------|\n| Decimal integer | `98_222` | `N/A` |\n| Hex integer | `0xff` | `N/A` |\n| Octal integer | `0o77` | `N/A` |\n| Binary integer | `0b1111_0000` | `N/A` |\n| Floating-point | `123.0E+77` | `Optional` |\n\n[^nl]: All number literals allow `_` as a visual separator: `1_234.0E+18f64`"
+      }
+    },
+    {
+      "id": "lex.token.literal.suffix",
+      "title": "Suffixes",
+      "level": 4,
+      "content": "A suffix is a sequence of characters following the primary part of a literal (without intervening whitespace), of the same form as a non-raw identifier or keyword.\n\n,lexer\nSUFFIX -> IDENTIFIER_OR_KEYWORD _except `_`_\n\nSUFFIX_NO_E -> SUFFIX _not beginning with `e` or `E`_\n\nAny kind of literal (string, integer, etc) with any suffix is valid as a token.\n\nA literal token with any suffix can be passed to a macro without producing an error. The macro itself will decide how to interpret such a token and whether to produce an error or not. In particular, the `literal` fragment specifier for by-example macros matches literal tokens with arbitrary suffixes.\n\nmacro_rules! blackhole { ($tt:tt) => () }\nmacro_rules! blackhole_lit { ($l:literal) => () }\n\nblackhole!(\"string\"suffix); // OK\nblackhole_lit!(1suffix); // OK\n\nHowever, suffixes on literal tokens which are interpreted as literal expressions or patterns are restricted. Any suffixes are rejected on non-numeric literal tokens, and numeric literal tokens are accepted only with suffixes from the list below.\n\n| Integer | Floating-point |\n|---------|----------------|\n| `u8`, `i8`, `u16`, `i16`, `u32`, `i32`, `u64`, `i64`, `u128`, `i128`, `usize`, `isize` | `f32`, `f64` |\n\n### Character and string literals",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.literal.literal.suffix.intro": "A suffix is a sequence of characters following the primary part of a literal (without intervening whitespace), of the same form as a non-raw identifier or keyword.",
+        "lex.token.literal.suffix.syntax": ",lexer\nSUFFIX -> IDENTIFIER_OR_KEYWORD _except `_`_\n\nSUFFIX_NO_E -> SUFFIX _not beginning with `e` or `E`_",
+        "lex.token.literal.suffix.validity": "Any kind of literal (string, integer, etc) with any suffix is valid as a token.\n\nA literal token with any suffix can be passed to a macro without producing an error. The macro itself will decide how to interpret such a token and whether to produce an error or not. In particular, the `literal` fragment specifier for by-example macros matches literal tokens with arbitrary suffixes.\n\nmacro_rules! blackhole { ($tt:tt) => () }\nmacro_rules! blackhole_lit { ($l:literal) => () }\n\nblackhole!(\"string\"suffix); // OK\nblackhole_lit!(1suffix); // OK",
+        "lex.token.literal.suffix.parse": "However, suffixes on literal tokens which are interpreted as literal expressions or patterns are restricted. Any suffixes are rejected on non-numeric literal tokens, and numeric literal tokens are accepted only with suffixes from the list below.\n\n| Integer | Floating-point |\n|---------|----------------|\n| `u8`, `i8`, `u16`, `i16`, `u32`, `i32`, `u64`, `i64`, `u128`, `i128`, `usize`, `isize` | `f32`, `f64` |\n\n### Character and string literals"
+      }
+    },
+    {
+      "id": "lex.token.literal.char",
+      "title": "Character literals",
+      "level": 3,
+      "content": ",lexer\nCHAR_LITERAL ->\n    `'`\n        ( ~[`'` `\\` LF CR TAB] | QUOTE_ESCAPE | ASCII_ESCAPE | UNICODE_ESCAPE )\n    `'` SUFFIX?\n\nQUOTE_ESCAPE -> `\\'` | `\\\"`\n\nASCII_ESCAPE ->\n      `\\x` OCT_DIGIT HEX_DIGIT\n    | `\\n` | `\\r` | `\\t` | `\\\\` | `\\0`\n\nUNICODE_ESCAPE ->\n    `\\u{` ( HEX_DIGIT `_`* ){1..6} _valid hex char value_ `}`[^valid-hex-char]\n\n[^valid-hex-char]: See [lex.token.literal.char-escape.unicode].\n\nA _character literal_ is a single Unicode character enclosed within two `U+0027` (single-quote) characters, with the exception of `U+0027` itself, which must be _escaped_ by a preceding `U+005C` character (`\\`).",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.literal.char.syntax": ",lexer\nCHAR_LITERAL ->\n    `'`\n        ( ~[`'` `\\` LF CR TAB] | QUOTE_ESCAPE | ASCII_ESCAPE | UNICODE_ESCAPE )\n    `'` SUFFIX?\n\nQUOTE_ESCAPE -> `\\'` | `\\\"`\n\nASCII_ESCAPE ->\n      `\\x` OCT_DIGIT HEX_DIGIT\n    | `\\n` | `\\r` | `\\t` | `\\\\` | `\\0`\n\nUNICODE_ESCAPE ->\n    `\\u{` ( HEX_DIGIT `_`* ){1..6} _valid hex char value_ `}`[^valid-hex-char]\n\n[^valid-hex-char]: See [lex.token.literal.char-escape.unicode].",
+        "lex.token.literal.char.intro": "A _character literal_ is a single Unicode character enclosed within two `U+0027` (single-quote) characters, with the exception of `U+0027` itself, which must be _escaped_ by a preceding `U+005C` character (`\\`)."
+      }
+    },
+    {
+      "id": "lex.token.literal.str",
+      "title": "String literals",
+      "level": 4,
+      "content": ",lexer\nSTRING_LITERAL ->\n    `\"` (\n        ~[`\"` `\\` CR]\n      | QUOTE_ESCAPE\n      | ASCII_ESCAPE\n      | UNICODE_ESCAPE\n      | STRING_CONTINUE\n    )* `\"` SUFFIX?\n\nSTRING_CONTINUE -> `\\` LF\n\nA _string literal_ is a sequence of any Unicode characters enclosed within two `U+0022` (double-quote) characters, with the exception of `U+0022` itself, which must be _escaped_ by a preceding `U+005C` character (`\\`).\n\nLine-breaks, represented by the  character `U+000A` (LF), are allowed in string literals. The character `U+000D` (CR) may not appear in a string literal. When an unescaped `U+005C` character (`\\`) occurs immediately before a line break, the line break does not appear in the string represented by the token. See [String continuation escapes] for details.",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.literal.str.syntax": ",lexer\nSTRING_LITERAL ->\n    `\"` (\n        ~[`\"` `\\` CR]\n      | QUOTE_ESCAPE\n      | ASCII_ESCAPE\n      | UNICODE_ESCAPE\n      | STRING_CONTINUE\n    )* `\"` SUFFIX?\n\nSTRING_CONTINUE -> `\\` LF",
+        "lex.token.literal.str.intro": "A _string literal_ is a sequence of any Unicode characters enclosed within two `U+0022` (double-quote) characters, with the exception of `U+0022` itself, which must be _escaped_ by a preceding `U+005C` character (`\\`).",
+        "lex.token.literal.str.linefeed": "Line-breaks, represented by the  character `U+000A` (LF), are allowed in string literals. The character `U+000D` (CR) may not appear in a string literal. When an unescaped `U+005C` character (`\\`) occurs immediately before a line break, the line break does not appear in the string represented by the token. See [String continuation escapes] for details."
+      }
+    },
+    {
+      "id": "lex.token.literal.char-escape",
+      "title": "Character escapes",
+      "level": 4,
+      "content": "Some additional _escapes_ are available in either character or non-raw string literals. An escape starts with a `U+005C` (`\\`) and continues with one of the following forms:\n\n* A _7-bit code point escape_ starts with `U+0078` (`x`) and is followed by exactly two _hex digits_ with value up to `0x7F`. It denotes the ASCII character with value equal to the provided hex value. Higher values are not permitted because it is ambiguous whether they mean Unicode code points or byte values.\n\n* A _24-bit code point escape_ starts with `U+0075` (`u`) and is followed by up to six _hex digits_ surrounded by braces `U+007B` (`{`) and `U+007D` (`}`). It denotes the Unicode code point equal to the provided hex value. The value must be a valid Unicode scalar value.\n\n* A _whitespace escape_ is one of the characters `U+006E` (`n`), `U+0072` (`r`), or `U+0074` (`t`), denoting the Unicode values `U+000A` (LF), `U+000D` (CR) or `U+0009` (HT) respectively.\n\n* The _null escape_ is the character `U+0030` (`0`) and denotes the Unicode value `U+0000` (NUL).\n\n* The _backslash escape_ is the character `U+005C` (`\\`) which must be escaped in order to denote itself.",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.literal.char-escape.intro": "Some additional _escapes_ are available in either character or non-raw string literals. An escape starts with a `U+005C` (`\\`) and continues with one of the following forms:",
+        "lex.token.literal.char-escape.ascii": "* A _7-bit code point escape_ starts with `U+0078` (`x`) and is followed by exactly two _hex digits_ with value up to `0x7F`. It denotes the ASCII character with value equal to the provided hex value. Higher values are not permitted because it is ambiguous whether they mean Unicode code points or byte values.",
+        "lex.token.literal.char-escape.unicode": "* A _24-bit code point escape_ starts with `U+0075` (`u`) and is followed by up to six _hex digits_ surrounded by braces `U+007B` (`{`) and `U+007D` (`}`). It denotes the Unicode code point equal to the provided hex value. The value must be a valid Unicode scalar value.",
+        "lex.token.literal.char-escape.whitespace": "* A _whitespace escape_ is one of the characters `U+006E` (`n`), `U+0072` (`r`), or `U+0074` (`t`), denoting the Unicode values `U+000A` (LF), `U+000D` (CR) or `U+0009` (HT) respectively.",
+        "lex.token.literal.char-escape.null": "* The _null escape_ is the character `U+0030` (`0`) and denotes the Unicode value `U+0000` (NUL).",
+        "lex.token.literal.char-escape.slash": "* The _backslash escape_ is the character `U+005C` (`\\`) which must be escaped in order to denote itself."
+      }
+    },
+    {
+      "id": "lex.token.literal.str-raw",
+      "title": "Raw string literals",
+      "level": 4,
+      "content": ",lexer\nRAW_STRING_LITERAL -> `r` RAW_STRING_CONTENT SUFFIX?\n\nRAW_STRING_CONTENT ->\n      `\"` ( ~CR )*? `\"`\n    | `#` RAW_STRING_CONTENT `#`\n\nRaw string literals do not process any escapes. They start with the character `U+0072` (`r`), followed by fewer than 256 of the character `U+0023` (`#`) and a `U+0022` (double-quote) character.\n\nThe _raw string body_ can contain any sequence of Unicode characters other than `U+000D` (CR). It is terminated only by another `U+0022` (double-quote) character, followed by the same number of `U+0023` (`#`) characters that preceded the opening `U+0022` (double-quote) character.\n\nAll Unicode characters contained in the raw string body represent themselves, the characters `U+0022` (double-quote) (except when followed by at least as many `U+0023` (`#`) characters as were used to start the raw string literal) or `U+005C` (`\\`) do not have any special meaning.\n\nExamples for string literals:\n\n\"foo\"; r\"foo\";                     // foo\n\"\\\"foo\\\"\"; r#\"\"foo\"\"#;             // \"foo\"\n\n\"foo #\\\"# bar\";\nr##\"foo #\"# bar\"##;                // foo #\"# bar\n\n\"\\x52\"; \"R\"; r\"R\";                 // R\n\"\\\\x52\"; r\"\\x52\";                  // \\x52\n\n### Byte and byte string literals",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.literal.str-raw.syntax": ",lexer\nRAW_STRING_LITERAL -> `r` RAW_STRING_CONTENT SUFFIX?\n\nRAW_STRING_CONTENT ->\n      `\"` ( ~CR )*? `\"`\n    | `#` RAW_STRING_CONTENT `#`",
+        "lex.token.literal.str-raw.intro": "Raw string literals do not process any escapes. They start with the character `U+0072` (`r`), followed by fewer than 256 of the character `U+0023` (`#`) and a `U+0022` (double-quote) character.",
+        "lex.token.literal.str-raw.body": "The _raw string body_ can contain any sequence of Unicode characters other than `U+000D` (CR). It is terminated only by another `U+0022` (double-quote) character, followed by the same number of `U+0023` (`#`) characters that preceded the opening `U+0022` (double-quote) character.",
+        "lex.token.literal.str-raw.content": "All Unicode characters contained in the raw string body represent themselves, the characters `U+0022` (double-quote) (except when followed by at least as many `U+0023` (`#`) characters as were used to start the raw string literal) or `U+005C` (`\\`) do not have any special meaning.\n\nExamples for string literals:\n\n\"foo\"; r\"foo\";                     // foo\n\"\\\"foo\\\"\"; r#\"\"foo\"\"#;             // \"foo\"\n\n\"foo #\\\"# bar\";\nr##\"foo #\"# bar\"##;                // foo #\"# bar\n\n\"\\x52\"; \"R\"; r\"R\";                 // R\n\"\\\\x52\"; r\"\\x52\";                  // \\x52\n\n### Byte and byte string literals"
+      }
+    },
+    {
+      "id": "lex.token.byte",
+      "title": "Byte literals",
+      "level": 3,
+      "content": ",lexer\nBYTE_LITERAL ->\n    `b'` ( ASCII_FOR_CHAR | BYTE_ESCAPE )  `'` SUFFIX?\n\nASCII_FOR_CHAR ->\n    <any ASCII (i.e. 0x00 to 0x7F) except `'`, `\\`, LF, CR, or TAB>\n\nBYTE_ESCAPE ->\n      `\\x` HEX_DIGIT HEX_DIGIT\n    | `\\n` | `\\r` | `\\t` | `\\\\` | `\\0` | `\\'` | `\\\"`\n\nA _byte literal_ is a single ASCII character (in the `U+0000` to `U+007F` range) or a single _escape_ preceded by the characters `U+0062` (`b`) and `U+0027` (single-quote), and followed by the character `U+0027`. If the character `U+0027` is present within the literal, it must be _escaped_ by a preceding `U+005C` (`\\`) character. It is equivalent to a `u8` unsigned 8-bit integer _number literal_.",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.byte.syntax": ",lexer\nBYTE_LITERAL ->\n    `b'` ( ASCII_FOR_CHAR | BYTE_ESCAPE )  `'` SUFFIX?\n\nASCII_FOR_CHAR ->\n    <any ASCII (i.e. 0x00 to 0x7F) except `'`, `\\`, LF, CR, or TAB>\n\nBYTE_ESCAPE ->\n      `\\x` HEX_DIGIT HEX_DIGIT\n    | `\\n` | `\\r` | `\\t` | `\\\\` | `\\0` | `\\'` | `\\\"`",
+        "lex.token.byte.intro": "A _byte literal_ is a single ASCII character (in the `U+0000` to `U+007F` range) or a single _escape_ preceded by the characters `U+0062` (`b`) and `U+0027` (single-quote), and followed by the character `U+0027`. If the character `U+0027` is present within the literal, it must be _escaped_ by a preceding `U+005C` (`\\`) character. It is equivalent to a `u8` unsigned 8-bit integer _number literal_."
+      }
+    },
+    {
+      "id": "lex.token.str-byte",
+      "title": "Byte string literals",
+      "level": 4,
+      "content": ",lexer\nBYTE_STRING_LITERAL ->\n    `b\"` ( ASCII_FOR_STRING | BYTE_ESCAPE | STRING_CONTINUE )* `\"` SUFFIX?\n\nASCII_FOR_STRING ->\n    <any ASCII (i.e 0x00 to 0x7F) except `\"`, `\\`, or CR>\n\nA non-raw _byte string literal_ is a sequence of ASCII characters and _escapes_, preceded by the characters `U+0062` (`b`) and `U+0022` (double-quote), and followed by the character `U+0022`. If the character `U+0022` is present within the literal, it must be _escaped_ by a preceding `U+005C` (`\\`) character. Alternatively, a byte string literal can be a _raw byte string literal_, defined below.\n\nLine-breaks, represented by the  character `U+000A` (LF), are allowed in byte string literals. The character `U+000D` (CR) may not appear in a byte string literal. When an unescaped `U+005C` character (`\\`) occurs immediately before a line break, the line break does not appear in the string represented by the token. See [String continuation escapes] for details.\n\nSome additional _escapes_ are available in either byte or non-raw byte string literals. An escape starts with a `U+005C` (`\\`) and continues with one of the following forms:\n\n* A _byte escape_ escape starts with `U+0078` (`x`) and is followed by exactly two _hex digits_. It denotes the byte equal to the provided hex value.\n\n* A _whitespace escape_ is one of the characters `U+006E` (`n`), `U+0072` (`r`), or `U+0074` (`t`), denoting the bytes values `0x0A` (ASCII LF), `0x0D` (ASCII CR) or `0x09` (ASCII HT) respectively.\n\n* The _null escape_ is the character `U+0030` (`0`) and denotes the byte value `0x00` (ASCII NUL).\n\n* The _backslash escape_ is the character `U+005C` (`\\`) which must be escaped in order to denote its ASCII encoding `0x5C`.",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.str-byte.syntax": ",lexer\nBYTE_STRING_LITERAL ->\n    `b\"` ( ASCII_FOR_STRING | BYTE_ESCAPE | STRING_CONTINUE )* `\"` SUFFIX?\n\nASCII_FOR_STRING ->\n    <any ASCII (i.e 0x00 to 0x7F) except `\"`, `\\`, or CR>",
+        "lex.token.str-byte.intro": "A non-raw _byte string literal_ is a sequence of ASCII characters and _escapes_, preceded by the characters `U+0062` (`b`) and `U+0022` (double-quote), and followed by the character `U+0022`. If the character `U+0022` is present within the literal, it must be _escaped_ by a preceding `U+005C` (`\\`) character. Alternatively, a byte string literal can be a _raw byte string literal_, defined below.",
+        "lex.token.str-byte.linefeed": "Line-breaks, represented by the  character `U+000A` (LF), are allowed in byte string literals. The character `U+000D` (CR) may not appear in a byte string literal. When an unescaped `U+005C` character (`\\`) occurs immediately before a line break, the line break does not appear in the string represented by the token. See [String continuation escapes] for details.",
+        "lex.token.str-byte.escape": "Some additional _escapes_ are available in either byte or non-raw byte string literals. An escape starts with a `U+005C` (`\\`) and continues with one of the following forms:",
+        "lex.token.str-byte.escape-byte": "* A _byte escape_ escape starts with `U+0078` (`x`) and is followed by exactly two _hex digits_. It denotes the byte equal to the provided hex value.",
+        "lex.token.str-byte.escape-whitespace": "* A _whitespace escape_ is one of the characters `U+006E` (`n`), `U+0072` (`r`), or `U+0074` (`t`), denoting the bytes values `0x0A` (ASCII LF), `0x0D` (ASCII CR) or `0x09` (ASCII HT) respectively.",
+        "lex.token.str-byte.escape-null": "* The _null escape_ is the character `U+0030` (`0`) and denotes the byte value `0x00` (ASCII NUL).",
+        "lex.token.str-byte.escape-slash": "* The _backslash escape_ is the character `U+005C` (`\\`) which must be escaped in order to denote its ASCII encoding `0x5C`."
+      }
+    },
+    {
+      "id": "lex.token.str-byte-raw",
+      "title": "Raw byte string literals",
+      "level": 4,
+      "content": ",lexer\nRAW_BYTE_STRING_LITERAL ->\n    `br` RAW_BYTE_STRING_CONTENT SUFFIX?\n\nRAW_BYTE_STRING_CONTENT ->\n      `\"` ASCII_FOR_RAW*? `\"`\n    | `#` RAW_BYTE_STRING_CONTENT `#`\n\nASCII_FOR_RAW ->\n    <any ASCII (i.e. 0x00 to 0x7F) except CR>\n\nRaw byte string literals do not process any escapes. They start with the character `U+0062` (`b`), followed by `U+0072` (`r`), followed by fewer than 256 of the character `U+0023` (`#`), and a `U+0022` (double-quote) character.\n\nThe _raw string body_ can contain any sequence of ASCII characters other than `U+000D` (CR). It is terminated only by another `U+0022` (double-quote) character, followed by the same number of `U+0023` (`#`) characters that preceded the opening `U+0022` (double-quote) character. A raw byte string literal can not contain any non-ASCII byte.\n\nAll characters contained in the raw string body represent their ASCII encoding, the characters `U+0022` (double-quote) (except when followed by at least as many `U+0023` (`#`) characters as were used to start the raw string literal) or `U+005C` (`\\`) do not have any special meaning.\n\nExamples for byte string literals:\n\nb\"foo\"; br\"foo\";                     // foo\nb\"\\\"foo\\\"\"; br#\"\"foo\"\"#;             // \"foo\"\n\nb\"foo #\\\"# bar\";\nbr##\"foo #\"# bar\"##;                 // foo #\"# bar\n\nb\"\\x52\"; b\"R\"; br\"R\";                // R\nb\"\\\\x52\"; br\"\\x52\";                  // \\x52\n\n### C string and raw C string literals",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.str-byte-raw.syntax": ",lexer\nRAW_BYTE_STRING_LITERAL ->\n    `br` RAW_BYTE_STRING_CONTENT SUFFIX?\n\nRAW_BYTE_STRING_CONTENT ->\n      `\"` ASCII_FOR_RAW*? `\"`\n    | `#` RAW_BYTE_STRING_CONTENT `#`\n\nASCII_FOR_RAW ->\n    <any ASCII (i.e. 0x00 to 0x7F) except CR>",
+        "lex.token.str-byte-raw.intro": "Raw byte string literals do not process any escapes. They start with the character `U+0062` (`b`), followed by `U+0072` (`r`), followed by fewer than 256 of the character `U+0023` (`#`), and a `U+0022` (double-quote) character.",
+        "lex.token.str-byte-raw.body": "The _raw string body_ can contain any sequence of ASCII characters other than `U+000D` (CR). It is terminated only by another `U+0022` (double-quote) character, followed by the same number of `U+0023` (`#`) characters that preceded the opening `U+0022` (double-quote) character. A raw byte string literal can not contain any non-ASCII byte.",
+        "lex.token.literal.str-byte-raw.content": "All characters contained in the raw string body represent their ASCII encoding, the characters `U+0022` (double-quote) (except when followed by at least as many `U+0023` (`#`) characters as were used to start the raw string literal) or `U+005C` (`\\`) do not have any special meaning.\n\nExamples for byte string literals:\n\nb\"foo\"; br\"foo\";                     // foo\nb\"\\\"foo\\\"\"; br#\"\"foo\"\"#;             // \"foo\"\n\nb\"foo #\\\"# bar\";\nbr##\"foo #\"# bar\"##;                 // foo #\"# bar\n\nb\"\\x52\"; b\"R\"; br\"R\";                // R\nb\"\\\\x52\"; br\"\\x52\";                  // \\x52\n\n### C string and raw C string literals"
+      }
+    },
+    {
+      "id": "lex.token.str-c",
+      "title": "C string literals",
+      "level": 3,
+      "content": ",lexer\nC_STRING_LITERAL ->\n    `c\"` (\n        ~[`\"` `\\` CR NUL]\n      | BYTE_ESCAPE _except `\\0` or `\\x00`_\n      | UNICODE_ESCAPE _except `\\u{0}`, `\\u{00}`, \u2026, `\\u{000000}`_\n      | STRING_CONTINUE\n    )* `\"` SUFFIX?\n\nA _C string literal_ is a sequence of Unicode characters and _escapes_, preceded by the characters `U+0063` (`c`) and `U+0022` (double-quote), and followed by the character `U+0022`. If the character `U+0022` is present within the literal, it must be _escaped_ by a preceding `U+005C` (`\\`) character. Alternatively, a C string literal can be a _raw C string literal_, defined below.\n\n[CStr]: core::ffi::CStr\n\nC strings are implicitly terminated by byte `0x00`, so the C string literal `c\"\"` is equivalent to manually constructing a `&CStr` from the byte string literal `b\"\\x00\"`. Other than the implicit terminator, byte `0x00` is not permitted within a C string.\n\nLine-breaks, represented by the  character `U+000A` (LF), are allowed in C string literals. The character `U+000D` (CR) may not appear in a C string literal. When an unescaped `U+005C` character (`\\`) occurs immediately before a line break, the line break does not appear in the string represented by the token. See [String continuation escapes] for details.\n\nSome additional _escapes_ are available in non-raw C string literals. An escape starts with a `U+005C` (`\\`) and continues with one of the following forms:\n\n* A _byte escape_ escape starts with `U+0078` (`x`) and is followed by exactly two _hex digits_. It denotes the byte equal to the provided hex value.\n\n* A _24-bit code point escape_ starts with `U+0075` (`u`) and is followed by up to six _hex digits_ surrounded by braces `U+007B` (`{`) and `U+007D` (`}`). It denotes the Unicode code point equal to the provided hex value, encoded as UTF-8.\n\n* A _whitespace escape_ is one of the characters `U+006E` (`n`), `U+0072` (`r`), or `U+0074` (`t`), denoting the bytes values `0x0A` (ASCII LF), `0x0D` (ASCII CR) or `0x09` (ASCII HT) respectively.\n\n* The _backslash escape_ is the character `U+005C` (`\\`) which must be escaped in order to denote its ASCII encoding `0x5C`.\n\nA C string represents bytes with no defined encoding, but a C string literal may contain Unicode characters above `U+007F`. Such characters will be replaced with the bytes of that character's UTF-8 representation.\n\nThe following C string literals are equivalent:\n\nc\"\u00e6\";        // LATIN SMALL LETTER AE (U+00E6)\nc\"\\u{00E6}\";\nc\"\\xC3\\xA6\";\n\n> [!EDITION-2021]\n> C string literals are accepted in the 2021 edition or later. In earlier editions the token `c\"\"` is lexed as `c \"\"`.",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.str-c.syntax": ",lexer\nC_STRING_LITERAL ->\n    `c\"` (\n        ~[`\"` `\\` CR NUL]\n      | BYTE_ESCAPE _except `\\0` or `\\x00`_\n      | UNICODE_ESCAPE _except `\\u{0}`, `\\u{00}`, \u2026, `\\u{000000}`_\n      | STRING_CONTINUE\n    )* `\"` SUFFIX?",
+        "lex.token.str-c.intro": "A _C string literal_ is a sequence of Unicode characters and _escapes_, preceded by the characters `U+0063` (`c`) and `U+0022` (double-quote), and followed by the character `U+0022`. If the character `U+0022` is present within the literal, it must be _escaped_ by a preceding `U+005C` (`\\`) character. Alternatively, a C string literal can be a _raw C string literal_, defined below.\n\n[CStr]: core::ffi::CStr",
+        "lex.token.str-c.null": "C strings are implicitly terminated by byte `0x00`, so the C string literal `c\"\"` is equivalent to manually constructing a `&CStr` from the byte string literal `b\"\\x00\"`. Other than the implicit terminator, byte `0x00` is not permitted within a C string.",
+        "lex.token.str-c.linefeed": "Line-breaks, represented by the  character `U+000A` (LF), are allowed in C string literals. The character `U+000D` (CR) may not appear in a C string literal. When an unescaped `U+005C` character (`\\`) occurs immediately before a line break, the line break does not appear in the string represented by the token. See [String continuation escapes] for details.",
+        "lex.token.str-c.escape": "Some additional _escapes_ are available in non-raw C string literals. An escape starts with a `U+005C` (`\\`) and continues with one of the following forms:",
+        "lex.token.str-c.escape-byte": "* A _byte escape_ escape starts with `U+0078` (`x`) and is followed by exactly two _hex digits_. It denotes the byte equal to the provided hex value.",
+        "lex.token.str-c.escape-unicode": "* A _24-bit code point escape_ starts with `U+0075` (`u`) and is followed by up to six _hex digits_ surrounded by braces `U+007B` (`{`) and `U+007D` (`}`). It denotes the Unicode code point equal to the provided hex value, encoded as UTF-8.",
+        "lex.token.str-c.escape-whitespace": "* A _whitespace escape_ is one of the characters `U+006E` (`n`), `U+0072` (`r`), or `U+0074` (`t`), denoting the bytes values `0x0A` (ASCII LF), `0x0D` (ASCII CR) or `0x09` (ASCII HT) respectively.",
+        "lex.token.str-c.escape-slash": "* The _backslash escape_ is the character `U+005C` (`\\`) which must be escaped in order to denote its ASCII encoding `0x5C`.",
+        "lex.token.str-c.char-unicode": "A C string represents bytes with no defined encoding, but a C string literal may contain Unicode characters above `U+007F`. Such characters will be replaced with the bytes of that character's UTF-8 representation.\n\nThe following C string literals are equivalent:\n\nc\"\u00e6\";        // LATIN SMALL LETTER AE (U+00E6)\nc\"\\u{00E6}\";\nc\"\\xC3\\xA6\";",
+        "lex.token.str-c.edition2021": "> [!EDITION-2021]\n> C string literals are accepted in the 2021 edition or later. In earlier editions the token `c\"\"` is lexed as `c \"\"`."
+      }
+    },
+    {
+      "id": "lex.token.str-c-raw",
+      "title": "Raw C string literals",
+      "level": 4,
+      "content": ",lexer\nRAW_C_STRING_LITERAL ->\n    `cr` RAW_C_STRING_CONTENT SUFFIX?\n\nRAW_C_STRING_CONTENT ->\n      `\"` ( ~[CR NUL] )*? `\"`\n    | `#` RAW_C_STRING_CONTENT `#`\n\nRaw C string literals do not process any escapes. They start with the character `U+0063` (`c`), followed by `U+0072` (`r`), followed by fewer than 256 of the character `U+0023` (`#`), and a `U+0022` (double-quote) character.\n\nThe _raw C string body_ can contain any sequence of Unicode characters other than `U+0000` (NUL) and `U+000D` (CR). It is terminated only by another `U+0022` (double-quote) character, followed by the same number of `U+0023` (`#`) characters that preceded the opening `U+0022` (double-quote) character.\n\nAll characters contained in the raw C string body represent themselves in UTF-8 encoding. The characters `U+0022` (double-quote) (except when followed by at least as many `U+0023` (`#`) characters as were used to start the raw C string literal) or `U+005C` (`\\`) do not have any special meaning.\n\n> [!EDITION-2021]\n> Raw C string literals are accepted in the 2021 edition or later. In earlier editions the token `cr\"\"` is lexed as `cr \"\"`, and `cr#\"\"#` is lexed as `cr #\"\"#` (which is non-grammatical).\n\n#### Examples for C string and raw C string literals\n\nc\"foo\"; cr\"foo\";                     // foo\nc\"\\\"foo\\\"\"; cr#\"\"foo\"\"#;             // \"foo\"\n\nc\"foo #\\\"# bar\";\ncr##\"foo #\"# bar\"##;                 // foo #\"# bar\n\nc\"\\x52\"; c\"R\"; cr\"R\";                // R\nc\"\\\\x52\"; cr\"\\x52\";                  // \\x52",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.str-c-raw.syntax": ",lexer\nRAW_C_STRING_LITERAL ->\n    `cr` RAW_C_STRING_CONTENT SUFFIX?\n\nRAW_C_STRING_CONTENT ->\n      `\"` ( ~[CR NUL] )*? `\"`\n    | `#` RAW_C_STRING_CONTENT `#`",
+        "lex.token.str-c-raw.intro": "Raw C string literals do not process any escapes. They start with the character `U+0063` (`c`), followed by `U+0072` (`r`), followed by fewer than 256 of the character `U+0023` (`#`), and a `U+0022` (double-quote) character.",
+        "lex.token.str-c-raw.body": "The _raw C string body_ can contain any sequence of Unicode characters other than `U+0000` (NUL) and `U+000D` (CR). It is terminated only by another `U+0022` (double-quote) character, followed by the same number of `U+0023` (`#`) characters that preceded the opening `U+0022` (double-quote) character.",
+        "lex.token.str-c-raw.content": "All characters contained in the raw C string body represent themselves in UTF-8 encoding. The characters `U+0022` (double-quote) (except when followed by at least as many `U+0023` (`#`) characters as were used to start the raw C string literal) or `U+005C` (`\\`) do not have any special meaning.",
+        "lex.token.str-c-raw.edition2021": "> [!EDITION-2021]\n> Raw C string literals are accepted in the 2021 edition or later. In earlier editions the token `cr\"\"` is lexed as `cr \"\"`, and `cr#\"\"#` is lexed as `cr #\"\"#` (which is non-grammatical).\n\n#### Examples for C string and raw C string literals\n\nc\"foo\"; cr\"foo\";                     // foo\nc\"\\\"foo\\\"\"; cr#\"\"foo\"\"#;             // \"foo\"\n\nc\"foo #\\\"# bar\";\ncr##\"foo #\"# bar\"##;                 // foo #\"# bar\n\nc\"\\x52\"; c\"R\"; cr\"R\";                // R\nc\"\\\\x52\"; cr\"\\x52\";                  // \\x52"
+      }
+    },
+    {
+      "id": "lex.token.literal.num",
+      "title": "Number literals",
+      "level": 4,
+      "content": "A _number literal_ is either an _integer literal_ or a _floating-point literal_. The grammar for recognizing the two kinds of literals is mixed.",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.literal.num": "A _number literal_ is either an _integer literal_ or a _floating-point literal_. The grammar for recognizing the two kinds of literals is mixed."
+      }
+    },
+    {
+      "id": "lex.token.literal.int",
+      "title": "Integer literals",
+      "level": 3,
+      "content": ",lexer\nINTEGER_LITERAL ->\n    ( BIN_LITERAL | OCT_LITERAL | HEX_LITERAL | DEC_LITERAL ) SUFFIX_NO_E?\n\nDEC_LITERAL -> DEC_DIGIT (DEC_DIGIT|`_`)*\n\nBIN_LITERAL -> `0b` `_`* BIN_DIGIT (BIN_DIGIT|`_`)*\n\nOCT_LITERAL -> `0o` `_`* OCT_DIGIT (OCT_DIGIT|`_`)*\n\nHEX_LITERAL -> `0x` `_`* HEX_DIGIT (HEX_DIGIT|`_`)*\n\nBIN_DIGIT -> [`0`-`1`]\n\nOCT_DIGIT -> [`0`-`7`]\n\nDEC_DIGIT -> [`0`-`9`]\n\nHEX_DIGIT -> [`0`-`9` `a`-`f` `A`-`F`]\n\nAn _integer literal_ has one of four forms:\n\n* A _decimal literal_ starts with a *decimal digit* and continues with any mixture of *decimal digits* and _underscores_.\n\n* A _hex literal_ starts with the character sequence `U+0030` `U+0078` (`0x`) and continues as any mixture (with at least one digit) of hex digits and underscores.\n\n* An _octal literal_ starts with the character sequence `U+0030` `U+006F` (`0o`) and continues as any mixture (with at least one digit) of octal digits and underscores.\n\n* A _binary literal_ starts with the character sequence `U+0030` `U+0062` (`0b`) and continues as any mixture (with at least one digit) of binary digits and underscores.\n\nLike any literal, an integer literal may be followed (immediately, without any spaces) by a suffix as described above. The suffix may not begin with `e` or `E`, as that would be interpreted as the exponent of a floating-point literal. See [Integer literal expressions] for the effect of these suffixes.\n\nExamples of integer literals which are accepted as literal expressions:\n\n# #![allow(overflowing_literals)]\n123;\n123i32;\n123u32;\n123_u32;\n\n0xff;\n0xff_u8;\n0x01_f32; // integer 7986, not floating-point 1.0\n0x01_e3;  // integer 483, not floating-point 1000.0\n\n0o70;\n0o70_i16;\n\n0b1111_1111_1001_0000;\n0b1111_1111_1001_0000i64;\n0b________1;\n\n0usize;\n\n// These are too big for their type, but are accepted as literal expressions.\n128_i8;\n256_u8;\n\n// This is an integer literal, accepted as a floating-point literal expression.\n5f32;\n\nNote that `-1i8`, for example, is analyzed as two tokens: `-` followed by `1i8`.\n\nExamples of integer literals which are not accepted as literal expressions:\n\n# #[cfg(false)] {\n0invalidSuffix;\n123AFB43;\n0b010a;\n0xAB_CD_EF_GH;\n0b1111_f32;\n# }",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.literal.int.syntax": ",lexer\nINTEGER_LITERAL ->\n    ( BIN_LITERAL | OCT_LITERAL | HEX_LITERAL | DEC_LITERAL ) SUFFIX_NO_E?\n\nDEC_LITERAL -> DEC_DIGIT (DEC_DIGIT|`_`)*\n\nBIN_LITERAL -> `0b` `_`* BIN_DIGIT (BIN_DIGIT|`_`)*\n\nOCT_LITERAL -> `0o` `_`* OCT_DIGIT (OCT_DIGIT|`_`)*\n\nHEX_LITERAL -> `0x` `_`* HEX_DIGIT (HEX_DIGIT|`_`)*\n\nBIN_DIGIT -> [`0`-`1`]\n\nOCT_DIGIT -> [`0`-`7`]\n\nDEC_DIGIT -> [`0`-`9`]\n\nHEX_DIGIT -> [`0`-`9` `a`-`f` `A`-`F`]",
+        "lex.token.literal.int.kind": "An _integer literal_ has one of four forms:",
+        "lex.token.literal.int.kind-dec": "* A _decimal literal_ starts with a *decimal digit* and continues with any mixture of *decimal digits* and _underscores_.",
+        "lex.token.literal.int.kind-hex": "* A _hex literal_ starts with the character sequence `U+0030` `U+0078` (`0x`) and continues as any mixture (with at least one digit) of hex digits and underscores.",
+        "lex.token.literal.int.kind-oct": "* An _octal literal_ starts with the character sequence `U+0030` `U+006F` (`0o`) and continues as any mixture (with at least one digit) of octal digits and underscores.",
+        "lex.token.literal.int.kind-bin": "* A _binary literal_ starts with the character sequence `U+0030` `U+0062` (`0b`) and continues as any mixture (with at least one digit) of binary digits and underscores.",
+        "lex.token.literal.int.restriction": "Like any literal, an integer literal may be followed (immediately, without any spaces) by a suffix as described above. The suffix may not begin with `e` or `E`, as that would be interpreted as the exponent of a floating-point literal. See [Integer literal expressions] for the effect of these suffixes.\n\nExamples of integer literals which are accepted as literal expressions:\n\n# #![allow(overflowing_literals)]\n123;\n123i32;\n123u32;\n123_u32;\n\n0xff;\n0xff_u8;\n0x01_f32; // integer 7986, not floating-point 1.0\n0x01_e3;  // integer 483, not floating-point 1000.0\n\n0o70;\n0o70_i16;\n\n0b1111_1111_1001_0000;\n0b1111_1111_1001_0000i64;\n0b________1;\n\n0usize;\n\n// These are too big for their type, but are accepted as literal expressions.\n128_i8;\n256_u8;\n\n// This is an integer literal, accepted as a floating-point literal expression.\n5f32;\n\nNote that `-1i8`, for example, is analyzed as two tokens: `-` followed by `1i8`.\n\nExamples of integer literals which are not accepted as literal expressions:\n\n# #[cfg(false)] {\n0invalidSuffix;\n123AFB43;\n0b010a;\n0xAB_CD_EF_GH;\n0b1111_f32;\n# }"
+      }
+    },
+    {
+      "id": "lex.token.literal.int.tuple-field",
+      "title": "Tuple index",
+      "level": 1,
+      "content": ",lexer\nTUPLE_INDEX -> DEC_LITERAL | BIN_LITERAL | OCT_LITERAL | HEX_LITERAL\n\nA tuple index is used to refer to the fields of [tuples], [tuple structs], and [tuple enum variants].\n\nTuple indices are compared with the literal token directly. Tuple indices start with `0` and each successive index increments the value by `1` as a decimal value. Thus, only decimal values will match, and the value must not have any extra `0` prefix characters.\n\nTuple indices may not include any suffixes (such as `usize`).\n\n,compile_fail\nlet example = (\"dog\", \"cat\", \"horse\");\nlet dog = example.0;\nlet cat = example.1;\n// The following examples are invalid.\nlet cat = example.01;  // ERROR no field named `01`\nlet horse = example.0b10;  // ERROR no field named `0b10`\nlet unicorn = example.0usize; // ERROR suffixes on a tuple index are invalid\nlet underscore = example.0_0; // ERROR no field `0_0` on type `(&str, &str, &str)`",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.literal.int.tuple-field.syntax": ",lexer\nTUPLE_INDEX -> DEC_LITERAL | BIN_LITERAL | OCT_LITERAL | HEX_LITERAL",
+        "lex.token.literal.int.tuple-field.intro": "A tuple index is used to refer to the fields of [tuples], [tuple structs], and [tuple enum variants].",
+        "lex.token.literal.int.tuple-field.eq": "Tuple indices are compared with the literal token directly. Tuple indices start with `0` and each successive index increments the value by `1` as a decimal value. Thus, only decimal values will match, and the value must not have any extra `0` prefix characters.\n\nTuple indices may not include any suffixes (such as `usize`).\n\n,compile_fail\nlet example = (\"dog\", \"cat\", \"horse\");\nlet dog = example.0;\nlet cat = example.1;\n// The following examples are invalid.\nlet cat = example.01;  // ERROR no field named `01`\nlet horse = example.0b10;  // ERROR no field named `0b10`\nlet unicorn = example.0usize; // ERROR suffixes on a tuple index are invalid\nlet underscore = example.0_0; // ERROR no field `0_0` on type `(&str, &str, &str)`"
+      }
+    },
+    {
+      "id": "lex.token.literal.float",
+      "title": "Floating-point literals",
+      "level": 4,
+      "content": ",lexer\nFLOAT_LITERAL ->\n      DEC_LITERAL (`.` DEC_LITERAL)? FLOAT_EXPONENT SUFFIX?\n    | DEC_LITERAL `.` DEC_LITERAL SUFFIX_NO_E?\n    | DEC_LITERAL `.` _not immediately followed by `.`, `_` or an XID_Start character_\n\nFLOAT_EXPONENT ->\n    (`e`|`E`) (`+`|`-`)? `_`* DEC_DIGIT (DEC_DIGIT|`_`)*\n\nA _floating-point literal_ has one of two forms:\n\n* A _decimal literal_ followed by a period character `U+002E` (`.`). This is optionally followed by another decimal literal, with an optional _exponent_.\n* A single _decimal literal_ followed by an _exponent_.\n\nLike integer literals, a floating-point literal may be followed by a suffix, so long as the pre-suffix part does not end with `U+002E` (`.`). The suffix may not begin with `e` or `E` if the literal does not include an exponent. See [Floating-point literal expressions] for the effect of these suffixes.\n\nExamples of floating-point literals which are accepted as literal expressions:\n\n123.0f64;\n0.1f64;\n0.1f32;\n12E+99_f64;\nlet x: f64 = 2.;\n\nThis last example is different because it is not possible to use the suffix syntax with a floating point literal ending in a period. `2.f64` would attempt to call a method named `f64` on `2`.\n\nNote that `-1.0`, for example, is analyzed as two tokens: `-` followed by `1.0`.\n\nExamples of floating-point literals which are not accepted as literal expressions:\n\n# #[cfg(false)] {\n2.0f80;\n2e5f80;\n2e5e6;\n2.0e5e6;\n1.3e10u64;\n# }",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.literal.float.syntax": ",lexer\nFLOAT_LITERAL ->\n      DEC_LITERAL (`.` DEC_LITERAL)? FLOAT_EXPONENT SUFFIX?\n    | DEC_LITERAL `.` DEC_LITERAL SUFFIX_NO_E?\n    | DEC_LITERAL `.` _not immediately followed by `.`, `_` or an XID_Start character_\n\nFLOAT_EXPONENT ->\n    (`e`|`E`) (`+`|`-`)? `_`* DEC_DIGIT (DEC_DIGIT|`_`)*",
+        "lex.token.literal.float.form": "A _floating-point literal_ has one of two forms:\n\n* A _decimal literal_ followed by a period character `U+002E` (`.`). This is optionally followed by another decimal literal, with an optional _exponent_.\n* A single _decimal literal_ followed by an _exponent_.",
+        "lex.token.literal.float.suffix": "Like integer literals, a floating-point literal may be followed by a suffix, so long as the pre-suffix part does not end with `U+002E` (`.`). The suffix may not begin with `e` or `E` if the literal does not include an exponent. See [Floating-point literal expressions] for the effect of these suffixes.\n\nExamples of floating-point literals which are accepted as literal expressions:\n\n123.0f64;\n0.1f64;\n0.1f32;\n12E+99_f64;\nlet x: f64 = 2.;\n\nThis last example is different because it is not possible to use the suffix syntax with a floating point literal ending in a period. `2.f64` would attempt to call a method named `f64` on `2`.\n\nNote that `-1.0`, for example, is analyzed as two tokens: `-` followed by `1.0`.\n\nExamples of floating-point literals which are not accepted as literal expressions:\n\n# #[cfg(false)] {\n2.0f80;\n2e5f80;\n2e5e6;\n2.0e5e6;\n1.3e10u64;\n# }"
+      }
+    },
+    {
+      "id": "lex.token.literal.reserved",
+      "title": "Reserved forms similar to number literals",
+      "level": 1,
+      "content": ",lexer\nRESERVED_NUMBER ->\n      BIN_LITERAL [`2`-`9`]\n    | OCT_LITERAL [`8`-`9`]\n    | ( BIN_LITERAL | OCT_LITERAL | HEX_LITERAL ) `.` _not immediately followed by `.`, `_` or an XID_Start character_\n    | ( BIN_LITERAL | OCT_LITERAL ) (`e`|`E`)\n    | `0b` `_`* <end of input or not BIN_DIGIT>\n    | `0o` `_`* <end of input or not OCT_DIGIT>\n    | `0x` `_`* <end of input or not HEX_DIGIT>\n    | DEC_LITERAL ( `.` DEC_LITERAL )? (`e` | `E`) (`+` | `-`)? <end of input or not DEC_DIGIT>\n\nThe following lexical forms similar to number literals are _reserved forms_. Due to the possible ambiguity these raise, they are rejected by the tokenizer instead of being interpreted as separate tokens.\n\n* An unsuffixed binary or octal literal followed, without intervening whitespace, by a decimal digit out of the range for its radix.\n\n* An unsuffixed binary, octal, or hexadecimal literal followed, without intervening whitespace, by a period character (with the same restrictions on what follows the period as for floating-point literals).\n\n* An unsuffixed binary or octal literal followed, without intervening whitespace, by the character `e` or `E`.\n\n* Input which begins with one of the radix prefixes but is not a valid binary, octal, or hexadecimal literal (because it contains no digits).\n\n* Input which has the form of a floating-point literal with no digits in the exponent.\n\nExamples of reserved forms:\n\n,compile_fail\n0b0102;  // this is not `0b010` followed by `2`\n0o1279;  // this is not `0o127` followed by `9`\n0x80.0;  // this is not `0x80` followed by `.` and `0`\n0b101e;  // this is not a suffixed literal, or `0b101` followed by `e`\n0b;      // this is not an integer literal, or `0` followed by `b`\n0b_;     // this is not an integer literal, or `0` followed by `b_`\n2e;      // this is not a floating-point literal, or `2` followed by `e`\n2.0e;    // this is not a floating-point literal, or `2.0` followed by `e`\n2em;     // this is not a suffixed literal, or `2` followed by `em`\n2.0em;   // this is not a suffixed literal, or `2.0` followed by `em`",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.literal.reserved.syntax": ",lexer\nRESERVED_NUMBER ->\n      BIN_LITERAL [`2`-`9`]\n    | OCT_LITERAL [`8`-`9`]\n    | ( BIN_LITERAL | OCT_LITERAL | HEX_LITERAL ) `.` _not immediately followed by `.`, `_` or an XID_Start character_\n    | ( BIN_LITERAL | OCT_LITERAL ) (`e`|`E`)\n    | `0b` `_`* <end of input or not BIN_DIGIT>\n    | `0o` `_`* <end of input or not OCT_DIGIT>\n    | `0x` `_`* <end of input or not HEX_DIGIT>\n    | DEC_LITERAL ( `.` DEC_LITERAL )? (`e` | `E`) (`+` | `-`)? <end of input or not DEC_DIGIT>",
+        "lex.token.literal.reserved.intro": "The following lexical forms similar to number literals are _reserved forms_. Due to the possible ambiguity these raise, they are rejected by the tokenizer instead of being interpreted as separate tokens.",
+        "lex.token.literal.reserved.out-of-range": "* An unsuffixed binary or octal literal followed, without intervening whitespace, by a decimal digit out of the range for its radix.",
+        "lex.token.literal.reserved.period": "* An unsuffixed binary, octal, or hexadecimal literal followed, without intervening whitespace, by a period character (with the same restrictions on what follows the period as for floating-point literals).",
+        "lex.token.literal.reserved.exp": "* An unsuffixed binary or octal literal followed, without intervening whitespace, by the character `e` or `E`.",
+        "lex.token.literal.reserved.empty-with-radix": "* Input which begins with one of the radix prefixes but is not a valid binary, octal, or hexadecimal literal (because it contains no digits).",
+        "lex.token.literal.reserved.empty-exp": "* Input which has the form of a floating-point literal with no digits in the exponent.\n\nExamples of reserved forms:\n\n,compile_fail\n0b0102;  // this is not `0b010` followed by `2`\n0o1279;  // this is not `0o127` followed by `9`\n0x80.0;  // this is not `0x80` followed by `.` and `0`\n0b101e;  // this is not a suffixed literal, or `0b101` followed by `e`\n0b;      // this is not an integer literal, or `0` followed by `b`\n0b_;     // this is not an integer literal, or `0` followed by `b_`\n2e;      // this is not a floating-point literal, or `2` followed by `e`\n2.0e;    // this is not a floating-point literal, or `2.0` followed by `e`\n2em;     // this is not a suffixed literal, or `2` followed by `em`\n2.0em;   // this is not a suffixed literal, or `2.0` followed by `em`"
+      }
+    },
+    {
+      "id": "lex.token.life",
+      "title": "Lifetimes and loop labels",
+      "level": 4,
+      "content": ",lexer\nLIFETIME_TOKEN ->\n      RAW_LIFETIME\n    | `'` IDENTIFIER_OR_KEYWORD _not immediately followed by `'`_\n\nLIFETIME_OR_LABEL ->\n      RAW_LIFETIME\n    | `'` NON_KEYWORD_IDENTIFIER _not immediately followed by `'`_\n\nRAW_LIFETIME ->\n    `'r#` IDENTIFIER_OR_KEYWORD _not immediately followed by `'`_\n\nRESERVED_RAW_LIFETIME -> `'r#` (`_` | `crate` | `self` | `Self` | `super`) _not immediately followed by `'`_\n\nLifetime parameters and [loop labels] use LIFETIME_OR_LABEL tokens. Any LIFETIME_TOKEN will be accepted by the lexer, and for example, can be used in macros.\n\nA raw lifetime is like a normal lifetime, but its identifier is prefixed by `r#`. (Note that the `r#` prefix is not included as part of the actual lifetime.)\n\nUnlike a normal lifetime, a raw lifetime may be any strict or reserved keyword except the ones listed above for `RAW_LIFETIME`.\n\nIt is an error to use the [RESERVED_RAW_LIFETIME] token.\n\n> [!EDITION-2021]\n> Raw lifetimes are accepted in the 2021 edition or later. In earlier editions the token `'r#lt` is lexed as `'r # lt`.",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.life.syntax": ",lexer\nLIFETIME_TOKEN ->\n      RAW_LIFETIME\n    | `'` IDENTIFIER_OR_KEYWORD _not immediately followed by `'`_\n\nLIFETIME_OR_LABEL ->\n      RAW_LIFETIME\n    | `'` NON_KEYWORD_IDENTIFIER _not immediately followed by `'`_\n\nRAW_LIFETIME ->\n    `'r#` IDENTIFIER_OR_KEYWORD _not immediately followed by `'`_\n\nRESERVED_RAW_LIFETIME -> `'r#` (`_` | `crate` | `self` | `Self` | `super`) _not immediately followed by `'`_",
+        "lex.token.life.intro": "Lifetime parameters and [loop labels] use LIFETIME_OR_LABEL tokens. Any LIFETIME_TOKEN will be accepted by the lexer, and for example, can be used in macros.",
+        "lex.token.life.raw.intro": "A raw lifetime is like a normal lifetime, but its identifier is prefixed by `r#`. (Note that the `r#` prefix is not included as part of the actual lifetime.)",
+        "lex.token.life.raw.allowed": "Unlike a normal lifetime, a raw lifetime may be any strict or reserved keyword except the ones listed above for `RAW_LIFETIME`.",
+        "lex.token.life.raw.reserved": "It is an error to use the [RESERVED_RAW_LIFETIME] token.",
+        "lex.token.life.raw.edition2021": "> [!EDITION-2021]\n> Raw lifetimes are accepted in the 2021 edition or later. In earlier editions the token `'r#lt` is lexed as `'r # lt`."
+      }
+    },
+    {
+      "id": "lex.token.punct",
+      "title": "Punctuation",
+      "level": 2,
+      "content": "Punctuation tokens are used as operators, separators, and other parts of the grammar.\n\n,lexer\nPUNCTUATION ->\n      `...`\n    | `..=`\n    | `<<=`\n    | `>>=`\n    | `!=`\n    | `%=`\n    | `&&`\n    | `&=`\n    | `*=`\n    | `+=`\n    | `-=`\n    | `->`\n    | `..`\n    | `/=`\n    | `::`\n    | `<-`\n    | `<<`\n    | `<=`\n    | `==`\n    | `=>`\n    | `>=`\n    | `>>`\n    | `>`\n    | `^=`\n    | `|=`\n    | `||`\n    | `!`\n    | `#`\n    | `$`\n    | `%`\n    | `&`\n    | `(`\n    | `)`\n    | `*`\n    | `+`\n    | `,`\n    | `-`\n    | `.`\n    | `/`\n    | `:`\n    | `;`\n    | `<`\n    | `=`\n    | `?`\n    | `@`\n    | `[`\n    | `]`\n    | `^`\n    | `{`\n    | `|`\n    | `}`\n    | `~`\n\n> [!NOTE]\n> See the [syntax index] for links to how punctuation characters are used.",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.punct.intro": "Punctuation tokens are used as operators, separators, and other parts of the grammar.",
+        "lex.token.punct.syntax": ",lexer\nPUNCTUATION ->\n      `...`\n    | `..=`\n    | `<<=`\n    | `>>=`\n    | `!=`\n    | `%=`\n    | `&&`\n    | `&=`\n    | `*=`\n    | `+=`\n    | `-=`\n    | `->`\n    | `..`\n    | `/=`\n    | `::`\n    | `<-`\n    | `<<`\n    | `<=`\n    | `==`\n    | `=>`\n    | `>=`\n    | `>>`\n    | `>`\n    | `^=`\n    | `|=`\n    | `||`\n    | `!`\n    | `#`\n    | `$`\n    | `%`\n    | `&`\n    | `(`\n    | `)`\n    | `*`\n    | `+`\n    | `,`\n    | `-`\n    | `.`\n    | `/`\n    | `:`\n    | `;`\n    | `<`\n    | `=`\n    | `?`\n    | `@`\n    | `[`\n    | `]`\n    | `^`\n    | `{`\n    | `|`\n    | `}`\n    | `~`\n\n> [!NOTE]\n> See the [syntax index] for links to how punctuation characters are used."
+      }
+    },
+    {
+      "id": "lex.token.delim",
+      "title": "Delimiters",
+      "level": 2,
+      "content": "Bracket punctuation is used in various parts of the grammar. An open bracket must always be paired with a close bracket. Brackets and the tokens within them are referred to as \"token trees\" in [macros].  The three types of brackets are:\n\n| Bracket | Type            |\n|---------|-----------------|\n| `{` `}` | Curly braces    |\n| `[` `]` | Square brackets |\n| `(` `)` | Parentheses     |",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.delim": "Bracket punctuation is used in various parts of the grammar. An open bracket must always be paired with a close bracket. Brackets and the tokens within them are referred to as \"token trees\" in [macros].  The three types of brackets are:\n\n| Bracket | Type            |\n|---------|-----------------|\n| `{` `}` | Curly braces    |\n| `[` `]` | Square brackets |\n| `(` `)` | Parentheses     |"
+      }
+    },
+    {
+      "id": "lex.token.reserved",
+      "title": "Reserved tokens",
+      "level": 2,
+      "content": "Several token forms are reserved for future use or to avoid confusion. It is an error for the source input to match one of these forms.\n\n,lexer\nRESERVED_TOKEN ->\n      RESERVED_GUARDED_STRING_LITERAL\n    | RESERVED_NUMBER\n    | RESERVED_POUNDS\n    | RESERVED_RAW_IDENTIFIER\n    | RESERVED_RAW_LIFETIME\n    | RESERVED_TOKEN_DOUBLE_QUOTE\n    | RESERVED_TOKEN_LIFETIME\n    | RESERVED_TOKEN_POUND\n    | RESERVED_TOKEN_SINGLE_QUOTE",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.reserved.intro": "Several token forms are reserved for future use or to avoid confusion. It is an error for the source input to match one of these forms.",
+        "lex.token.reserved.syntax": ",lexer\nRESERVED_TOKEN ->\n      RESERVED_GUARDED_STRING_LITERAL\n    | RESERVED_NUMBER\n    | RESERVED_POUNDS\n    | RESERVED_RAW_IDENTIFIER\n    | RESERVED_RAW_LIFETIME\n    | RESERVED_TOKEN_DOUBLE_QUOTE\n    | RESERVED_TOKEN_LIFETIME\n    | RESERVED_TOKEN_POUND\n    | RESERVED_TOKEN_SINGLE_QUOTE"
+      }
+    },
+    {
+      "id": "lex.token.reserved-prefix",
+      "title": "Reserved prefixes",
+      "level": 2,
+      "content": ",lexer\nRESERVED_TOKEN_DOUBLE_QUOTE ->\n    IDENTIFIER_OR_KEYWORD _except `b` or `c` or `r` or `br` or `cr`_ `\"`\n\nRESERVED_TOKEN_SINGLE_QUOTE ->\n    IDENTIFIER_OR_KEYWORD _except `b`_ `'`\n\nRESERVED_TOKEN_POUND ->\n    IDENTIFIER_OR_KEYWORD _except `r` or `br` or `cr`_ `#`\n\nRESERVED_TOKEN_LIFETIME ->\n    `'` IDENTIFIER_OR_KEYWORD _except `r`_ `#`\n\nSome lexical forms known as _reserved prefixes_ are reserved for future use.\n\nSource input which would otherwise be lexically interpreted as a non-raw identifier (or a keyword) which is immediately followed by a `#`, `'`, or `\"` character (without intervening whitespace) is identified as a reserved prefix.\n\nNote that raw identifiers, raw string literals, and raw byte string literals may contain a `#` character but are not interpreted as containing a reserved prefix.\n\nSimilarly the `r`, `b`, `br`, `c`, and `cr` prefixes used in raw string literals, byte literals, byte string literals, raw byte string literals, C string literals, and raw C string literals are not interpreted as reserved prefixes.\n\nSource input which would otherwise be lexically interpreted as a non-raw lifetime (or a keyword) which is immediately followed by a `#` character (without intervening whitespace) is identified as a reserved lifetime prefix.\n\n> [!EDITION-2021]\n> Starting with the 2021 edition, reserved prefixes are reported as an error by the lexer (in particular, they cannot be passed to macros).\n>\n> Before the 2021 edition, reserved prefixes are accepted by the lexer and interpreted as multiple tokens (for example, one token for the identifier or keyword, followed by a `#` token).\n>\n> Examples accepted in all editions:\n> ```rust\n> macro_rules! lexes {($($_:tt)*) => {}}\n> lexes!{a #foo}\n> lexes!{continue 'foo}\n> lexes!{match \"...\" {}}\n> lexes!{r#let#foo}         // three tokens: r#let # foo\n> lexes!{'prefix #lt}\n> ```\n>\n> Examples accepted before the 2021 edition but rejected later:\n> ```rust,edition2018\n> macro_rules! lexes {($($_:tt)*) => {}}\n> lexes!{a#foo}\n> lexes!{continue'foo}\n> lexes!{match\"...\" {}}\n> lexes!{'prefix#lt}\n> ```",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.reserved-prefix.syntax": ",lexer\nRESERVED_TOKEN_DOUBLE_QUOTE ->\n    IDENTIFIER_OR_KEYWORD _except `b` or `c` or `r` or `br` or `cr`_ `\"`\n\nRESERVED_TOKEN_SINGLE_QUOTE ->\n    IDENTIFIER_OR_KEYWORD _except `b`_ `'`\n\nRESERVED_TOKEN_POUND ->\n    IDENTIFIER_OR_KEYWORD _except `r` or `br` or `cr`_ `#`\n\nRESERVED_TOKEN_LIFETIME ->\n    `'` IDENTIFIER_OR_KEYWORD _except `r`_ `#`",
+        "lex.token.reserved-prefix.intro": "Some lexical forms known as _reserved prefixes_ are reserved for future use.",
+        "lex.token.reserved-prefix.id": "Source input which would otherwise be lexically interpreted as a non-raw identifier (or a keyword) which is immediately followed by a `#`, `'`, or `\"` character (without intervening whitespace) is identified as a reserved prefix.",
+        "lex.token.reserved-prefix.raw-token": "Note that raw identifiers, raw string literals, and raw byte string literals may contain a `#` character but are not interpreted as containing a reserved prefix.",
+        "lex.token.reserved-prefix.strings": "Similarly the `r`, `b`, `br`, `c`, and `cr` prefixes used in raw string literals, byte literals, byte string literals, raw byte string literals, C string literals, and raw C string literals are not interpreted as reserved prefixes.",
+        "lex.token.reserved-prefix.life": "Source input which would otherwise be lexically interpreted as a non-raw lifetime (or a keyword) which is immediately followed by a `#` character (without intervening whitespace) is identified as a reserved lifetime prefix.",
+        "lex.token.reserved-prefix.edition2021": "> [!EDITION-2021]\n> Starting with the 2021 edition, reserved prefixes are reported as an error by the lexer (in particular, they cannot be passed to macros).\n>\n> Before the 2021 edition, reserved prefixes are accepted by the lexer and interpreted as multiple tokens (for example, one token for the identifier or keyword, followed by a `#` token).\n>\n> Examples accepted in all editions:\n> ```rust\n> macro_rules! lexes {($($_:tt)*) => {}}\n> lexes!{a #foo}\n> lexes!{continue 'foo}\n> lexes!{match \"...\" {}}\n> lexes!{r#let#foo}         // three tokens: r#let # foo\n> lexes!{'prefix #lt}\n> ```\n>\n> Examples accepted before the 2021 edition but rejected later:\n> ```rust,edition2018\n> macro_rules! lexes {($($_:tt)*) => {}}\n> lexes!{a#foo}\n> lexes!{continue'foo}\n> lexes!{match\"...\" {}}\n> lexes!{'prefix#lt}\n> ```"
+      }
+    },
+    {
+      "id": "lex.token.reserved-guards",
+      "title": "Reserved guards",
+      "level": 2,
+      "content": ",lexer\nRESERVED_GUARDED_STRING_LITERAL -> `#`+ STRING_LITERAL\n\nRESERVED_POUNDS -> `#`{2..}\n\nThe reserved guards are syntax reserved for future use, and will generate a compile error if used.\n\nThe *reserved guarded string literal* is a token of one or more `U+0023` (`#`) immediately followed by a [STRING_LITERAL].\n\nThe *reserved pounds* is a token of two or more `U+0023` (`#`).\n\n> [!EDITION-2024]\n> Before the 2024 edition, reserved guards are accepted by the lexer and interpreted as multiple tokens. For example, the `#\"foo\"#` form is interpreted as three tokens. `##` is interpreted as two tokens.\n\n[Floating-point literal expressions]: expressions/literal-expr.md#floating-point-literal-expressions\n[identifier]: identifiers.md\n[Integer literal expressions]: expressions/literal-expr.md#integer-literal-expressions\n[keywords]: keywords.md\n[literal expressions]: expressions/literal-expr.md\n[loop labels]: expressions/loop-expr.md\n[macros]: macros-by-example.md\n[String continuation escapes]: expressions/literal-expr.md#string-continuation-escapes\n[syntax index]: syntax-index.md#operators-and-punctuation\n[tuple structs]: items/structs.md\n[tuple enum variants]: items/enumerations.md\n[tuples]: types/tuple.md",
+      "parent_id": null,
+      "paragraphs": {
+        "lex.token.reserved-guards.syntax": ",lexer\nRESERVED_GUARDED_STRING_LITERAL -> `#`+ STRING_LITERAL\n\nRESERVED_POUNDS -> `#`{2..}",
+        "lex.token.reserved-guards.intro": "The reserved guards are syntax reserved for future use, and will generate a compile error if used.",
+        "lex.token.reserved-guards.string-literal": "The *reserved guarded string literal* is a token of one or more `U+0023` (`#`) immediately followed by a [STRING_LITERAL].",
+        "lex.token.reserved-guards.pounds": "The *reserved pounds* is a token of two or more `U+0023` (`#`).",
+        "lex.token.reserved-guards.edition2024": "> [!EDITION-2024]\n> Before the 2024 edition, reserved guards are accepted by the lexer and interpreted as multiple tokens. For example, the `#\"foo\"#` form is interpreted as three tokens. `##` is interpreted as two tokens.\n\n[Floating-point literal expressions]: expressions/literal-expr.md#floating-point-literal-expressions\n[identifier]: identifiers.md\n[Integer literal expressions]: expressions/literal-expr.md#integer-literal-expressions\n[keywords]: keywords.md\n[literal expressions]: expressions/literal-expr.md\n[loop labels]: expressions/loop-expr.md\n[macros]: macros-by-example.md\n[String continuation escapes]: expressions/literal-expr.md#string-continuation-escapes\n[syntax index]: syntax-index.md#operators-and-punctuation\n[tuple structs]: items/structs.md\n[tuple enum variants]: items/enumerations.md\n[tuples]: types/tuple.md"
+      }
+    }
+  ],
+  "ids": [
+    "ident.normalization",
+    "lex.token.str-c.escape-whitespace",
+    "lex.token.literal.suffix.validity",
+    "lex.token.reserved-prefix.intro",
+    "lex.token.literal.int.tuple-field.eq",
+    "input.shebang",
+    "lex.token.literal.reserved.exp",
+    "lex.whitespace.replacement",
+    "lex.keywords.weak.dyn.edition2018",
+    "lex.keywords.reserved.edition2024",
+    "lex.token.literal.float",
+    "lex.token.reserved",
+    "lex.keywords.weak",
+    "comments.doc.inner-syntax",
+    "lex.token.literal.str.intro",
+    "lex.token.literal.int.tuple-field.intro",
+    "comments.doc.attributes",
+    "lex.keywords.strict.intro",
+    "lex.token.str-c.null",
+    "comments.doc",
+    "lex.keywords.reserved.edition2018",
+    "lex.keywords.reserved",
+    "lex.token.literal.char-escape.intro",
+    "lex.token.life.raw.allowed",
+    "lex.token.reserved-prefix.raw-token",
+    "lex.token.str-byte.linefeed",
+    "ident.raw",
+    "lex.token.str-byte-raw",
+    "lex.token.reserved-guards.edition2024",
+    "lex.token.reserved-prefix.life",
+    "lex.token.literal.str-raw.content",
+    "lex.token.str-byte.escape-byte",
+    "lex.token.life.raw.edition2021",
+    "lex.token.literal.int.kind-dec",
+    "comments",
+    "lex.token.punct",
+    "lex.token.reserved.intro",
+    "input.shebang.inner-attribute",
+    "lex.keywords.weak.union",
+    "lex.token.reserved-prefix",
+    "ident.unicode",
+    "lex.token.literal.reserved.intro",
+    "lex.token.byte",
+    "lex.token.literal.suffix",
+    "lex.token.literal.int.kind-oct",
+    "lex.keywords.reserved.list",
+    "lex.token.literal.str.syntax",
+    "lex.token.literal.suffix.syntax",
+    "lex.token.life.raw.intro",
+    "lex.token.byte.intro",
+    "input.encoding",
+    "lex.token.literal.str.linefeed",
+    "lex.keywords.weak.raw",
+    "input.crlf",
+    "lex.token.str-c.escape",
+    "comments.doc.inner-attributes",
+    "lex.token.literal.str-raw.intro",
+    "lex.token.literal.char-escape.whitespace",
+    "lex.token.str-c.intro",
+    "lex.token.str-c-raw.content",
+    "lex.token.literal.char.syntax",
+    "lex.token.str-c-raw.intro",
+    "input",
+    "lex.token.str-c.escape-byte",
+    "lex.token.punct.intro",
+    "ident.keyword",
+    "lex.token",
+    "input.tokenization",
+    "lex.token.literal.int.kind",
+    "lex.token.str-byte-raw.syntax",
+    "lex.token.str-c",
+    "lex.token.literal.str-byte-raw.content",
+    "input.shebang.intro",
+    "lex.token.literal.char.intro",
+    "lex.keywords.weak.lifetime-static",
+    "lex.token.str-byte-raw.body",
+    "lex.keywords.weak.macro_rules",
+    "lex.token.reserved-prefix.id",
+    "lex.keywords.strict",
+    "lex.whitespace",
+    "lex.keywords.strict.edition2018",
+    "lex.token.literal.char",
+    "lex.token.str-c.linefeed",
+    "lex.token.str-byte.escape-slash",
+    "lex.token.literal.int.tuple-field.syntax",
+    "lex.token.str-byte.escape",
+    "lex.token.byte.syntax",
+    "comments.normal",
+    "lex.token.str-byte.escape-null",
+    "lex.token.str-c-raw.body",
+    "lex.whitespace.intro",
+    "input.encoding.utf8",
+    "ident.syntax",
+    "lex.token.str-c.escape-slash",
+    "lex.token.literal.reserved.period",
+    "lex.token.literal.reserved",
+    "lex.token.str-c.char-unicode",
+    "lex.keywords.reserved.intro",
+    "lex.token.reserved-prefix.edition2021",
+    "lex.token.intro",
+    "lex.token.literal.num",
+    "lex.token.literal.char-escape",
+    "lex.token.str-byte.intro",
+    "lex.token.reserved-guards.intro",
+    "ident.profile",
+    "lex.token.reserved-prefix.strings",
+    "lex.token.str-c.edition2021",
+    "lex.token.literal.str-raw",
+    "lex.keywords.weak.safe",
+    "lex.keywords",
+    "comments.doc.syntax",
+    "lex.token.reserved-prefix.syntax",
+    "lex.whitespace.token-sep",
+    "lex.token.str-c-raw.edition2021",
+    "lex.token.str-c-raw.syntax",
+    "lex.token.literal.float.form",
+    "ident.zero-width-chars",
+    "lex.token.literal",
+    "lex.token.literal.int.syntax",
+    "lex.token.reserved-guards.pounds",
+    "lex.token.reserved.syntax",
+    "comments.doc.bare-crs",
+    "lex.token.literal.reserved.empty-exp",
+    "lex.token.str-byte.syntax",
+    "ident.raw.reserved",
+    "lex.token.literal.int.restriction",
+    "ident.raw.intro",
+    "lexical_structure",
+    "lex.token.punct.syntax",
+    "input.intro",
+    "lex.token.str-c.escape-unicode",
+    "lex.token.literal.char-escape.unicode",
+    "lex.token.literal.int.kind-bin",
+    "lex.token.literal.float.syntax",
+    "lex.token.literal.reserved.out-of-range",
+    "ident.ascii-limitations",
+    "lex.token.literal.char-escape.ascii",
+    "lex.token.life",
+    "lex.token.reserved-guards.syntax",
+    "lex.token.literal.char-escape.slash",
+    "lex.token.reserved-guards",
+    "lex.token.syntax",
+    "lex.token.literal.float.suffix",
+    "lex.token.life.raw.reserved",
+    "lex.token.str-byte.escape-whitespace",
+    "lex.token.literal.str",
+    "input.byte-order-mark",
+    "lex.token.literal.reserved.syntax",
+    "lex.token.life.intro",
+    "input.syntax",
+    "lex.token.literal.suffix.parse",
+    "lex.token.str-byte-raw.intro",
+    "lex.token.life.syntax",
+    "lex.token.literal.str-raw.body",
+    "lex.token.literal.int.tuple-field",
+    "ident",
+    "lexical_structure_p1",
+    "lex.token.literal.str-raw.syntax",
+    "comments.normal.tokenization",
+    "lex.keywords.weak.intro",
+    "ident.raw.allowed",
+    "lex.token.literal.reserved.empty-with-radix",
+    "lex.token.literal.char-escape.null",
+    "lex.token.str-c-raw",
+    "lex.token.str-byte",
+    "lex.token.literal.literal.suffix.intro",
+    "input.encoding.invalid",
+    "lex.token.delim",
+    "comments.syntax",
+    "lex.token.literal.int.kind-hex",
+    "lex.token.reserved-guards.string-literal",
+    "lex.keywords.strict.list",
+    "lex.token.literal.int",
+    "lex.token.str-c.syntax",
+    "whitespace.syntax"
+  ]
+}

@@ -1,0 +1,408 @@
+{
+  "source": "Rust Reference",
+  "source_repo": "https://github.com/rust-lang/reference",
+  "extraction_date": "2026-01-03",
+  "chapter": 6,
+  "title": "Conditional compilation",
+  "file": "conditional-compilation.md",
+  "sections": [
+    {
+      "id": "cfg",
+      "title": "Conditional compilation",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "cfg.syntax",
+      "title": "Conditional compilation",
+      "level": 1,
+      "content": ",configuration\nConfigurationPredicate ->\n      ConfigurationOption\n    | ConfigurationAll\n    | ConfigurationAny\n    | ConfigurationNot\n    | `true`\n    | `false`\n\nConfigurationOption ->\n    IDENTIFIER ( `=` ( STRING_LITERAL | RAW_STRING_LITERAL ) )?\n\nConfigurationAll ->\n    `all` `(` ConfigurationPredicateList? `)`\n\nConfigurationAny ->\n    `any` `(` ConfigurationPredicateList? `)`\n\nConfigurationNot ->\n    `not` `(` ConfigurationPredicate `)`\n\nConfigurationPredicateList ->\n    ConfigurationPredicate (`,` ConfigurationPredicate)* `,`?",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.syntax": ",configuration\nConfigurationPredicate ->\n      ConfigurationOption\n    | ConfigurationAll\n    | ConfigurationAny\n    | ConfigurationNot\n    | `true`\n    | `false`\n\nConfigurationOption ->\n    IDENTIFIER ( `=` ( STRING_LITERAL | RAW_STRING_LITERAL ) )?\n\nConfigurationAll ->\n    `all` `(` ConfigurationPredicateList? `)`\n\nConfigurationAny ->\n    `any` `(` ConfigurationPredicateList? `)`\n\nConfigurationNot ->\n    `not` `(` ConfigurationPredicate `)`\n\nConfigurationPredicateList ->\n    ConfigurationPredicate (`,` ConfigurationPredicate)* `,`?"
+      }
+    },
+    {
+      "id": "cfg.general",
+      "title": "Conditional compilation",
+      "level": 1,
+      "content": "*Conditionally compiled source code* is source code that is compiled only under certain conditions.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.general": "*Conditionally compiled source code* is source code that is compiled only under certain conditions."
+      }
+    },
+    {
+      "id": "cfg.attributes-macro",
+      "title": "Conditional compilation",
+      "level": 1,
+      "content": "Source code can be made conditionally compiled using the [`cfg`] and [`cfg_attr`] [attributes] and the built-in [`cfg` macro].",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.attributes-macro": "Source code can be made conditionally compiled using the [`cfg`] and [`cfg_attr`] [attributes] and the built-in [`cfg` macro]."
+      }
+    },
+    {
+      "id": "cfg.conditional",
+      "title": "Conditional compilation",
+      "level": 1,
+      "content": "Whether to compile can depend on the target architecture of the compiled crate, arbitrary values passed to the compiler, and other things further described below.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.conditional": "Whether to compile can depend on the target architecture of the compiled crate, arbitrary values passed to the compiler, and other things further described below."
+      }
+    },
+    {
+      "id": "cfg.predicate",
+      "title": "Conditional compilation",
+      "level": 1,
+      "content": "Each form of conditional compilation takes a _configuration predicate_ that\nevaluates to true or false. The predicate is one of the following:\n\n* A configuration option. The predicate is true if the option is set, and false if it is unset.\n\n* `all()` with a comma-separated list of configuration predicates. It is true if all of the given predicates are true, or if the list is empty.\n\n* `any()` with a comma-separated list of configuration predicates. It is true if at least one of the given predicates is true. If there are no predicates, it is false.\n\n* `not()` with a configuration predicate. It is true if its predicate is false and false if its predicate is true.\n\n* `true` or `false` literals, which are always true or false respectively.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.predicate": "Each form of conditional compilation takes a _configuration predicate_ that\nevaluates to true or false. The predicate is one of the following:",
+        "cfg.predicate.option": "* A configuration option. The predicate is true if the option is set, and false if it is unset.",
+        "cfg.predicate.all": "* `all()` with a comma-separated list of configuration predicates. It is true if all of the given predicates are true, or if the list is empty.",
+        "cfg.predicate.any": "* `any()` with a comma-separated list of configuration predicates. It is true if at least one of the given predicates is true. If there are no predicates, it is false.",
+        "cfg.predicate.not": "* `not()` with a configuration predicate. It is true if its predicate is false and false if its predicate is true.",
+        "cfg.predicate.literal": "* `true` or `false` literals, which are always true or false respectively."
+      }
+    },
+    {
+      "id": "cfg.option-spec",
+      "title": "Conditional compilation",
+      "level": 1,
+      "content": "_Configuration options_ are either names or key-value pairs, and are either set or unset.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.option-spec": "_Configuration options_ are either names or key-value pairs, and are either set or unset."
+      }
+    },
+    {
+      "id": "cfg.option-name",
+      "title": "Conditional compilation",
+      "level": 1,
+      "content": "Names are written as a single identifier, such as `unix`.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.option-name": "Names are written as a single identifier, such as `unix`."
+      }
+    },
+    {
+      "id": "cfg.option-key-value",
+      "title": "Conditional compilation",
+      "level": 1,
+      "content": "Key-value pairs are written as an identifier, `=`, and then a string, such as `target_arch = \"x86_64\"`.\n\n> [!NOTE]\n> Whitespace around the `=` is ignored, so `foo=\"bar\"` and `foo = \"bar\"` are equivalent.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.option-key-value": "Key-value pairs are written as an identifier, `=`, and then a string, such as `target_arch = \"x86_64\"`.\n\n> [!NOTE]\n> Whitespace around the `=` is ignored, so `foo=\"bar\"` and `foo = \"bar\"` are equivalent."
+      }
+    },
+    {
+      "id": "cfg.option-key-uniqueness",
+      "title": "Conditional compilation",
+      "level": 1,
+      "content": "Keys do not need to be unique. For example, both `feature = \"std\"` and `feature = \"serde\"` can be set at the same time.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.option-key-uniqueness": "Keys do not need to be unique. For example, both `feature = \"std\"` and `feature = \"serde\"` can be set at the same time."
+      }
+    },
+    {
+      "id": "cfg.options.set",
+      "title": "Set configuration options",
+      "level": 1,
+      "content": "Which configuration options are set is determined statically during the\ncompilation of the crate.\n\nSome options are _compiler-set_ based on data about the compilation.\n\nOther options are _arbitrarily-set_ based on input passed to the compiler outside of the code.\n\nIt is not possible to set a\nconfiguration option from within the source code of the crate being compiled.\n\n> [!NOTE]\n> For `rustc`, arbitrary-set configuration options are set using the [`--cfg`] flag. Configuration values for a specified target can be displayed with `rustc --print cfg --target $TARGET`.\n\n> [!NOTE]\n> Configuration options with the key `feature` are a convention used by Cargo for specifying compile-time options and optional dependencies.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.options.general": "Which configuration options are set is determined statically during the\ncompilation of the crate.",
+        "cfg.options.target": "Some options are _compiler-set_ based on data about the compilation.",
+        "cfg.options.other": "Other options are _arbitrarily-set_ based on input passed to the compiler outside of the code.",
+        "cfg.options.crate": "It is not possible to set a\nconfiguration option from within the source code of the crate being compiled.\n\n> [!NOTE]\n> For `rustc`, arbitrary-set configuration options are set using the [`--cfg`] flag. Configuration values for a specified target can be displayed with `rustc --print cfg --target $TARGET`.\n\n> [!NOTE]\n> Configuration options with the key `feature` are a convention used by Cargo for specifying compile-time options and optional dependencies."
+      }
+    },
+    {
+      "id": "cfg.target_arch",
+      "title": "`target_arch`",
+      "level": 2,
+      "content": "Key-value option set once with the target's CPU architecture. The value is\nsimilar to the first element of the platform's target triple, but not\nidentical.\n\nExample values:\n\n* `\"x86\"`\n* `\"x86_64\"`\n* `\"mips\"`\n* `\"powerpc\"`\n* `\"powerpc64\"`\n* `\"arm\"`\n* `\"aarch64\"`",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.target_arch.gen": "Key-value option set once with the target's CPU architecture. The value is\nsimilar to the first element of the platform's target triple, but not\nidentical.",
+        "cfg.target_arch.values": "Example values:\n\n* `\"x86\"`\n* `\"x86_64\"`\n* `\"mips\"`\n* `\"powerpc\"`\n* `\"powerpc64\"`\n* `\"arm\"`\n* `\"aarch64\"`"
+      }
+    },
+    {
+      "id": "cfg.target_feature",
+      "title": "`target_feature`",
+      "level": 3,
+      "content": "Key-value option set for each platform feature available for the current\ncompilation target.\n\nExample values:\n\n* `\"avx\"`\n* `\"avx2\"`\n* `\"crt-static\"`\n* `\"rdrand\"`\n* `\"sse\"`\n* `\"sse2\"`\n* `\"sse4.1\"`\n\nSee the [`target_feature` attribute] for more details on the available\nfeatures.\n\nAn additional feature of `crt-static` is available to the\n`target_feature` option to indicate that a [static C runtime] is available.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.target_feature.general": "Key-value option set for each platform feature available for the current\ncompilation target.",
+        "cfg.target_feature.values": "Example values:\n\n* `\"avx\"`\n* `\"avx2\"`\n* `\"crt-static\"`\n* `\"rdrand\"`\n* `\"sse\"`\n* `\"sse2\"`\n* `\"sse4.1\"`\n\nSee the [`target_feature` attribute] for more details on the available\nfeatures.",
+        "cfg.target_feature.crt_static": "An additional feature of `crt-static` is available to the\n`target_feature` option to indicate that a [static C runtime] is available."
+      }
+    },
+    {
+      "id": "cfg.target_os",
+      "title": "`target_os`",
+      "level": 3,
+      "content": "Key-value option set once with the target's operating system. This value is\nsimilar to the second and third element of the platform's target triple.\n\nExample values:\n\n* `\"windows\"`\n* `\"macos\"`\n* `\"ios\"`\n* `\"linux\"`\n* `\"android\"`\n* `\"freebsd\"`\n* `\"dragonfly\"`\n* `\"openbsd\"`\n* `\"netbsd\"`\n* `\"none\"` (typical for embedded targets)",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.target_os.general": "Key-value option set once with the target's operating system. This value is\nsimilar to the second and third element of the platform's target triple.",
+        "cfg.target_os.values": "Example values:\n\n* `\"windows\"`\n* `\"macos\"`\n* `\"ios\"`\n* `\"linux\"`\n* `\"android\"`\n* `\"freebsd\"`\n* `\"dragonfly\"`\n* `\"openbsd\"`\n* `\"netbsd\"`\n* `\"none\"` (typical for embedded targets)"
+      }
+    },
+    {
+      "id": "cfg.target_family",
+      "title": "`target_family`",
+      "level": 3,
+      "content": "Key-value option providing a more generic description of a target, such as the family of the\noperating systems or architectures that the target generally falls into. Any number of\n`target_family` key-value pairs can be set.\n\nExample values:\n\n* `\"unix\"`\n* `\"windows\"`\n* `\"wasm\"`\n* Both `\"unix\"` and `\"wasm\"`",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.target_family.general": "Key-value option providing a more generic description of a target, such as the family of the\noperating systems or architectures that the target generally falls into. Any number of\n`target_family` key-value pairs can be set.",
+        "cfg.target_family.values": "Example values:\n\n* `\"unix\"`\n* `\"windows\"`\n* `\"wasm\"`\n* Both `\"unix\"` and `\"wasm\"`"
+      }
+    },
+    {
+      "id": "cfg.target_family.unix",
+      "title": "`unix` and `windows`",
+      "level": 3,
+      "content": "`unix` is set if `target_family = \"unix\"` is set.\n\n`windows` is set if `target_family = \"windows\"` is set.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.target_family.unix": "`unix` is set if `target_family = \"unix\"` is set.",
+        "cfg.target_family.windows": "`windows` is set if `target_family = \"windows\"` is set."
+      }
+    },
+    {
+      "id": "cfg.target_env",
+      "title": "`target_env`",
+      "level": 3,
+      "content": "Key-value option set with further disambiguating information about the target\nplatform with information about the ABI or `libc` used. For historical reasons,\nthis value is only defined as not the empty-string when actually needed for\ndisambiguation. Thus, for example, on many GNU platforms, this value will be\nempty. This value is similar to the fourth element of the platform's target\ntriple. One difference is that embedded ABIs such as `gnueabihf` will simply\ndefine `target_env` as `\"gnu\"`.\n\nExample values:\n\n* `\"\"`\n* `\"gnu\"`\n* `\"msvc\"`\n* `\"musl\"`\n* `\"sgx\"`\n* `\"sim\"`\n* `\"macabi\"`",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.target_env.general": "Key-value option set with further disambiguating information about the target\nplatform with information about the ABI or `libc` used. For historical reasons,\nthis value is only defined as not the empty-string when actually needed for\ndisambiguation. Thus, for example, on many GNU platforms, this value will be\nempty. This value is similar to the fourth element of the platform's target\ntriple. One difference is that embedded ABIs such as `gnueabihf` will simply\ndefine `target_env` as `\"gnu\"`.",
+        "cfg.target_env.values": "Example values:\n\n* `\"\"`\n* `\"gnu\"`\n* `\"msvc\"`\n* `\"musl\"`\n* `\"sgx\"`\n* `\"sim\"`\n* `\"macabi\"`"
+      }
+    },
+    {
+      "id": "cfg.target_abi",
+      "title": "`target_abi`",
+      "level": 3,
+      "content": "Key-value option set to further disambiguate the target with information about\nthe target ABI.\n\nFor historical reasons, this value is only defined as not the empty-string when actually\nneeded for disambiguation. Thus, for example, on many GNU platforms, this value will be\nempty.\n\nExample values:\n\n* `\"\"`\n* `\"llvm\"`\n* `\"eabihf\"`\n* `\"abi64\"`",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.target_abi.general": "Key-value option set to further disambiguate the target with information about\nthe target ABI.",
+        "cfg.target_abi.disambiguation": "For historical reasons, this value is only defined as not the empty-string when actually\nneeded for disambiguation. Thus, for example, on many GNU platforms, this value will be\nempty.",
+        "cfg.target_abi.values": "Example values:\n\n* `\"\"`\n* `\"llvm\"`\n* `\"eabihf\"`\n* `\"abi64\"`"
+      }
+    },
+    {
+      "id": "cfg.target_endian",
+      "title": "`target_endian`",
+      "level": 3,
+      "content": "Key-value option set once with either a value of \"little\" or \"big\" depending\non the endianness of the target's CPU.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.target_endian": "Key-value option set once with either a value of \"little\" or \"big\" depending\non the endianness of the target's CPU."
+      }
+    },
+    {
+      "id": "cfg.target_pointer_width",
+      "title": "`target_pointer_width`",
+      "level": 3,
+      "content": "Key-value option set once with the target's pointer width in bits.\n\nExample values:\n\n* `\"16\"`\n* `\"32\"`\n* `\"64\"`",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.target_pointer_width.general": "Key-value option set once with the target's pointer width in bits.",
+        "cfg.target_pointer_width.values": "Example values:\n\n* `\"16\"`\n* `\"32\"`\n* `\"64\"`"
+      }
+    },
+    {
+      "id": "cfg.target_vendor",
+      "title": "`target_vendor`",
+      "level": 3,
+      "content": "Key-value option set once with the vendor of the target.\n\nExample values:\n\n* `\"apple\"`\n* `\"fortanix\"`\n* `\"pc\"`\n* `\"unknown\"`",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.target_vendor.general": "Key-value option set once with the vendor of the target.",
+        "cfg.target_vendor.values": "Example values:\n\n* `\"apple\"`\n* `\"fortanix\"`\n* `\"pc\"`\n* `\"unknown\"`"
+      }
+    },
+    {
+      "id": "cfg.target_has_atomic",
+      "title": "`target_has_atomic`",
+      "level": 3,
+      "content": "Key-value option set for each bit width that the target supports\natomic loads, stores, and compare-and-swap operations.\n\nWhen this cfg is present, all of the stable [`core::sync::atomic`] APIs are available for\nthe relevant atomic width.\n\nPossible values:\n\n* `\"8\"`\n* `\"16\"`\n* `\"32\"`\n* `\"64\"`\n* `\"128\"`\n* `\"ptr\"`",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.target_has_atomic.general": "Key-value option set for each bit width that the target supports\natomic loads, stores, and compare-and-swap operations.",
+        "cfg.target_has_atomic.stdlib": "When this cfg is present, all of the stable [`core::sync::atomic`] APIs are available for\nthe relevant atomic width.",
+        "cfg.target_has_atomic.values": "Possible values:\n\n* `\"8\"`\n* `\"16\"`\n* `\"32\"`\n* `\"64\"`\n* `\"128\"`\n* `\"ptr\"`"
+      }
+    },
+    {
+      "id": "cfg.test",
+      "title": "`test`",
+      "level": 3,
+      "content": "Enabled when compiling the test harness. Done with `rustc` by using the\n[`--test`] flag. See [Testing] for more on testing support.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.test": "Enabled when compiling the test harness. Done with `rustc` by using the\n[`--test`] flag. See [Testing] for more on testing support."
+      }
+    },
+    {
+      "id": "cfg.debug_assertions",
+      "title": "`debug_assertions`",
+      "level": 3,
+      "content": "Enabled by default when compiling without optimizations.\nThis can be used to enable extra debugging code in development but not in\nproduction.  For example, it controls the behavior of the standard library's\n[`debug_assert!`] macro.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.debug_assertions": "Enabled by default when compiling without optimizations.\nThis can be used to enable extra debugging code in development but not in\nproduction.  For example, it controls the behavior of the standard library's\n[`debug_assert!`] macro."
+      }
+    },
+    {
+      "id": "cfg.proc_macro",
+      "title": "`proc_macro`",
+      "level": 3,
+      "content": "Set when the crate being compiled is being compiled with the `proc_macro`\n[crate type].",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.proc_macro": "Set when the crate being compiled is being compiled with the `proc_macro`\n[crate type]."
+      }
+    },
+    {
+      "id": "cfg.panic",
+      "title": "`panic`",
+      "level": 3,
+      "content": "Key-value option set depending on the [panic strategy]. Note that more values may be added in the future.\n\nExample values:\n\n* `\"abort\"`\n* `\"unwind\"`\n\n[panic strategy]: panic.md#panic-strategy\n\n## Forms of conditional compilation\n\n<!-- template:attributes -->",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.panic.general": "Key-value option set depending on the [panic strategy]. Note that more values may be added in the future.",
+        "cfg.panic.values": "Example values:\n\n* `\"abort\"`\n* `\"unwind\"`\n\n[panic strategy]: panic.md#panic-strategy\n\n## Forms of conditional compilation\n\n<!-- template:attributes -->"
+      }
+    },
+    {
+      "id": "cfg.attr",
+      "title": "The `cfg` attribute",
+      "level": 2,
+      "content": "The *`cfg` [attribute]* conditionally includes the form to which it is attached based on a configuration predicate.\n\n> [!EXAMPLE]\n> ```rust\n> // The function is only included in the build when compiling for macOS\n> #[cfg(target_os = \"macos\")]\n> fn macos_only() {\n>   // ...\n> }\n>\n> // This function is only included when either foo or bar is defined\n> #[cfg(any(foo, bar))]\n> fn needs_foo_or_bar() {\n>   // ...\n> }\n>\n> // This function is only included when compiling for a unixish OS with a 32-bit\n> // architecture\n> #[cfg(all(unix, target_pointer_width = \"32\"))]\n> fn on_32bit_unix() {\n>   // ...\n> }\n>\n> // This function is only included when foo is not defined\n> #[cfg(not(foo))]\n> fn needs_not_foo() {\n>   // ...\n> }\n>\n> // This function is only included when the panic strategy is set to unwind\n> #[cfg(panic = \"unwind\")]\n> fn when_unwinding() {\n>   // ...\n> }\n> ```\n\nThe syntax for the `cfg` attribute is:\n\n,configuration\n@root CfgAttribute -> `cfg` `(` ConfigurationPredicate `)`\n\nThe `cfg` attribute may be used anywhere attributes are allowed.\n\nThe `cfg` attribute may be used any number of times on a form. The form to which the attributes are attached will not be included if any of the `cfg` predicates are false except as described in [cfg.attr.crate-level-attrs].\n\nIf the predicates are true, the form is rewritten to not have the `cfg` attributes on it. If any predicate is false, the form is removed from the source code.\n\nWhen a crate-level `cfg` has a false predicate, the crate itself still exists. Any crate attributes preceding the `cfg` are kept, and any crate attributes following the `cfg` are removed as well as removing all of the following crate contents.\n\n> [!EXAMPLE]\n> The behavior of not removing the preceding attributes allows you to do things such as include `#![no_std]` to avoid linking `std` even if a `#![cfg(...)]` has otherwise removed the contents of the crate. For example:\n>\n> <!-- ignore: test infrastructure can't handle no_std -->\n> ```rust,ignore\n> // This `no_std` attribute is kept even though the crate-level `cfg`\n> // attribute is false.\n> #![no_std]\n> #![cfg(false)]\n>\n> // This function is not included.\n> pub fn example() {}\n> ```\n\n<!-- template:attributes -->",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.attr.intro": "The *`cfg` [attribute]* conditionally includes the form to which it is attached based on a configuration predicate.\n\n> [!EXAMPLE]\n> ```rust\n> // The function is only included in the build when compiling for macOS\n> #[cfg(target_os = \"macos\")]\n> fn macos_only() {\n>   // ...\n> }\n>\n> // This function is only included when either foo or bar is defined\n> #[cfg(any(foo, bar))]\n> fn needs_foo_or_bar() {\n>   // ...\n> }\n>\n> // This function is only included when compiling for a unixish OS with a 32-bit\n> // architecture\n> #[cfg(all(unix, target_pointer_width = \"32\"))]\n> fn on_32bit_unix() {\n>   // ...\n> }\n>\n> // This function is only included when foo is not defined\n> #[cfg(not(foo))]\n> fn needs_not_foo() {\n>   // ...\n> }\n>\n> // This function is only included when the panic strategy is set to unwind\n> #[cfg(panic = \"unwind\")]\n> fn when_unwinding() {\n>   // ...\n> }\n> ```",
+        "cfg.attr.syntax": "The syntax for the `cfg` attribute is:\n\n,configuration\n@root CfgAttribute -> `cfg` `(` ConfigurationPredicate `)`",
+        "cfg.attr.allowed-positions": "The `cfg` attribute may be used anywhere attributes are allowed.",
+        "cfg.attr.duplicates": "The `cfg` attribute may be used any number of times on a form. The form to which the attributes are attached will not be included if any of the `cfg` predicates are false except as described in [cfg.attr.crate-level-attrs].",
+        "cfg.attr.effect": "If the predicates are true, the form is rewritten to not have the `cfg` attributes on it. If any predicate is false, the form is removed from the source code.",
+        "cfg.attr.crate-level-attrs": "When a crate-level `cfg` has a false predicate, the crate itself still exists. Any crate attributes preceding the `cfg` are kept, and any crate attributes following the `cfg` are removed as well as removing all of the following crate contents.\n\n> [!EXAMPLE]\n> The behavior of not removing the preceding attributes allows you to do things such as include `#![no_std]` to avoid linking `std` even if a `#![cfg(...)]` has otherwise removed the contents of the crate. For example:\n>\n> <!-- ignore: test infrastructure can't handle no_std -->\n> ```rust,ignore\n> // This `no_std` attribute is kept even though the crate-level `cfg`\n> // attribute is false.\n> #![no_std]\n> #![cfg(false)]\n>\n> // This function is not included.\n> pub fn example() {}\n> ```\n\n<!-- template:attributes -->"
+      }
+    },
+    {
+      "id": "cfg.cfg_attr",
+      "title": "The `cfg_attr` attribute",
+      "level": 3,
+      "content": "The *`cfg_attr` [attribute]* conditionally includes attributes based on a configuration predicate.\n\n> [!EXAMPLE]\n> The following module will either be found at `linux.rs` or `windows.rs` based on the target.\n>\n> <!-- ignore: `mod` needs multiple files -->\n> ```rust,ignore\n> #[cfg_attr(target_os = \"linux\", path = \"linux.rs\")]\n> #[cfg_attr(windows, path = \"windows.rs\")]\n> mod os;\n> ```\n\nThe syntax for the `cfg_attr` attribute is:\n\n,configuration\n@root CfgAttrAttribute -> `cfg_attr` `(` ConfigurationPredicate `,` CfgAttrs? `)`\n\nCfgAttrs -> Attr (`,` Attr)* `,`?\n\nThe `cfg_attr` attribute may be used anywhere attributes are allowed.\n\nThe `cfg_attr` attribute may be used any number of times on a form.\n\nThe [`crate_type`] and [`crate_name`] attributes cannot be used with `cfg_attr`.\n\nWhen the configuration predicate is true, `cfg_attr` expands out to the attributes listed after the predicate.\n\nZero, one, or more attributes may be listed. Multiple attributes will each be expanded into separate attributes.\n\n> [!EXAMPLE]\n> <!-- ignore: fake attributes -->\n> ```rust,ignore\n> #[cfg_attr(feature = \"magic\", sparkles, crackles)]\n> fn bewitched() {}\n>\n> // When the `magic` feature flag is enabled, the above will expand to:\n> #[sparkles]\n> #[crackles]\n> fn bewitched() {}\n> ```\n\n> [!NOTE]\n> The `cfg_attr` can expand to another `cfg_attr`. For example, `#[cfg_attr(target_os = \"linux\", cfg_attr(feature = \"multithreaded\", some_other_attribute))]` is valid. This example would be equivalent to `#[cfg_attr(all(target_os = \"linux\", feature = \"multithreaded\"), some_other_attribute)]`.",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.cfg_attr.intro": "The *`cfg_attr` [attribute]* conditionally includes attributes based on a configuration predicate.\n\n> [!EXAMPLE]\n> The following module will either be found at `linux.rs` or `windows.rs` based on the target.\n>\n> <!-- ignore: `mod` needs multiple files -->\n> ```rust,ignore\n> #[cfg_attr(target_os = \"linux\", path = \"linux.rs\")]\n> #[cfg_attr(windows, path = \"windows.rs\")]\n> mod os;\n> ```",
+        "cfg.cfg_attr.syntax": "The syntax for the `cfg_attr` attribute is:\n\n,configuration\n@root CfgAttrAttribute -> `cfg_attr` `(` ConfigurationPredicate `,` CfgAttrs? `)`\n\nCfgAttrs -> Attr (`,` Attr)* `,`?",
+        "cfg.cfg_attr.allowed-positions": "The `cfg_attr` attribute may be used anywhere attributes are allowed.",
+        "cfg.cfg_attr.duplicates": "The `cfg_attr` attribute may be used any number of times on a form.",
+        "cfg.cfg_attr.attr-restriction": "The [`crate_type`] and [`crate_name`] attributes cannot be used with `cfg_attr`.",
+        "cfg.cfg_attr.behavior": "When the configuration predicate is true, `cfg_attr` expands out to the attributes listed after the predicate.",
+        "cfg.cfg_attr.attribute-list": "Zero, one, or more attributes may be listed. Multiple attributes will each be expanded into separate attributes.\n\n> [!EXAMPLE]\n> <!-- ignore: fake attributes -->\n> ```rust,ignore\n> #[cfg_attr(feature = \"magic\", sparkles, crackles)]\n> fn bewitched() {}\n>\n> // When the `magic` feature flag is enabled, the above will expand to:\n> #[sparkles]\n> #[crackles]\n> fn bewitched() {}\n> ```\n\n> [!NOTE]\n> The `cfg_attr` can expand to another `cfg_attr`. For example, `#[cfg_attr(target_os = \"linux\", cfg_attr(feature = \"multithreaded\", some_other_attribute))]` is valid. This example would be equivalent to `#[cfg_attr(all(target_os = \"linux\", feature = \"multithreaded\"), some_other_attribute)]`."
+      }
+    },
+    {
+      "id": "cfg.macro",
+      "title": "The `cfg` macro",
+      "level": 3,
+      "content": "The built-in `cfg` macro takes in a single configuration predicate and evaluates\nto the `true` literal when the predicate is true and the `false` literal when\nit is false.\n\nFor example:\n\nlet machine_kind = if cfg!(unix) {\n  \"unix\"\n} else if cfg!(windows) {\n  \"windows\"\n} else {\n  \"unknown\"\n};\n\nprintln!(\"I'm running on a {} machine!\", machine_kind);\n\n[Testing]: attributes/testing.md\n[`--cfg`]: ../rustc/command-line-arguments.html#--cfg-configure-the-compilation-environment\n[`--test`]: ../rustc/command-line-arguments.html#--test-build-a-test-harness\n\n_attr-attribute\n[`crate_name`]: crates-and-source-files.md#the-crate_name-attribute\n[`crate_type`]: linkage.md\n[`target_feature` attribute]: attributes/codegen.md#the-target_feature-attribute\n[attribute]: attributes.md\n[attributes]: attributes.md\n[cargo-feature]: ../cargo/reference/features.html\n[crate type]: linkage.md\n[static C runtime]: linkage.md#static-and-dynamic-c-runtimes",
+      "parent_id": null,
+      "paragraphs": {
+        "cfg.macro": "The built-in `cfg` macro takes in a single configuration predicate and evaluates\nto the `true` literal when the predicate is true and the `false` literal when\nit is false.\n\nFor example:\n\nlet machine_kind = if cfg!(unix) {\n  \"unix\"\n} else if cfg!(windows) {\n  \"windows\"\n} else {\n  \"unknown\"\n};\n\nprintln!(\"I'm running on a {} machine!\", machine_kind);\n\n[Testing]: attributes/testing.md\n[`--cfg`]: ../rustc/command-line-arguments.html#--cfg-configure-the-compilation-environment\n[`--test`]: ../rustc/command-line-arguments.html#--test-build-a-test-harness\n\n_attr-attribute\n[`crate_name`]: crates-and-source-files.md#the-crate_name-attribute\n[`crate_type`]: linkage.md\n[`target_feature` attribute]: attributes/codegen.md#the-target_feature-attribute\n[attribute]: attributes.md\n[attributes]: attributes.md\n[cargo-feature]: ../cargo/reference/features.html\n[crate type]: linkage.md\n[static C runtime]: linkage.md#static-and-dynamic-c-runtimes"
+      }
+    }
+  ],
+  "ids": [
+    "cfg.options.crate",
+    "cfg.predicate.literal",
+    "cfg.target_env.values",
+    "cfg.predicate.not",
+    "cfg.conditional",
+    "cfg.target_has_atomic.values",
+    "cfg.syntax",
+    "cfg.target_arch",
+    "cfg.target_has_atomic",
+    "cfg.cfg_attr.behavior",
+    "cfg.target_os.values",
+    "cfg.cfg_attr.allowed-positions",
+    "cfg.target_abi",
+    "cfg.attributes-macro",
+    "cfg.attr.allowed-positions",
+    "cfg.attr",
+    "cfg.target_family.windows",
+    "cfg.target_os",
+    "cfg.panic.values",
+    "cfg.attr.crate-level-attrs",
+    "cfg.option-key-value",
+    "cfg.predicate.option",
+    "cfg.target_arch.values",
+    "cfg.test",
+    "cfg.cfg_attr.duplicates",
+    "cfg.debug_assertions",
+    "cfg.target_feature",
+    "cfg.target_pointer_width.values",
+    "cfg.target_endian",
+    "cfg.cfg_attr.intro",
+    "cfg.target_family.values",
+    "cfg.target_vendor.general",
+    "cfg.cfg_attr.attr-restriction",
+    "cfg.option-spec",
+    "cfg.target_family",
+    "cfg.options.set",
+    "cfg.options.general",
+    "cfg.target_feature.general",
+    "cfg.cfg_attr.syntax",
+    "cfg.target_env.general",
+    "cfg.target_abi.general",
+    "cfg.attr.effect",
+    "cfg.target_feature.crt_static",
+    "cfg.target_has_atomic.general",
+    "cfg.option-key-uniqueness",
+    "cfg.predicate.all",
+    "cfg.proc_macro",
+    "cfg.target_feature.values",
+    "cfg.attr.syntax",
+    "cfg.general",
+    "cfg.target_pointer_width",
+    "cfg.macro",
+    "cfg.target_pointer_width.general",
+    "cfg.option-name",
+    "cfg",
+    "cfg.cfg_attr",
+    "cfg.predicate",
+    "cfg.panic",
+    "cfg.target_vendor",
+    "cfg.options.other",
+    "cfg.options.target",
+    "cfg.target_family.general",
+    "cfg.target_abi.values",
+    "cfg.target_family.unix",
+    "cfg.target_arch.gen",
+    "cfg.predicate.any",
+    "cfg.target_env",
+    "cfg.target_abi.disambiguation",
+    "cfg.target_has_atomic.stdlib",
+    "cfg.target_vendor.values",
+    "cfg.attr.intro",
+    "cfg.attr.duplicates",
+    "cfg.cfg_attr.attribute-list",
+    "cfg.panic.general",
+    "cfg.target_os.general"
+  ]
+}

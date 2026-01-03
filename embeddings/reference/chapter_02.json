@@ -1,0 +1,55 @@
+{
+  "source": "Rust Reference",
+  "source_repo": "https://github.com/rust-lang/reference",
+  "extraction_date": "2026-01-03",
+  "chapter": 2,
+  "title": "Notation",
+  "file": "notation.md",
+  "sections": [
+    {
+      "id": "notation",
+      "title": "Notation",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "notation.grammar",
+      "title": "Grammar",
+      "level": 1,
+      "content": "The following notations are used by the *Lexer* and *Syntax* grammar snippets:\n\n| Notation          | Examples                      | Meaning                                   |\n|-------------------|-------------------------------|-------------------------------------------|\n| CAPITAL           | KW_IF, INTEGER_LITERAL        | A token produced by the lexer             |\n| _ItalicCamelCase_ | _LetStatement_, _Item_        | A syntactical production                  |\n| `string`          | `x`, `while`, `*`             | The exact character(s)                    |\n| x<sup>?</sup>     | `pub`<sup>?</sup>             | An optional item                          |\n| x<sup>\\*</sup>    | _OuterAttribute_<sup>\\*</sup> | 0 or more of x                            |\n| x<sup>+</sup>     |  _MacroMatch_<sup>+</sup>     | 1 or more of x                            |\n| x<sup>a..b</sup>  | HEX_DIGIT<sup>1..6</sup>      | a to b repetitions of x                   |\n| Rule1 Rule2       | `fn` _Name_ _Parameters_      | Sequence of rules in order                |\n| \\|                | `u8` \\| `u16`, Block \\| Item  | Either one or another                     |\n| \\[ ]               | \\[`b` `B`]                     | Any of the characters listed              |\n| \\[ - ]             | \\[`a`-`z`]                     | Any of the characters in the range        |\n| ~\\[ ]              | ~\\[`b` `B`]                    | Any characters, except those listed       |\n| ~`string`         | ~`\\n`, ~`*/`                  | Any characters, except this sequence      |\n| ( )               | (`,` _Parameter_)<sup>?</sup> | Groups items                              |\n| U+xxxx            | U+0060                        | A single unicode character                |\n| \\<text\\>          | \\<any ASCII char except CR\\>  | An English description of what should be matched |\n| Rule <sub>suffix</sub> | IDENTIFIER_OR_KEYWORD <sub>_except `crate`_</sub> | A modification to the previous rule |\n| // Comment. | // Single line comment. | A comment extending to the end of the line. |\n\nSequences have a higher precedence than `|` alternation.",
+      "parent_id": null,
+      "paragraphs": {
+        "notation.grammar.syntax": "The following notations are used by the *Lexer* and *Syntax* grammar snippets:\n\n| Notation          | Examples                      | Meaning                                   |\n|-------------------|-------------------------------|-------------------------------------------|\n| CAPITAL           | KW_IF, INTEGER_LITERAL        | A token produced by the lexer             |\n| _ItalicCamelCase_ | _LetStatement_, _Item_        | A syntactical production                  |\n| `string`          | `x`, `while`, `*`             | The exact character(s)                    |\n| x<sup>?</sup>     | `pub`<sup>?</sup>             | An optional item                          |\n| x<sup>\\*</sup>    | _OuterAttribute_<sup>\\*</sup> | 0 or more of x                            |\n| x<sup>+</sup>     |  _MacroMatch_<sup>+</sup>     | 1 or more of x                            |\n| x<sup>a..b</sup>  | HEX_DIGIT<sup>1..6</sup>      | a to b repetitions of x                   |\n| Rule1 Rule2       | `fn` _Name_ _Parameters_      | Sequence of rules in order                |\n| \\|                | `u8` \\| `u16`, Block \\| Item  | Either one or another                     |\n| \\[ ]               | \\[`b` `B`]                     | Any of the characters listed              |\n| \\[ - ]             | \\[`a`-`z`]                     | Any of the characters in the range        |\n| ~\\[ ]              | ~\\[`b` `B`]                    | Any characters, except those listed       |\n| ~`string`         | ~`\\n`, ~`*/`                  | Any characters, except this sequence      |\n| ( )               | (`,` _Parameter_)<sup>?</sup> | Groups items                              |\n| U+xxxx            | U+0060                        | A single unicode character                |\n| \\<text\\>          | \\<any ASCII char except CR\\>  | An English description of what should be matched |\n| Rule <sub>suffix</sub> | IDENTIFIER_OR_KEYWORD <sub>_except `crate`_</sub> | A modification to the previous rule |\n| // Comment. | // Single line comment. | A comment extending to the end of the line. |\n\nSequences have a higher precedence than `|` alternation."
+      }
+    },
+    {
+      "id": "notation.grammar.string-tables",
+      "title": "String table productions",
+      "level": 2,
+      "content": "Some rules in the grammar &mdash; notably [unary operators], [binary\noperators], and [keywords] &mdash; are given in a simplified form: as a listing\nof printable strings. These cases form a subset of the rules regarding the\ntoken rule, and are assumed to be the result of a lexical-analysis\nphase feeding the parser, driven by a <abbr title=\"Deterministic Finite\nAutomaton\">DFA</abbr>, operating over the disjunction of all such string table\nentries.\n\nWhen such a string in `monospace` font occurs inside the grammar,\nit is an implicit reference to a single member of such a string table\nproduction. See [tokens] for more information.",
+      "parent_id": null,
+      "paragraphs": {
+        "notation.grammar.string-tables": "Some rules in the grammar &mdash; notably [unary operators], [binary\noperators], and [keywords] &mdash; are given in a simplified form: as a listing\nof printable strings. These cases form a subset of the rules regarding the\ntoken rule, and are assumed to be the result of a lexical-analysis\nphase feeding the parser, driven by a <abbr title=\"Deterministic Finite\nAutomaton\">DFA</abbr>, operating over the disjunction of all such string table\nentries.\n\nWhen such a string in `monospace` font occurs inside the grammar,\nit is an implicit reference to a single member of such a string table\nproduction. See [tokens] for more information."
+      }
+    },
+    {
+      "id": "notation.grammar.visualizations",
+      "title": "Grammar visualizations",
+      "level": 3,
+      "content": "Below each grammar block is a button to toggle the display of a [syntax diagram]. A square element is a non-terminal rule, and a rounded rectangle is a terminal.\n\n[binary operators]: expressions/operator-expr.md#arithmetic-and-logical-binary-operators\n[keywords]: keywords.md\n[syntax diagram]: https://en.wikipedia.org/wiki/Syntax_diagram\n[tokens]: tokens.md\n[unary operators]: expressions/operator-expr.md#borrow-operators",
+      "parent_id": null,
+      "paragraphs": {
+        "notation.grammar.visualizations": "Below each grammar block is a button to toggle the display of a [syntax diagram]. A square element is a non-terminal rule, and a rounded rectangle is a terminal.\n\n[binary operators]: expressions/operator-expr.md#arithmetic-and-logical-binary-operators\n[keywords]: keywords.md\n[syntax diagram]: https://en.wikipedia.org/wiki/Syntax_diagram\n[tokens]: tokens.md\n[unary operators]: expressions/operator-expr.md#borrow-operators"
+      }
+    }
+  ],
+  "ids": [
+    "notation.grammar.string-tables",
+    "notation.grammar.visualizations",
+    "notation.grammar.syntax",
+    "notation",
+    "notation.grammar"
+  ]
+}

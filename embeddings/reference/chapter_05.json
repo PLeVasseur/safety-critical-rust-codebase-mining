@@ -1,0 +1,172 @@
+{
+  "source": "Rust Reference",
+  "source_repo": "https://github.com/rust-lang/reference",
+  "extraction_date": "2026-01-03",
+  "chapter": 5,
+  "title": "Crates and source files",
+  "file": "crates-and-source-files.md",
+  "sections": [
+    {
+      "id": "crate",
+      "title": "Crates and source files",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "crate.syntax",
+      "title": "Crates and source files",
+      "level": 1,
+      "content": ",items\n@root Crate ->\n    InnerAttribute*\n    Item*\n\n> [!NOTE]\n> Although Rust, like any other language, can be implemented by an interpreter as well as a compiler, the only existing implementation is a compiler, and the language has always been designed to be compiled. For these reasons, this section assumes a compiler.",
+      "parent_id": null,
+      "paragraphs": {
+        "crate.syntax": ",items\n@root Crate ->\n    InnerAttribute*\n    Item*\n\n> [!NOTE]\n> Although Rust, like any other language, can be implemented by an interpreter as well as a compiler, the only existing implementation is a compiler, and the language has always been designed to be compiled. For these reasons, this section assumes a compiler."
+      }
+    },
+    {
+      "id": "crate.compile-time",
+      "title": "Crates and source files",
+      "level": 1,
+      "content": "Rust's semantics obey a *phase distinction* between compile-time and\nrun-time.[^phase-distinction] Semantic rules that have a *static\ninterpretation* govern the success or failure of compilation, while\nsemantic rules that have a *dynamic interpretation* govern the behavior of the\nprogram at run-time.",
+      "parent_id": null,
+      "paragraphs": {
+        "crate.compile-time": "Rust's semantics obey a *phase distinction* between compile-time and\nrun-time.[^phase-distinction] Semantic rules that have a *static\ninterpretation* govern the success or failure of compilation, while\nsemantic rules that have a *dynamic interpretation* govern the behavior of the\nprogram at run-time."
+      }
+    },
+    {
+      "id": "crate.unit",
+      "title": "Crates and source files",
+      "level": 1,
+      "content": "The compilation model centers on artifacts called _crates_. Each compilation\nprocesses a single crate in source form, and if successful, produces a single\ncrate in binary form: either an executable or some sort of\nlibrary.[^cratesourcefile]",
+      "parent_id": null,
+      "paragraphs": {
+        "crate.unit": "The compilation model centers on artifacts called _crates_. Each compilation\nprocesses a single crate in source form, and if successful, produces a single\ncrate in binary form: either an executable or some sort of\nlibrary.[^cratesourcefile]"
+      }
+    },
+    {
+      "id": "crate.module",
+      "title": "Crates and source files",
+      "level": 1,
+      "content": "A _crate_ is a unit of compilation and linking, as well as versioning,\ndistribution, and runtime loading. A crate contains a _tree_ of nested\n[module] scopes. The top level of this tree is a module that is\nanonymous (from the point of view of paths within the module) and any item\nwithin a crate has a canonical [module path] denoting its location\nwithin the crate's module tree.",
+      "parent_id": null,
+      "paragraphs": {
+        "crate.module": "A _crate_ is a unit of compilation and linking, as well as versioning,\ndistribution, and runtime loading. A crate contains a _tree_ of nested\n[module] scopes. The top level of this tree is a module that is\nanonymous (from the point of view of paths within the module) and any item\nwithin a crate has a canonical [module path] denoting its location\nwithin the crate's module tree."
+      }
+    },
+    {
+      "id": "crate.input-source",
+      "title": "Crates and source files",
+      "level": 1,
+      "content": "The Rust compiler is always invoked with a single source file as input, and\nalways produces a single output crate. The processing of that source file may\nresult in other source files being loaded as modules. Source files have the\nextension `.rs`.",
+      "parent_id": null,
+      "paragraphs": {
+        "crate.input-source": "The Rust compiler is always invoked with a single source file as input, and\nalways produces a single output crate. The processing of that source file may\nresult in other source files being loaded as modules. Source files have the\nextension `.rs`."
+      }
+    },
+    {
+      "id": "crate.module-def",
+      "title": "Crates and source files",
+      "level": 1,
+      "content": "A Rust source file describes a module, the name and location of which &mdash;\nin the module tree of the current crate &mdash; are defined from outside the\nsource file: either by an explicit Module item in a referencing\nsource file, or by the name of the crate itself.",
+      "parent_id": null,
+      "paragraphs": {
+        "crate.module-def": "A Rust source file describes a module, the name and location of which &mdash;\nin the module tree of the current crate &mdash; are defined from outside the\nsource file: either by an explicit Module item in a referencing\nsource file, or by the name of the crate itself."
+      }
+    },
+    {
+      "id": "crate.inline-module",
+      "title": "Crates and source files",
+      "level": 1,
+      "content": "Every source file is a\nmodule, but not every module needs its own source file: module\ndefinitions can be nested within one file.",
+      "parent_id": null,
+      "paragraphs": {
+        "crate.inline-module": "Every source file is a\nmodule, but not every module needs its own source file: module\ndefinitions can be nested within one file."
+      }
+    },
+    {
+      "id": "crate.items",
+      "title": "Crates and source files",
+      "level": 1,
+      "content": "Each source file contains a sequence of zero or more [Item] definitions, and\nmay optionally begin with any number of [attributes]\nthat apply to the containing module, most of which influence the behavior of\nthe compiler.",
+      "parent_id": null,
+      "paragraphs": {
+        "crate.items": "Each source file contains a sequence of zero or more [Item] definitions, and\nmay optionally begin with any number of [attributes]\nthat apply to the containing module, most of which influence the behavior of\nthe compiler."
+      }
+    },
+    {
+      "id": "crate.attributes",
+      "title": "Crates and source files",
+      "level": 1,
+      "content": "The anonymous crate module can have additional attributes that\napply to the crate as a whole.\n\n> [!NOTE]\n> The file's contents may be preceded by a [shebang].\n\n// Specify the crate name.\n#![crate_name = \"projx\"]\n\n// Specify the type of output artifact.\n#![crate_type = \"lib\"]\n\n// Turn on a warning.\n// This can be done in any module, not just the anonymous crate module.\n#![warn(non_camel_case_types)]",
+      "parent_id": null,
+      "paragraphs": {
+        "crate.attributes": "The anonymous crate module can have additional attributes that\napply to the crate as a whole.\n\n> [!NOTE]\n> The file's contents may be preceded by a [shebang].\n\n// Specify the crate name.\n#![crate_name = \"projx\"]\n\n// Specify the type of output artifact.\n#![crate_type = \"lib\"]\n\n// Turn on a warning.\n// This can be done in any module, not just the anonymous crate module.\n#![warn(non_camel_case_types)]"
+      }
+    },
+    {
+      "id": "crate.main",
+      "title": "Main functions",
+      "level": 1,
+      "content": "A crate that contains a `main` [function] can be compiled to an executable.\n\nIf a `main` function is present, it must take no arguments, must not declare any\n[trait or lifetime bounds], must not have any [where clauses], and its return\ntype must implement the [`Termination`] trait.\n\nfn main() {}\nfn main() -> ! {\n    std::process::exit(0);\n}\nfn main() -> impl std::process::Termination {\n    std::process::ExitCode::SUCCESS\n}\n\nThe `main` function may be an import, e.g. from an external crate or from the current one.\n\nmod foo {\n    pub fn bar() {\n        println!(\"Hello, world!\");\n    }\n}\nuse foo::bar as main;\n\n> [!NOTE]\n> Types with implementations of [`Termination`] in the standard library include:\n>\n> * `()`\n> * [`!`]\n> * [`Infallible`]\n> * [`ExitCode`]\n> * `Result<T, E> where T: Termination, E: Debug`\n\n<!-- If the previous section needs updating (from \"must take no arguments\"\n  onwards, also update it in the testing.md file -->",
+      "parent_id": null,
+      "paragraphs": {
+        "crate.main.general": "A crate that contains a `main` [function] can be compiled to an executable.",
+        "crate.main.restriction": "If a `main` function is present, it must take no arguments, must not declare any\n[trait or lifetime bounds], must not have any [where clauses], and its return\ntype must implement the [`Termination`] trait.\n\nfn main() {}\nfn main() -> ! {\n    std::process::exit(0);\n}\nfn main() -> impl std::process::Termination {\n    std::process::ExitCode::SUCCESS\n}",
+        "crate.main.import": "The `main` function may be an import, e.g. from an external crate or from the current one.\n\nmod foo {\n    pub fn bar() {\n        println!(\"Hello, world!\");\n    }\n}\nuse foo::bar as main;\n\n> [!NOTE]\n> Types with implementations of [`Termination`] in the standard library include:\n>\n> * `()`\n> * [`!`]\n> * [`Infallible`]\n> * [`ExitCode`]\n> * `Result<T, E> where T: Termination, E: Debug`\n\n<!-- If the previous section needs updating (from \"must take no arguments\"\n  onwards, also update it in the testing.md file -->"
+      }
+    },
+    {
+      "id": "crate.uncaught-foreign-unwinding",
+      "title": "Uncaught foreign unwinding",
+      "level": 2,
+      "content": "When a \"foreign\" unwind (e.g. an exception thrown from C++ code, or a `panic!` in Rust code using a different panic handler) propagates beyond the `main` function, the process will be safely terminated. This may take the form of an abort, in which case it is not guaranteed that any `Drop` calls will be executed, and the error output may be less informative than if the runtime had been terminated by a \"native\" Rust `panic`.\n\nFor more information, see the panic documentation.",
+      "parent_id": null,
+      "paragraphs": {
+        "crate.uncaught-foreign-unwinding": "When a \"foreign\" unwind (e.g. an exception thrown from C++ code, or a `panic!` in Rust code using a different panic handler) propagates beyond the `main` function, the process will be safely terminated. This may take the form of an abort, in which case it is not guaranteed that any `Drop` calls will be executed, and the error output may be less informative than if the runtime had been terminated by a \"native\" Rust `panic`.\n\nFor more information, see the panic documentation."
+      }
+    },
+    {
+      "id": "crate.no_main",
+      "title": "The `no_main` attribute",
+      "level": 3,
+      "content": "The *`no_main` [attribute]* may be applied at the crate level to disable emitting the `main` symbol for an executable binary. This is useful when some other object being linked to defines `main`.",
+      "parent_id": null,
+      "paragraphs": {
+        "crate.no_main": "The *`no_main` [attribute]* may be applied at the crate level to disable emitting the `main` symbol for an executable binary. This is useful when some other object being linked to defines `main`."
+      }
+    },
+    {
+      "id": "crate.crate_name",
+      "title": "The `crate_name` attribute",
+      "level": 3,
+      "content": "The *`crate_name` [attribute]* may be applied at the crate level to specify the\nname of the crate with the [MetaNameValueStr] syntax.\n\n#![crate_name = \"mycrate\"]\n\nThe crate name must not be empty, and must only contain [Unicode alphanumeric]\nor `_` (U+005F) characters.\n\n[^phase-distinction]: This distinction would also exist in an interpreter.\n    Static checks like syntactic analysis, type checking, and lints should\n    happen before the program is executed regardless of when it is executed.\n\n[^cratesourcefile]: A crate is somewhat analogous to an *assembly* in the\n    ECMA-335 CLI model, a *library* in the SML/NJ Compilation Manager, a *unit*\n    in the Owens and Flatt module system, or a *configuration* in Mesa.\n\n[Unicode alphanumeric]: char::is_alphanumeric\n[`!`]: types/never.md\n[`ExitCode`]: std::process::ExitCode\n[`Infallible`]: std::convert::Infallible\n[`Termination`]: std::process::Termination\n[attribute]: attributes.md\n[attributes]: attributes.md\n[function]: items/functions.md\n[module]: items/modules.md\n[module path]: paths.md\n[panic-docs]: panic.md#unwinding-across-ffi-boundaries\n[shebang]: input-format.md#shebang-removal\n[trait or lifetime bounds]: trait-bounds.md\n[where clauses]: items/generics.md#where-clauses",
+      "parent_id": null,
+      "paragraphs": {
+        "crate.crate_name.general": "The *`crate_name` [attribute]* may be applied at the crate level to specify the\nname of the crate with the [MetaNameValueStr] syntax.\n\n#![crate_name = \"mycrate\"]",
+        "crate.crate_name.restriction": "The crate name must not be empty, and must only contain [Unicode alphanumeric]\nor `_` (U+005F) characters.\n\n[^phase-distinction]: This distinction would also exist in an interpreter.\n    Static checks like syntactic analysis, type checking, and lints should\n    happen before the program is executed regardless of when it is executed.\n\n[^cratesourcefile]: A crate is somewhat analogous to an *assembly* in the\n    ECMA-335 CLI model, a *library* in the SML/NJ Compilation Manager, a *unit*\n    in the Owens and Flatt module system, or a *configuration* in Mesa.\n\n[Unicode alphanumeric]: char::is_alphanumeric\n[`!`]: types/never.md\n[`ExitCode`]: std::process::ExitCode\n[`Infallible`]: std::convert::Infallible\n[`Termination`]: std::process::Termination\n[attribute]: attributes.md\n[attributes]: attributes.md\n[function]: items/functions.md\n[module]: items/modules.md\n[module path]: paths.md\n[panic-docs]: panic.md#unwinding-across-ffi-boundaries\n[shebang]: input-format.md#shebang-removal\n[trait or lifetime bounds]: trait-bounds.md\n[where clauses]: items/generics.md#where-clauses"
+      }
+    }
+  ],
+  "ids": [
+    "crate.crate_name",
+    "crate",
+    "crate.attributes",
+    "crate.items",
+    "crate.unit",
+    "crate.main.general",
+    "crate.main.import",
+    "crate.compile-time",
+    "crate.module",
+    "crate.no_main",
+    "crate.main",
+    "crate.crate_name.general",
+    "crate.module-def",
+    "crate.inline-module",
+    "crate.main.restriction",
+    "crate.syntax",
+    "crate.input-source",
+    "crate.crate_name.restriction",
+    "crate.uncaught-foreign-unwinding"
+  ]
+}

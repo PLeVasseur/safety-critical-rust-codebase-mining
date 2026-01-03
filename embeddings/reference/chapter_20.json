@@ -1,0 +1,98 @@
+{
+  "source": "Rust Reference",
+  "source_repo": "https://github.com/rust-lang/reference",
+  "extraction_date": "2026-01-03",
+  "chapter": 20,
+  "title": "Application binary interface",
+  "file": "abi.md",
+  "sections": [
+    {
+      "id": "abi",
+      "title": "Application binary interface (ABI)",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "abi.intro",
+      "title": "Application binary interface (ABI)",
+      "level": 1,
+      "content": "This section documents features that affect the ABI of the compiled output of\na crate.\n\nSee *[extern functions]* for information on specifying the ABI for exporting\nfunctions. See *[external blocks]* for information on specifying the ABI for\nlinking external libraries.",
+      "parent_id": null,
+      "paragraphs": {
+        "abi.intro": "This section documents features that affect the ABI of the compiled output of\na crate.\n\nSee *[extern functions]* for information on specifying the ABI for exporting\nfunctions. See *[external blocks]* for information on specifying the ABI for\nlinking external libraries."
+      }
+    },
+    {
+      "id": "abi.used",
+      "title": "The `used` attribute",
+      "level": 1,
+      "content": "The *`used` attribute* can only be applied to [`static` items]. This [attribute] forces the\ncompiler to keep the variable in the output object file (.o, .rlib, etc. excluding final binaries)\neven if the variable is not used, or referenced, by any other item in the crate.\nHowever, the linker is still free to remove such an item.\n\nBelow is an example that shows under what conditions the compiler keeps a `static` item in the\noutput object file.\n\n rust\n// foo.rs\n\n// This is kept because of `#[used]`:\n#[used]\nstatic FOO: u32 = 0;\n\n// This is removable because it is unused:\n#[allow(dead_code)]\nstatic BAR: u32 = 0;\n\n// This is kept because it is publicly reachable:\npub static BAZ: u32 = 0;\n\n// This is kept because it is referenced by a public, reachable function:\nstatic QUUX: u32 = 0;\n\npub fn quux() -> &'static u32 {\n    &QUUX\n}\n\n// This is removable because it is referenced by a private, unused (dead) function:\nstatic CORGE: u32 = 0;\n\n#[allow(dead_code)]\nfn corge() -> &'static u32 {\n    &CORGE\n}\n\n console\n$ rustc -O --emit=obj --crate-type=rlib foo.rs\n\n$ nm -C foo.o\n0000000000000000 R foo::BAZ\n0000000000000000 r foo::FOO\n0000000000000000 R foo::QUUX\n0000000000000000 T foo::quux",
+      "parent_id": null,
+      "paragraphs": {
+        "abi.used.intro": "The *`used` attribute* can only be applied to [`static` items]. This [attribute] forces the\ncompiler to keep the variable in the output object file (.o, .rlib, etc. excluding final binaries)\neven if the variable is not used, or referenced, by any other item in the crate.\nHowever, the linker is still free to remove such an item.\n\nBelow is an example that shows under what conditions the compiler keeps a `static` item in the\noutput object file.\n\n rust\n// foo.rs\n\n// This is kept because of `#[used]`:\n#[used]\nstatic FOO: u32 = 0;\n\n// This is removable because it is unused:\n#[allow(dead_code)]\nstatic BAR: u32 = 0;\n\n// This is kept because it is publicly reachable:\npub static BAZ: u32 = 0;\n\n// This is kept because it is referenced by a public, reachable function:\nstatic QUUX: u32 = 0;\n\npub fn quux() -> &'static u32 {\n    &QUUX\n}\n\n// This is removable because it is referenced by a private, unused (dead) function:\nstatic CORGE: u32 = 0;\n\n#[allow(dead_code)]\nfn corge() -> &'static u32 {\n    &CORGE\n}\n\n console\n$ rustc -O --emit=obj --crate-type=rlib foo.rs\n\n$ nm -C foo.o\n0000000000000000 R foo::BAZ\n0000000000000000 r foo::FOO\n0000000000000000 R foo::QUUX\n0000000000000000 T foo::quux"
+      }
+    },
+    {
+      "id": "abi.no_mangle",
+      "title": "The `no_mangle` attribute",
+      "level": 2,
+      "content": "The *`no_mangle` attribute* may be used on any [item] to disable standard\nsymbol name mangling. The symbol for the item will be the identifier of the\nitem's name.\n\nAdditionally, the item will be publicly exported from the produced library or\nobject file, similar to the `used` attribute.\n\nThis attribute is unsafe as an unmangled symbol may collide with another symbol\nwith the same name (or with a well-known symbol), leading to undefined behavior.\n\n#[unsafe(no_mangle)]\nextern \"C\" fn foo() {}\n\n> [!EDITION-2024]\n> Before the 2024 edition it is allowed to use the `no_mangle` attribute without the `unsafe` qualification.",
+      "parent_id": null,
+      "paragraphs": {
+        "abi.no_mangle.intro": "The *`no_mangle` attribute* may be used on any [item] to disable standard\nsymbol name mangling. The symbol for the item will be the identifier of the\nitem's name.",
+        "abi.no_mangle.publicly-exported": "Additionally, the item will be publicly exported from the produced library or\nobject file, similar to the `used` attribute.",
+        "abi.no_mangle.unsafe": "This attribute is unsafe as an unmangled symbol may collide with another symbol\nwith the same name (or with a well-known symbol), leading to undefined behavior.\n\n#[unsafe(no_mangle)]\nextern \"C\" fn foo() {}",
+        "abi.no_mangle.edition2024": "> [!EDITION-2024]\n> Before the 2024 edition it is allowed to use the `no_mangle` attribute without the `unsafe` qualification."
+      }
+    },
+    {
+      "id": "abi.link_section",
+      "title": "The `link_section` attribute",
+      "level": 2,
+      "content": "The *`link_section` attribute* specifies the section of the object file that a\n[function] or [static]'s content will be placed into.\n\nThe `link_section` attribute uses the [MetaNameValueStr] syntax to specify the section name.\n\n<!-- no_run: don't link. The format of the section name is platform-specific. -->\n,no_run\n#[unsafe(no_mangle)]\n#[unsafe(link_section = \".example_section\")]\npub static VAR1: u32 = 1;\n\nThis attribute is unsafe as it allows users to place data and code into sections\nof memory not expecting them, such as mutable data into read-only areas.\n\n> [!EDITION-2024]\n> Before the 2024 edition it is allowed to use the `link_section` attribute without the `unsafe` qualification.",
+      "parent_id": null,
+      "paragraphs": {
+        "abi.link_section.intro": "The *`link_section` attribute* specifies the section of the object file that a\n[function] or [static]'s content will be placed into.",
+        "abi.link_section.syntax": "The `link_section` attribute uses the [MetaNameValueStr] syntax to specify the section name.\n\n<!-- no_run: don't link. The format of the section name is platform-specific. -->\n,no_run\n#[unsafe(no_mangle)]\n#[unsafe(link_section = \".example_section\")]\npub static VAR1: u32 = 1;",
+        "abi.link_section.unsafe": "This attribute is unsafe as it allows users to place data and code into sections\nof memory not expecting them, such as mutable data into read-only areas.",
+        "abi.link_section.edition2024": "> [!EDITION-2024]\n> Before the 2024 edition it is allowed to use the `link_section` attribute without the `unsafe` qualification."
+      }
+    },
+    {
+      "id": "abi.export_name",
+      "title": "The `export_name` attribute",
+      "level": 2,
+      "content": "The *`export_name` attribute* specifies the name of the symbol that will be\nexported on a [function] or [static].\n\nThe `export_name `attribute uses the [MetaNameValueStr] syntax to specify the symbol name.\n\n#[unsafe(export_name = \"exported_symbol_name\")]\npub fn name_in_rust() { }\n\nThis attribute is unsafe as a symbol with a custom name may collide with another\nsymbol with the same name (or with a well-known symbol), leading to undefined\nbehavior.\n\n> [!EDITION-2024]\n> Before the 2024 edition it is allowed to use the `export_name` attribute without the `unsafe` qualification.\n\n[`static` items]: items/static-items.md\n[attribute]: attributes.md\n[extern functions]: items/functions.md#extern-function-qualifier\n[external blocks]: items/external-blocks.md\n[function]: items/functions.md\n[item]: items.md\n[static]: items/static-items.md",
+      "parent_id": null,
+      "paragraphs": {
+        "abi.export_name.intro": "The *`export_name` attribute* specifies the name of the symbol that will be\nexported on a [function] or [static].",
+        "abi.export_name.syntax": "The `export_name `attribute uses the [MetaNameValueStr] syntax to specify the symbol name.\n\n#[unsafe(export_name = \"exported_symbol_name\")]\npub fn name_in_rust() { }",
+        "abi.export_name.unsafe": "This attribute is unsafe as a symbol with a custom name may collide with another\nsymbol with the same name (or with a well-known symbol), leading to undefined\nbehavior.",
+        "abi.export_name.edition2024": "> [!EDITION-2024]\n> Before the 2024 edition it is allowed to use the `export_name` attribute without the `unsafe` qualification.\n\n[`static` items]: items/static-items.md\n[attribute]: attributes.md\n[extern functions]: items/functions.md#extern-function-qualifier\n[external blocks]: items/external-blocks.md\n[function]: items/functions.md\n[item]: items.md\n[static]: items/static-items.md"
+      }
+    }
+  ],
+  "ids": [
+    "abi.export_name.intro",
+    "abi.no_mangle.intro",
+    "abi.intro",
+    "abi.used.intro",
+    "abi.export_name",
+    "abi.no_mangle.unsafe",
+    "abi.link_section.edition2024",
+    "abi.link_section",
+    "abi.export_name.unsafe",
+    "abi.export_name.syntax",
+    "abi.export_name.edition2024",
+    "abi.no_mangle.edition2024",
+    "abi.link_section.unsafe",
+    "abi",
+    "abi.used",
+    "abi.no_mangle",
+    "abi.link_section.syntax",
+    "abi.no_mangle.publicly-exported",
+    "abi.link_section.intro"
+  ]
+}

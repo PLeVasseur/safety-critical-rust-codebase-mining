@@ -1,0 +1,475 @@
+{
+  "source": "Rustonomicon",
+  "source_repo": "https://github.com/rust-lang/nomicon",
+  "extraction_date": "2026-01-03",
+  "chapter": 9,
+  "title": "Concurrency",
+  "file": "concurrency.md",
+  "sections": [
+    {
+      "id": "nomicon_concurrency_and_parallelism",
+      "title": "Concurrency and Parallelism",
+      "level": 1,
+      "content": "Rust as a language doesn't *really* have an opinion on how to do concurrency or\nparallelism. The standard library exposes OS threads and blocking sys-calls\nbecause everyone has those, and they're uniform enough that you can provide\nan abstraction over them in a relatively uncontroversial way. Message passing,\ngreen threads, and async APIs are all diverse enough that any abstraction over\nthem tends to involve trade-offs that we weren't willing to commit to for 1.0.\n\nHowever the way Rust models concurrency makes it relatively easy to design your own\nconcurrency paradigm as a library and have everyone else's code Just Work\nwith yours. Just require the right lifetimes and Send and Sync where appropriate\nand you're off to the races. Or rather, off to the... not... having... races.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_concurrency_and_parallelism_p1": "Rust as a language doesn't *really* have an opinion on how to do concurrency or\nparallelism. The standard library exposes OS threads and blocking sys-calls\nbecause everyone has those, and they're uniform enough that you can provide\nan abstraction over them in a relatively uncontroversial way. Message passing,\ngreen threads, and async APIs are all diverse enough that any abstraction over\nthem tends to involve trade-offs that we weren't willing to commit to for 1.0.",
+        "nomicon_concurrency_and_parallelism_p2": "However the way Rust models concurrency makes it relatively easy to design your own\nconcurrency paradigm as a library and have everyone else's code Just Work\nwith yours. Just require the right lifetimes and Send and Sync where appropriate\nand you're off to the races. Or rather, off to the... not... having... races."
+      }
+    },
+    {
+      "id": "nomicon_data_races_and_race_conditions",
+      "title": "Data Races and Race Conditions",
+      "level": 1,
+      "content": "Safe Rust guarantees an absence of data races, which are defined as:\n\n* two or more threads concurrently accessing a location of memory\n* one or more of them is a write\n* one or more of them is unsynchronized\n\nA data race has Undefined Behavior, and is therefore impossible to perform in\nSafe Rust. Data races are prevented *mostly* through Rust's ownership system alone:\nit's impossible to alias a mutable reference, so it's impossible to perform a\ndata race. Interior mutability makes this more complicated, which is largely why\nwe have the Send and Sync traits (see the next section for more on this).\n\n**However Rust does not prevent general race conditions.**\n\nThis is mathematically impossible in situations where you do not control the\nscheduler, which is true for the normal OS environment. If you do control\npreemption, it _can be_ possible to prevent general races - this technique is\nused by frameworks such as RTIC. However,\nactually having control over scheduling is a very uncommon case.\n\nFor this reason, it is considered \"safe\" for Rust to get deadlocked or do\nsomething nonsensical with incorrect synchronization: this is known as a general\nrace condition or resource race. Obviously such a program isn't very good, but\nRust of course cannot prevent all logic errors.\n\nIn any case, a race condition cannot violate memory safety in a Rust program on\nits own. Only in conjunction with some other unsafe code can a race condition\nactually violate memory safety. For instance, a correct program looks like this:\n\n,no_run\nuse std::thread;\nuse std::sync::atomic::{AtomicUsize, Ordering};\nuse std::sync::Arc;\n\nlet data = vec![1, 2, 3, 4];\n// Arc so that the memory the AtomicUsize is stored in still exists for\n// the other thread to increment, even if we completely finish executing\n// before it. Rust won't compile the program without it, because of the\n// lifetime requirements of thread::spawn!\nlet idx = Arc::new(AtomicUsize::new(0));\nlet other_idx = idx.clone();\n\n// `move` captures other_idx by-value, moving it into this thread\nthread::spawn(move || {\n    // It's ok to mutate idx because this value\n    // is an atomic, so it can't cause a Data Race.\n    other_idx.fetch_add(10, Ordering::SeqCst);\n});\n\n// Index with the value loaded from the atomic. This is safe because we\n// read the atomic memory only once, and then pass a copy of that value\n// to the Vec's indexing implementation. This indexing will be correctly\n// bounds checked, and there's no chance of the value getting changed\n// in the middle. However our program may panic if the thread we spawned\n// managed to increment before this ran. A race condition because correct\n// program execution (panicking is rarely correct) depends on order of\n// thread execution.\nprintln!(\"{}\", data[idx.load(Ordering::SeqCst)]);\n\nWe can cause a race condition to violate memory safety if we instead do the bound\ncheck in advance, and then unsafely access the data with an unchecked value:\n\n,no_run\nuse std::thread;\nuse std::sync::atomic::{AtomicUsize, Ordering};\nuse std::sync::Arc;\n\nlet data = vec![1, 2, 3, 4];\n\nlet idx = Arc::new(AtomicUsize::new(0));\nlet other_idx = idx.clone();\n\n// `move` captures other_idx by-value, moving it into this thread\nthread::spawn(move || {\n    // It's ok to mutate idx because this value\n    // is an atomic, so it can't cause a Data Race.\n    other_idx.fetch_add(10, Ordering::SeqCst);\n});\n\nif idx.load(Ordering::SeqCst) < data.len() {\n    unsafe {\n        // Incorrectly loading the idx after we did the bounds check.\n        // It could have changed. This is a race condition, *and dangerous*\n        // because we decided to do `get_unchecked`, which is `unsafe`.\n        println!(\"{}\", data.get_unchecked(idx.load(Ordering::SeqCst)));\n    }\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_data_races_and_race_conditions_p1": "Safe Rust guarantees an absence of data races, which are defined as:",
+        "nomicon_data_races_and_race_conditions_p2": "* two or more threads concurrently accessing a location of memory\n* one or more of them is a write\n* one or more of them is unsynchronized",
+        "nomicon_data_races_and_race_conditions_p3": "A data race has Undefined Behavior, and is therefore impossible to perform in\nSafe Rust. Data races are prevented *mostly* through Rust's ownership system alone:\nit's impossible to alias a mutable reference, so it's impossible to perform a\ndata race. Interior mutability makes this more complicated, which is largely why\nwe have the Send and Sync traits (see the next section for more on this).",
+        "nomicon_data_races_and_race_conditions_p4": "**However Rust does not prevent general race conditions.**",
+        "nomicon_data_races_and_race_conditions_p5": "This is mathematically impossible in situations where you do not control the\nscheduler, which is true for the normal OS environment. If you do control\npreemption, it _can be_ possible to prevent general races - this technique is\nused by frameworks such as RTIC. However,\nactually having control over scheduling is a very uncommon case.",
+        "nomicon_data_races_and_race_conditions_p6": "For this reason, it is considered \"safe\" for Rust to get deadlocked or do\nsomething nonsensical with incorrect synchronization: this is known as a general\nrace condition or resource race. Obviously such a program isn't very good, but\nRust of course cannot prevent all logic errors.",
+        "nomicon_data_races_and_race_conditions_p7": "In any case, a race condition cannot violate memory safety in a Rust program on\nits own. Only in conjunction with some other unsafe code can a race condition\nactually violate memory safety. For instance, a correct program looks like this:",
+        "nomicon_data_races_and_race_conditions_p8": ",no_run\nuse std::thread;\nuse std::sync::atomic::{AtomicUsize, Ordering};\nuse std::sync::Arc;",
+        "nomicon_data_races_and_race_conditions_p9": "let data = vec![1, 2, 3, 4];\n// Arc so that the memory the AtomicUsize is stored in still exists for\n// the other thread to increment, even if we completely finish executing\n// before it. Rust won't compile the program without it, because of the\n// lifetime requirements of thread::spawn!\nlet idx = Arc::new(AtomicUsize::new(0));\nlet other_idx = idx.clone();",
+        "nomicon_data_races_and_race_conditions_p10": "// `move` captures other_idx by-value, moving it into this thread\nthread::spawn(move || {\n    // It's ok to mutate idx because this value\n    // is an atomic, so it can't cause a Data Race.\n    other_idx.fetch_add(10, Ordering::SeqCst);\n});",
+        "nomicon_data_races_and_race_conditions_p11": "// Index with the value loaded from the atomic. This is safe because we\n// read the atomic memory only once, and then pass a copy of that value\n// to the Vec's indexing implementation. This indexing will be correctly\n// bounds checked, and there's no chance of the value getting changed\n// in the middle. However our program may panic if the thread we spawned\n// managed to increment before this ran. A race condition because correct\n// program execution (panicking is rarely correct) depends on order of\n// thread execution.\nprintln!(\"{}\", data[idx.load(Ordering::SeqCst)]);",
+        "nomicon_data_races_and_race_conditions_p12": "We can cause a race condition to violate memory safety if we instead do the bound\ncheck in advance, and then unsafely access the data with an unchecked value:",
+        "nomicon_data_races_and_race_conditions_p13": ",no_run\nuse std::thread;\nuse std::sync::atomic::{AtomicUsize, Ordering};\nuse std::sync::Arc;",
+        "nomicon_data_races_and_race_conditions_p14": "let data = vec![1, 2, 3, 4];",
+        "nomicon_data_races_and_race_conditions_p15": "let idx = Arc::new(AtomicUsize::new(0));\nlet other_idx = idx.clone();",
+        "nomicon_data_races_and_race_conditions_p16": "// `move` captures other_idx by-value, moving it into this thread\nthread::spawn(move || {\n    // It's ok to mutate idx because this value\n    // is an atomic, so it can't cause a Data Race.\n    other_idx.fetch_add(10, Ordering::SeqCst);\n});",
+        "nomicon_data_races_and_race_conditions_p17": "if idx.load(Ordering::SeqCst) < data.len() {\n    unsafe {\n        // Incorrectly loading the idx after we did the bounds check.\n        // It could have changed. This is a race condition, *and dangerous*\n        // because we decided to do `get_unchecked`, which is `unsafe`.\n        println!(\"{}\", data.get_unchecked(idx.load(Ordering::SeqCst)));\n    }\n}"
+      }
+    },
+    {
+      "id": "nomicon_send_and_sync",
+      "title": "Send and Sync",
+      "level": 1,
+      "content": "Not everything obeys inherited mutability, though. Some types allow you to\nhave multiple aliases of a location in memory while mutating it. Unless these types use\nsynchronization to manage this access, they are absolutely not thread-safe. Rust\ncaptures this through the `Send` and `Sync` traits.\n\n* A type is Send if it is safe to send it to another thread.\n* A type is Sync if it is safe to share between threads (T is Sync if and only if `&T` is Send).\n\nSend and Sync are fundamental to Rust's concurrency story. As such, a\nsubstantial amount of special tooling exists to make them work right. First and\nforemost, they're [unsafe traits]. This means that they are unsafe to\nimplement, and other unsafe code can assume that they are correctly\nimplemented. Since they're *marker traits* (they have no associated items like\nmethods), correctly implemented simply means that they have the intrinsic\nproperties an implementor should have. Incorrectly implementing Send or Sync can\ncause Undefined Behavior.\n\nSend and Sync are also automatically derived traits. This means that, unlike\nevery other trait, if a type is composed entirely of Send or Sync types, then it\nis Send or Sync. Almost all primitives are Send and Sync, and as a consequence\npretty much all types you'll ever interact with are Send and Sync.\n\nMajor exceptions include:\n\n* raw pointers are neither Send nor Sync (because they have no safety guards).\n* `UnsafeCell` isn't Sync (and therefore `Cell` and `RefCell` aren't).\n* `Rc` isn't Send or Sync (because the refcount is shared and unsynchronized).\n\n`Rc` and `UnsafeCell` are very fundamentally not thread-safe: they enable\nunsynchronized shared mutable state. However raw pointers are, strictly\nspeaking, marked as thread-unsafe as more of a *lint*. Doing anything useful\nwith a raw pointer requires dereferencing it, which is already unsafe. In that\nsense, one could argue that it would be \"fine\" for them to be marked as thread\nsafe.\n\nHowever it's important that they aren't thread-safe to prevent types that\ncontain them from being automatically marked as thread-safe. These types have\nnon-trivial untracked ownership, and it's unlikely that their author was\nnecessarily thinking hard about thread safety. In the case of `Rc`, we have a nice\nexample of a type that contains a `*mut` that is definitely not thread-safe.\n\nTypes that aren't automatically derived can simply implement them if desired:\n\nstruct MyBox(*mut u8);\n\nunsafe impl Send for MyBox {}\nunsafe impl Sync for MyBox {}\n\nIn the *incredibly rare* case that a type is inappropriately automatically\nderived to be Send or Sync, then one can also unimplement Send and Sync:\n\n#![feature(negative_impls)]\n\n// I have some magic semantics for some synchronization primitive!\nstruct SpecialThreadToken(u8);\n\nimpl !Send for SpecialThreadToken {}\nimpl !Sync for SpecialThreadToken {}\n\nNote that *in and of itself* it is impossible to incorrectly derive Send and\nSync. Only types that are ascribed special meaning by other unsafe code can\npossibly cause trouble by being incorrectly Send or Sync.\n\nMost uses of raw pointers should be encapsulated behind a sufficient abstraction\nthat Send and Sync can be derived. For instance all of Rust's standard\ncollections are Send and Sync (when they contain Send and Sync types) in spite\nof their pervasive use of raw pointers to manage allocations and complex ownership.\nSimilarly, most iterators into these collections are Send and Sync because they\nlargely behave like an `&` or `&mut` into the collection.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_send_and_sync_p1": "Not everything obeys inherited mutability, though. Some types allow you to\nhave multiple aliases of a location in memory while mutating it. Unless these types use\nsynchronization to manage this access, they are absolutely not thread-safe. Rust\ncaptures this through the `Send` and `Sync` traits.",
+        "nomicon_send_and_sync_p2": "* A type is Send if it is safe to send it to another thread.\n* A type is Sync if it is safe to share between threads (T is Sync if and only if `&T` is Send).",
+        "nomicon_send_and_sync_p3": "Send and Sync are fundamental to Rust's concurrency story. As such, a\nsubstantial amount of special tooling exists to make them work right. First and\nforemost, they're [unsafe traits]. This means that they are unsafe to\nimplement, and other unsafe code can assume that they are correctly\nimplemented. Since they're *marker traits* (they have no associated items like\nmethods), correctly implemented simply means that they have the intrinsic\nproperties an implementor should have. Incorrectly implementing Send or Sync can\ncause Undefined Behavior.",
+        "nomicon_send_and_sync_p4": "Send and Sync are also automatically derived traits. This means that, unlike\nevery other trait, if a type is composed entirely of Send or Sync types, then it\nis Send or Sync. Almost all primitives are Send and Sync, and as a consequence\npretty much all types you'll ever interact with are Send and Sync.",
+        "nomicon_send_and_sync_p5": "Major exceptions include:",
+        "nomicon_send_and_sync_p6": "* raw pointers are neither Send nor Sync (because they have no safety guards).\n* `UnsafeCell` isn't Sync (and therefore `Cell` and `RefCell` aren't).\n* `Rc` isn't Send or Sync (because the refcount is shared and unsynchronized).",
+        "nomicon_send_and_sync_p7": "`Rc` and `UnsafeCell` are very fundamentally not thread-safe: they enable\nunsynchronized shared mutable state. However raw pointers are, strictly\nspeaking, marked as thread-unsafe as more of a *lint*. Doing anything useful\nwith a raw pointer requires dereferencing it, which is already unsafe. In that\nsense, one could argue that it would be \"fine\" for them to be marked as thread\nsafe.",
+        "nomicon_send_and_sync_p8": "However it's important that they aren't thread-safe to prevent types that\ncontain them from being automatically marked as thread-safe. These types have\nnon-trivial untracked ownership, and it's unlikely that their author was\nnecessarily thinking hard about thread safety. In the case of `Rc`, we have a nice\nexample of a type that contains a `*mut` that is definitely not thread-safe.",
+        "nomicon_send_and_sync_p9": "Types that aren't automatically derived can simply implement them if desired:",
+        "nomicon_send_and_sync_p10": "struct MyBox(*mut u8);",
+        "nomicon_send_and_sync_p11": "unsafe impl Send for MyBox {}\nunsafe impl Sync for MyBox {}",
+        "nomicon_send_and_sync_p12": "In the *incredibly rare* case that a type is inappropriately automatically\nderived to be Send or Sync, then one can also unimplement Send and Sync:",
+        "nomicon_send_and_sync_p13": "#![feature(negative_impls)]",
+        "nomicon_send_and_sync_p14": "// I have some magic semantics for some synchronization primitive!\nstruct SpecialThreadToken(u8);",
+        "nomicon_send_and_sync_p15": "impl !Send for SpecialThreadToken {}\nimpl !Sync for SpecialThreadToken {}",
+        "nomicon_send_and_sync_p16": "Note that *in and of itself* it is impossible to incorrectly derive Send and\nSync. Only types that are ascribed special meaning by other unsafe code can\npossibly cause trouble by being incorrectly Send or Sync.",
+        "nomicon_send_and_sync_p17": "Most uses of raw pointers should be encapsulated behind a sufficient abstraction\nthat Send and Sync can be derived. For instance all of Rust's standard\ncollections are Send and Sync (when they contain Send and Sync types) in spite\nof their pervasive use of raw pointers to manage allocations and complex ownership.\nSimilarly, most iterators into these collections are Send and Sync because they\nlargely behave like an `&` or `&mut` into the collection."
+      }
+    },
+    {
+      "id": "nomicon_example",
+      "title": "Example",
+      "level": 2,
+      "content": "`Box` is implemented as its own special intrinsic type by the\ncompiler for various reasons, but we can implement something\nwith similar-ish behavior ourselves to see an example of when it is sound to\nimplement Send and Sync. Let's call it a `Carton`.\n\nWe start by writing code to take a value allocated on the stack and transfer it\nto the heap.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_example_p1": "`Box` is implemented as its own special intrinsic type by the\ncompiler for various reasons, but we can implement something\nwith similar-ish behavior ourselves to see an example of when it is sound to\nimplement Send and Sync. Let's call it a `Carton`.",
+        "nomicon_example_p2": "We start by writing code to take a value allocated on the stack and transfer it\nto the heap.",
+        "nomicon_example_p3": ""
+      }
+    },
+    {
+      "id": "nomicon_pub_mod_libc",
+      "title": "pub mod libc {",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "nomicon_pub_use_std_os_raw_c_int_c_void",
+      "title": "pub use ::std::os::raw::{c_int, c_void};",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "nomicon_allow_non_camel_case_types",
+      "title": "#[allow(non_camel_case_types)]",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "nomicon_pub_type_size_t_usize",
+      "title": "pub type size_t = usize;",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "nomicon_unsafe_extern_c_pub_fn_posix_memalign_memptr_mut_mut_c_void_align_size_t_size_size_t_c_int",
+      "title": "unsafe extern \"C\" { pub fn posix_memalign(memptr: *mut *mut c_void, align: size_t, size: size_t) -> c_int; }",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "nomicon",
+      "title": "}",
+      "level": 1,
+      "content": "use std::{\n    mem::{align_of, size_of},\n    ptr,\n    cmp::max,\n};\n\nstruct Carton<T>(ptr::NonNull<T>);\n\nimpl<T> Carton<T> {\n    pub fn new(value: T) -> Self {\n        // Allocate enough memory on the heap to store one T.\n        assert_ne!(size_of::<T>(), 0, \"Zero-sized types are out of the scope of this example\");\n        let mut memptr: *mut T = ptr::null_mut();\n        unsafe {\n            let ret = libc::posix_memalign(\n                (&mut memptr as *mut *mut T).cast(),\n                max(align_of::<T>(), size_of::<usize>()),\n                size_of::<T>()\n            );\n            assert_eq!(ret, 0, \"Failed to allocate or invalid alignment\");\n        };\n\n        // NonNull is just a wrapper that enforces that the pointer isn't null.\n        let ptr = {\n            // Safety: memptr is dereferenceable because we created it from a\n            // reference and have exclusive access.\n            ptr::NonNull::new(memptr)\n                .expect(\"Guaranteed non-null if posix_memalign returns 0\")\n        };\n\n        // Move value from the stack to the location we allocated on the heap.\n        unsafe {\n            // Safety: If non-null, posix_memalign gives us a ptr that is valid\n            // for writes and properly aligned.\n            ptr.as_ptr().write(value);\n        }\n\n        Self(ptr)\n    }\n}\n\nThis isn't very useful, because once our users give us a value they have no way\nto access it. `Box` implements `Deref` and\n`DerefMut` so that you can access the inner value. Let's do\nthat.\n\nuse std::ops::{Deref, DerefMut};",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_p1": "use std::{\n    mem::{align_of, size_of},\n    ptr,\n    cmp::max,\n};",
+        "nomicon_p2": "struct Carton<T>(ptr::NonNull<T>);",
+        "nomicon_p3": "impl<T> Carton<T> {\n    pub fn new(value: T) -> Self {\n        // Allocate enough memory on the heap to store one T.\n        assert_ne!(size_of::<T>(), 0, \"Zero-sized types are out of the scope of this example\");\n        let mut memptr: *mut T = ptr::null_mut();\n        unsafe {\n            let ret = libc::posix_memalign(\n                (&mut memptr as *mut *mut T).cast(),\n                max(align_of::<T>(), size_of::<usize>()),\n                size_of::<T>()\n            );\n            assert_eq!(ret, 0, \"Failed to allocate or invalid alignment\");\n        };",
+        "nomicon_p4": "// NonNull is just a wrapper that enforces that the pointer isn't null.\n        let ptr = {\n            // Safety: memptr is dereferenceable because we created it from a\n            // reference and have exclusive access.\n            ptr::NonNull::new(memptr)\n                .expect(\"Guaranteed non-null if posix_memalign returns 0\")\n        };",
+        "nomicon_p5": "// Move value from the stack to the location we allocated on the heap.\n        unsafe {\n            // Safety: If non-null, posix_memalign gives us a ptr that is valid\n            // for writes and properly aligned.\n            ptr.as_ptr().write(value);\n        }",
+        "nomicon_p6": "Self(ptr)\n    }\n}",
+        "nomicon_p7": "This isn't very useful, because once our users give us a value they have no way\nto access it. `Box` implements `Deref` and\n`DerefMut` so that you can access the inner value. Let's do\nthat.",
+        "nomicon_p8": "use std::ops::{Deref, DerefMut};"
+      }
+    },
+    {
+      "id": "nomicon_struct_carton_t_std_ptr_nonnull_t",
+      "title": "struct Carton<T>(std::ptr::NonNull<T>);",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "nomicon_impl_t_deref_for_carton_t",
+      "title": "impl<T> Deref for Carton<T> {",
+      "level": 1,
+      "content": "type Target = T;\n\n    fn deref(&self) -> &Self::Target {\n        unsafe {\n            // Safety: The pointer is aligned, initialized, and dereferenceable\n            //   by the logic in [`Self::new`]. We require readers to borrow the\n            //   Carton, and the lifetime of the return value is elided to the\n            //   lifetime of the input. This means the borrow checker will\n            //   enforce that no one can mutate the contents of the Carton until\n            //   the reference returned is dropped.\n            self.0.as_ref()\n        }\n    }\n}\n\nimpl<T> DerefMut for Carton<T> {\n    fn deref_mut(&mut self) -> &mut Self::Target {\n        unsafe {\n            // Safety: The pointer is aligned, initialized, and dereferenceable\n            //   by the logic in [`Self::new`]. We require writers to mutably\n            //   borrow the Carton, and the lifetime of the return value is\n            //   elided to the lifetime of the input. This means the borrow\n            //   checker will enforce that no one else can access the contents\n            //   of the Carton until the mutable reference returned is dropped.\n            self.0.as_mut()\n        }\n    }\n}\n\nFinally, let's think about whether our `Carton` is Send and Sync. Something can\nsafely be Send unless it shares mutable state with something else without\nenforcing exclusive access to it. Each `Carton` has a unique pointer, so\nwe're good.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_impl_t_deref_for_carton_t_p1": "type Target = T;",
+        "nomicon_impl_t_deref_for_carton_t_p2": "fn deref(&self) -> &Self::Target {\n        unsafe {\n            // Safety: The pointer is aligned, initialized, and dereferenceable\n            //   by the logic in [`Self::new`]. We require readers to borrow the\n            //   Carton, and the lifetime of the return value is elided to the\n            //   lifetime of the input. This means the borrow checker will\n            //   enforce that no one can mutate the contents of the Carton until\n            //   the reference returned is dropped.\n            self.0.as_ref()\n        }\n    }\n}",
+        "nomicon_impl_t_deref_for_carton_t_p3": "impl<T> DerefMut for Carton<T> {\n    fn deref_mut(&mut self) -> &mut Self::Target {\n        unsafe {\n            // Safety: The pointer is aligned, initialized, and dereferenceable\n            //   by the logic in [`Self::new`]. We require writers to mutably\n            //   borrow the Carton, and the lifetime of the return value is\n            //   elided to the lifetime of the input. This means the borrow\n            //   checker will enforce that no one else can access the contents\n            //   of the Carton until the mutable reference returned is dropped.\n            self.0.as_mut()\n        }\n    }\n}",
+        "nomicon_impl_t_deref_for_carton_t_p4": "Finally, let's think about whether our `Carton` is Send and Sync. Something can\nsafely be Send unless it shares mutable state with something else without\nenforcing exclusive access to it. Each `Carton` has a unique pointer, so\nwe're good.",
+        "nomicon_impl_t_deref_for_carton_t_p5": ""
+      }
+    },
+    {
+      "id": "nomicon_struct_carton_t_std_ptr_nonnull_t",
+      "title": "struct Carton<T>(std::ptr::NonNull<T>);",
+      "level": 1,
+      "content": "// Safety: No one besides us has the raw pointer, so we can safely transfer the\n// Carton to another thread if T can be safely transferred.\nunsafe impl<T> Send for Carton<T> where T: Send {}\n\nWhat about Sync? For `Carton` to be Sync we have to enforce that you can't\nwrite to something stored in a `&Carton` while that same something could be read\nor written to from another `&Carton`. Since you need an `&mut Carton` to\nwrite to the pointer, and the borrow checker enforces that mutable\nreferences must be exclusive, there are no soundness issues making `Carton`\nsync either.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_struct_carton_t_std_ptr_nonnull_t_p1": "// Safety: No one besides us has the raw pointer, so we can safely transfer the\n// Carton to another thread if T can be safely transferred.\nunsafe impl<T> Send for Carton<T> where T: Send {}",
+        "nomicon_struct_carton_t_std_ptr_nonnull_t_p2": "What about Sync? For `Carton` to be Sync we have to enforce that you can't\nwrite to something stored in a `&Carton` while that same something could be read\nor written to from another `&Carton`. Since you need an `&mut Carton` to\nwrite to the pointer, and the borrow checker enforces that mutable\nreferences must be exclusive, there are no soundness issues making `Carton`\nsync either.",
+        "nomicon_struct_carton_t_std_ptr_nonnull_t_p3": ""
+      }
+    },
+    {
+      "id": "nomicon_struct_carton_t_std_ptr_nonnull_t",
+      "title": "struct Carton<T>(std::ptr::NonNull<T>);",
+      "level": 1,
+      "content": "// Safety: Since there exists a public way to go from a `&Carton<T>` to a `&T`\n// in an unsynchronized fashion (such as `Deref`), then `Carton<T>` can't be\n// `Sync` if `T` isn't.\n// Conversely, `Carton` itself does not use any interior mutability whatsoever:\n// all the mutations are performed through an exclusive reference (`&mut`). This\n// means it suffices that `T` be `Sync` for `Carton<T>` to be `Sync`:\nunsafe impl<T> Sync for Carton<T> where T: Sync  {}\n\nWhen we assert our type is Send and Sync we usually need to enforce that every\ncontained type is Send and Sync. When writing custom types that behave like\nstandard library types we can assert that we have the same requirements.\nFor example, the following code asserts that a Carton is Send if the same\nsort of Box would be Send, which in this case is the same as saying T is Send.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_struct_carton_t_std_ptr_nonnull_t_p1": "// Safety: Since there exists a public way to go from a `&Carton<T>` to a `&T`\n// in an unsynchronized fashion (such as `Deref`), then `Carton<T>` can't be\n// `Sync` if `T` isn't.\n// Conversely, `Carton` itself does not use any interior mutability whatsoever:\n// all the mutations are performed through an exclusive reference (`&mut`). This\n// means it suffices that `T` be `Sync` for `Carton<T>` to be `Sync`:\nunsafe impl<T> Sync for Carton<T> where T: Sync  {}",
+        "nomicon_struct_carton_t_std_ptr_nonnull_t_p2": "When we assert our type is Send and Sync we usually need to enforce that every\ncontained type is Send and Sync. When writing custom types that behave like\nstandard library types we can assert that we have the same requirements.\nFor example, the following code asserts that a Carton is Send if the same\nsort of Box would be Send, which in this case is the same as saying T is Send.",
+        "nomicon_struct_carton_t_std_ptr_nonnull_t_p3": ""
+      }
+    },
+    {
+      "id": "nomicon_struct_carton_t_std_ptr_nonnull_t",
+      "title": "struct Carton<T>(std::ptr::NonNull<T>);",
+      "level": 1,
+      "content": "unsafe impl<T> Send for Carton<T> where Box<T>: Send {}\n\nRight now `Carton<T>` has a memory leak, as it never frees the memory it allocates.\nOnce we fix that we have a new requirement we have to ensure we meet to be Send:\nwe need to know `free` can be called on a pointer that was yielded by an\nallocation done on another thread. We can check this is true in the docs for\n`libc::free`.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_struct_carton_t_std_ptr_nonnull_t_p1": "unsafe impl<T> Send for Carton<T> where Box<T>: Send {}",
+        "nomicon_struct_carton_t_std_ptr_nonnull_t_p2": "Right now `Carton<T>` has a memory leak, as it never frees the memory it allocates.\nOnce we fix that we have a new requirement we have to ensure we meet to be Send:\nwe need to know `free` can be called on a pointer that was yielded by an\nallocation done on another thread. We can check this is true in the docs for\n`libc::free`.",
+        "nomicon_struct_carton_t_std_ptr_nonnull_t_p3": ""
+      }
+    },
+    {
+      "id": "nomicon_struct_carton_t_std_ptr_nonnull_t",
+      "title": "struct Carton<T>(std::ptr::NonNull<T>);",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "nomicon_mod_libc",
+      "title": "mod libc {",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "nomicon_pub_use_std_os_raw_c_void",
+      "title": "pub use ::std::os::raw::c_void;",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "nomicon_unsafe_extern_c_pub_fn_free_p_mut_c_void",
+      "title": "unsafe extern \"C\" { pub fn free(p: *mut c_void); }",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "nomicon",
+      "title": "}",
+      "level": 1,
+      "content": "impl<T> Drop for Carton<T> {\n    fn drop(&mut self) {\n        unsafe {\n            libc::free(self.0.as_ptr().cast());\n        }\n    }\n}\n\nA nice example where this does not happen is with a MutexGuard: notice how\nit is not Send. The implementation of MutexGuard\nuses libraries that require you to ensure you\ndon't try to free a lock that you acquired in a different thread. If you were\nable to Send a MutexGuard to another thread the destructor would run in the\nthread you sent it to, violating the requirement. MutexGuard can still be Sync\nbecause all you can send to another thread is an `&MutexGuard` and dropping a\nreference does nothing.\n\nTODO: better explain what can or can't be Send or Sync. Sufficient to appeal\nonly to data races?\n\n[unsafe traits]: safe-unsafe-meaning.html\n[box-doc]: https://doc.rust-lang.org/std/boxed/struct.Box.html\n[box-is-special]: https://manishearth.github.io/blog/2017/01/10/rust-tidbits-box-is-special/\n[deref-doc]: https://doc.rust-lang.org/core/ops/trait.Deref.html\n[deref-mut-doc]: https://doc.rust-lang.org/core/ops/trait.DerefMut.html\n[mutex-guard-not-send-docs-rs]: https://doc.rust-lang.org/std/sync/struct.MutexGuard.html#impl-Send-for-MutexGuard%3C'_,+T%3E\n[mutex-guard-not-send-comment]: https://github.com/rust-lang/rust/issues/23465#issuecomment-82730326\n[libc-free-docs]: https://linux.die.net/man/3/free",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_p1": "impl<T> Drop for Carton<T> {\n    fn drop(&mut self) {\n        unsafe {\n            libc::free(self.0.as_ptr().cast());\n        }\n    }\n}",
+        "nomicon_p2": "A nice example where this does not happen is with a MutexGuard: notice how\nit is not Send. The implementation of MutexGuard\nuses libraries that require you to ensure you\ndon't try to free a lock that you acquired in a different thread. If you were\nable to Send a MutexGuard to another thread the destructor would run in the\nthread you sent it to, violating the requirement. MutexGuard can still be Sync\nbecause all you can send to another thread is an `&MutexGuard` and dropping a\nreference does nothing.",
+        "nomicon_p3": "TODO: better explain what can or can't be Send or Sync. Sufficient to appeal\nonly to data races?",
+        "nomicon_p4": "[unsafe traits]: safe-unsafe-meaning.html\n[box-doc]: https://doc.rust-lang.org/std/boxed/struct.Box.html\n[box-is-special]: https://manishearth.github.io/blog/2017/01/10/rust-tidbits-box-is-special/\n[deref-doc]: https://doc.rust-lang.org/core/ops/trait.Deref.html\n[deref-mut-doc]: https://doc.rust-lang.org/core/ops/trait.DerefMut.html\n[mutex-guard-not-send-docs-rs]: https://doc.rust-lang.org/std/sync/struct.MutexGuard.html#impl-Send-for-MutexGuard%3C'_,+T%3E\n[mutex-guard-not-send-comment]: https://github.com/rust-lang/rust/issues/23465#issuecomment-82730326\n[libc-free-docs]: https://linux.die.net/man/3/free"
+      }
+    },
+    {
+      "id": "nomicon_atomics",
+      "title": "Atomics",
+      "level": 1,
+      "content": "Rust pretty blatantly just inherits the memory model for atomics from C++20. This is not\ndue to this model being particularly excellent or easy to understand. Indeed,\nthis model is quite complex and known to have several flaws.\nRather, it is a pragmatic concession to the fact that *everyone* is pretty bad\nat modeling atomics. At the very least, we can benefit from existing tooling and\nresearch around the C/C++ memory model.\n(You'll often see this model referred to as \"C/C++11\" or just \"C11\". C just copies\nthe C++ memory model; and C++11 was the first version of the model but it has\nreceived some bugfixes since then.)\n\nTrying to fully explain the model in this book is fairly hopeless. It's defined\nin terms of madness-inducing causality graphs that require a full book to\nproperly understand in a practical way. If you want all the nitty-gritty\ndetails, you should check out the C++ specification.\nStill, we'll try to cover the basics and some of the problems Rust developers\nface.\n\nThe C++ memory model is fundamentally about trying to bridge the gap between the\nsemantics we want, the optimizations compilers want, and the inconsistent chaos\nour hardware wants. *We* would like to just write programs and have them do\nexactly what we said but, you know, fast. Wouldn't that be great?",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_atomics_p1": "Rust pretty blatantly just inherits the memory model for atomics from C++20. This is not\ndue to this model being particularly excellent or easy to understand. Indeed,\nthis model is quite complex and known to have several flaws.\nRather, it is a pragmatic concession to the fact that *everyone* is pretty bad\nat modeling atomics. At the very least, we can benefit from existing tooling and\nresearch around the C/C++ memory model.\n(You'll often see this model referred to as \"C/C++11\" or just \"C11\". C just copies\nthe C++ memory model; and C++11 was the first version of the model but it has\nreceived some bugfixes since then.)",
+        "nomicon_atomics_p2": "Trying to fully explain the model in this book is fairly hopeless. It's defined\nin terms of madness-inducing causality graphs that require a full book to\nproperly understand in a practical way. If you want all the nitty-gritty\ndetails, you should check out the C++ specification.\nStill, we'll try to cover the basics and some of the problems Rust developers\nface.",
+        "nomicon_atomics_p3": "The C++ memory model is fundamentally about trying to bridge the gap between the\nsemantics we want, the optimizations compilers want, and the inconsistent chaos\nour hardware wants. *We* would like to just write programs and have them do\nexactly what we said but, you know, fast. Wouldn't that be great?"
+      }
+    },
+    {
+      "id": "nomicon_compiler_reordering",
+      "title": "Compiler Reordering",
+      "level": 2,
+      "content": "Compilers fundamentally want to be able to do all sorts of complicated\ntransformations to reduce data dependencies and eliminate dead code. In\nparticular, they may radically change the actual order of events, or make events\nnever occur! If we write something like:\n\n<!-- ignore: simplified code -->\n,ignore\nx = 1;\ny = 3;\nx = 2;\n\nThe compiler may conclude that it would be best if your program did:\n\n<!-- ignore: simplified code -->\n,ignore\nx = 2;\ny = 3;\n\nThis has inverted the order of events and completely eliminated one event.\nFrom a single-threaded perspective this is completely unobservable: after all\nthe statements have executed we are in exactly the same state. But if our\nprogram is multi-threaded, we may have been relying on `x` to actually be\nassigned to 1 before `y` was assigned. We would like the compiler to be\nable to make these kinds of optimizations, because they can seriously improve\nperformance. On the other hand, we'd also like to be able to depend on our\nprogram *doing the thing we said*.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_compiler_reordering_p1": "Compilers fundamentally want to be able to do all sorts of complicated\ntransformations to reduce data dependencies and eliminate dead code. In\nparticular, they may radically change the actual order of events, or make events\nnever occur! If we write something like:",
+        "nomicon_compiler_reordering_p2": "<!-- ignore: simplified code -->\n,ignore\nx = 1;\ny = 3;\nx = 2;",
+        "nomicon_compiler_reordering_p3": "The compiler may conclude that it would be best if your program did:",
+        "nomicon_compiler_reordering_p4": "<!-- ignore: simplified code -->\n,ignore\nx = 2;\ny = 3;",
+        "nomicon_compiler_reordering_p5": "This has inverted the order of events and completely eliminated one event.\nFrom a single-threaded perspective this is completely unobservable: after all\nthe statements have executed we are in exactly the same state. But if our\nprogram is multi-threaded, we may have been relying on `x` to actually be\nassigned to 1 before `y` was assigned. We would like the compiler to be\nable to make these kinds of optimizations, because they can seriously improve\nperformance. On the other hand, we'd also like to be able to depend on our\nprogram *doing the thing we said*."
+      }
+    },
+    {
+      "id": "nomicon_hardware_reordering",
+      "title": "Hardware Reordering",
+      "level": 2,
+      "content": "On the other hand, even if the compiler totally understood what we wanted and\nrespected our wishes, our hardware might instead get us in trouble. Trouble\ncomes from CPUs in the form of memory hierarchies. There is indeed a global\nshared memory space somewhere in your hardware, but from the perspective of each\nCPU core it is *so very far away* and *so very slow*. Each CPU would rather work\nwith its local cache of the data and only go through all the anguish of\ntalking to shared memory only when it doesn't actually have that memory in\ncache.\n\nAfter all, that's the whole point of the cache, right? If every read from the\ncache had to run back to shared memory to double check that it hadn't changed,\nwhat would the point be? The end result is that the hardware doesn't guarantee\nthat events that occur in some order on *one* thread, occur in the same\norder on *another* thread. To guarantee this, we must issue special instructions\nto the CPU telling it to be a bit less smart.\n\nFor instance, say we convince the compiler to emit this logic:\n\ninitial state: x = 0, y = 1\n\nTHREAD 1        THREAD 2\ny = 3;          if x == 1 {\nx = 1;              y *= 2;\n                }\n\nIdeally this program has 2 possible final states:\n\n* `y = 3`: (thread 2 did the check before thread 1 completed)\n* `y = 6`: (thread 2 did the check after thread 1 completed)\n\nHowever there's a third potential state that the hardware enables:\n\n* `y = 2`: (thread 2 saw `x = 1`, but not `y = 3`, and then overwrote `y = 3`)\n\nIt's worth noting that different kinds of CPU provide different guarantees. It\nis common to separate hardware into two categories: strongly-ordered and weakly-ordered.\nMost notably x86/64 provides strong ordering guarantees, while ARM\nprovides weak ordering guarantees. This has two consequences for concurrent\nprogramming:\n\n* Asking for stronger guarantees on strongly-ordered hardware may be cheap or\n  even free because they already provide strong guarantees unconditionally.\n  Weaker guarantees may only yield performance wins on weakly-ordered hardware.\n\n* Asking for guarantees that are too weak on strongly-ordered hardware is\n  more likely to *happen* to work, even though your program is strictly\n  incorrect. If possible, concurrent algorithms should be tested on\n  weakly-ordered hardware.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_hardware_reordering_p1": "On the other hand, even if the compiler totally understood what we wanted and\nrespected our wishes, our hardware might instead get us in trouble. Trouble\ncomes from CPUs in the form of memory hierarchies. There is indeed a global\nshared memory space somewhere in your hardware, but from the perspective of each\nCPU core it is *so very far away* and *so very slow*. Each CPU would rather work\nwith its local cache of the data and only go through all the anguish of\ntalking to shared memory only when it doesn't actually have that memory in\ncache.",
+        "nomicon_hardware_reordering_p2": "After all, that's the whole point of the cache, right? If every read from the\ncache had to run back to shared memory to double check that it hadn't changed,\nwhat would the point be? The end result is that the hardware doesn't guarantee\nthat events that occur in some order on *one* thread, occur in the same\norder on *another* thread. To guarantee this, we must issue special instructions\nto the CPU telling it to be a bit less smart.",
+        "nomicon_hardware_reordering_p3": "For instance, say we convince the compiler to emit this logic:",
+        "nomicon_hardware_reordering_p4": "initial state: x = 0, y = 1",
+        "nomicon_hardware_reordering_p5": "THREAD 1        THREAD 2\ny = 3;          if x == 1 {\nx = 1;              y *= 2;\n                }",
+        "nomicon_hardware_reordering_p6": "Ideally this program has 2 possible final states:",
+        "nomicon_hardware_reordering_p7": "* `y = 3`: (thread 2 did the check before thread 1 completed)\n* `y = 6`: (thread 2 did the check after thread 1 completed)",
+        "nomicon_hardware_reordering_p8": "However there's a third potential state that the hardware enables:",
+        "nomicon_hardware_reordering_p9": "* `y = 2`: (thread 2 saw `x = 1`, but not `y = 3`, and then overwrote `y = 3`)",
+        "nomicon_hardware_reordering_p10": "It's worth noting that different kinds of CPU provide different guarantees. It\nis common to separate hardware into two categories: strongly-ordered and weakly-ordered.\nMost notably x86/64 provides strong ordering guarantees, while ARM\nprovides weak ordering guarantees. This has two consequences for concurrent\nprogramming:",
+        "nomicon_hardware_reordering_p11": "* Asking for stronger guarantees on strongly-ordered hardware may be cheap or\n  even free because they already provide strong guarantees unconditionally.\n  Weaker guarantees may only yield performance wins on weakly-ordered hardware.",
+        "nomicon_hardware_reordering_p12": "* Asking for guarantees that are too weak on strongly-ordered hardware is\n  more likely to *happen* to work, even though your program is strictly\n  incorrect. If possible, concurrent algorithms should be tested on\n  weakly-ordered hardware."
+      }
+    },
+    {
+      "id": "nomicon_data_accesses",
+      "title": "Data Accesses",
+      "level": 2,
+      "content": "The C++ memory model attempts to bridge the gap by allowing us to talk about the\n*causality* of our program. Generally, this is by establishing a *happens\nbefore* relationship between parts of the program and the threads that are\nrunning them. This gives the hardware and compiler room to optimize the program\nmore aggressively where a strict happens-before relationship isn't established,\nbut forces them to be more careful where one is established. The way we\ncommunicate these relationships are through *data accesses* and *atomic\naccesses*.\n\nData accesses are the bread-and-butter of the programming world. They are\nfundamentally unsynchronized and compilers are free to aggressively optimize\nthem. In particular, data accesses are free to be reordered by the compiler on\nthe assumption that the program is single-threaded. The hardware is also free to\npropagate the changes made in data accesses to other threads as lazily and\ninconsistently as it wants. Most critically, data accesses are how data races\nhappen. Data accesses are very friendly to the hardware and compiler, but as\nwe've seen they offer *awful* semantics to try to write synchronized code with.\nActually, that's too weak.\n\n**It is literally impossible to write correct synchronized code using only data\naccesses.**\n\nAtomic accesses are how we tell the hardware and compiler that our program is\nmulti-threaded. Each atomic access can be marked with an *ordering* that\nspecifies what kind of relationship it establishes with other accesses. In\npractice, this boils down to telling the compiler and hardware certain things\nthey *can't* do. For the compiler, this largely revolves around re-ordering of\ninstructions. For the hardware, this largely revolves around how writes are\npropagated to other threads. The set of orderings Rust exposes are:\n\n* Sequentially Consistent (SeqCst)\n* Release\n* Acquire\n* Relaxed\n\n(Note: We explicitly do not expose the C++ *consume* ordering)\n\nTODO: negative reasoning vs positive reasoning? TODO: \"can't forget to\nsynchronize\"",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_data_accesses_p1": "The C++ memory model attempts to bridge the gap by allowing us to talk about the\n*causality* of our program. Generally, this is by establishing a *happens\nbefore* relationship between parts of the program and the threads that are\nrunning them. This gives the hardware and compiler room to optimize the program\nmore aggressively where a strict happens-before relationship isn't established,\nbut forces them to be more careful where one is established. The way we\ncommunicate these relationships are through *data accesses* and *atomic\naccesses*.",
+        "nomicon_data_accesses_p2": "Data accesses are the bread-and-butter of the programming world. They are\nfundamentally unsynchronized and compilers are free to aggressively optimize\nthem. In particular, data accesses are free to be reordered by the compiler on\nthe assumption that the program is single-threaded. The hardware is also free to\npropagate the changes made in data accesses to other threads as lazily and\ninconsistently as it wants. Most critically, data accesses are how data races\nhappen. Data accesses are very friendly to the hardware and compiler, but as\nwe've seen they offer *awful* semantics to try to write synchronized code with.\nActually, that's too weak.",
+        "nomicon_data_accesses_p3": "**It is literally impossible to write correct synchronized code using only data\naccesses.**",
+        "nomicon_data_accesses_p4": "Atomic accesses are how we tell the hardware and compiler that our program is\nmulti-threaded. Each atomic access can be marked with an *ordering* that\nspecifies what kind of relationship it establishes with other accesses. In\npractice, this boils down to telling the compiler and hardware certain things\nthey *can't* do. For the compiler, this largely revolves around re-ordering of\ninstructions. For the hardware, this largely revolves around how writes are\npropagated to other threads. The set of orderings Rust exposes are:",
+        "nomicon_data_accesses_p5": "* Sequentially Consistent (SeqCst)\n* Release\n* Acquire\n* Relaxed",
+        "nomicon_data_accesses_p6": "(Note: We explicitly do not expose the C++ *consume* ordering)",
+        "nomicon_data_accesses_p7": "TODO: negative reasoning vs positive reasoning? TODO: \"can't forget to\nsynchronize\""
+      }
+    },
+    {
+      "id": "nomicon_sequentially_consistent",
+      "title": "Sequentially Consistent",
+      "level": 2,
+      "content": "Sequentially Consistent is the most powerful of all, implying the restrictions\nof all other orderings. Intuitively, a sequentially consistent operation\ncannot be reordered: all accesses on one thread that happen before and after a\nSeqCst access stay before and after it. A data-race-free program that uses\nonly sequentially consistent atomics and data accesses has the very nice\nproperty that there is a single global execution of the program's instructions\nthat all threads agree on. This execution is also particularly nice to reason\nabout: it's just an interleaving of each thread's individual executions. This\ndoes not hold if you start using the weaker atomic orderings.\n\nThe relative developer-friendliness of sequential consistency doesn't come for\nfree. Even on strongly-ordered platforms sequential consistency involves\nemitting memory fences.\n\nIn practice, sequential consistency is rarely necessary for program correctness.\nHowever sequential consistency is definitely the right choice if you're not\nconfident about the other memory orders. Having your program run a bit slower\nthan it needs to is certainly better than it running incorrectly! It's also\nmechanically trivial to downgrade atomic operations to have a weaker\nconsistency later on. Just change `SeqCst` to `Relaxed` and you're done! Of\ncourse, proving that this transformation is *correct* is a whole other matter.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_sequentially_consistent_p1": "Sequentially Consistent is the most powerful of all, implying the restrictions\nof all other orderings. Intuitively, a sequentially consistent operation\ncannot be reordered: all accesses on one thread that happen before and after a\nSeqCst access stay before and after it. A data-race-free program that uses\nonly sequentially consistent atomics and data accesses has the very nice\nproperty that there is a single global execution of the program's instructions\nthat all threads agree on. This execution is also particularly nice to reason\nabout: it's just an interleaving of each thread's individual executions. This\ndoes not hold if you start using the weaker atomic orderings.",
+        "nomicon_sequentially_consistent_p2": "The relative developer-friendliness of sequential consistency doesn't come for\nfree. Even on strongly-ordered platforms sequential consistency involves\nemitting memory fences.",
+        "nomicon_sequentially_consistent_p3": "In practice, sequential consistency is rarely necessary for program correctness.\nHowever sequential consistency is definitely the right choice if you're not\nconfident about the other memory orders. Having your program run a bit slower\nthan it needs to is certainly better than it running incorrectly! It's also\nmechanically trivial to downgrade atomic operations to have a weaker\nconsistency later on. Just change `SeqCst` to `Relaxed` and you're done! Of\ncourse, proving that this transformation is *correct* is a whole other matter."
+      }
+    },
+    {
+      "id": "nomicon_acquire_release",
+      "title": "Acquire-Release",
+      "level": 2,
+      "content": "Acquire and Release are largely intended to be paired. Their names hint at their\nuse case: they're perfectly suited for acquiring and releasing locks, and\nensuring that critical sections don't overlap.\n\nIntuitively, an acquire access ensures that every access after it stays after\nit. However operations that occur before an acquire are free to be reordered to\noccur after it. Similarly, a release access ensures that every access before it\nstays before it. However operations that occur after a release are free to be\nreordered to occur before it.\n\nWhen thread A releases a location in memory and then thread B subsequently\nacquires *the same* location in memory, causality is established. Every write\n(including non-atomic and relaxed atomic writes) that happened before A's\nrelease will be observed by B after its acquisition. However no causality is\nestablished with any other threads. Similarly, no causality is established\nif A and B access *different* locations in memory.\n\nBasic use of release-acquire is therefore simple: you acquire a location of\nmemory to begin the critical section, and then release that location to end it.\nFor instance, a simple spinlock might look like:\n\nuse std::sync::Arc;\nuse std::sync::atomic::{AtomicBool, Ordering};\nuse std::thread;\n\nfn main() {\n    let lock = Arc::new(AtomicBool::new(false)); // value answers \"am I locked?\"\n\n    // ... distribute lock to threads somehow ...\n\n    // Try to acquire the lock by setting it to true\n    while lock.compare_and_swap(false, true, Ordering::Acquire) { }\n    // broke out of the loop, so we successfully acquired the lock!\n\n    // ... scary data accesses ...\n\n    // ok we're done, release the lock\n    lock.store(false, Ordering::Release);\n}\n\nOn strongly-ordered platforms most accesses have release or acquire semantics,\nmaking release and acquire often totally free. This is not the case on\nweakly-ordered platforms.",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_acquire_release_p1": "Acquire and Release are largely intended to be paired. Their names hint at their\nuse case: they're perfectly suited for acquiring and releasing locks, and\nensuring that critical sections don't overlap.",
+        "nomicon_acquire_release_p2": "Intuitively, an acquire access ensures that every access after it stays after\nit. However operations that occur before an acquire are free to be reordered to\noccur after it. Similarly, a release access ensures that every access before it\nstays before it. However operations that occur after a release are free to be\nreordered to occur before it.",
+        "nomicon_acquire_release_p3": "When thread A releases a location in memory and then thread B subsequently\nacquires *the same* location in memory, causality is established. Every write\n(including non-atomic and relaxed atomic writes) that happened before A's\nrelease will be observed by B after its acquisition. However no causality is\nestablished with any other threads. Similarly, no causality is established\nif A and B access *different* locations in memory.",
+        "nomicon_acquire_release_p4": "Basic use of release-acquire is therefore simple: you acquire a location of\nmemory to begin the critical section, and then release that location to end it.\nFor instance, a simple spinlock might look like:",
+        "nomicon_acquire_release_p5": "use std::sync::Arc;\nuse std::sync::atomic::{AtomicBool, Ordering};\nuse std::thread;",
+        "nomicon_acquire_release_p6": "fn main() {\n    let lock = Arc::new(AtomicBool::new(false)); // value answers \"am I locked?\"",
+        "nomicon_acquire_release_p7": "// ... distribute lock to threads somehow ...",
+        "nomicon_acquire_release_p8": "// Try to acquire the lock by setting it to true\n    while lock.compare_and_swap(false, true, Ordering::Acquire) { }\n    // broke out of the loop, so we successfully acquired the lock!",
+        "nomicon_acquire_release_p9": "// ... scary data accesses ...",
+        "nomicon_acquire_release_p10": "// ok we're done, release the lock\n    lock.store(false, Ordering::Release);\n}",
+        "nomicon_acquire_release_p11": "On strongly-ordered platforms most accesses have release or acquire semantics,\nmaking release and acquire often totally free. This is not the case on\nweakly-ordered platforms."
+      }
+    },
+    {
+      "id": "nomicon_relaxed",
+      "title": "Relaxed",
+      "level": 2,
+      "content": "Relaxed accesses are the absolute weakest. They can be freely re-ordered and\nprovide no happens-before relationship. Still, relaxed operations are still\natomic. That is, they don't count as data accesses and any read-modify-write\noperations done to them occur atomically. Relaxed operations are appropriate for\nthings that you definitely want to happen, but don't particularly otherwise care\nabout. For instance, incrementing a counter can be safely done by multiple\nthreads using a relaxed `fetch_add` if you're not using the counter to\nsynchronize any other accesses.\n\nThere's rarely a benefit in making an operation relaxed on strongly-ordered\nplatforms, since they usually provide release-acquire semantics anyway. However\nrelaxed operations can be cheaper on weakly-ordered platforms.\n\n[C11-busted]: http://plv.mpi-sws.org/c11comp/popl15.pdf\n[C++-model]: https://en.cppreference.com/w/cpp/atomic/memory_order",
+      "parent_id": null,
+      "paragraphs": {
+        "nomicon_relaxed_p1": "Relaxed accesses are the absolute weakest. They can be freely re-ordered and\nprovide no happens-before relationship. Still, relaxed operations are still\natomic. That is, they don't count as data accesses and any read-modify-write\noperations done to them occur atomically. Relaxed operations are appropriate for\nthings that you definitely want to happen, but don't particularly otherwise care\nabout. For instance, incrementing a counter can be safely done by multiple\nthreads using a relaxed `fetch_add` if you're not using the counter to\nsynchronize any other accesses.",
+        "nomicon_relaxed_p2": "There's rarely a benefit in making an operation relaxed on strongly-ordered\nplatforms, since they usually provide release-acquire semantics anyway. However\nrelaxed operations can be cheaper on weakly-ordered platforms.",
+        "nomicon_relaxed_p3": "[C11-busted]: http://plv.mpi-sws.org/c11comp/popl15.pdf\n[C++-model]: https://en.cppreference.com/w/cpp/atomic/memory_order"
+      }
+    }
+  ],
+  "ids": [
+    "nomicon_compiler_reordering_p1",
+    "nomicon_hardware_reordering_p9",
+    "nomicon_compiler_reordering_p3",
+    "nomicon_send_and_sync_p6",
+    "nomicon_send_and_sync_p5",
+    "nomicon_compiler_reordering_p2",
+    "nomicon_data_races_and_race_conditions_p5",
+    "nomicon_example",
+    "nomicon_data_races_and_race_conditions_p3",
+    "nomicon_data_races_and_race_conditions_p11",
+    "nomicon_acquire_release_p1",
+    "nomicon_p7",
+    "nomicon_send_and_sync_p4",
+    "nomicon_acquire_release_p11",
+    "nomicon_sequentially_consistent_p1",
+    "nomicon_acquire_release_p3",
+    "nomicon_hardware_reordering_p5",
+    "nomicon_data_races_and_race_conditions_p6",
+    "nomicon_atomics_p1",
+    "nomicon_hardware_reordering_p4",
+    "nomicon_impl_t_deref_for_carton_t_p2",
+    "nomicon_pub_mod_libc",
+    "nomicon_send_and_sync_p16",
+    "nomicon_acquire_release_p9",
+    "nomicon_data_accesses_p2",
+    "nomicon_sequentially_consistent",
+    "nomicon_send_and_sync_p13",
+    "nomicon_atomics_p3",
+    "nomicon_relaxed_p2",
+    "nomicon_relaxed",
+    "nomicon_data_races_and_race_conditions_p2",
+    "nomicon_data_races_and_race_conditions_p16",
+    "nomicon_send_and_sync_p12",
+    "nomicon_hardware_reordering",
+    "nomicon_p8",
+    "nomicon_unsafe_extern_c_pub_fn_free_p_mut_c_void",
+    "nomicon_p1",
+    "nomicon_acquire_release",
+    "nomicon_data_races_and_race_conditions_p12",
+    "nomicon_data_accesses_p6",
+    "nomicon_send_and_sync_p1",
+    "nomicon_data_accesses_p5",
+    "nomicon_data_races_and_race_conditions_p13",
+    "nomicon_pub_use_std_os_raw_c_void",
+    "nomicon_pub_type_size_t_usize",
+    "nomicon_struct_carton_t_std_ptr_nonnull_t_p3",
+    "nomicon_send_and_sync_p17",
+    "nomicon_sequentially_consistent_p3",
+    "nomicon_impl_t_deref_for_carton_t_p4",
+    "nomicon_concurrency_and_parallelism_p2",
+    "nomicon_impl_t_deref_for_carton_t_p1",
+    "nomicon_data_accesses",
+    "nomicon_hardware_reordering_p10",
+    "nomicon_example_p2",
+    "nomicon_pub_use_std_os_raw_c_int_c_void",
+    "nomicon_hardware_reordering_p3",
+    "nomicon_send_and_sync",
+    "nomicon_acquire_release_p10",
+    "nomicon_example_p1",
+    "nomicon",
+    "nomicon_struct_carton_t_std_ptr_nonnull_t_p2",
+    "nomicon_acquire_release_p8",
+    "nomicon_concurrency_and_parallelism_p1",
+    "nomicon_hardware_reordering_p2",
+    "nomicon_data_races_and_race_conditions_p14",
+    "nomicon_send_and_sync_p3",
+    "nomicon_acquire_release_p5",
+    "nomicon_data_races_and_race_conditions_p8",
+    "nomicon_data_races_and_race_conditions_p17",
+    "nomicon_data_accesses_p1",
+    "nomicon_atomics",
+    "nomicon_p6",
+    "nomicon_send_and_sync_p10",
+    "nomicon_impl_t_deref_for_carton_t_p3",
+    "nomicon_relaxed_p1",
+    "nomicon_compiler_reordering",
+    "nomicon_acquire_release_p6",
+    "nomicon_data_accesses_p4",
+    "nomicon_atomics_p2",
+    "nomicon_struct_carton_t_std_ptr_nonnull_t",
+    "nomicon_impl_t_deref_for_carton_t_p5",
+    "nomicon_send_and_sync_p8",
+    "nomicon_send_and_sync_p15",
+    "nomicon_p5",
+    "nomicon_send_and_sync_p7",
+    "nomicon_data_races_and_race_conditions_p4",
+    "nomicon_relaxed_p3",
+    "nomicon_p3",
+    "nomicon_data_accesses_p3",
+    "nomicon_sequentially_consistent_p2",
+    "nomicon_hardware_reordering_p8",
+    "nomicon_impl_t_deref_for_carton_t",
+    "nomicon_send_and_sync_p2",
+    "nomicon_mod_libc",
+    "nomicon_send_and_sync_p11",
+    "nomicon_data_accesses_p7",
+    "nomicon_data_races_and_race_conditions_p1",
+    "nomicon_hardware_reordering_p11",
+    "nomicon_acquire_release_p4",
+    "nomicon_data_races_and_race_conditions_p9",
+    "nomicon_data_races_and_race_conditions",
+    "nomicon_send_and_sync_p9",
+    "nomicon_p4",
+    "nomicon_data_races_and_race_conditions_p10",
+    "nomicon_send_and_sync_p14",
+    "nomicon_acquire_release_p2",
+    "nomicon_data_races_and_race_conditions_p7",
+    "nomicon_p2",
+    "nomicon_allow_non_camel_case_types",
+    "nomicon_data_races_and_race_conditions_p15",
+    "nomicon_acquire_release_p7",
+    "nomicon_example_p3",
+    "nomicon_compiler_reordering_p5",
+    "nomicon_hardware_reordering_p12",
+    "nomicon_compiler_reordering_p4",
+    "nomicon_struct_carton_t_std_ptr_nonnull_t_p1",
+    "nomicon_concurrency_and_parallelism",
+    "nomicon_hardware_reordering_p1",
+    "nomicon_hardware_reordering_p6",
+    "nomicon_unsafe_extern_c_pub_fn_posix_memalign_memptr_mut_mut_c_void_align_size_t_size_size_t_c_int",
+    "nomicon_hardware_reordering_p7"
+  ]
+}

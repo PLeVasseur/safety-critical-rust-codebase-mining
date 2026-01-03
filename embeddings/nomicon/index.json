@@ -1,0 +1,102 @@
+{
+  "source": "Rustonomicon",
+  "source_repo": "https://github.com/rust-lang/nomicon",
+  "extraction_date": "2026-01-03",
+  "total_chapters": 13,
+  "total_sections": 293,
+  "total_paragraphs": 1556,
+  "total_ids": 1593,
+  "chapters": [
+    {
+      "chapter": 1,
+      "title": "Introduction",
+      "file": "chapter_01.json",
+      "sections": 2,
+      "paragraphs": 15
+    },
+    {
+      "chapter": 2,
+      "title": "Meet Safe and Unsafe",
+      "file": "chapter_02.json",
+      "sections": 5,
+      "paragraphs": 83
+    },
+    {
+      "chapter": 3,
+      "title": "Data Layout",
+      "file": "chapter_03.json",
+      "sections": 14,
+      "paragraphs": 107
+    },
+    {
+      "chapter": 4,
+      "title": "Ownership",
+      "file": "chapter_04.json",
+      "sections": 40,
+      "paragraphs": 436
+    },
+    {
+      "chapter": 5,
+      "title": "Type Conversions",
+      "file": "chapter_05.json",
+      "sections": 11,
+      "paragraphs": 57
+    },
+    {
+      "chapter": 6,
+      "title": "Uninitialized Memory",
+      "file": "chapter_06.json",
+      "sections": 7,
+      "paragraphs": 72
+    },
+    {
+      "chapter": 7,
+      "title": "Ownership Based Resource Management",
+      "file": "chapter_07.json",
+      "sections": 10,
+      "paragraphs": 95
+    },
+    {
+      "chapter": 8,
+      "title": "Unwinding",
+      "file": "chapter_08.json",
+      "sections": 5,
+      "paragraphs": 49
+    },
+    {
+      "chapter": 9,
+      "title": "Concurrency",
+      "file": "chapter_09.json",
+      "sections": 27,
+      "paragraphs": 109
+    },
+    {
+      "chapter": 10,
+      "title": "Implementing Vec",
+      "file": "chapter_10.json",
+      "sections": 83,
+      "paragraphs": 233
+    },
+    {
+      "chapter": 11,
+      "title": "Implementing Arc and Mutex",
+      "file": "chapter_11.json",
+      "sections": 13,
+      "paragraphs": 101
+    },
+    {
+      "chapter": 12,
+      "title": "FFI",
+      "file": "chapter_12.json",
+      "sections": 73,
+      "paragraphs": 183
+    },
+    {
+      "chapter": 13,
+      "title": "Beneath `std`",
+      "file": "chapter_13.json",
+      "sections": 3,
+      "paragraphs": 16
+    }
+  ]
+}

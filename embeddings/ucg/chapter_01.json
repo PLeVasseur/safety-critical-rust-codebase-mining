@@ -1,0 +1,28 @@
+{
+  "source": "Unsafe Code Guidelines",
+  "source_repo": "https://github.com/rust-lang/unsafe-code-guidelines",
+  "extraction_date": "2026-01-03",
+  "chapter": 1,
+  "title": "Introduction",
+  "file": "./introduction.md",
+  "sections": [
+    {
+      "id": "ucg_rust_s_unsafe_code_guidelines_reference",
+      "title": "Rust's Unsafe Code Guidelines Reference",
+      "level": 2,
+      "content": "This document is a past effort by the UCG WG to provide a \"guide\" for\nwriting unsafe code that \"recommends\" what kinds of things unsafe code can and\ncannot do, and that documents which guarantees unsafe code may rely on. It is\nlargely abandoned right now. However, the glossary is actively\nmaintained.\n\nUnless stated otherwise, the information in the guide is mostly a\n\"recommendation\" and still subject to change.\n\n[ucg_wg]: https://github.com/rust-lang/unsafe-code-guidelines",
+      "parent_id": null,
+      "paragraphs": {
+        "ucg_rust_s_unsafe_code_guidelines_reference_p1": "This document is a past effort by the UCG WG to provide a \"guide\" for\nwriting unsafe code that \"recommends\" what kinds of things unsafe code can and\ncannot do, and that documents which guarantees unsafe code may rely on. It is\nlargely abandoned right now. However, the glossary is actively\nmaintained.",
+        "ucg_rust_s_unsafe_code_guidelines_reference_p2": "Unless stated otherwise, the information in the guide is mostly a\n\"recommendation\" and still subject to change.",
+        "ucg_rust_s_unsafe_code_guidelines_reference_p3": "[ucg_wg]: https://github.com/rust-lang/unsafe-code-guidelines"
+      }
+    }
+  ],
+  "ids": [
+    "ucg_rust_s_unsafe_code_guidelines_reference_p1",
+    "ucg_rust_s_unsafe_code_guidelines_reference",
+    "ucg_rust_s_unsafe_code_guidelines_reference_p2",
+    "ucg_rust_s_unsafe_code_guidelines_reference_p3"
+  ]
+}

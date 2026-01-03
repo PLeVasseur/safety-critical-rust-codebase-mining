@@ -1,0 +1,28 @@
+{
+  "source": "Clippy",
+  "source_repo": "https://github.com/rust-lang/rust-clippy",
+  "extraction_date": "2026-01-03",
+  "total_lints": 793,
+  "categories": {
+    "restriction": 127,
+    "suspicious": 82,
+    "correctness": 68,
+    "style": 152,
+    "pedantic": 138,
+    "complexity": 133,
+    "cargo": 5,
+    "nursery": 52,
+    "perf": 36
+  },
+  "category_weights": {
+    "correctness": 1.2,
+    "suspicious": 1.15,
+    "restriction": 1.0,
+    "pedantic": 1.0,
+    "style": 0.95,
+    "complexity": 1.0,
+    "perf": 1.0,
+    "cargo": 0.9,
+    "nursery": 0.9
+  }
+}

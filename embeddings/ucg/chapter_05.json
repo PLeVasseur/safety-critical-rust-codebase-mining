@@ -1,0 +1,28 @@
+{
+  "source": "Unsafe Code Guidelines",
+  "source_repo": "https://github.com/rust-lang/unsafe-code-guidelines",
+  "extraction_date": "2026-01-03",
+  "chapter": 5,
+  "title": "Scalars",
+  "file": "./layout/scalars.md",
+  "sections": [
+    {
+      "id": "ucg_layout_of_scalar_types",
+      "title": "Layout of scalar types",
+      "level": 1,
+      "content": "**This page has been archived**\n\nIt did not actually reflect current layout guarantees and caused frequent confusion.\n\nThe old content can be accessed on GitHub.",
+      "parent_id": null,
+      "paragraphs": {
+        "ucg_layout_of_scalar_types_p1": "**This page has been archived**",
+        "ucg_layout_of_scalar_types_p2": "It did not actually reflect current layout guarantees and caused frequent confusion.",
+        "ucg_layout_of_scalar_types_p3": "The old content can be accessed on GitHub."
+      }
+    }
+  ],
+  "ids": [
+    "ucg_layout_of_scalar_types_p2",
+    "ucg_layout_of_scalar_types_p1",
+    "ucg_layout_of_scalar_types",
+    "ucg_layout_of_scalar_types_p3"
+  ]
+}

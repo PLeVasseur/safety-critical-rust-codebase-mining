@@ -157,6 +157,70 @@ uv run validate-synthetic-ids
 uv run validate-applicability
 ```
 
+**Rust Context Search (Verification Support):**
+
+Provides broader Rust documentation context to help translate C/MISRA terminology to Rust concepts before searching FLS. This helps find relevant FLS sections that wouldn't be discovered with C-only terminology.
+
+**Why This Helps:**
+
+MISRA guidelines use C terminology (e.g., "pointer cast", "memory allocation"). FLS uses Rust terminology (e.g., "type cast expression", "destructors"). The context sources bridge this gap:
+
+| Source | Value for MISRA Mapping |
+|--------|------------------------|
+| **Rust Reference** | Technical definitions, language semantics |
+| **UCG** | Memory model, unsafe behavior details |
+| **Nomicon** | Safety concepts, ownership explanations |
+| **Clippy** | Existing lints that address similar concerns |
+
+**Example - MISRA Rule 21.3 (memory allocation):**
+- C-terminology FLS search: finds "allocated object" (not helpful)
+- Context search surfaces: "ownership", "Drop", "destructor"
+- Rust-terminology FLS search: finds "Destructors" chapter (directly relevant!)
+
+**Tools:**
+
+| Command | Input | Output | Description |
+|---------|-------|--------|-------------|
+| `clone-rust-docs` | GitHub | `cache/docs/` | Clone Reference, UCG, Nomicon, Clippy repos |
+| `extract-reference` | Reference mdBook | `embeddings/reference/` | Extract with native r[...] IDs |
+| `extract-ucg` | UCG mdBook | `embeddings/ucg/` | Extract with synthetic IDs |
+| `extract-nomicon` | Nomicon mdBook | `embeddings/nomicon/` | Extract with synthetic IDs |
+| `extract-clippy-lints` | Clippy source | `embeddings/clippy/` | Extract lint definitions |
+| `generate-rust-embeddings` | Extracted JSON | `*.pkl` files | Generate embeddings for all sources |
+| `search-rust-context` | Query | CLI results | Semantic search across all Rust docs |
+
+**Content Statistics:**
+
+| Source | Sections | Paragraphs | Notes |
+|--------|----------|------------|-------|
+| Rust Reference | 800 | 2,409 | Native r[...] IDs preserved |
+| UCG | 30 | 102 | Glossary is most valuable |
+| Nomicon | 293 | 1,480 | Safety/ownership focus |
+| Clippy | - | - | 793 lints with category weights |
+
+**Run Rust Context Pipeline:**
+```bash
+cd tools
+uv run clone-rust-docs
+uv run extract-reference
+uv run extract-ucg
+uv run extract-nomicon
+uv run extract-clippy-lints
+uv run generate-rust-embeddings
+```
+
+**Clippy Category Weights:**
+
+Clippy results are weighted by category relevance to safety:
+
+| Category | Weight | Rationale |
+|----------|--------|-----------|
+| `correctness` | 1.2x | Detects real bugs, safety-critical |
+| `suspicious` | 1.15x | Often catches subtle issues |
+| `restriction` | 1.0x | Safety/style restrictions |
+| `pedantic` | 1.0x | Stricter checks |
+| `nursery` | 0.9x | Not yet stable |
+
 ### Pipeline 3: Cross-Reference & Analysis
 
 **Status:** Partially implemented. Existing tools provide basic analysis; end-to-end prioritization workflow pending.
@@ -180,6 +244,31 @@ uv run validate-applicability
 3. Generate an actionable guideline writing plan
 
 See [`docs/future/cross-reference-analysis.md`](docs/future/cross-reference-analysis.md) for detailed design.
+
+### Pipeline 4: FLS Example Generation & Matching
+
+**Status:** Design complete. See [`plans/fls-example-generation.md`](plans/fls-example-generation.md) for detailed design.
+
+**Purpose:** Generate compilable Rust code examples for FLS paragraphs, extract construct signatures, and match against iceoryx2 code to enable semantic cross-referencing.
+
+**Planned Tools:**
+
+| Command | Purpose |
+|---------|---------|
+| `generate-fls-examples` | LLM-generate code examples for FLS paragraphs |
+| `verify-fls-examples` | Compile examples and verify results match expectations |
+| `review-fls-examples` | Interactive human review of generated examples |
+| `extract-construct-fingerprints` | Parse approved examples and extract construct signatures |
+| `index-iceoryx2` | Build searchable construct index of iceoryx2 codebase |
+| `match-fls-to-iceoryx2` | Match FLS paragraphs to iceoryx2 code via constructs |
+
+**Output Directory:** `fls-examples/`
+
+**Key Concepts:**
+- Each FLS paragraph gets 3 examples: valid, invalid, edge case
+- Examples use rustdoc conventions (`# ` for hidden lines)
+- Construct vocabulary enables semantic matching
+- Human review ensures quality before matching
 
 ### Shared Resources
 
@@ -296,6 +385,25 @@ eclipse-iceoryx2-actionanable-safety-certification/
 │   │   ├── chapter_22.json
 │   │   ├── embeddings.pkl              # FLS section-level embeddings (338)
 │   │   └── paragraph_embeddings.pkl    # FLS paragraph-level embeddings (3,733)
+│   ├── reference/                      # Rust Reference embeddings
+│   │   ├── index.json                  # Chapter listing
+│   │   ├── chapter_*.json              # Per-chapter content (22 chapters)
+│   │   ├── embeddings.pkl              # Section embeddings (800)
+│   │   └── paragraph_embeddings.pkl    # Paragraph embeddings (2,409)
+│   ├── ucg/                            # Unsafe Code Guidelines embeddings
+│   │   ├── index.json
+│   │   ├── chapter_*.json              # Per-chapter content (13 chapters)
+│   │   ├── embeddings.pkl              # Section embeddings (30)
+│   │   └── paragraph_embeddings.pkl    # Paragraph embeddings (102)
+│   ├── nomicon/                        # Rustonomicon embeddings
+│   │   ├── index.json
+│   │   ├── chapter_*.json              # Per-chapter content (13 chapters)
+│   │   ├── embeddings.pkl              # Section embeddings (293)
+│   │   └── paragraph_embeddings.pkl    # Paragraph embeddings (1,480)
+│   ├── clippy/                         # Clippy lint embeddings
+│   │   ├── index.json                  # Lint statistics
+│   │   ├── lints.json                  # Full lint definitions (793)
+│   │   └── embeddings.pkl              # Lint embeddings
 │   ├── misra-c/                        # Per-standard embeddings (kebab-case)
 │   │   ├── embeddings.pkl              # Guideline-level embeddings
 │   │   ├── query_embeddings.pkl        # Query-level embeddings
@@ -312,6 +420,11 @@ eclipse-iceoryx2-actionanable-safety-certification/
 │   ├── repos/
 │   │   ├── iceoryx2/v0.8.0/            # iceoryx2 source at specific versions
 │   │   └── fls/                        # FLS RST source files
+│   ├── docs/                           # Rust documentation repos (gitignored)
+│   │   ├── reference/                  # rust-lang/reference
+│   │   ├── unsafe-code-guidelines/     # rust-lang/unsafe-code-guidelines
+│   │   ├── nomicon/                    # rust-lang/nomicon
+│   │   └── rust-clippy/                # rust-lang/rust-clippy
 │   ├── verification/                   # Batch verification reports (per-standard)
 │   │   ├── misra-c/
 │   │   │   ├── batch{N}_session{M}.json
@@ -356,6 +469,16 @@ eclipse-iceoryx2-actionanable-safety-certification/
 │   │       ├── search_deep.py      # search-fls-deep
 │   │       ├── recompute.py        # recompute-similarity
 │   │       └── batch_check.py      # check-guideline
+    │   ├── rust_docs/                  # Rust context search infrastructure
+    │   │   ├── __init__.py
+    │   │   ├── clone.py                # clone-rust-docs
+    │   │   ├── shared.py               # mdBook parsing utilities
+    │   │   ├── extract_reference.py    # extract-reference
+    │   │   ├── extract_ucg.py          # extract-ucg
+    │   │   ├── extract_nomicon.py      # extract-nomicon
+    │   │   ├── extract_clippy.py       # extract-clippy-lints
+    │   │   ├── generate_embeddings.py  # generate-rust-embeddings
+    │   │   └── search.py               # search-rust-context
     │   └── analysis/                   # Pipeline 3: Cross-reference
     │       ├── coverage.py
     │       └── review.py
@@ -1114,6 +1237,10 @@ Process the batch report JSON and for each guideline:
 | Current Mappings | `coding-standards-fls-mapping/mappings/misra_c_to_fls.json` | Current mapping state |
 | Standards Definitions | `coding-standards-fls-mapping/standards/misra_c_2025.json` | MISRA rule definitions |
 | Similarity Results | `embeddings/similarity/misra_c_to_fls.json` | Full similarity scores |
+| Rust Reference | `embeddings/reference/chapter_*.json` | Rust language semantics |
+| UCG Glossary | `embeddings/ucg/chapter_02.json` | Memory model definitions |
+| Nomicon | `embeddings/nomicon/chapter_*.json` | Safety and ownership deep dives |
+| Clippy Lints | `embeddings/clippy/lints.json` | Existing lints for similar concerns |
 
 3. **Validate batch membership** before starting work on a guideline:
 
@@ -1139,23 +1266,42 @@ Process the batch report JSON and for each guideline:
    
    If the guideline is not in the expected batch, do NOT proceed. Skip to the next guideline.
 
-4. **Search FLS for relevant content:**
+4. **Search for relevant content:**
 
-   **Required search protocol** (mandatory for each guideline):
+   **Required search protocol** (5 searches mandatory for each guideline):
    
    ```bash
-   # Step 1: Deep search (always first) - displays ADD-6 context automatically
+   # Step 0: Context search (get Rust terminology before FLS search)
+   uv run search-rust-context --query "<MISRA concern in plain terms>" --top 3
+   
+   # Review context results for:
+   # - Rust-specific terminology to use in FLS searches
+   # - Reference sections explaining relevant semantics
+   # - Relevant Clippy lints (especially correctness/suspicious categories)
+   
+   # Step 1: Deep search - displays ADD-6 context automatically
    uv run search-fls-deep --standard misra-c --guideline "Rule X.Y"
    
    # Step 2: C/MISRA terminology query (use --for-guideline to show ADD-6 context)
    uv run search-fls --query "<C concepts from rule text>" --top 10 --for-guideline "Rule X.Y"
    
-   # Step 3: Rust terminology query  
-   uv run search-fls --query "<Rust equivalent concepts>" --top 10
+   # Step 3: Rust terminology query (use terms discovered in Step 0!)
+   uv run search-fls --query "<Rust concepts from context search>" --top 10
    
    # Step 4: Additional angles as needed (safety concepts, related mechanisms)
    uv run search-fls --query "<semantic/safety concepts>" --top 10
    ```
+   
+   **Why context search (Step 0) matters:**
+   
+   MISRA uses C terminology; FLS uses Rust terminology. The context search bridges this gap:
+   
+   | MISRA Concept | Context Surfaces | Better FLS Results |
+   |---------------|------------------|-------------------|
+   | "memory allocation" | "ownership", "Drop", "destructor" | Destructors chapter |
+   | "recursion stack" | "recursion_limit attribute" | Attribute recursion_limit |
+   | "const pointer" | "borrow", "shared reference" | Borrowing chapter |
+   | "pointer cast alignment" | "cast_ptr_alignment" lint | Type Layout + Unsafety |
    
    **Search tool ADD-6 display:**
    - `search-fls-deep` displays MISRA ADD-6 context (category, rationale codes, applicability) by default. Use `--no-add6` to suppress.

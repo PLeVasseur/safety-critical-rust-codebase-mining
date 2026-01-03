@@ -1,0 +1,931 @@
+{
+  "source": "Rust Reference",
+  "source_repo": "https://github.com/rust-lang/reference",
+  "extraction_date": "2026-01-03",
+  "chapter": 13,
+  "title": "Names",
+  "file": "names.md",
+  "sections": [
+    {
+      "id": "names",
+      "title": "Names",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "names.intro",
+      "title": "Names",
+      "level": 1,
+      "content": "An *entity* is a language construct that can be referred to in some way within\nthe source program, usually via a [path]. Entities include [types], [items],\n[generic parameters], [variable bindings], [loop labels], [lifetimes],\n[fields], [attributes], and [lints].\n\nA *declaration* is a syntactical construct that can introduce a *name* to\nrefer to an entity. Entity names are valid within a [*scope*] --- a region of\nsource text where that name may be referenced.\n\nSome entities are explicitly declared in the\nsource code, and some are implicitly declared\nas part of the language or compiler extensions.\n\n[*Paths*] are used to refer to an entity, possibly in another module or type.\n\nLifetimes and loop labels use a dedicated syntax using a\nleading quote.\n\nNames are segregated into different [*namespaces*], allowing entities in\ndifferent namespaces to share the same name without conflict.\n\n[*Name resolution*] is the compile-time process of tying paths, identifiers,\nand labels to entity declarations.\n\nAccess to certain names may be restricted based on their [*visibility*].",
+      "parent_id": null,
+      "paragraphs": {
+        "names.intro": "An *entity* is a language construct that can be referred to in some way within\nthe source program, usually via a [path]. Entities include [types], [items],\n[generic parameters], [variable bindings], [loop labels], [lifetimes],\n[fields], [attributes], and [lints].\n\nA *declaration* is a syntactical construct that can introduce a *name* to\nrefer to an entity. Entity names are valid within a [*scope*] --- a region of\nsource text where that name may be referenced.\n\nSome entities are explicitly declared in the\nsource code, and some are implicitly declared\nas part of the language or compiler extensions.\n\n[*Paths*] are used to refer to an entity, possibly in another module or type.\n\nLifetimes and loop labels use a dedicated syntax using a\nleading quote.\n\nNames are segregated into different [*namespaces*], allowing entities in\ndifferent namespaces to share the same name without conflict.\n\n[*Name resolution*] is the compile-time process of tying paths, identifiers,\nand labels to entity declarations.\n\nAccess to certain names may be restricted based on their [*visibility*]."
+      }
+    },
+    {
+      "id": "names.explicit",
+      "title": "Explicitly declared entities",
+      "level": 1,
+      "content": "Entities that explicitly introduce a name in the source code are:\n\n* [Items]:\n    * [Module declarations]\n    * [External crate declarations]\n    * [Use declarations]\n    * [Function declarations] and [function parameters]\n    * [Type aliases]\n    * [struct], [union], [enum], enum variant declarations, and their named\n      fields\n    * [Constant item declarations]\n    * [Static item declarations]\n    * [Trait item declarations] and their [associated items]\n    * [External block items]\n    * [`macro_rules` declarations] and [matcher metavariables]\n    * [Implementation] associated items\n\n* [Expressions]:\n    * [Closure] parameters\n    * [`while let`] pattern bindings\n    * [`for`] pattern bindings\n    * [`if let`] pattern bindings\n    * [`match`] pattern bindings\n    * [Loop labels]\n\n* [Generic parameters]\n\n* [Higher ranked trait bounds]\n\n* [`let` statement] pattern bindings\n\n* The [`macro_use` attribute] can introduce macro names from another crate\n\n* The [`macro_export` attribute] can introduce an alias for the macro into the crate root\n\nAdditionally, [macro invocations] and [attributes] can introduce names by\nexpanding to one of the above items.",
+      "parent_id": null,
+      "paragraphs": {
+        "names.explicit.list": "Entities that explicitly introduce a name in the source code are:",
+        "names.explicit.item-decl": "* [Items]:\n    * [Module declarations]\n    * [External crate declarations]\n    * [Use declarations]\n    * [Function declarations] and [function parameters]\n    * [Type aliases]\n    * [struct], [union], [enum], enum variant declarations, and their named\n      fields\n    * [Constant item declarations]\n    * [Static item declarations]\n    * [Trait item declarations] and their [associated items]\n    * [External block items]\n    * [`macro_rules` declarations] and [matcher metavariables]\n    * [Implementation] associated items",
+        "names.explicit.expr": "* [Expressions]:\n    * [Closure] parameters\n    * [`while let`] pattern bindings\n    * [`for`] pattern bindings\n    * [`if let`] pattern bindings\n    * [`match`] pattern bindings\n    * [Loop labels]",
+        "names.explicit.generics": "* [Generic parameters]",
+        "names.explicit.higher-ranked-bounds": "* [Higher ranked trait bounds]",
+        "names.explicit.binding": "* [`let` statement] pattern bindings",
+        "names.explicit.macro_use": "* The [`macro_use` attribute] can introduce macro names from another crate",
+        "names.explicit.macro_export": "* The [`macro_export` attribute] can introduce an alias for the macro into the crate root",
+        "names.explicit.macro-invocation": "Additionally, [macro invocations] and [attributes] can introduce names by\nexpanding to one of the above items."
+      }
+    },
+    {
+      "id": "names.implicit",
+      "title": "Implicitly declared entities",
+      "level": 2,
+      "content": "The following entities are implicitly defined by the language, or are\nintroduced by compiler options and extensions:\n\n* [Language prelude]:\n    * [Boolean type] --- `bool`\n    * [Textual types] --- `char` and `str`\n    * [Integer types] --- `i8`, `i16`, `i32`, `i64`, `i128`, `u8`, `u16`, `u32`, `u64`, `u128`\n    * [Machine-dependent integer types] --- `usize` and `isize`\n    * [floating-point types] --- `f32` and `f64`\n\n* [Built-in attributes]\n\n* [Standard library prelude] items, attributes, and macros\n\n* Standard library crates in the root module\n\n* External crates linked by the compiler\n\n* [Tool attributes]\n\n* [Lints] and [tool lint attributes]\n\n* [Derive helper attributes] are valid within an item without being explicitly imported\n\n* The [`'static`] lifetime\n\nAdditionally, the crate root module does not have a name, but can be referred\nto with certain [path qualifiers] or aliases.\n\n[*Name resolution*]: names/name-resolution.md\n[*namespaces*]: names/namespaces.md\n[*paths*]: paths.md\n[*scope*]: names/scopes.md\n[*visibility*]: visibility-and-privacy.md\n[`'static`]: keywords.md#weak-keywords\n[`for`]: expressions/loop-expr.md#iterator-loops\n[`if let`]: expressions/if-expr.md#if-let-patterns\n[`let` statement]: statements.md#let-statements\n[`macro_export` attribute]: macros-by-example.md#the-macro_export-attribute\n[`macro_rules` declarations]: macros-by-example.md\n[`macro_use` attribute]: macros-by-example.md#the-macro_use-attribute\n[`match`]: expressions/match-expr.md\n[`while let`]: expressions/loop-expr.md#while-let-patterns\n[associated items]: items/associated-items.md\n[attributes]: attributes.md\n[Boolean type]: types/boolean.md\n[Built-in attributes]: attributes.md#built-in-attributes-index\n[Closure]: expressions/closure-expr.md\n[Constant item declarations]: items/constant-items.md\n[Derive helper attributes]: procedural-macros.md#derive-macro-helper-attributes\n[enum]: items/enumerations.md\n[Expressions]: expressions.md\n[extern-prelude]: names/preludes.md#extern-prelude\n[External block items]: items/external-blocks.md\n[External crate declarations]: items/extern-crates.md\n[fields]: expressions/field-expr.md\n[floating-point types]: types/numeric.md#floating-point-types\n[Function declarations]: items/functions.md\n[function parameters]: items/functions.md#function-parameters\n[Generic parameters]: items/generics.md\n[Higher ranked trait bounds]: trait-bounds.md#higher-ranked-trait-bounds\n[Implementation]: items/implementations.md\n[Integer types]: types/numeric.md#integer-types\n[Items]: items.md\n[Language prelude]: names/preludes.md#language-prelude\n[lifetimes-and-loop-labels]: tokens.md#lifetimes-and-loop-labels\n[lifetimes]: tokens.md#lifetimes-and-loop-labels\n[Lints]: attributes/diagnostics.md#lint-check-attributes\n[Loop labels]: expressions/loop-expr.md#loop-labels\n[Machine-dependent integer types]: types/numeric.md#machine-dependent-integer-types\n[macro invocations]: macros.md#macro-invocation\n[matcher metavariables]: macros-by-example.md#metavariables\n[Module declarations]: items/modules.md\n[path]: paths.md\n[path qualifiers]: paths.md#path-qualifiers\n[Standard library prelude]: names/preludes.md#standard-library-prelude\n[Static item declarations]: items/static-items.md\n[struct]: items/structs.md\n[Textual types]: types/textual.md\n[Tool attributes]: attributes.md#tool-attributes\n[tool lint attributes]: attributes/diagnostics.md#tool-lint-attributes\n[Trait item declarations]: items/traits.md\n[Type aliases]: items/type-aliases.md\n[types]: types.md\n[union]: items/unions.md\n[Use declarations]: items/use-declarations.md\n[variable bindings]: patterns.md",
+      "parent_id": null,
+      "paragraphs": {
+        "names.implicit.list": "The following entities are implicitly defined by the language, or are\nintroduced by compiler options and extensions:",
+        "names.implicit.primitive-types": "* [Language prelude]:\n    * [Boolean type] --- `bool`\n    * [Textual types] --- `char` and `str`\n    * [Integer types] --- `i8`, `i16`, `i32`, `i64`, `i128`, `u8`, `u16`, `u32`, `u64`, `u128`\n    * [Machine-dependent integer types] --- `usize` and `isize`\n    * [floating-point types] --- `f32` and `f64`",
+        "names.implicit.builtin-attributes": "* [Built-in attributes]",
+        "names.implicit.prelude": "* [Standard library prelude] items, attributes, and macros",
+        "names.implicit.stdlib": "* Standard library crates in the root module",
+        "names.implicit.extern-prelude": "* External crates linked by the compiler",
+        "names.implicit.tool-attributes": "* [Tool attributes]",
+        "names.implicit.lints": "* [Lints] and [tool lint attributes]",
+        "names.implicit.derive-helpers": "* [Derive helper attributes] are valid within an item without being explicitly imported",
+        "names.implicit.lifetime-static": "* The [`'static`] lifetime",
+        "names.implicit.root": "Additionally, the crate root module does not have a name, but can be referred\nto with certain [path qualifiers] or aliases.\n\n[*Name resolution*]: names/name-resolution.md\n[*namespaces*]: names/namespaces.md\n[*paths*]: paths.md\n[*scope*]: names/scopes.md\n[*visibility*]: visibility-and-privacy.md\n[`'static`]: keywords.md#weak-keywords\n[`for`]: expressions/loop-expr.md#iterator-loops\n[`if let`]: expressions/if-expr.md#if-let-patterns\n[`let` statement]: statements.md#let-statements\n[`macro_export` attribute]: macros-by-example.md#the-macro_export-attribute\n[`macro_rules` declarations]: macros-by-example.md\n[`macro_use` attribute]: macros-by-example.md#the-macro_use-attribute\n[`match`]: expressions/match-expr.md\n[`while let`]: expressions/loop-expr.md#while-let-patterns\n[associated items]: items/associated-items.md\n[attributes]: attributes.md\n[Boolean type]: types/boolean.md\n[Built-in attributes]: attributes.md#built-in-attributes-index\n[Closure]: expressions/closure-expr.md\n[Constant item declarations]: items/constant-items.md\n[Derive helper attributes]: procedural-macros.md#derive-macro-helper-attributes\n[enum]: items/enumerations.md\n[Expressions]: expressions.md\n[extern-prelude]: names/preludes.md#extern-prelude\n[External block items]: items/external-blocks.md\n[External crate declarations]: items/extern-crates.md\n[fields]: expressions/field-expr.md\n[floating-point types]: types/numeric.md#floating-point-types\n[Function declarations]: items/functions.md\n[function parameters]: items/functions.md#function-parameters\n[Generic parameters]: items/generics.md\n[Higher ranked trait bounds]: trait-bounds.md#higher-ranked-trait-bounds\n[Implementation]: items/implementations.md\n[Integer types]: types/numeric.md#integer-types\n[Items]: items.md\n[Language prelude]: names/preludes.md#language-prelude\n[lifetimes-and-loop-labels]: tokens.md#lifetimes-and-loop-labels\n[lifetimes]: tokens.md#lifetimes-and-loop-labels\n[Lints]: attributes/diagnostics.md#lint-check-attributes\n[Loop labels]: expressions/loop-expr.md#loop-labels\n[Machine-dependent integer types]: types/numeric.md#machine-dependent-integer-types\n[macro invocations]: macros.md#macro-invocation\n[matcher metavariables]: macros-by-example.md#metavariables\n[Module declarations]: items/modules.md\n[path]: paths.md\n[path qualifiers]: paths.md#path-qualifiers\n[Standard library prelude]: names/preludes.md#standard-library-prelude\n[Static item declarations]: items/static-items.md\n[struct]: items/structs.md\n[Textual types]: types/textual.md\n[Tool attributes]: attributes.md#tool-attributes\n[tool lint attributes]: attributes/diagnostics.md#tool-lint-attributes\n[Trait item declarations]: items/traits.md\n[Type aliases]: items/type-aliases.md\n[types]: types.md\n[union]: items/unions.md\n[Use declarations]: items/use-declarations.md\n[variable bindings]: patterns.md"
+      }
+    },
+    {
+      "id": "names.namespaces",
+      "title": "Namespaces",
+      "level": 1,
+      "content": "A *namespace* is a logical grouping of declared [names]. Names are segregated\ninto separate namespaces based on the kind of entity the name refers to.\nNamespaces allow the occurrence of a name in one namespace to not conflict\nwith the same name in another namespace.\n\nThere are several different namespaces that each contain different kinds of\nentities. The usage of a name will look for the declaration of that name in\ndifferent namespaces, based on the context, as described in the [name\nresolution] chapter.\n\nThe following is a list of namespaces, with their corresponding entities:\n\n* Type Namespace\n    * [Module declarations]\n    * [External crate declarations]\n    * [External crate prelude] items\n    * [Struct], [union], [enum], enum variant declarations\n    * [Trait item declarations]\n    * [Type aliases]\n    * [Associated type declarations]\n    * Built-in types: [boolean], [numeric], and [textual]\n    * [Generic type parameters]\n    * [`Self` type]\n    * [Tool attribute modules]\n* Value Namespace\n    * [Function declarations]\n    * [Constant item declarations]\n    * [Static item declarations]\n    * [Struct constructors]\n    * [Enum variant constructors]\n    * [`Self` constructors]\n    * [Generic const parameters]\n    * [Associated const declarations]\n    * [Associated function declarations]\n    * Local bindings --- [`let`], [`if let`], [`while let`], [`for`], [`match`]\n      arms, [function parameters], [closure parameters]\n    * Captured [closure] variables\n* Macro Namespace\n    * [`macro_rules` declarations]\n    * [Built-in attributes]\n    * [Tool attributes]\n    * [Function-like procedural macros]\n    * [Derive macros]\n    * [Derive macro helpers]\n    * [Attribute macros]\n* Lifetime Namespace\n    * [Generic lifetime parameters]\n* Label Namespace\n    * [Loop labels]\n    * [Block labels]\n\nAn example of how overlapping names in different namespaces can be used unambiguously:\n\n// Foo introduces a type in the type namespace and a constructor in the value\n// namespace.\nstruct Foo(u32);\n\n// The `Foo` macro is declared in the macro namespace.\nmacro_rules! Foo {\n    () => {};\n}\n\n// `Foo` in the `f` parameter type refers to `Foo` in the type namespace.\n// `'Foo` introduces a new lifetime in the lifetime namespace.\nfn example<'Foo>(f: Foo) {\n    // `Foo` refers to the `Foo` constructor in the value namespace.\n    let ctor = Foo;\n    // `Foo` refers to the `Foo` macro in the macro namespace.\n    Foo!{}\n    // `'Foo` introduces a label in the label namespace.\n    'Foo: loop {\n        // `'Foo` refers to the `'Foo` lifetime parameter, and `Foo`\n        // refers to the type namespace.\n        let x: &'Foo Foo;\n        // `'Foo` refers to the label.\n        break 'Foo;\n    }\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "names.namespaces.intro": "A *namespace* is a logical grouping of declared [names]. Names are segregated\ninto separate namespaces based on the kind of entity the name refers to.\nNamespaces allow the occurrence of a name in one namespace to not conflict\nwith the same name in another namespace.\n\nThere are several different namespaces that each contain different kinds of\nentities. The usage of a name will look for the declaration of that name in\ndifferent namespaces, based on the context, as described in the [name\nresolution] chapter.",
+        "names.namespaces.kinds": "The following is a list of namespaces, with their corresponding entities:\n\n* Type Namespace\n    * [Module declarations]\n    * [External crate declarations]\n    * [External crate prelude] items\n    * [Struct], [union], [enum], enum variant declarations\n    * [Trait item declarations]\n    * [Type aliases]\n    * [Associated type declarations]\n    * Built-in types: [boolean], [numeric], and [textual]\n    * [Generic type parameters]\n    * [`Self` type]\n    * [Tool attribute modules]\n* Value Namespace\n    * [Function declarations]\n    * [Constant item declarations]\n    * [Static item declarations]\n    * [Struct constructors]\n    * [Enum variant constructors]\n    * [`Self` constructors]\n    * [Generic const parameters]\n    * [Associated const declarations]\n    * [Associated function declarations]\n    * Local bindings --- [`let`], [`if let`], [`while let`], [`for`], [`match`]\n      arms, [function parameters], [closure parameters]\n    * Captured [closure] variables\n* Macro Namespace\n    * [`macro_rules` declarations]\n    * [Built-in attributes]\n    * [Tool attributes]\n    * [Function-like procedural macros]\n    * [Derive macros]\n    * [Derive macro helpers]\n    * [Attribute macros]\n* Lifetime Namespace\n    * [Generic lifetime parameters]\n* Label Namespace\n    * [Loop labels]\n    * [Block labels]\n\nAn example of how overlapping names in different namespaces can be used unambiguously:\n\n// Foo introduces a type in the type namespace and a constructor in the value\n// namespace.\nstruct Foo(u32);\n\n// The `Foo` macro is declared in the macro namespace.\nmacro_rules! Foo {\n    () => {};\n}\n\n// `Foo` in the `f` parameter type refers to `Foo` in the type namespace.\n// `'Foo` introduces a new lifetime in the lifetime namespace.\nfn example<'Foo>(f: Foo) {\n    // `Foo` refers to the `Foo` constructor in the value namespace.\n    let ctor = Foo;\n    // `Foo` refers to the `Foo` macro in the macro namespace.\n    Foo!{}\n    // `'Foo` introduces a label in the label namespace.\n    'Foo: loop {\n        // `'Foo` refers to the `'Foo` lifetime parameter, and `Foo`\n        // refers to the type namespace.\n        let x: &'Foo Foo;\n        // `'Foo` refers to the label.\n        break 'Foo;\n    }\n}"
+      }
+    },
+    {
+      "id": "names.namespaces.without",
+      "title": "Named entities without a namespace",
+      "level": 1,
+      "content": "The following entities have explicit names, but the names are not a part of\nany specific namespace.\n\n### Fields\n\nEven though struct, enum, and union fields are named, the named fields do not\nlive in an explicit namespace. They can only be accessed via a [field\nexpression], which only inspects the field names of the specific type being\naccessed.\n\n### Use declarations\n\nA [use declaration] has named aliases that it imports into scope, but the\n`use` item itself does not belong to a specific namespace. Instead, it can\nintroduce aliases into multiple namespaces, depending on the item kind being\nimported.",
+      "parent_id": null,
+      "paragraphs": {
+        "names.namespaces.without": "The following entities have explicit names, but the names are not a part of\nany specific namespace.\n\n### Fields",
+        "names.namespaces.without.fields": "Even though struct, enum, and union fields are named, the named fields do not\nlive in an explicit namespace. They can only be accessed via a [field\nexpression], which only inspects the field names of the specific type being\naccessed.\n\n### Use declarations",
+        "names.namespaces.without.use": "A [use declaration] has named aliases that it imports into scope, but the\n`use` item itself does not belong to a specific namespace. Instead, it can\nintroduce aliases into multiple namespaces, depending on the item kind being\nimported."
+      }
+    },
+    {
+      "id": "names.namespaces.sub-namespaces",
+      "title": "Sub-namespaces",
+      "level": 3,
+      "content": "The macro namespace is split into two sub-namespaces: one for [bang-style macros] and one for [attributes].\nWhen an attribute is resolved, any bang-style macros in scope will be ignored.\nAnd conversely resolving a bang-style macro will ignore attribute macros in scope.\nThis prevents one style from shadowing another.\n\nFor example, the [`cfg` attribute] and the [`cfg` macro] are two different entities with the same name in the macro namespace, but they can still be used in their respective context.\n\n<!-- ignore: requires external crates -->\n> [!NOTE]\n> `use` imports still cannot create duplicate bindings of the same name in a module or block, regardless of sub-namespace.\n>\n> ```rust,ignore\n> #[macro_export]\n> macro_rules! mymac {\n>     () => {};\n> }\n>\n> use myattr::mymac; // error[E0252]: the name `mymac` is defined multiple times.\n> ```\n\n[`cfg` attribute]: ../conditional-compilation.md#the-cfg-attribute\n[`cfg` macro]: ../conditional-compilation.md#the-cfg-macro\n[`for`]: ../expressions/loop-expr.md#iterator-loops\n[`if let`]: ../expressions/if-expr.md#if-let-patterns\n[`let`]: ../statements.md#let-statements\n[`macro_rules` declarations]: ../macros-by-example.md\n[`match`]: ../expressions/match-expr.md\n[`Self` constructors]: ../paths.md#self-1\n[`Self` type]: ../paths.md#self-1\n[`use` import]: ../items/use-declarations.md\n[`while let`]: ../expressions/loop-expr.md#while-let-patterns\n[Associated const declarations]: ../items/associated-items.md#associated-constants\n[Associated function declarations]: ../items/associated-items.md#associated-functions-and-methods\n[Associated type declarations]: ../items/associated-items.md#associated-types\n[Attribute macros]: ../procedural-macros.md#the-proc_macro_attribute-attribute\n[attributes]: ../attributes.md\n[bang-style macros]: ../macros.md\n[Block labels]: expr.loop.block-labels\n[boolean]: ../types/boolean.md\n[Built-in attributes]: ../attributes.md#built-in-attributes-index\n[closure parameters]: ../expressions/closure-expr.md\n[closure]: ../expressions/closure-expr.md\n[Constant item declarations]: ../items/constant-items.md\n[Derive macro helpers]: ../procedural-macros.md#derive-macro-helper-attributes\n[Derive macros]: macro.proc.derive\n[entity]: ../glossary.md#entity\n[Enum variant constructors]: ../items/enumerations.md\n[enum]: ../items/enumerations.md\n[External crate declarations]: ../items/extern-crates.md\n[External crate prelude]: preludes.md#extern-prelude\n[field expression]: ../expressions/field-expr.md\n[Function declarations]: ../items/functions.md\n[function parameters]: ../items/functions.md#function-parameters\n[Function-like procedural macros]: ../procedural-macros.md#the-proc_macro-attribute\n[Generic const parameters]: ../items/generics.md#const-generics\n[Generic lifetime parameters]: ../items/generics.md\n[Generic type parameters]: ../items/generics.md\n[Loop labels]: ../expressions/loop-expr.md#loop-labels\n[Module declarations]: ../items/modules.md\n[name resolution]: name-resolution.md\n[names]: ../names.md\n[numeric]: ../types/numeric.md\n[Static item declarations]: ../items/static-items.md\n[Struct constructors]: ../items/structs.md\n[Struct]: ../items/structs.md\n[textual]: ../types/textual.md\n[Tool attribute modules]: ../attributes.md#tool-attributes\n[Tool attributes]: ../attributes.md#tool-attributes\n[Trait item declarations]: ../items/traits.md\n[Type aliases]: ../items/type-aliases.md\n[union]: ../items/unions.md\n[use declaration]: ../items/use-declarations.md",
+      "parent_id": null,
+      "paragraphs": {
+        "names.namespaces.sub-namespaces.intro": "The macro namespace is split into two sub-namespaces: one for [bang-style macros] and one for [attributes].\nWhen an attribute is resolved, any bang-style macros in scope will be ignored.\nAnd conversely resolving a bang-style macro will ignore attribute macros in scope.\nThis prevents one style from shadowing another.\n\nFor example, the [`cfg` attribute] and the [`cfg` macro] are two different entities with the same name in the macro namespace, but they can still be used in their respective context.\n\n<!-- ignore: requires external crates -->\n> [!NOTE]\n> `use` imports still cannot create duplicate bindings of the same name in a module or block, regardless of sub-namespace.\n>\n> ```rust,ignore\n> #[macro_export]\n> macro_rules! mymac {\n>     () => {};\n> }\n>\n> use myattr::mymac; // error[E0252]: the name `mymac` is defined multiple times.\n> ```\n\n[`cfg` attribute]: ../conditional-compilation.md#the-cfg-attribute\n[`cfg` macro]: ../conditional-compilation.md#the-cfg-macro\n[`for`]: ../expressions/loop-expr.md#iterator-loops\n[`if let`]: ../expressions/if-expr.md#if-let-patterns\n[`let`]: ../statements.md#let-statements\n[`macro_rules` declarations]: ../macros-by-example.md\n[`match`]: ../expressions/match-expr.md\n[`Self` constructors]: ../paths.md#self-1\n[`Self` type]: ../paths.md#self-1\n[`use` import]: ../items/use-declarations.md\n[`while let`]: ../expressions/loop-expr.md#while-let-patterns\n[Associated const declarations]: ../items/associated-items.md#associated-constants\n[Associated function declarations]: ../items/associated-items.md#associated-functions-and-methods\n[Associated type declarations]: ../items/associated-items.md#associated-types\n[Attribute macros]: ../procedural-macros.md#the-proc_macro_attribute-attribute\n[attributes]: ../attributes.md\n[bang-style macros]: ../macros.md\n[Block labels]: expr.loop.block-labels\n[boolean]: ../types/boolean.md\n[Built-in attributes]: ../attributes.md#built-in-attributes-index\n[closure parameters]: ../expressions/closure-expr.md\n[closure]: ../expressions/closure-expr.md\n[Constant item declarations]: ../items/constant-items.md\n[Derive macro helpers]: ../procedural-macros.md#derive-macro-helper-attributes\n[Derive macros]: macro.proc.derive\n[entity]: ../glossary.md#entity\n[Enum variant constructors]: ../items/enumerations.md\n[enum]: ../items/enumerations.md\n[External crate declarations]: ../items/extern-crates.md\n[External crate prelude]: preludes.md#extern-prelude\n[field expression]: ../expressions/field-expr.md\n[Function declarations]: ../items/functions.md\n[function parameters]: ../items/functions.md#function-parameters\n[Function-like procedural macros]: ../procedural-macros.md#the-proc_macro-attribute\n[Generic const parameters]: ../items/generics.md#const-generics\n[Generic lifetime parameters]: ../items/generics.md\n[Generic type parameters]: ../items/generics.md\n[Loop labels]: ../expressions/loop-expr.md#loop-labels\n[Module declarations]: ../items/modules.md\n[name resolution]: name-resolution.md\n[names]: ../names.md\n[numeric]: ../types/numeric.md\n[Static item declarations]: ../items/static-items.md\n[Struct constructors]: ../items/structs.md\n[Struct]: ../items/structs.md\n[textual]: ../types/textual.md\n[Tool attribute modules]: ../attributes.md#tool-attributes\n[Tool attributes]: ../attributes.md#tool-attributes\n[Trait item declarations]: ../items/traits.md\n[Type aliases]: ../items/type-aliases.md\n[union]: ../items/unions.md\n[use declaration]: ../items/use-declarations.md"
+      }
+    },
+    {
+      "id": "names.scopes",
+      "title": "Scopes",
+      "level": 1,
+      "content": "A *scope* is the region of source text where a named [entity] may be referenced with that name.\nThe following sections provide details on the scoping rules and behavior, which depend on the kind of entity and where it is declared.\nThe process of how names are resolved to entities is described in the [name resolution] chapter.\nMore information on \"drop scopes\" used for the purpose of running destructors may be found in the [destructors] chapter.",
+      "parent_id": null,
+      "paragraphs": {
+        "names.scopes.intro": "A *scope* is the region of source text where a named [entity] may be referenced with that name.\nThe following sections provide details on the scoping rules and behavior, which depend on the kind of entity and where it is declared.\nThe process of how names are resolved to entities is described in the [name resolution] chapter.\nMore information on \"drop scopes\" used for the purpose of running destructors may be found in the [destructors] chapter."
+      }
+    },
+    {
+      "id": "names.scopes.items",
+      "title": "Item scopes",
+      "level": 1,
+      "content": "The name of an item declared directly in a [module] has a scope that extends from the start of the module to the end of the module. These items are also members of the module and can be referred to with a [path] leading from their module.\n\nThe name of an item declared as a [statement] has a scope that extends from the start of the block the item statement is in until the end of the block.\n\nIt is an error to introduce an item with a duplicate name of another item in the same [namespace] within the same module or block.\n[Asterisk glob imports] have special behavior for dealing with duplicate names and shadowing, see the linked chapter for more details.\n\nItems in a module may shadow items in a prelude.\n\nItem names from outer modules are not in scope within a nested module.\nA [path] may be used to refer to an item in another module.",
+      "parent_id": null,
+      "paragraphs": {
+        "names.scopes.items.module": "The name of an item declared directly in a [module] has a scope that extends from the start of the module to the end of the module. These items are also members of the module and can be referred to with a [path] leading from their module.",
+        "names.scopes.items.statement": "The name of an item declared as a [statement] has a scope that extends from the start of the block the item statement is in until the end of the block.",
+        "names.scopes.items.duplicate": "It is an error to introduce an item with a duplicate name of another item in the same [namespace] within the same module or block.\n[Asterisk glob imports] have special behavior for dealing with duplicate names and shadowing, see the linked chapter for more details.",
+        "names.scopes.items.shadow-prelude": "Items in a module may shadow items in a prelude.",
+        "names.scopes.items.nested-modules": "Item names from outer modules are not in scope within a nested module.\nA [path] may be used to refer to an item in another module."
+      }
+    },
+    {
+      "id": "names.scopes.associated-items",
+      "title": "Associated item scopes",
+      "level": 2,
+      "content": "[Associated items] are not scoped and can only be referred to by using a [path] leading from the type or trait they are associated with.\n[Methods] can also be referred to via [call expressions].\n\nSimilar to items within a module or block,  it is an error to introduce an item within a trait or implementation that is a duplicate of another item in the trait or impl in the same namespace.",
+      "parent_id": null,
+      "paragraphs": {
+        "names.scopes.associated-items.scope": "[Associated items] are not scoped and can only be referred to by using a [path] leading from the type or trait they are associated with.\n[Methods] can also be referred to via [call expressions].",
+        "names.scopes.associated-items.duplicate": "Similar to items within a module or block,  it is an error to introduce an item within a trait or implementation that is a duplicate of another item in the trait or impl in the same namespace."
+      }
+    },
+    {
+      "id": "names.scopes.pattern-bindings",
+      "title": "Pattern binding scopes",
+      "level": 3,
+      "content": "The scope of a local variable [pattern] binding depends on where it is used:\n\n* [`let` statement] bindings range from just after the `let` statement until the end of the block where it is declared.\n\n* [Function parameter] bindings are within the body of the function.\n\n* [Closure parameter] bindings are within the closure body.\n\n* [`for`] bindings are within the loop body.\n\n* [`if let`] and [`while let`] bindings are valid in the following conditions as well as the consequent block.\n\n* [`match` arms] bindings are within the [match guard] and the match arm expression.\n\nLocal variable scopes do not extend into item declarations.\n<!-- Not entirely, see https://github.com/rust-lang/rust/issues/33118 -->\n\n### Pattern binding shadowing\n\nPattern bindings are allowed to shadow any name in scope with the following exceptions which are an error:\n\n* [Const generic parameters]\n* [Static items]\n* [Const items]\n* Constructors for [structs] and [enums]\n\nThe following example illustrates how local bindings can shadow item declarations:\n\nfn shadow_example() {\n    // Since there are no local variables in scope yet, this resolves to the function.\n    foo(); // prints `function`\n    let foo = || println!(\"closure\");\n    fn foo() { println!(\"function\"); }\n    // This resolves to the local closure since it shadows the item.\n    foo(); // prints `closure`\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "names.scopes.pattern-bindings": "The scope of a local variable [pattern] binding depends on where it is used:",
+        "names.scopes.pattern-bindings.let": "* [`let` statement] bindings range from just after the `let` statement until the end of the block where it is declared.",
+        "names.scopes.pattern-bindings.parameter": "* [Function parameter] bindings are within the body of the function.",
+        "names.scopes.pattern-bindings.closure": "* [Closure parameter] bindings are within the closure body.",
+        "names.scopes.pattern-bindings.loop": "* [`for`] bindings are within the loop body.",
+        "names.scopes.pattern-bindings.let-chains": "* [`if let`] and [`while let`] bindings are valid in the following conditions as well as the consequent block.",
+        "names.scopes.pattern-bindings.match-arm": "* [`match` arms] bindings are within the [match guard] and the match arm expression.",
+        "names.scopes.pattern-bindings.items": "Local variable scopes do not extend into item declarations.\n<!-- Not entirely, see https://github.com/rust-lang/rust/issues/33118 -->\n\n### Pattern binding shadowing",
+        "names.scopes.pattern-bindings.shadow": "Pattern bindings are allowed to shadow any name in scope with the following exceptions which are an error:\n\n* [Const generic parameters]\n* [Static items]\n* [Const items]\n* Constructors for [structs] and [enums]\n\nThe following example illustrates how local bindings can shadow item declarations:\n\nfn shadow_example() {\n    // Since there are no local variables in scope yet, this resolves to the function.\n    foo(); // prints `function`\n    let foo = || println!(\"closure\");\n    fn foo() { println!(\"function\"); }\n    // This resolves to the local closure since it shadows the item.\n    foo(); // prints `closure`\n}"
+      }
+    },
+    {
+      "id": "names.scopes.generic-parameters",
+      "title": "Generic parameter scopes",
+      "level": 3,
+      "content": "Generic parameters are declared in a [GenericParams] list.\nThe scope of a generic parameter is within the item it is declared on.\n\nAll parameters are in scope within the generic parameter list regardless of the order they are declared.\nThe following shows some examples where a parameter may be referenced before it is declared:\n\n// The 'b bound is referenced before it is declared.\nfn params_scope<'a: 'b, 'b>() {}\n\n# trait SomeTrait<const Z: usize> {}\n// The const N is referenced in the trait bound before it is declared.\nfn f<T: SomeTrait<N>, const N: usize>() {}\n\nGeneric parameters are also in scope for type bounds and where clauses, for example:\n\n# trait SomeTrait<'a, T> {}\n// The <'a, U> for `SomeTrait` refer to the 'a and U parameters of `bounds_scope`.\nfn bounds_scope<'a, T: SomeTrait<'a, U>, U>() {}\n\nfn where_scope<'a, T, U>()\n    where T: SomeTrait<'a, U>\n{}\n\nIt is an error for [items] declared inside a function to refer to a generic parameter from their outer scope.\n\n,compile_fail\nfn example<T>() {\n    fn inner(x: T) {} // ERROR: can't use generic parameters from outer function\n}\n\n### Generic parameter shadowing\n\nIt is an error to shadow a generic parameter with the exception that items declared within functions are allowed to shadow generic parameter names from the function.\n\nfn example<'a, T, const N: usize>() {\n    // Items within functions are allowed to shadow generic parameter in scope.\n    fn inner_lifetime<'a>() {} // OK\n    fn inner_type<T>() {} // OK\n    fn inner_const<const N: usize>() {} // OK\n}\n\n,compile_fail\ntrait SomeTrait<'a, T, const N: usize> {\n    fn example_lifetime<'a>() {} // ERROR: 'a is already in use\n    fn example_type<T>() {} // ERROR: T is already in use\n    fn example_const<const N: usize>() {} // ERROR: N is already in use\n    fn example_mixed<const T: usize>() {} // ERROR: T is already in use\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "names.scopes.generic-parameters.param-list": "Generic parameters are declared in a [GenericParams] list.\nThe scope of a generic parameter is within the item it is declared on.",
+        "names.scopes.generic-parameters.order-independent": "All parameters are in scope within the generic parameter list regardless of the order they are declared.\nThe following shows some examples where a parameter may be referenced before it is declared:\n\n// The 'b bound is referenced before it is declared.\nfn params_scope<'a: 'b, 'b>() {}\n\n# trait SomeTrait<const Z: usize> {}\n// The const N is referenced in the trait bound before it is declared.\nfn f<T: SomeTrait<N>, const N: usize>() {}",
+        "names.scopes.generic-parameters.bounds": "Generic parameters are also in scope for type bounds and where clauses, for example:\n\n# trait SomeTrait<'a, T> {}\n// The <'a, U> for `SomeTrait` refer to the 'a and U parameters of `bounds_scope`.\nfn bounds_scope<'a, T: SomeTrait<'a, U>, U>() {}\n\nfn where_scope<'a, T, U>()\n    where T: SomeTrait<'a, U>\n{}",
+        "names.scopes.generic-parameters.inner-items": "It is an error for [items] declared inside a function to refer to a generic parameter from their outer scope.\n\n,compile_fail\nfn example<T>() {\n    fn inner(x: T) {} // ERROR: can't use generic parameters from outer function\n}\n\n### Generic parameter shadowing",
+        "names.scopes.generic-parameters.shadow": "It is an error to shadow a generic parameter with the exception that items declared within functions are allowed to shadow generic parameter names from the function.\n\nfn example<'a, T, const N: usize>() {\n    // Items within functions are allowed to shadow generic parameter in scope.\n    fn inner_lifetime<'a>() {} // OK\n    fn inner_type<T>() {} // OK\n    fn inner_const<const N: usize>() {} // OK\n}\n\n,compile_fail\ntrait SomeTrait<'a, T, const N: usize> {\n    fn example_lifetime<'a>() {} // ERROR: 'a is already in use\n    fn example_type<T>() {} // ERROR: T is already in use\n    fn example_const<const N: usize>() {} // ERROR: N is already in use\n    fn example_mixed<const T: usize>() {} // ERROR: T is already in use\n}"
+      }
+    },
+    {
+      "id": "names.scopes.lifetimes",
+      "title": "Lifetime scopes",
+      "level": 3,
+      "content": "Lifetime parameters are declared in a [GenericParams] list and higher-ranked trait bounds.\n\nThe `'static` lifetime and [placeholder lifetime] `'_` have a special meaning and cannot be declared as a parameter.\n\n#### Lifetime generic parameter scopes\n\n[Constant] and [static] items and [const contexts] only ever allow `'static` lifetime references, so no other lifetime may be in scope within them.\n[Associated consts] do allow referring to lifetimes declared in their trait or implementation.\n\n#### Higher-ranked trait bound scopes\n\nThe scope of a lifetime parameter declared as a higher-ranked trait bound depends on the scenario where it is used.\n\n* As a [TypeBoundWhereClauseItem] the declared lifetimes are in scope in the type and the type bounds.\n* As a [TraitBound] the declared lifetimes are in scope within the bound type path.\n* As a [BareFunctionType] the declared lifetimes are in scope within the function parameters and return type.\n\n# trait Trait<'a>{}\n\nfn where_clause<T>()\n    // 'a is in scope in both the type and the type bounds.\n    where for <'a> &'a T: Trait<'a>\n{}\n\nfn bound<T>()\n    // 'a is in scope within the bound.\n    where T: for <'a> Trait<'a>\n{}\n\n# struct Example<'a> {\n#     field: &'a u32\n# }\n\n// 'a is in scope in both the parameters and return type.\ntype FnExample = for<'a> fn(x: Example<'a>) -> Example<'a>;\n\n#### Impl trait restrictions\n\n[Impl trait] types can only reference lifetimes declared on a function or implementation.\n\n<!-- not able to demonstrate the scope error because the compiler panics\n     https://github.com/rust-lang/rust/issues/67830\n-->\n# trait Trait1 {\n#     type Item;\n# }\n# trait Trait2<'a> {}\n#\n# struct Example;\n#\n# impl Trait1 for Example {\n#     type Item = Element;\n# }\n#\n# struct Element;\n# impl<'a> Trait2<'a> for Element {}\n#\n// The `impl Trait2` here is not allowed to refer to 'b but it is allowed to\n// refer to 'a.\nfn foo<'a>() -> impl for<'b> Trait1<Item = impl Trait2<'a> + use<'a>> {\n    // ...\n#    Example\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "names.scopes.lifetimes": "Lifetime parameters are declared in a [GenericParams] list and higher-ranked trait bounds.",
+        "names.scopes.lifetimes.special": "The `'static` lifetime and [placeholder lifetime] `'_` have a special meaning and cannot be declared as a parameter.\n\n#### Lifetime generic parameter scopes",
+        "names.scopes.lifetimes.generic": "[Constant] and [static] items and [const contexts] only ever allow `'static` lifetime references, so no other lifetime may be in scope within them.\n[Associated consts] do allow referring to lifetimes declared in their trait or implementation.\n\n#### Higher-ranked trait bound scopes",
+        "names.scopes.lifetimes.higher-ranked": "The scope of a lifetime parameter declared as a higher-ranked trait bound depends on the scenario where it is used.\n\n* As a [TypeBoundWhereClauseItem] the declared lifetimes are in scope in the type and the type bounds.\n* As a [TraitBound] the declared lifetimes are in scope within the bound type path.\n* As a [BareFunctionType] the declared lifetimes are in scope within the function parameters and return type.\n\n# trait Trait<'a>{}\n\nfn where_clause<T>()\n    // 'a is in scope in both the type and the type bounds.\n    where for <'a> &'a T: Trait<'a>\n{}\n\nfn bound<T>()\n    // 'a is in scope within the bound.\n    where T: for <'a> Trait<'a>\n{}\n\n# struct Example<'a> {\n#     field: &'a u32\n# }\n\n// 'a is in scope in both the parameters and return type.\ntype FnExample = for<'a> fn(x: Example<'a>) -> Example<'a>;\n\n#### Impl trait restrictions",
+        "names.scopes.lifetimes.impl-trait": "[Impl trait] types can only reference lifetimes declared on a function or implementation.\n\n<!-- not able to demonstrate the scope error because the compiler panics\n     https://github.com/rust-lang/rust/issues/67830\n-->\n# trait Trait1 {\n#     type Item;\n# }\n# trait Trait2<'a> {}\n#\n# struct Example;\n#\n# impl Trait1 for Example {\n#     type Item = Element;\n# }\n#\n# struct Element;\n# impl<'a> Trait2<'a> for Element {}\n#\n// The `impl Trait2` here is not allowed to refer to 'b but it is allowed to\n// refer to 'a.\nfn foo<'a>() -> impl for<'b> Trait1<Item = impl Trait2<'a> + use<'a>> {\n    // ...\n#    Example\n}"
+      }
+    },
+    {
+      "id": "names.scopes.loop-label",
+      "title": "Loop label scopes",
+      "level": 1,
+      "content": "[Loop labels] may be declared by a [loop expression].\nThe scope of a loop label is from the point it is declared till the end of the loop expression.\nThe scope does not extend into [items], [closures], [async blocks], [const arguments], [const contexts], and the iterator expression of the defining [`for` loop].\n\n'a: for n in 0..3 {\n    if n % 2 == 0 {\n        break 'a;\n    }\n    fn inner() {\n        // Using 'a here would be an error.\n        // break 'a;\n    }\n}\n\n// The label is in scope for the expression of `while` loops.\n'a: while break 'a {}         // Loop does not run.\n'a: while let _ = break 'a {} // Loop does not run.\n\n// The label is not in scope in the defining `for` loop:\n'a: for outer in 0..5 {\n    // This will break the outer loop, skipping the inner loop and stopping\n    // the outer loop.\n    'a: for inner in { break 'a; 0..1 } {\n        println!(\"{}\", inner); // This does not run.\n    }\n    println!(\"{}\", outer); // This does not run, either.\n}\n\nLoop labels may shadow labels of the same name in outer scopes.\nReferences to a label refer to the closest definition.\n\n// Loop label shadowing example.\n'a: for outer in 0..5 {\n    'a: for inner in 0..5 {\n        // This terminates the inner loop, but the outer loop continues to run.\n        break 'a;\n    }\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "names.scopes.loop-label.scope": "[Loop labels] may be declared by a [loop expression].\nThe scope of a loop label is from the point it is declared till the end of the loop expression.\nThe scope does not extend into [items], [closures], [async blocks], [const arguments], [const contexts], and the iterator expression of the defining [`for` loop].\n\n'a: for n in 0..3 {\n    if n % 2 == 0 {\n        break 'a;\n    }\n    fn inner() {\n        // Using 'a here would be an error.\n        // break 'a;\n    }\n}\n\n// The label is in scope for the expression of `while` loops.\n'a: while break 'a {}         // Loop does not run.\n'a: while let _ = break 'a {} // Loop does not run.\n\n// The label is not in scope in the defining `for` loop:\n'a: for outer in 0..5 {\n    // This will break the outer loop, skipping the inner loop and stopping\n    // the outer loop.\n    'a: for inner in { break 'a; 0..1 } {\n        println!(\"{}\", inner); // This does not run.\n    }\n    println!(\"{}\", outer); // This does not run, either.\n}",
+        "names.scopes.loop-label.shadow": "Loop labels may shadow labels of the same name in outer scopes.\nReferences to a label refer to the closest definition.\n\n// Loop label shadowing example.\n'a: for outer in 0..5 {\n    'a: for inner in 0..5 {\n        // This terminates the inner loop, but the outer loop continues to run.\n        break 'a;\n    }\n}"
+      }
+    },
+    {
+      "id": "names.scopes.prelude",
+      "title": "Prelude scopes",
+      "level": 2,
+      "content": "[Preludes] bring entities into scope of every module.\nThe entities are not members of the module, but are implicitly queried during [name resolution].\n\nThe prelude names may be shadowed by declarations in a module.\n\nThe preludes are layered such that one shadows another if they contain entities of the same name.\nThe order that preludes may shadow other preludes is the following where earlier entries may shadow later ones:\n\n1. [Extern prelude]\n2. [Tool prelude]\n3. [`macro_use` prelude]\n4. [Standard library prelude]\n5. [Language prelude]",
+      "parent_id": null,
+      "paragraphs": {
+        "names.scopes.prelude.intro": "[Preludes] bring entities into scope of every module.\nThe entities are not members of the module, but are implicitly queried during [name resolution].",
+        "names.scopes.prelude.shadow": "The prelude names may be shadowed by declarations in a module.",
+        "names.scopes.prelude.layers": "The preludes are layered such that one shadows another if they contain entities of the same name.\nThe order that preludes may shadow other preludes is the following where earlier entries may shadow later ones:\n\n1. [Extern prelude]\n2. [Tool prelude]\n3. [`macro_use` prelude]\n4. [Standard library prelude]\n5. [Language prelude]"
+      }
+    },
+    {
+      "id": "names.scopes.macro_rules",
+      "title": "`macro_rules` scopes",
+      "level": 2,
+      "content": "The scope of `macro_rules` macros is described in the [Macros By Example] chapter.\nThe behavior depends on the use of the [`macro_use`] and [`macro_export`] attributes.",
+      "parent_id": null,
+      "paragraphs": {
+        "names.scopes.macro_rules": "The scope of `macro_rules` macros is described in the [Macros By Example] chapter.\nThe behavior depends on the use of the [`macro_use`] and [`macro_export`] attributes."
+      }
+    },
+    {
+      "id": "names.scopes.derive",
+      "title": "Derive macro helper attributes",
+      "level": 2,
+      "content": "[Derive macro helper attributes] are in scope in the item where their corresponding [`derive` attribute] is specified.\nThe scope extends from just after the `derive` attribute to the end of the item. <!-- Note: Not strictly true, see https://github.com/rust-lang/rust/issues/79202, but this is the intention. -->\n\nHelper attributes shadow other attributes of the same name in scope.",
+      "parent_id": null,
+      "paragraphs": {
+        "names.scopes.derive.scope": "[Derive macro helper attributes] are in scope in the item where their corresponding [`derive` attribute] is specified.\nThe scope extends from just after the `derive` attribute to the end of the item. <!-- Note: Not strictly true, see https://github.com/rust-lang/rust/issues/79202, but this is the intention. -->",
+        "names.scopes.derive.shadow": "Helper attributes shadow other attributes of the same name in scope."
+      }
+    },
+    {
+      "id": "names.scopes.self",
+      "title": "`Self` scope",
+      "level": 2,
+      "content": "Although [`Self`] is a keyword with special meaning, it interacts with name resolution in a way similar to normal names.\n\nThe implicit `Self` type in the definition of a [struct], [enum], [union], [trait], or [implementation] is treated similarly to a generic parameter, and is in scope in the same way as a generic type parameter.\n\nThe implicit `Self` constructor in the value [namespace] of an [implementation] is in scope within the body of the implementation (the implementation's [associated items]).\n\n// Self type within struct definition.\nstruct Recursive {\n    f1: Option<Box<Self>>\n}\n\n// Self type within generic parameters.\nstruct SelfGeneric<T: Into<Self>>(T);\n\n// Self value constructor within an implementation.\nstruct ImplExample();\nimpl ImplExample {\n    fn example() -> Self { // Self type\n        Self() // Self value constructor\n    }\n}\n\n[`derive` attribute]: ../attributes/derive.md\n[`for` loop]: ../expressions/loop-expr.md#iterator-loops\n[`for`]: ../expressions/loop-expr.md#iterator-loops\n[`if let`]: ../expressions/if-expr.md#if-let-patterns\n[`while let`]: ../expressions/loop-expr.md#while-let-patterns\n[`let` statement]: ../statements.md#let-statements\n[`macro_export`]: ../macros-by-example.md#the-macro_export-attribute\n[`macro_use` prelude]: preludes.md#macro_use-prelude\n[`macro_use`]: ../macros-by-example.md#the-macro_use-attribute\n[`match` arms]: ../expressions/match-expr.md\n[`Self`]: ../paths.md#self-1\n[Associated consts]: ../items/associated-items.md#associated-constants\n[associated items]: ../items/associated-items.md\n[Asterisk glob imports]: ../items/use-declarations.md\n[async blocks]: ../expressions/block-expr.md#async-blocks\n[call expressions]: ../expressions/call-expr.md\n[Closure parameter]: ../expressions/closure-expr.md\n[closures]: ../expressions/closure-expr.md\n[const arguments]: ../items/generics.md#const-generics\n[const contexts]: ../const_eval.md#const-context\n[Const generic parameters]: ../items/generics.md#const-generics\n[Const items]: ../items/constant-items.md\n[Constant]: ../items/constant-items.md\n[Derive macro helper attributes]: ../procedural-macros.md#derive-macro-helper-attributes\n[destructors]: ../destructors.md\n[entity]: ../names.md\n[enum]: ../items/enumerations.mdr\n[enums]: ../items/enumerations.md\n[Extern prelude]: preludes.md#extern-prelude\n[Function parameter]: ../items/functions.md#function-parameters\n[hrtb]: ../trait-bounds.md#higher-ranked-trait-bounds\n[Impl trait]: ../types/impl-trait.md\n[implementation]: ../items/implementations.md\n[items]: ../items.md\n[Language prelude]: preludes.md#language-prelude\n[loop expression]: ../expressions/loop-expr.md\n[Loop labels]: ../expressions/loop-expr.md#loop-labels\n[Macros By Example]: ../macros-by-example.md\n[match guard]: ../expressions/match-expr.md#match-guards\n[methods]: ../items/associated-items.md#methods\n[module]: ../items/modules.md\n[name resolution]: name-resolution.md\n[namespace]: namespaces.md\n[path]: ../paths.md\n[pattern]: ../patterns.md\n[placeholder lifetime]: ../lifetime-elision.md\n[preludes]: preludes.md\n[Standard library prelude]: preludes.md#standard-library-prelude\n[statement]: ../statements.md\n[Static items]: ../items/static-items.md\n[static]: ../items/static-items.md\n[struct]: ../items/structs.md\n[structs]: ../items/structs.md\n[Tool prelude]: preludes.md#tool-prelude\n[trait]: ../items/traits.md\n[union]: ../items/unions.md",
+      "parent_id": null,
+      "paragraphs": {
+        "names.scopes.self.intro": "Although [`Self`] is a keyword with special meaning, it interacts with name resolution in a way similar to normal names.",
+        "names.scopes.self.def-scope": "The implicit `Self` type in the definition of a [struct], [enum], [union], [trait], or [implementation] is treated similarly to a generic parameter, and is in scope in the same way as a generic type parameter.",
+        "names.scopes.self.impl-scope": "The implicit `Self` constructor in the value [namespace] of an [implementation] is in scope within the body of the implementation (the implementation's [associated items]).\n\n// Self type within struct definition.\nstruct Recursive {\n    f1: Option<Box<Self>>\n}\n\n// Self type within generic parameters.\nstruct SelfGeneric<T: Into<Self>>(T);\n\n// Self value constructor within an implementation.\nstruct ImplExample();\nimpl ImplExample {\n    fn example() -> Self { // Self type\n        Self() // Self value constructor\n    }\n}\n\n[`derive` attribute]: ../attributes/derive.md\n[`for` loop]: ../expressions/loop-expr.md#iterator-loops\n[`for`]: ../expressions/loop-expr.md#iterator-loops\n[`if let`]: ../expressions/if-expr.md#if-let-patterns\n[`while let`]: ../expressions/loop-expr.md#while-let-patterns\n[`let` statement]: ../statements.md#let-statements\n[`macro_export`]: ../macros-by-example.md#the-macro_export-attribute\n[`macro_use` prelude]: preludes.md#macro_use-prelude\n[`macro_use`]: ../macros-by-example.md#the-macro_use-attribute\n[`match` arms]: ../expressions/match-expr.md\n[`Self`]: ../paths.md#self-1\n[Associated consts]: ../items/associated-items.md#associated-constants\n[associated items]: ../items/associated-items.md\n[Asterisk glob imports]: ../items/use-declarations.md\n[async blocks]: ../expressions/block-expr.md#async-blocks\n[call expressions]: ../expressions/call-expr.md\n[Closure parameter]: ../expressions/closure-expr.md\n[closures]: ../expressions/closure-expr.md\n[const arguments]: ../items/generics.md#const-generics\n[const contexts]: ../const_eval.md#const-context\n[Const generic parameters]: ../items/generics.md#const-generics\n[Const items]: ../items/constant-items.md\n[Constant]: ../items/constant-items.md\n[Derive macro helper attributes]: ../procedural-macros.md#derive-macro-helper-attributes\n[destructors]: ../destructors.md\n[entity]: ../names.md\n[enum]: ../items/enumerations.mdr\n[enums]: ../items/enumerations.md\n[Extern prelude]: preludes.md#extern-prelude\n[Function parameter]: ../items/functions.md#function-parameters\n[hrtb]: ../trait-bounds.md#higher-ranked-trait-bounds\n[Impl trait]: ../types/impl-trait.md\n[implementation]: ../items/implementations.md\n[items]: ../items.md\n[Language prelude]: preludes.md#language-prelude\n[loop expression]: ../expressions/loop-expr.md\n[Loop labels]: ../expressions/loop-expr.md#loop-labels\n[Macros By Example]: ../macros-by-example.md\n[match guard]: ../expressions/match-expr.md#match-guards\n[methods]: ../items/associated-items.md#methods\n[module]: ../items/modules.md\n[name resolution]: name-resolution.md\n[namespace]: namespaces.md\n[path]: ../paths.md\n[pattern]: ../patterns.md\n[placeholder lifetime]: ../lifetime-elision.md\n[preludes]: preludes.md\n[Standard library prelude]: preludes.md#standard-library-prelude\n[statement]: ../statements.md\n[Static items]: ../items/static-items.md\n[static]: ../items/static-items.md\n[struct]: ../items/structs.md\n[structs]: ../items/structs.md\n[Tool prelude]: preludes.md#tool-prelude\n[trait]: ../items/traits.md\n[union]: ../items/unions.md"
+      }
+    },
+    {
+      "id": "names.preludes",
+      "title": "Preludes",
+      "level": 1,
+      "content": "A *prelude* is a collection of names that are automatically brought into scope\nof every module in a crate.\n\nThese prelude names are not part of the module itself: they are implicitly\nqueried during [name resolution]. For example, even though something like\n[`Box`] is in scope in every module, you cannot refer to it as `self::Box`\nbecause it is not a member of the current module.\n\nThere are several different preludes:\n\n- [Standard library prelude]\n- [Extern prelude]\n- [Language prelude]\n- [`macro_use` prelude]\n- [Tool prelude]",
+      "parent_id": null,
+      "paragraphs": {
+        "names.preludes.intro": "A *prelude* is a collection of names that are automatically brought into scope\nof every module in a crate.\n\nThese prelude names are not part of the module itself: they are implicitly\nqueried during [name resolution]. For example, even though something like\n[`Box`] is in scope in every module, you cannot refer to it as `self::Box`\nbecause it is not a member of the current module.",
+        "names.preludes.kinds": "There are several different preludes:\n\n- [Standard library prelude]\n- [Extern prelude]\n- [Language prelude]\n- [`macro_use` prelude]\n- [Tool prelude]"
+      }
+    },
+    {
+      "id": "names.preludes.std",
+      "title": "Standard library prelude",
+      "level": 1,
+      "content": "Each crate has a standard library prelude, which consists of the names from a single standard library module.\n\nThe module used depends on the crate's edition, and on whether the [`no_std` attribute] is applied to the crate:\n\nEdition | `no_std` not applied        | `no_std` applied\n--------| --------------------------- | ----------------------------\n2015    | [`std::prelude::rust_2015`] | [`core::prelude::rust_2015`]\n2018    | [`std::prelude::rust_2018`] | [`core::prelude::rust_2018`]\n2021    | [`std::prelude::rust_2021`] | [`core::prelude::rust_2021`]\n2024    | [`std::prelude::rust_2024`] | [`core::prelude::rust_2024`]\n\n> [!NOTE]\n> [`std::prelude::rust_2015`] and [`std::prelude::rust_2018`] have the same contents as [`std::prelude::v1`].\n>\n> [`core::prelude::rust_2015`] and [`core::prelude::rust_2018`] have the same contents as [`core::prelude::v1`].",
+      "parent_id": null,
+      "paragraphs": {
+        "names.preludes.std.intro": "Each crate has a standard library prelude, which consists of the names from a single standard library module.",
+        "names.preludes.std.module": "The module used depends on the crate's edition, and on whether the [`no_std` attribute] is applied to the crate:\n\nEdition | `no_std` not applied        | `no_std` applied\n--------| --------------------------- | ----------------------------\n2015    | [`std::prelude::rust_2015`] | [`core::prelude::rust_2015`]\n2018    | [`std::prelude::rust_2018`] | [`core::prelude::rust_2018`]\n2021    | [`std::prelude::rust_2021`] | [`core::prelude::rust_2021`]\n2024    | [`std::prelude::rust_2024`] | [`core::prelude::rust_2024`]\n\n> [!NOTE]\n> [`std::prelude::rust_2015`] and [`std::prelude::rust_2018`] have the same contents as [`std::prelude::v1`].\n>\n> [`core::prelude::rust_2015`] and [`core::prelude::rust_2018`] have the same contents as [`core::prelude::v1`]."
+      }
+    },
+    {
+      "id": "names.preludes.extern",
+      "title": "Extern prelude",
+      "level": 2,
+      "content": "External crates imported with [`extern crate`] in the root module or provided\nto the compiler (as with the `--extern` flag with `rustc`) are added to the\n*extern prelude*. If imported with an alias such as `extern crate orig_name as\nnew_name`, then the symbol `new_name` is instead added to the prelude.\n\nThe [`core`] crate is always added to the extern prelude.\n\nThe [`std`] crate is added as long as the [`no_std` attribute] is not specified in the crate root.\n\n> [!EDITION-2018]\n> In the 2015 edition, crates in the extern prelude cannot be referenced via [use declarations], so it is generally standard practice to include `extern crate` declarations to bring them into scope.\n>\n> Beginning in the 2018 edition, [use declarations] can reference crates in the extern prelude, so it is considered unidiomatic to use `extern crate`.\n\n> [!NOTE]\n> Additional crates that ship with `rustc`, such as [`alloc`], and `test`, are not automatically included with the `--extern` flag when using Cargo. They must be brought into scope with an `extern crate` declaration, even in the 2018 edition.\n>\n> ```rust\n> extern crate alloc;\n> use alloc::rc::Rc;\n> ```\n>\n> Cargo does bring in `proc_macro` to the extern prelude for proc-macro crates only.\n\n<!--\nSee https://github.com/rust-lang/rust/issues/57288 for more about the\nalloc/test limitation.\n-->\n\n<!-- template:attributes -->",
+      "parent_id": null,
+      "paragraphs": {
+        "names.preludes.extern.intro": "External crates imported with [`extern crate`] in the root module or provided\nto the compiler (as with the `--extern` flag with `rustc`) are added to the\n*extern prelude*. If imported with an alias such as `extern crate orig_name as\nnew_name`, then the symbol `new_name` is instead added to the prelude.",
+        "names.preludes.extern.core": "The [`core`] crate is always added to the extern prelude.",
+        "names.preludes.extern.std": "The [`std`] crate is added as long as the [`no_std` attribute] is not specified in the crate root.",
+        "names.preludes.extern.edition2018": "> [!EDITION-2018]\n> In the 2015 edition, crates in the extern prelude cannot be referenced via [use declarations], so it is generally standard practice to include `extern crate` declarations to bring them into scope.\n>\n> Beginning in the 2018 edition, [use declarations] can reference crates in the extern prelude, so it is considered unidiomatic to use `extern crate`.\n\n> [!NOTE]\n> Additional crates that ship with `rustc`, such as [`alloc`], and `test`, are not automatically included with the `--extern` flag when using Cargo. They must be brought into scope with an `extern crate` declaration, even in the 2018 edition.\n>\n> ```rust\n> extern crate alloc;\n> use alloc::rc::Rc;\n> ```\n>\n> Cargo does bring in `proc_macro` to the extern prelude for proc-macro crates only.\n\n<!--\nSee https://github.com/rust-lang/rust/issues/57288 for more about the\nalloc/test limitation.\n-->\n\n<!-- template:attributes -->"
+      }
+    },
+    {
+      "id": "names.preludes.extern.no_std",
+      "title": "The `no_std` attribute",
+      "level": 2,
+      "content": "The *`no_std` attribute* causes the [`std`] crate to not be linked automatically, the [standard library prelude] to instead use the `core` prelude, and the [`macro_use` prelude] to instead use the macros exported from the `core` crate.\n\n> [!EXAMPLE]\n> <!-- ignore: test infrastructure can't handle no_std -->\n> ```rust,ignore\n> #![no_std]\n> ```\n\n> [!NOTE]\n> Using `no_std` is useful when either the crate is targeting a platform that does not support the standard library or is purposefully not using the capabilities of the standard library. Those capabilities are mainly dynamic memory allocation (e.g. `Box` and `Vec`) and file and network capabilities (e.g. `std::fs` and `std::io`).\n\n> [!WARNING]\n> Using `no_std` does not prevent the standard library from being linked. It is still valid to write `extern crate std` in the crate or in one of its dependencies; this will cause the compiler to link the `std` crate into the program.\n\nThe `no_std` attribute uses the [MetaWord] syntax.\n\nThe `no_std` attribute may only be applied to the crate root.\n\nThe `no_std` attribute may be used any number of times on a form.\n\n> [!NOTE]\n> `rustc` lints against any use following the first.\n\nThe `no_std` attribute changes the [standard library prelude] to use the `core` prelude instead of the `std` prelude.\n\nBy default, all macros exported from the `std` crate are added to the [`macro_use` prelude]. If the `no_std` attribute is specified, then all macros exported from the `core` crate are placed into the [`macro_use` prelude] instead.\n\n> [!EDITION-2018]\n> Before the 2018 edition, `std` is injected into the crate root by default. If `no_std` is specified, `core` is injected instead. Starting with the 2018 edition, regardless of `no_std` being specified, neither is injected into the crate root.",
+      "parent_id": null,
+      "paragraphs": {
+        "names.preludes.extern.no_std.intro": "The *`no_std` attribute* causes the [`std`] crate to not be linked automatically, the [standard library prelude] to instead use the `core` prelude, and the [`macro_use` prelude] to instead use the macros exported from the `core` crate.\n\n> [!EXAMPLE]\n> <!-- ignore: test infrastructure can't handle no_std -->\n> ```rust,ignore\n> #![no_std]\n> ```\n\n> [!NOTE]\n> Using `no_std` is useful when either the crate is targeting a platform that does not support the standard library or is purposefully not using the capabilities of the standard library. Those capabilities are mainly dynamic memory allocation (e.g. `Box` and `Vec`) and file and network capabilities (e.g. `std::fs` and `std::io`).\n\n> [!WARNING]\n> Using `no_std` does not prevent the standard library from being linked. It is still valid to write `extern crate std` in the crate or in one of its dependencies; this will cause the compiler to link the `std` crate into the program.",
+        "names.preludes.extern.no_std.syntax": "The `no_std` attribute uses the [MetaWord] syntax.",
+        "names.preludes.extern.no_std.allowed-positions": "The `no_std` attribute may only be applied to the crate root.",
+        "names.preludes.extern.no_std.duplicates": "The `no_std` attribute may be used any number of times on a form.\n\n> [!NOTE]\n> `rustc` lints against any use following the first.",
+        "names.preludes.extern.no_std.module": "The `no_std` attribute changes the [standard library prelude] to use the `core` prelude instead of the `std` prelude.",
+        "names.preludes.extern.no_std.macro_use": "By default, all macros exported from the `std` crate are added to the [`macro_use` prelude]. If the `no_std` attribute is specified, then all macros exported from the `core` crate are placed into the [`macro_use` prelude] instead.",
+        "names.preludes.extern.no_std.edition2018": "> [!EDITION-2018]\n> Before the 2018 edition, `std` is injected into the crate root by default. If `no_std` is specified, `core` is injected instead. Starting with the 2018 edition, regardless of `no_std` being specified, neither is injected into the crate root."
+      }
+    },
+    {
+      "id": "names.preludes.lang",
+      "title": "Language prelude",
+      "level": 3,
+      "content": "The language prelude includes names of types and attributes that are built-in\nto the language. The language prelude is always in scope.\n\nIt includes the following:\n\n* [Type namespace]\n    * [Boolean type] --- `bool`\n    * [Textual types] --- `char` and `str`\n    * [Integer types] --- `i8`, `i16`, `i32`, `i64`, `i128`, `u8`, `u16`, `u32`, `u64`, `u128`\n    * [Machine-dependent integer types] --- `usize` and `isize`\n    * [floating-point types] --- `f32` and `f64`\n* [Macro namespace]\n    * [Built-in attributes]\n    * Built-in derive macros",
+      "parent_id": null,
+      "paragraphs": {
+        "names.preludes.lang.intro": "The language prelude includes names of types and attributes that are built-in\nto the language. The language prelude is always in scope.",
+        "names.preludes.lang.entities": "It includes the following:\n\n* [Type namespace]\n    * [Boolean type] --- `bool`\n    * [Textual types] --- `char` and `str`\n    * [Integer types] --- `i8`, `i16`, `i32`, `i64`, `i128`, `u8`, `u16`, `u32`, `u64`, `u128`\n    * [Machine-dependent integer types] --- `usize` and `isize`\n    * [floating-point types] --- `f32` and `f64`\n* [Macro namespace]\n    * [Built-in attributes]\n    * Built-in derive macros"
+      }
+    },
+    {
+      "id": "names.preludes.macro_use",
+      "title": "`macro_use` prelude",
+      "level": 2,
+      "content": "The `macro_use` prelude includes macros from external crates that were\nimported by the [`macro_use` attribute] applied to an [`extern crate`].",
+      "parent_id": null,
+      "paragraphs": {
+        "names.preludes.macro_use.intro": "The `macro_use` prelude includes macros from external crates that were\nimported by the [`macro_use` attribute] applied to an [`extern crate`]."
+      }
+    },
+    {
+      "id": "names.preludes.tool",
+      "title": "Tool prelude",
+      "level": 2,
+      "content": "The tool prelude includes tool names for external tools in the [type\nnamespace]. See the [tool attributes] section for more details.\n\n<!-- template:attributes -->",
+      "parent_id": null,
+      "paragraphs": {
+        "names.preludes.tool.intro": "The tool prelude includes tool names for external tools in the [type\nnamespace]. See the [tool attributes] section for more details.\n\n<!-- template:attributes -->"
+      }
+    },
+    {
+      "id": "names.preludes.no_implicit_prelude",
+      "title": "The `no_implicit_prelude` attribute",
+      "level": 2,
+      "content": "The *`no_implicit_prelude` [attribute]* is used to prevent implicit preludes from being brought into scope.\n\n> [!EXAMPLE]\n> ```rust\n> // The attribute can be applied to the crate root to affect\n> // all modules.\n> #![no_implicit_prelude]\n>\n> // Or it can be applied to a module to only affect that module\n> // and its descendants.\n> #[no_implicit_prelude]\n> mod example {\n>     // ...\n> }\n> ```\n\nThe `no_implicit_prelude` attribute uses the [MetaWord] syntax.\n\nThe `no_implicit_prelude` attribute may only be applied to the crate or to a module.\n\n> [!NOTE]\n> `rustc` ignores use in other positions but lints against it. This may become an error in the future.\n\nThe `no_implicit_prelude` attribute may be used any number of times on a form.\n\n> [!NOTE]\n> `rustc` lints against any use following the first.\n\nThe `no_implicit_prelude` attribute prevents the [standard library prelude], [extern prelude], [`macro_use` prelude], and the [tool prelude] from being brought into scope for the module and its descendants.\n\nThe `no_implicit_prelude` attribute does not affect the [language prelude].\n\n> [!EDITION-2018]\n> In the 2015 edition, the `no_implicit_prelude` attribute does not affect the [`macro_use` prelude], and all macros exported from the standard library are still included in the `macro_use` prelude. Starting in the 2018 edition, the attribute does remove the `macro_use` prelude.\n\n[`extern crate`]: ../items/extern-crates.md\n[`macro_use` attribute]: ../macros-by-example.md#the-macro_use-attribute\n_use-prelude\n_std-attribute\n[attribute]: ../attributes.md\n[Boolean type]: ../types/boolean.md\n[Built-in attributes]: ../attributes.md#built-in-attributes-index\n\n[floating-point types]: ../types/numeric.md#floating-point-types\n[Integer types]: ../types/numeric.md#integer-types\n\n[Machine-dependent integer types]: ../types/numeric.md#machine-dependent-integer-types\n[Macro namespace]: namespaces.md\n[name resolution]: name-resolution.md\n[standard library prelude]: names.preludes.std\n[Textual types]: ../types/textual.md\n[tool attributes]: ../attributes.md#tool-attributes\n\n[Type namespace]: namespaces.md\n[use declarations]: ../items/use-declarations.md",
+      "parent_id": null,
+      "paragraphs": {
+        "names.preludes.no_implicit_prelude.intro": "The *`no_implicit_prelude` [attribute]* is used to prevent implicit preludes from being brought into scope.\n\n> [!EXAMPLE]\n> ```rust\n> // The attribute can be applied to the crate root to affect\n> // all modules.\n> #![no_implicit_prelude]\n>\n> // Or it can be applied to a module to only affect that module\n> // and its descendants.\n> #[no_implicit_prelude]\n> mod example {\n>     // ...\n> }\n> ```",
+        "names.preludes.no_implicit_prelude.syntax": "The `no_implicit_prelude` attribute uses the [MetaWord] syntax.",
+        "names.preludes.no_implicit_prelude.allowed-positions": "The `no_implicit_prelude` attribute may only be applied to the crate or to a module.\n\n> [!NOTE]\n> `rustc` ignores use in other positions but lints against it. This may become an error in the future.",
+        "names.preludes.no_implicit_prelude.duplicates": "The `no_implicit_prelude` attribute may be used any number of times on a form.\n\n> [!NOTE]\n> `rustc` lints against any use following the first.",
+        "names.preludes.no_implicit_prelude.excluded-preludes": "The `no_implicit_prelude` attribute prevents the [standard library prelude], [extern prelude], [`macro_use` prelude], and the [tool prelude] from being brought into scope for the module and its descendants.",
+        "names.preludes.no_implicit_prelude.lang": "The `no_implicit_prelude` attribute does not affect the [language prelude].",
+        "names.preludes.no_implicit_prelude.edition2018": "> [!EDITION-2018]\n> In the 2015 edition, the `no_implicit_prelude` attribute does not affect the [`macro_use` prelude], and all macros exported from the standard library are still included in the `macro_use` prelude. Starting in the 2018 edition, the attribute does remove the `macro_use` prelude.\n\n[`extern crate`]: ../items/extern-crates.md\n[`macro_use` attribute]: ../macros-by-example.md#the-macro_use-attribute\n_use-prelude\n_std-attribute\n[attribute]: ../attributes.md\n[Boolean type]: ../types/boolean.md\n[Built-in attributes]: ../attributes.md#built-in-attributes-index\n\n[floating-point types]: ../types/numeric.md#floating-point-types\n[Integer types]: ../types/numeric.md#integer-types\n\n[Machine-dependent integer types]: ../types/numeric.md#machine-dependent-integer-types\n[Macro namespace]: namespaces.md\n[name resolution]: name-resolution.md\n[standard library prelude]: names.preludes.std\n[Textual types]: ../types/textual.md\n[tool attributes]: ../attributes.md#tool-attributes\n\n[Type namespace]: namespaces.md\n[use declarations]: ../items/use-declarations.md"
+      }
+    },
+    {
+      "id": "paths",
+      "title": "Paths",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "paths.intro",
+      "title": "Paths",
+      "level": 1,
+      "content": "A *path* is a sequence of one or more path segments separated by `::` tokens.\nPaths are used to refer to [items], values, [types], [macros], and [attributes].\n\nTwo examples of simple paths consisting of only identifier segments:\n\n<!-- ignore: syntax fragment -->\n,ignore\nx;\nx::y::z;\n\n## Types of paths",
+      "parent_id": null,
+      "paragraphs": {
+        "paths.intro": "A *path* is a sequence of one or more path segments separated by `::` tokens.\nPaths are used to refer to [items], values, [types], [macros], and [attributes].\n\nTwo examples of simple paths consisting of only identifier segments:\n\n<!-- ignore: syntax fragment -->\n,ignore\nx;\nx::y::z;\n\n## Types of paths"
+      }
+    },
+    {
+      "id": "paths.simple",
+      "title": "Simple paths",
+      "level": 2,
+      "content": ",paths\nSimplePath ->\n    `::`? SimplePathSegment (`::` SimplePathSegment)*\n\nSimplePathSegment ->\n    IDENTIFIER | `super` | `self` | `crate` | `$crate`\n\nSimple paths are used in [visibility] markers, [attributes], macros, and [`use`] items.\nFor example:\n\nuse std::io::{self, Write};\nmod m {\n    #[clippy::cyclomatic_complexity = \"0\"]\n    pub (in super) fn f1() {}\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "paths.simple.syntax": ",paths\nSimplePath ->\n    `::`? SimplePathSegment (`::` SimplePathSegment)*\n\nSimplePathSegment ->\n    IDENTIFIER | `super` | `self` | `crate` | `$crate`",
+        "paths.simple.intro": "Simple paths are used in [visibility] markers, [attributes], macros, and [`use`] items.\nFor example:\n\nuse std::io::{self, Write};\nmod m {\n    #[clippy::cyclomatic_complexity = \"0\"]\n    pub (in super) fn f1() {}\n}"
+      }
+    },
+    {
+      "id": "paths.expr",
+      "title": "Paths in expressions",
+      "level": 3,
+      "content": ",paths\nPathInExpression ->\n    `::`? PathExprSegment (`::` PathExprSegment)*\n\nPathExprSegment ->\n    PathIdentSegment (`::` GenericArgs)?\n\nPathIdentSegment ->\n    IDENTIFIER | `super` | `self` | `Self` | `crate` | `$crate`\n\nGenericArgs ->\n      `<` `>`\n    | `<` ( GenericArg `,` )* GenericArg `,`? `>`\n\nGenericArg ->\n    Lifetime | Type | GenericArgsConst | GenericArgsBinding | GenericArgsBounds\n\nGenericArgsConst ->\n      BlockExpression\n    | LiteralExpression\n    | `-` LiteralExpression\n    | SimplePathSegment\n\nGenericArgsBinding ->\n    IDENTIFIER GenericArgs? `=` Type\n\nGenericArgsBounds ->\n    IDENTIFIER GenericArgs? `:` TypeParamBounds\n\nPaths in expressions allow for paths with generic arguments to be specified. They are\nused in various places in [expressions] and [patterns].\n\nThe `::` token is required before the opening `<` for generic arguments to avoid\nambiguity with the less-than operator. This is colloquially known as \"turbofish\" syntax.\n\n(0..10).collect::<Vec<_>>();\nVec::<u8>::with_capacity(1024);\n\nThe order of generic arguments is restricted to lifetime arguments, then type\narguments, then const arguments, then equality constraints.\n\nConst arguments must be surrounded by braces unless they are a [literal], an [inferred const], or a single segment path. An [inferred const] may not be surrounded by braces.\n\nmod m {\n    pub const C: usize = 1;\n}\nconst C: usize = m::C;\nfn f<const N: usize>() -> [u8; N] { [0; N] }\n\nlet _ = f::<1>(); // Literal.\nlet _: [_; 1] = f::<_>(); // Inferred const.\nlet _: [_; 1] = f::<(((_)))>(); // Inferred const.\nlet _ = f::<C>(); // Single segment path.\nlet _ = f::<{ m::C }>(); // Multi-segment path must be braced.\n\n,compile_fail\nfn f<const N: usize>() -> [u8; N] { [0; _] }\nlet _: [_; 1] = f::<{ _ }>();\n//                    ^ ERROR `_` not allowed here\n\n> [!NOTE]\n> In a generic argument list, an [inferred const] is parsed as an inferred type but then semantically treated as a separate kind of [const generic argument].\n\nThe synthetic type parameters corresponding to `impl Trait` types are implicit,\nand these cannot be explicitly specified.",
+      "parent_id": null,
+      "paragraphs": {
+        "paths.expr.syntax": ",paths\nPathInExpression ->\n    `::`? PathExprSegment (`::` PathExprSegment)*\n\nPathExprSegment ->\n    PathIdentSegment (`::` GenericArgs)?\n\nPathIdentSegment ->\n    IDENTIFIER | `super` | `self` | `Self` | `crate` | `$crate`\n\nGenericArgs ->\n      `<` `>`\n    | `<` ( GenericArg `,` )* GenericArg `,`? `>`\n\nGenericArg ->\n    Lifetime | Type | GenericArgsConst | GenericArgsBinding | GenericArgsBounds\n\nGenericArgsConst ->\n      BlockExpression\n    | LiteralExpression\n    | `-` LiteralExpression\n    | SimplePathSegment\n\nGenericArgsBinding ->\n    IDENTIFIER GenericArgs? `=` Type\n\nGenericArgsBounds ->\n    IDENTIFIER GenericArgs? `:` TypeParamBounds",
+        "paths.expr.intro": "Paths in expressions allow for paths with generic arguments to be specified. They are\nused in various places in [expressions] and [patterns].",
+        "paths.expr.turbofish": "The `::` token is required before the opening `<` for generic arguments to avoid\nambiguity with the less-than operator. This is colloquially known as \"turbofish\" syntax.\n\n(0..10).collect::<Vec<_>>();\nVec::<u8>::with_capacity(1024);",
+        "paths.expr.argument-order": "The order of generic arguments is restricted to lifetime arguments, then type\narguments, then const arguments, then equality constraints.",
+        "paths.expr.complex-const-params": "Const arguments must be surrounded by braces unless they are a [literal], an [inferred const], or a single segment path. An [inferred const] may not be surrounded by braces.\n\nmod m {\n    pub const C: usize = 1;\n}\nconst C: usize = m::C;\nfn f<const N: usize>() -> [u8; N] { [0; N] }\n\nlet _ = f::<1>(); // Literal.\nlet _: [_; 1] = f::<_>(); // Inferred const.\nlet _: [_; 1] = f::<(((_)))>(); // Inferred const.\nlet _ = f::<C>(); // Single segment path.\nlet _ = f::<{ m::C }>(); // Multi-segment path must be braced.\n\n,compile_fail\nfn f<const N: usize>() -> [u8; N] { [0; _] }\nlet _: [_; 1] = f::<{ _ }>();\n//                    ^ ERROR `_` not allowed here\n\n> [!NOTE]\n> In a generic argument list, an [inferred const] is parsed as an inferred type but then semantically treated as a separate kind of [const generic argument].",
+        "paths.expr.impl-trait-params": "The synthetic type parameters corresponding to `impl Trait` types are implicit,\nand these cannot be explicitly specified."
+      }
+    },
+    {
+      "id": "paths.qualified",
+      "title": "Qualified paths",
+      "level": 3,
+      "content": ",paths\nQualifiedPathInExpression -> QualifiedPathType (`::` PathExprSegment)+\n\nQualifiedPathType -> `<` Type (`as` TypePath)? `>`\n\nQualifiedPathInType -> QualifiedPathType (`::` TypePathSegment)+\n\nFully qualified paths allow for disambiguating the path for [trait implementations] and\nfor specifying canonical paths. When used in a type specification, it\nsupports using the type syntax specified below.\n\nstruct S;\nimpl S {\n    fn f() { println!(\"S\"); }\n}\ntrait T1 {\n    fn f() { println!(\"T1 f\"); }\n}\nimpl T1 for S {}\ntrait T2 {\n    fn f() { println!(\"T2 f\"); }\n}\nimpl T2 for S {}\nS::f();  // Calls the inherent impl.\n<S as T1>::f();  // Calls the T1 trait function.\n<S as T2>::f();  // Calls the T2 trait function.",
+      "parent_id": null,
+      "paragraphs": {
+        "paths.qualified.syntax": ",paths\nQualifiedPathInExpression -> QualifiedPathType (`::` PathExprSegment)+\n\nQualifiedPathType -> `<` Type (`as` TypePath)? `>`\n\nQualifiedPathInType -> QualifiedPathType (`::` TypePathSegment)+",
+        "paths.qualified.intro": "Fully qualified paths allow for disambiguating the path for [trait implementations] and\nfor specifying canonical paths. When used in a type specification, it\nsupports using the type syntax specified below.\n\nstruct S;\nimpl S {\n    fn f() { println!(\"S\"); }\n}\ntrait T1 {\n    fn f() { println!(\"T1 f\"); }\n}\nimpl T1 for S {}\ntrait T2 {\n    fn f() { println!(\"T2 f\"); }\n}\nimpl T2 for S {}\nS::f();  // Calls the inherent impl.\n<S as T1>::f();  // Calls the T1 trait function.\n<S as T2>::f();  // Calls the T2 trait function."
+      }
+    },
+    {
+      "id": "paths.type",
+      "title": "Paths in types",
+      "level": 2,
+      "content": ",paths\nTypePath -> `::`? TypePathSegment (`::` TypePathSegment)*\n\nTypePathSegment -> PathIdentSegment (`::`? (GenericArgs | TypePathFn))?\n\nTypePathFn -> `(` TypePathFnInputs? `)` (`->` TypeNoBounds)?\n\nTypePathFnInputs -> Type (`,` Type)* `,`?\n\nType paths are used within type definitions, trait bounds, type parameter bounds,\nand qualified paths.\n\nAlthough the `::` token is allowed before the generics arguments, it is not required\nbecause there is no ambiguity like there is in [PathInExpression].\n\n# mod ops {\n#     pub struct Range<T> {f1: T}\n#     pub trait Index<T> {}\n#     pub struct Example<'a> {f1: &'a i32}\n# }\n# struct S;\nimpl ops::Index<ops::Range<usize>> for S { /*...*/ }\nfn i<'a>() -> impl Iterator<Item = ops::Example<'a>> {\n    // ...\n#    const EXAMPLE: Vec<ops::Example<'static>> = Vec::new();\n#    EXAMPLE.into_iter()\n}\ntype G = std::boxed::Box<dyn std::ops::FnOnce(isize) -> isize>;",
+      "parent_id": null,
+      "paragraphs": {
+        "paths.type.syntax": ",paths\nTypePath -> `::`? TypePathSegment (`::` TypePathSegment)*\n\nTypePathSegment -> PathIdentSegment (`::`? (GenericArgs | TypePathFn))?\n\nTypePathFn -> `(` TypePathFnInputs? `)` (`->` TypeNoBounds)?\n\nTypePathFnInputs -> Type (`,` Type)* `,`?",
+        "paths.type.intro": "Type paths are used within type definitions, trait bounds, type parameter bounds,\nand qualified paths.",
+        "paths.type.turbofish": "Although the `::` token is allowed before the generics arguments, it is not required\nbecause there is no ambiguity like there is in [PathInExpression].\n\n# mod ops {\n#     pub struct Range<T> {f1: T}\n#     pub trait Index<T> {}\n#     pub struct Example<'a> {f1: &'a i32}\n# }\n# struct S;\nimpl ops::Index<ops::Range<usize>> for S { /*...*/ }\nfn i<'a>() -> impl Iterator<Item = ops::Example<'a>> {\n    // ...\n#    const EXAMPLE: Vec<ops::Example<'static>> = Vec::new();\n#    EXAMPLE.into_iter()\n}\ntype G = std::boxed::Box<dyn std::ops::FnOnce(isize) -> isize>;"
+      }
+    },
+    {
+      "id": "paths.qualifiers",
+      "title": "Path qualifiers",
+      "level": 1,
+      "content": "Paths can be denoted with various leading qualifiers to change the meaning of\nhow it is resolved.",
+      "parent_id": null,
+      "paragraphs": {
+        "paths.qualifiers": "Paths can be denoted with various leading qualifiers to change the meaning of\nhow it is resolved."
+      }
+    },
+    {
+      "id": "paths.qualifiers.global-root",
+      "title": "`::`",
+      "level": 2,
+      "content": "Paths starting with `::` are considered to be *global paths* where the segments of the path\nstart being resolved from a place which differs based on edition. Each identifier in\nthe path must resolve to an item.\n\n> [!EDITION-2018]\n> In the 2015 Edition, identifiers resolve from the \"crate root\" (`crate::` in the 2018 edition), which contains a variety of different items, including external crates, default crates such as `std` or `core`, and items in the top level of the crate (including `use` imports).\n>\n> Beginning with the 2018 Edition, paths starting with `::` resolve from crates in the [extern prelude]. That is, they must be followed by the name of a crate.\n\npub fn foo() {\n    // In the 2018 edition, this accesses `std` via the extern prelude.\n    // In the 2015 edition, this accesses `std` via the crate root.\n    let now = ::std::time::Instant::now();\n    println!(\"{:?}\", now);\n}\n\n,edition2015\n// 2015 Edition\nmod a {\n    pub fn foo() {}\n}\nmod b {\n    pub fn foo() {\n        ::a::foo(); // call `a`'s foo function\n        // In Rust 2018, `::a` would be interpreted as the crate `a`.\n    }\n}\n# fn main() {}",
+      "parent_id": null,
+      "paragraphs": {
+        "paths.qualifiers.global-root.intro": "Paths starting with `::` are considered to be *global paths* where the segments of the path\nstart being resolved from a place which differs based on edition. Each identifier in\nthe path must resolve to an item.",
+        "paths.qualifiers.global-root.edition2018": "> [!EDITION-2018]\n> In the 2015 Edition, identifiers resolve from the \"crate root\" (`crate::` in the 2018 edition), which contains a variety of different items, including external crates, default crates such as `std` or `core`, and items in the top level of the crate (including `use` imports).\n>\n> Beginning with the 2018 Edition, paths starting with `::` resolve from crates in the [extern prelude]. That is, they must be followed by the name of a crate.\n\npub fn foo() {\n    // In the 2018 edition, this accesses `std` via the extern prelude.\n    // In the 2015 edition, this accesses `std` via the crate root.\n    let now = ::std::time::Instant::now();\n    println!(\"{:?}\", now);\n}\n\n,edition2015\n// 2015 Edition\nmod a {\n    pub fn foo() {}\n}\nmod b {\n    pub fn foo() {\n        ::a::foo(); // call `a`'s foo function\n        // In Rust 2018, `::a` would be interpreted as the crate `a`.\n    }\n}\n# fn main() {}"
+      }
+    },
+    {
+      "id": "paths.qualifiers.mod-self",
+      "title": "`self`",
+      "level": 1,
+      "content": "`self` resolves the path relative to the current module.\n\n`self` can only be used as the first segment, without a preceding `::`.\n\nIn a method body, a path which consists of a single `self` segment resolves to the method's self parameter.\n\nfn foo() {}\nfn bar() {\n    self::foo();\n}\nstruct S(bool);\nimpl S {\n  fn baz(self) {\n        self.0;\n    }\n}\n# fn main() {}",
+      "parent_id": null,
+      "paragraphs": {
+        "paths.qualifiers.mod-self.intro": "`self` resolves the path relative to the current module.",
+        "paths.qualifiers.mod-self.restriction": "`self` can only be used as the first segment, without a preceding `::`.",
+        "paths.qualifiers.self-pat": "In a method body, a path which consists of a single `self` segment resolves to the method's self parameter.\n\nfn foo() {}\nfn bar() {\n    self::foo();\n}\nstruct S(bool);\nimpl S {\n  fn baz(self) {\n        self.0;\n    }\n}\n# fn main() {}"
+      }
+    },
+    {
+      "id": "paths.qualifiers.type-self",
+      "title": "`Self`",
+      "level": 1,
+      "content": "`Self`, with a capital \"S\", is used to refer to the current type being implemented or defined. It may be used in the following situations:\n\n* In a [trait] definition, it refers to the type implementing the trait.\n\n* In an [implementation], it refers to the type being implemented.\n  When implementing a tuple or unit [struct], it also refers to the constructor in the [value namespace].\n\n* In the definition of a [struct], [enumeration], or [union], it refers to the type being defined.\n  The definition is not allowed to be infinitely recursive (there must be an indirection).\n\nThe scope of `Self` behaves similarly to a generic parameter; see the [`Self` scope] section for more details.\n\n`Self` can only be used as the first segment, without a preceding `::`.\n\nThe `Self` path cannot include generic arguments (as in `Self::<i32>`).\n\ntrait T {\n    type Item;\n    const C: i32;\n    // `Self` will be whatever type that implements `T`.\n    fn new() -> Self;\n    // `Self::Item` will be the type alias in the implementation.\n    fn f(&self) -> Self::Item;\n}\nstruct S;\nimpl T for S {\n    type Item = i32;\n    const C: i32 = 9;\n    fn new() -> Self {           // `Self` is the type `S`.\n        S\n    }\n    fn f(&self) -> Self::Item {  // `Self::Item` is the type `i32`.\n        Self::C                  // `Self::C` is the constant value `9`.\n    }\n}\n\n// `Self` is in scope within the generics of a trait definition,\n// to refer to the type being defined.\ntrait Add<Rhs = Self> {\n    type Output;\n    // `Self` can also reference associated items of the\n    // type being implemented.\n    fn add(self, rhs: Rhs) -> Self::Output;\n}\n\nstruct NonEmptyList<T> {\n    head: T,\n    // A struct can reference itself (as long as it is not\n    // infinitely recursive).\n    tail: Option<Box<Self>>,\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "paths.qualifiers.type-self.intro": "`Self`, with a capital \"S\", is used to refer to the current type being implemented or defined. It may be used in the following situations:",
+        "paths.qualifiers.type-self.trait": "* In a [trait] definition, it refers to the type implementing the trait.",
+        "paths.qualifiers.type-self.impl": "* In an [implementation], it refers to the type being implemented.\n  When implementing a tuple or unit [struct], it also refers to the constructor in the [value namespace].",
+        "paths.qualifiers.type-self.type": "* In the definition of a [struct], [enumeration], or [union], it refers to the type being defined.\n  The definition is not allowed to be infinitely recursive (there must be an indirection).",
+        "paths.qualifiers.type-self.scope": "The scope of `Self` behaves similarly to a generic parameter; see the [`Self` scope] section for more details.",
+        "paths.qualifiers.type-self.allowed-positions": "`Self` can only be used as the first segment, without a preceding `::`.",
+        "paths.qualifiers.type-self.no-generics": "The `Self` path cannot include generic arguments (as in `Self::<i32>`).\n\ntrait T {\n    type Item;\n    const C: i32;\n    // `Self` will be whatever type that implements `T`.\n    fn new() -> Self;\n    // `Self::Item` will be the type alias in the implementation.\n    fn f(&self) -> Self::Item;\n}\nstruct S;\nimpl T for S {\n    type Item = i32;\n    const C: i32 = 9;\n    fn new() -> Self {           // `Self` is the type `S`.\n        S\n    }\n    fn f(&self) -> Self::Item {  // `Self::Item` is the type `i32`.\n        Self::C                  // `Self::C` is the constant value `9`.\n    }\n}\n\n// `Self` is in scope within the generics of a trait definition,\n// to refer to the type being defined.\ntrait Add<Rhs = Self> {\n    type Output;\n    // `Self` can also reference associated items of the\n    // type being implemented.\n    fn add(self, rhs: Rhs) -> Self::Output;\n}\n\nstruct NonEmptyList<T> {\n    head: T,\n    // A struct can reference itself (as long as it is not\n    // infinitely recursive).\n    tail: Option<Box<Self>>,\n}"
+      }
+    },
+    {
+      "id": "paths.qualifiers.super",
+      "title": "`super`",
+      "level": 3,
+      "content": "`super` in a path resolves to the parent module.\n\nIt may only be used in leading segments of the path, possibly after an initial `self` segment.\n\nmod a {\n    pub fn foo() {}\n}\nmod b {\n    pub fn foo() {\n        super::a::foo(); // call a's foo function\n    }\n}\n# fn main() {}\n\n`super` may be repeated several times after the first `super` or `self` to refer to\nancestor modules.\n\nmod a {\n    fn foo() {}\n\n    mod b {\n        mod c {\n            fn foo() {\n                super::super::foo(); // call a's foo function\n                self::super::super::foo(); // call a's foo function\n            }\n        }\n    }\n}\n# fn main() {}",
+      "parent_id": null,
+      "paragraphs": {
+        "paths.qualifiers.super.intro": "`super` in a path resolves to the parent module.",
+        "paths.qualifiers.super.allowed-positions": "It may only be used in leading segments of the path, possibly after an initial `self` segment.\n\nmod a {\n    pub fn foo() {}\n}\nmod b {\n    pub fn foo() {\n        super::a::foo(); // call a's foo function\n    }\n}\n# fn main() {}",
+        "paths.qualifiers.super.repetition": "`super` may be repeated several times after the first `super` or `self` to refer to\nancestor modules.\n\nmod a {\n    fn foo() {}\n\n    mod b {\n        mod c {\n            fn foo() {\n                super::super::foo(); // call a's foo function\n                self::super::super::foo(); // call a's foo function\n            }\n        }\n    }\n}\n# fn main() {}"
+      }
+    },
+    {
+      "id": "paths.qualifiers.crate",
+      "title": "`crate`",
+      "level": 1,
+      "content": "`crate` resolves the path relative to the current crate.\n\n`crate` can only be used as the first segment, without a preceding `::`.\n\nfn foo() {}\nmod a {\n    fn bar() {\n        crate::foo();\n    }\n}\n# fn main() {}",
+      "parent_id": null,
+      "paragraphs": {
+        "paths.qualifiers.crate.intro": "`crate` resolves the path relative to the current crate.",
+        "paths.qualifiers.crate.allowed-positions": "`crate` can only be used as the first segment, without a preceding `::`.\n\nfn foo() {}\nmod a {\n    fn bar() {\n        crate::foo();\n    }\n}\n# fn main() {}"
+      }
+    },
+    {
+      "id": "paths.qualifiers.macro-crate",
+      "title": "`$crate`",
+      "level": 1,
+      "content": "[`$crate`] is only used within [macro transcribers], and can only be used as the first\nsegment, without a preceding `::`.\n\n[`$crate`] will expand to a path to access items from the\ntop level of the crate where the macro is defined, regardless of which crate the macro is\ninvoked.\n\npub fn increment(x: u32) -> u32 {\n    x + 1\n}\n\n#[macro_export]\nmacro_rules! inc {\n    ($x:expr) => ( $crate::increment($x) )\n}\n# fn main() { }",
+      "parent_id": null,
+      "paragraphs": {
+        "paths.qualifiers.macro-crate.allowed-positions": "[`$crate`] is only used within [macro transcribers], and can only be used as the first\nsegment, without a preceding `::`.",
+        "paths.qualifiers.macro-crate.hygiene": "[`$crate`] will expand to a path to access items from the\ntop level of the crate where the macro is defined, regardless of which crate the macro is\ninvoked.\n\npub fn increment(x: u32) -> u32 {\n    x + 1\n}\n\n#[macro_export]\nmacro_rules! inc {\n    ($x:expr) => ( $crate::increment($x) )\n}\n# fn main() { }"
+      }
+    },
+    {
+      "id": "paths.canonical",
+      "title": "Canonical paths",
+      "level": 1,
+      "content": "Items defined in a module or implementation have a *canonical path* that\ncorresponds to where within its crate it is defined.\n\nAll other paths to these items are aliases.\n\nThe canonical path is defined as a *path prefix* appended by\nthe path segment the item itself defines.\n\n[Implementations] and [use declarations] do not have canonical paths, although\nthe items that implementations define do have them. Items defined in\nblock expressions do not have canonical paths. Items defined in a module that\ndoes not have a canonical path do not have a canonical path. Associated items\ndefined in an implementation that refers to an item without a canonical path,\ne.g. as the implementing type, the trait being implemented, a type parameter or\nbound on a type parameter, do not have canonical paths.\n\nThe path prefix for modules is the canonical path to that module.\n\nFor bare implementations, it is the canonical path of the item being implemented\nsurrounded by <span class=\"parenthetical\">angle (`<>`)</span> brackets.\n\nFor [trait implementations], it is the canonical path of the item being implemented\nfollowed by `as` followed by the canonical path to the trait all surrounded in\n<span class=\"parenthetical\">angle (`<>`)</span> brackets.\n\nThe canonical path is only meaningful within a given crate. There is no global\nnamespace across crates; an item's canonical path merely identifies it within\nthe crate.\n\n// Comments show the canonical path of the item.\n\nmod a { // crate::a\n    pub struct Struct; // crate::a::Struct\n\n    pub trait Trait { // crate::a::Trait\n        fn f(&self); // crate::a::Trait::f\n    }\n\n    impl Trait for Struct {\n        fn f(&self) {} // <crate::a::Struct as crate::a::Trait>::f\n    }\n\n    impl Struct {\n        fn g(&self) {} // <crate::a::Struct>::g\n    }\n}\n\nmod without { // crate::without\n    fn canonicals() { // crate::without::canonicals\n        struct OtherStruct; // None\n\n        trait OtherTrait { // None\n            fn g(&self); // None\n        }\n\n        impl OtherTrait for OtherStruct {\n            fn g(&self) {} // None\n        }\n\n        impl OtherTrait for crate::a::Struct {\n            fn g(&self) {} // None\n        }\n\n        impl crate::a::Trait for OtherStruct {\n            fn f(&self) {} // None\n        }\n    }\n}\n\n# fn main() {}\n\n[`$crate`]: macro.decl.hygiene.crate\n[implementations]: items/implementations.md\n[items]: items.md\n[literal]: expressions/literal-expr.md\n[use declarations]: items/use-declarations.md\n[`Self` scope]: names/scopes.md#self-scope\n[`use`]: items/use-declarations.md\n[attributes]: attributes.md\n[const generic argument]: items.generics.const.argument\n[enumeration]: items/enumerations.md\n[expressions]: expressions.md\n[extern prelude]: names/preludes.md#extern-prelude\n[implementation]: items/implementations.md\n[inferred const]: items.generics.const.inferred\n[macro transcribers]: macros-by-example.md\n[macros]: macros.md\n[mbe]: macros-by-example.md\n[patterns]: patterns.md\n[struct]: items/structs.md\n[trait implementations]: items/implementations.md#trait-implementations\n[trait]: items/traits.md\n[traits]: items/traits.md\n[types]: types.md\n[union]: items/unions.md\n[value namespace]: names/namespaces.md\n[visibility]: visibility-and-privacy.md",
+      "parent_id": null,
+      "paragraphs": {
+        "paths.canonical.intro": "Items defined in a module or implementation have a *canonical path* that\ncorresponds to where within its crate it is defined.",
+        "paths.canonical.alias": "All other paths to these items are aliases.",
+        "paths.canonical.def": "The canonical path is defined as a *path prefix* appended by\nthe path segment the item itself defines.",
+        "paths.canonical.non-canonical": "[Implementations] and [use declarations] do not have canonical paths, although\nthe items that implementations define do have them. Items defined in\nblock expressions do not have canonical paths. Items defined in a module that\ndoes not have a canonical path do not have a canonical path. Associated items\ndefined in an implementation that refers to an item without a canonical path,\ne.g. as the implementing type, the trait being implemented, a type parameter or\nbound on a type parameter, do not have canonical paths.",
+        "paths.canonical.module-prefix": "The path prefix for modules is the canonical path to that module.",
+        "paths.canonical.bare-impl-prefix": "For bare implementations, it is the canonical path of the item being implemented\nsurrounded by <span class=\"parenthetical\">angle (`<>`)</span> brackets.",
+        "paths.canonical.trait-impl-prefix": "For [trait implementations], it is the canonical path of the item being implemented\nfollowed by `as` followed by the canonical path to the trait all surrounded in\n<span class=\"parenthetical\">angle (`<>`)</span> brackets.",
+        "paths.canonical.local-canonical-path": "The canonical path is only meaningful within a given crate. There is no global\nnamespace across crates; an item's canonical path merely identifies it within\nthe crate.\n\n// Comments show the canonical path of the item.\n\nmod a { // crate::a\n    pub struct Struct; // crate::a::Struct\n\n    pub trait Trait { // crate::a::Trait\n        fn f(&self); // crate::a::Trait::f\n    }\n\n    impl Trait for Struct {\n        fn f(&self) {} // <crate::a::Struct as crate::a::Trait>::f\n    }\n\n    impl Struct {\n        fn g(&self) {} // <crate::a::Struct>::g\n    }\n}\n\nmod without { // crate::without\n    fn canonicals() { // crate::without::canonicals\n        struct OtherStruct; // None\n\n        trait OtherTrait { // None\n            fn g(&self); // None\n        }\n\n        impl OtherTrait for OtherStruct {\n            fn g(&self) {} // None\n        }\n\n        impl OtherTrait for crate::a::Struct {\n            fn g(&self) {} // None\n        }\n\n        impl crate::a::Trait for OtherStruct {\n            fn f(&self) {} // None\n        }\n    }\n}\n\n# fn main() {}\n\n[`$crate`]: macro.decl.hygiene.crate\n[implementations]: items/implementations.md\n[items]: items.md\n[literal]: expressions/literal-expr.md\n[use declarations]: items/use-declarations.md\n[`Self` scope]: names/scopes.md#self-scope\n[`use`]: items/use-declarations.md\n[attributes]: attributes.md\n[const generic argument]: items.generics.const.argument\n[enumeration]: items/enumerations.md\n[expressions]: expressions.md\n[extern prelude]: names/preludes.md#extern-prelude\n[implementation]: items/implementations.md\n[inferred const]: items.generics.const.inferred\n[macro transcribers]: macros-by-example.md\n[macros]: macros.md\n[mbe]: macros-by-example.md\n[patterns]: patterns.md\n[struct]: items/structs.md\n[trait implementations]: items/implementations.md#trait-implementations\n[trait]: items/traits.md\n[traits]: items/traits.md\n[types]: types.md\n[union]: items/unions.md\n[value namespace]: names/namespaces.md\n[visibility]: visibility-and-privacy.md"
+      }
+    },
+    {
+      "id": "names.resolution",
+      "title": "Name resolution",
+      "level": 1,
+      "content": "_Name resolution_ is the process of tying paths and other identifiers to the declarations of those entities. Names are segregated into different [namespaces], allowing entities in different namespaces to share the same name without conflict. Each name is valid within a [scope], or a region of source text where that name may be referenced. Access to a name may be restricted based on its [visibility].\n\nName resolution is split into three stages throughout the compilation process. The first stage, *expansion-time resolution*, resolves all [`use` declarations] and [macro invocations]. The second stage, *primary resolution*, resolves all names that have not yet been resolved and that do not depend on type information to resolve. The last stage, *type-relative resolution*, resolves the remaining names once type information is available.\n\n> [!NOTE]\n> Expansion-time resolution is also known as *early resolution*. Primary resolution is also known as *late resolution*.",
+      "parent_id": null,
+      "paragraphs": {
+        "names.resolution.intro": "_Name resolution_ is the process of tying paths and other identifiers to the declarations of those entities. Names are segregated into different [namespaces], allowing entities in different namespaces to share the same name without conflict. Each name is valid within a [scope], or a region of source text where that name may be referenced. Access to a name may be restricted based on its [visibility].\n\nName resolution is split into three stages throughout the compilation process. The first stage, *expansion-time resolution*, resolves all [`use` declarations] and [macro invocations]. The second stage, *primary resolution*, resolves all names that have not yet been resolved and that do not depend on type information to resolve. The last stage, *type-relative resolution*, resolves the remaining names once type information is available.\n\n> [!NOTE]\n> Expansion-time resolution is also known as *early resolution*. Primary resolution is also known as *late resolution*."
+      }
+    },
+    {
+      "id": "names.resolution.general",
+      "title": "General",
+      "level": 1,
+      "content": "The rules within this section apply to all stages of name resolution.",
+      "parent_id": null,
+      "paragraphs": {
+        "names.resolution.general.intro": "The rules within this section apply to all stages of name resolution."
+      }
+    },
+    {
+      "id": "names.resolution.general.scopes",
+      "title": "Scopes",
+      "level": 2,
+      "content": "> [!NOTE]\n> This is a placeholder for future expansion about resolution of names within various scopes.",
+      "parent_id": null,
+      "paragraphs": {
+        "names.resolution.general.scopes.intro": "> [!NOTE]\n> This is a placeholder for future expansion about resolution of names within various scopes."
+      }
+    },
+    {
+      "id": "names.resolution.expansion",
+      "title": "Expansion-time name resolution",
+      "level": 3,
+      "content": "Expansion-time name resolution is the stage of name resolution necessary to complete macro expansion and fully generate a crate's [AST]. This stage requires the resolution of macro invocations and `use` declarations. Resolving `use` declarations is required for macro invocations that resolve via [path-based scope]. Resolving macro invocations is required in order to expand them.\n\nAfter expansion-time name resolution, the AST must not contain any unexpanded macro invocations. Every macro invocation resolves to a valid definition that exists in the final AST or in an external crate.\n\n,compile_fail\nm!(); // ERROR: Cannot find macro `m` in this scope.\n\nThe resolution of names must be stable. After expansion, names in the fully expanded AST must resolve to the same definition regardless of the order in which macros are expanded and imports are resolved.\n\nAll name resolution candidates selected during macro expansion are considered speculative. Once the crate has been fully expanded, all speculative import resolutions are validated to ensure that macro expansion did not introduce any new ambiguities.\n\n> [!NOTE]\n> Due to the iterative nature of macro expansion, this causes so-called time traveling ambiguities, such as when a macro or glob import introduces an item that is ambiguous with its own base path.\n>\n> ```rust,compile_fail,E0659\n> # fn main() {}\n> macro_rules! f {\n>     () => {\n>         mod m {\n>             pub(crate) use f;\n>         }\n>     }\n> }\n> f!();\n>\n> const _: () = {\n>     // Initially, we speculatively resolve `m` to the module in\n>     // the crate root.\n>     //\n>     // Expansion of `f` introduces a second `m` module inside this\n>     // body.\n>     //\n>     // Expansion-time resolution finalizes resolutions by re-\n>     // resolving all imports and macro invocations, sees the\n>     // introduced ambiguity and reports it as an error.\n>     m::f!(); // ERROR: `m` is ambiguous.\n> };\n> ```",
+      "parent_id": null,
+      "paragraphs": {
+        "names.resolution.expansion.intro": "Expansion-time name resolution is the stage of name resolution necessary to complete macro expansion and fully generate a crate's [AST]. This stage requires the resolution of macro invocations and `use` declarations. Resolving `use` declarations is required for macro invocations that resolve via [path-based scope]. Resolving macro invocations is required in order to expand them.",
+        "names.resolution.expansion.unresolved-invocations": "After expansion-time name resolution, the AST must not contain any unexpanded macro invocations. Every macro invocation resolves to a valid definition that exists in the final AST or in an external crate.\n\n,compile_fail\nm!(); // ERROR: Cannot find macro `m` in this scope.",
+        "names.resolution.expansion.expansion-order-stability": "The resolution of names must be stable. After expansion, names in the fully expanded AST must resolve to the same definition regardless of the order in which macros are expanded and imports are resolved.",
+        "names.resolution.expansion.speculation": "All name resolution candidates selected during macro expansion are considered speculative. Once the crate has been fully expanded, all speculative import resolutions are validated to ensure that macro expansion did not introduce any new ambiguities.\n\n> [!NOTE]\n> Due to the iterative nature of macro expansion, this causes so-called time traveling ambiguities, such as when a macro or glob import introduces an item that is ambiguous with its own base path.\n>\n> ```rust,compile_fail,E0659\n> # fn main() {}\n> macro_rules! f {\n>     () => {\n>         mod m {\n>             pub(crate) use f;\n>         }\n>     }\n> }\n> f!();\n>\n> const _: () = {\n>     // Initially, we speculatively resolve `m` to the module in\n>     // the crate root.\n>     //\n>     // Expansion of `f` introduces a second `m` module inside this\n>     // body.\n>     //\n>     // Expansion-time resolution finalizes resolutions by re-\n>     // resolving all imports and macro invocations, sees the\n>     // introduced ambiguity and reports it as an error.\n>     m::f!(); // ERROR: `m` is ambiguous.\n> };\n> ```"
+      }
+    },
+    {
+      "id": "names.resolution.expansion.imports",
+      "title": "Imports",
+      "level": 2,
+      "content": "All `use` declarations are fully resolved during this stage of resolution. [Type-relative paths] cannot be resolved at this stage and will produce an error.\n\n,no_run\nmod m {\n    pub const C: () = ();\n    pub enum E { V }\n    pub type A = E;\n    impl E {\n        pub const C: () = ();\n    }\n}\n\n// Valid imports resolved at expansion-time:\nuse m::C; // OK.\nuse m::E; // OK.\nuse m::A; // OK.\nuse m::E::V; // OK.\n\n// Valid expressions resolved during type-relative resolution:\nlet _ = m::A::V; // OK.\nlet _ = m::E::C; // OK.\n\n,compile_fail,E0432\n# mod m {\n#     pub const C: () = ();\n#     pub enum E { V }\n#     pub type A = E;\n#     impl E {\n#         pub const C: () = ();\n#     }\n# }\n// Invalid type-relative imports that can't resolve at expansion-time:\nuse m::A::V; // ERROR: Unresolved import `m::A::V`.\nuse m::E::C; // ERROR: Unresolved import `m::E::C`.\n\nNames introduced via `use` declarations in an [outer scope] are shadowed by candidates in the same namespace with the same name from an inner scope except where otherwise restricted by [name resolution ambiguities].\n\n,no_run\npub mod m1 {\n    pub mod ambig {\n        pub const C: u8 = 1;\n    }\n}\n\npub mod m2 {\n    pub mod ambig {\n        pub const C: u8 = 2;\n    }\n}\n\n// This introduces the name `ambig` in the outer scope.\nuse m1::ambig;\nconst _: () = {\n    // This shadows `ambig` in the inner scope.\n    use m2::ambig;\n    // The inner candidate is selected here\n    // as the resolution of `ambig`.\n    use ambig::C;\n    assert!(C == 2);\n};\n\nShadowing of names introduced via `use` declarations within a single scope is permitted in the following situations:\n\n- [`use` glob shadowing]\n- [Macro textual scope shadowing]",
+      "parent_id": null,
+      "paragraphs": {
+        "names.resolution.expansion.imports.intro": "All `use` declarations are fully resolved during this stage of resolution. [Type-relative paths] cannot be resolved at this stage and will produce an error.\n\n,no_run\nmod m {\n    pub const C: () = ();\n    pub enum E { V }\n    pub type A = E;\n    impl E {\n        pub const C: () = ();\n    }\n}\n\n// Valid imports resolved at expansion-time:\nuse m::C; // OK.\nuse m::E; // OK.\nuse m::A; // OK.\nuse m::E::V; // OK.\n\n// Valid expressions resolved during type-relative resolution:\nlet _ = m::A::V; // OK.\nlet _ = m::E::C; // OK.\n\n,compile_fail,E0432\n# mod m {\n#     pub const C: () = ();\n#     pub enum E { V }\n#     pub type A = E;\n#     impl E {\n#         pub const C: () = ();\n#     }\n# }\n// Invalid type-relative imports that can't resolve at expansion-time:\nuse m::A::V; // ERROR: Unresolved import `m::A::V`.\nuse m::E::C; // ERROR: Unresolved import `m::E::C`.",
+        "names.resolution.expansion.imports.shadowing": "Names introduced via `use` declarations in an [outer scope] are shadowed by candidates in the same namespace with the same name from an inner scope except where otherwise restricted by [name resolution ambiguities].\n\n,no_run\npub mod m1 {\n    pub mod ambig {\n        pub const C: u8 = 1;\n    }\n}\n\npub mod m2 {\n    pub mod ambig {\n        pub const C: u8 = 2;\n    }\n}\n\n// This introduces the name `ambig` in the outer scope.\nuse m1::ambig;\nconst _: () = {\n    // This shadows `ambig` in the inner scope.\n    use m2::ambig;\n    // The inner candidate is selected here\n    // as the resolution of `ambig`.\n    use ambig::C;\n    assert!(C == 2);\n};",
+        "names.resolution.expansion.imports.shadowing.shared-scope": "Shadowing of names introduced via `use` declarations within a single scope is permitted in the following situations:\n\n- [`use` glob shadowing]\n- [Macro textual scope shadowing]"
+      }
+    },
+    {
+      "id": "names.resolution.expansion.imports.ambiguity",
+      "title": "Ambiguities",
+      "level": 1,
+      "content": "There are certain situations during expansion-time resolution where there are multiple macro definitions, `use` declarations, or modules an import or macro invocation's name could refer to where the compiler cannot consistently determine which candidate should shadow the other. Shadowing cannot be permitted in these situations and the compiler instead emits ambiguity errors.\n\nNames may not be resolved through ambiguous glob imports. Glob imports are allowed to import conflicting names in the same namespace as long as the name is not used. Names with conflicting candidates from ambiguous glob imports may still be shadowed by non-glob imports and used without producing an error. The errors occur at time of use, not time of import.\n\n,compile_fail,E0659\nmod m1 {\n    pub struct Ambig;\n}\n\nmod m2 {\n    pub struct Ambig;\n}\n\n// OK: This brings conficting names in the same namespace into scope\n// but they have not been used yet.\nuse m1::*;\nuse m2::*;\n\nconst _: () = {\n    // The error happens when the name with the conflicting candidates\n    // is used.\n    let x = Ambig; // ERROR: `Ambig` is ambiguous.\n}\n\n,no_run\n# mod m1 {\n#     pub struct Ambig;\n# }\n#\n# mod m2 {\n#     pub struct Ambig;\n# }\n#\n# use m1::*;\n# use m2::*; // OK: No name conflict.\nconst _: () = {\n    // This is permitted, since resolution is not through the\n    // ambiguous globs.\n    struct Ambig;\n    let x = Ambig; // OK.\n};\n\nMultiple glob imports are allowed to import the same name, and that name is allowed to be used if the imports are of the same item (following reexports). The visibility of the name is the maximum visibility of the imports.\n\n,no_run\nmod m1 {\n    pub struct Ambig;\n}\n\nmod m2 {\n    // This reexports the same `Ambig` item from a second module.\n    pub use super::m1::Ambig;\n}\n\nmod m3 {\n    // These both import the same `Ambig`.\n    //\n    // The visibility of `Ambig` is `pub` because that is the\n    // maximum visibility between these two `use` declarations.\n    pub use super::m1::*;\n    use super::m2::*;\n}\n\nmod m4 {\n    // `Ambig` can be used through the `m3` globs and still has\n    // `pub` visibility.\n    pub use crate::m3::Ambig;\n}\n\nconst _: () = {\n    // Therefore, we can use it here.\n    let _ = m4::Ambig; // OK.\n};\n# fn main() {}\n\nNames in imports and macro invocations may not be resolved through glob imports when there is another candidate available in an [outer scope].\n\n,compile_fail,E0659\nmod glob {\n    pub mod ambig {\n        pub struct Name;\n    }\n}\n\n// Outer `ambig` candidate.\npub mod ambig {\n    pub struct Name;\n}\n\nconst _: () = {\n    // Cannot resolve `ambig` through this glob\n    // because of the outer `ambig` candidate above.\n    use glob::*;\n    use ambig::Name; // ERROR: `ambig` is ambiguous.\n};\n\n,compile_fail,E0659\n// As above, but with macros.\npub mod m {\n    macro_rules! f {\n        () => {};\n    }\n    pub(crate) use f;\n}\npub mod glob {\n    macro_rules! f {\n        () => {};\n    }\n    pub(crate) use f as ambig;\n}\n\nuse m::f as ambig;\n\nconst _: () = {\n    use glob::*;\n    ambig!(); // ERROR: `ambig` is ambiguous.\n};\n\n> [!NOTE]\n> These ambiguity errors are specific to expansion-time resolution. Having multiple candidates available for a given name during later stages of resolution is not considered an error. So long as none of the imports themselves are ambiguous, there will always be a single unambiguous closest resolution.\n>\n> ```rust,no_run\n> mod glob {\n>     pub const AMBIG: u8 = 1;\n> }\n>\n> mod outer {\n>     pub const AMBIG: u8 = 2;\n> }\n>\n> use outer::AMBIG;\n>\n> const C: () = {\n>     use glob::*;\n>     assert!(AMBIG == 1);\n>     //      ^---- This `AMBIG` is resolved during primary resolution.\n> };\n> ```\n\nNames may not be resolved through ambiguous macro reexports. Macro reexports are ambiguous when they would shadow a textual macro candidate for the same name in an [outer scope].\n\n,compile_fail,E0659\n// Textual macro candidate.\nmacro_rules! ambig {\n    () => {}\n}\n\n// Path-based macro candidate.\nmacro_rules! path_based {\n    () => {}\n}\n\npub fn f() {\n    // This reexport of the `path_based` macro definition\n    // as `ambig` may not shadow the `ambig` macro definition\n    // which is resolved via textual macro scope.\n    use path_based as ambig;\n    ambig!(); // ERROR: `ambig` is ambiguous.\n}\n\n> [!NOTE]\n> This restriction is needed due to implementation details in the compiler,\n> specifically the current scope visitation logic and the complexity of supporting\n> this behavior. This ambiguity error may be removed in the future.",
+      "parent_id": null,
+      "paragraphs": {
+        "names.resolution.expansion.imports.ambiguity.intro": "There are certain situations during expansion-time resolution where there are multiple macro definitions, `use` declarations, or modules an import or macro invocation's name could refer to where the compiler cannot consistently determine which candidate should shadow the other. Shadowing cannot be permitted in these situations and the compiler instead emits ambiguity errors.",
+        "names.resolution.expansion.imports.ambiguity.glob-vs-glob": "Names may not be resolved through ambiguous glob imports. Glob imports are allowed to import conflicting names in the same namespace as long as the name is not used. Names with conflicting candidates from ambiguous glob imports may still be shadowed by non-glob imports and used without producing an error. The errors occur at time of use, not time of import.\n\n,compile_fail,E0659\nmod m1 {\n    pub struct Ambig;\n}\n\nmod m2 {\n    pub struct Ambig;\n}\n\n// OK: This brings conficting names in the same namespace into scope\n// but they have not been used yet.\nuse m1::*;\nuse m2::*;\n\nconst _: () = {\n    // The error happens when the name with the conflicting candidates\n    // is used.\n    let x = Ambig; // ERROR: `Ambig` is ambiguous.\n}\n\n,no_run\n# mod m1 {\n#     pub struct Ambig;\n# }\n#\n# mod m2 {\n#     pub struct Ambig;\n# }\n#\n# use m1::*;\n# use m2::*; // OK: No name conflict.\nconst _: () = {\n    // This is permitted, since resolution is not through the\n    // ambiguous globs.\n    struct Ambig;\n    let x = Ambig; // OK.\n};\n\nMultiple glob imports are allowed to import the same name, and that name is allowed to be used if the imports are of the same item (following reexports). The visibility of the name is the maximum visibility of the imports.\n\n,no_run\nmod m1 {\n    pub struct Ambig;\n}\n\nmod m2 {\n    // This reexports the same `Ambig` item from a second module.\n    pub use super::m1::Ambig;\n}\n\nmod m3 {\n    // These both import the same `Ambig`.\n    //\n    // The visibility of `Ambig` is `pub` because that is the\n    // maximum visibility between these two `use` declarations.\n    pub use super::m1::*;\n    use super::m2::*;\n}\n\nmod m4 {\n    // `Ambig` can be used through the `m3` globs and still has\n    // `pub` visibility.\n    pub use crate::m3::Ambig;\n}\n\nconst _: () = {\n    // Therefore, we can use it here.\n    let _ = m4::Ambig; // OK.\n};\n# fn main() {}",
+        "names.resolution.expansion.imports.ambiguity.glob-vs-outer": "Names in imports and macro invocations may not be resolved through glob imports when there is another candidate available in an [outer scope].\n\n,compile_fail,E0659\nmod glob {\n    pub mod ambig {\n        pub struct Name;\n    }\n}\n\n// Outer `ambig` candidate.\npub mod ambig {\n    pub struct Name;\n}\n\nconst _: () = {\n    // Cannot resolve `ambig` through this glob\n    // because of the outer `ambig` candidate above.\n    use glob::*;\n    use ambig::Name; // ERROR: `ambig` is ambiguous.\n};\n\n,compile_fail,E0659\n// As above, but with macros.\npub mod m {\n    macro_rules! f {\n        () => {};\n    }\n    pub(crate) use f;\n}\npub mod glob {\n    macro_rules! f {\n        () => {};\n    }\n    pub(crate) use f as ambig;\n}\n\nuse m::f as ambig;\n\nconst _: () = {\n    use glob::*;\n    ambig!(); // ERROR: `ambig` is ambiguous.\n};\n\n> [!NOTE]\n> These ambiguity errors are specific to expansion-time resolution. Having multiple candidates available for a given name during later stages of resolution is not considered an error. So long as none of the imports themselves are ambiguous, there will always be a single unambiguous closest resolution.\n>\n> ```rust,no_run\n> mod glob {\n>     pub const AMBIG: u8 = 1;\n> }\n>\n> mod outer {\n>     pub const AMBIG: u8 = 2;\n> }\n>\n> use outer::AMBIG;\n>\n> const C: () = {\n>     use glob::*;\n>     assert!(AMBIG == 1);\n>     //      ^---- This `AMBIG` is resolved during primary resolution.\n> };\n> ```",
+        "names.resolution.expansion.imports.ambiguity.path-vs-textual-macro": "Names may not be resolved through ambiguous macro reexports. Macro reexports are ambiguous when they would shadow a textual macro candidate for the same name in an [outer scope].\n\n,compile_fail,E0659\n// Textual macro candidate.\nmacro_rules! ambig {\n    () => {}\n}\n\n// Path-based macro candidate.\nmacro_rules! path_based {\n    () => {}\n}\n\npub fn f() {\n    // This reexport of the `path_based` macro definition\n    // as `ambig` may not shadow the `ambig` macro definition\n    // which is resolved via textual macro scope.\n    use path_based as ambig;\n    ambig!(); // ERROR: `ambig` is ambiguous.\n}\n\n> [!NOTE]\n> This restriction is needed due to implementation details in the compiler,\n> specifically the current scope visitation logic and the complexity of supporting\n> this behavior. This ambiguity error may be removed in the future."
+      }
+    },
+    {
+      "id": "names.resolution.expansion.macros",
+      "title": "Macros",
+      "level": 1,
+      "content": "Macros are resolved by iterating through the available scopes to find the available candidates. Macros are split into two sub-namespaces, one for function-like macros, and the other for attributes and derives. Resolution candidates from the incorrect sub-namespace are ignored.\n\nThe available scope kinds are visited in the following order. Each of these scope kinds represent one or more scopes.\n\n* [Derive helpers]\n* [Textual scope macros]\n* [Path-based scope macros]\n* [`macro_use` prelude]\n* [Standard library prelude]\n* [Builtin attributes]\n\n> [!NOTE]\n> The compiler will attempt to resolve derive helpers that are used before their associated macro introduces them into scope. This scope is visited after the scope for resolving derive helper candidates that are correctly in scope. This behavior is slated for removal.\n>\n> For more info see [derive helper scope].\n\n> [!NOTE]\n> This visitation order may change in the future, such as interleaving the\n> visitation of textual and path-based scope candidates based on their lexical\n> scopes.\n\n> [!EDITION-2018]\n> Starting in edition 2018 the `#[macro_use]` prelude is not visited when [`#[no_implicit_prelude]`][names.preludes.no_implicit_prelude] is present.\n\nThe names `cfg` and `cfg_attr` are reserved in the macro attribute [sub-namespace].",
+      "parent_id": null,
+      "paragraphs": {
+        "names.resolution.expansion.macros.intro": "Macros are resolved by iterating through the available scopes to find the available candidates. Macros are split into two sub-namespaces, one for function-like macros, and the other for attributes and derives. Resolution candidates from the incorrect sub-namespace are ignored.",
+        "names.resolution.expansion.macros.visitation-order": "The available scope kinds are visited in the following order. Each of these scope kinds represent one or more scopes.\n\n* [Derive helpers]\n* [Textual scope macros]\n* [Path-based scope macros]\n* [`macro_use` prelude]\n* [Standard library prelude]\n* [Builtin attributes]\n\n> [!NOTE]\n> The compiler will attempt to resolve derive helpers that are used before their associated macro introduces them into scope. This scope is visited after the scope for resolving derive helper candidates that are correctly in scope. This behavior is slated for removal.\n>\n> For more info see [derive helper scope].\n\n> [!NOTE]\n> This visitation order may change in the future, such as interleaving the\n> visitation of textual and path-based scope candidates based on their lexical\n> scopes.\n\n> [!EDITION-2018]\n> Starting in edition 2018 the `#[macro_use]` prelude is not visited when [`#[no_implicit_prelude]`][names.preludes.no_implicit_prelude] is present.",
+        "names.resolution.expansion.macros.reserved-names": "The names `cfg` and `cfg_attr` are reserved in the macro attribute [sub-namespace]."
+      }
+    },
+    {
+      "id": "names.resolution.expansion.macros.ambiguity",
+      "title": "Ambiguities",
+      "level": 3,
+      "content": "Names may not be resolved through ambiguous candidates inside of macro expansions. Candidates inside of macro expansions are ambiguous when they would shadow a candidate for the same name from outside of the first candidate's macro expansion and the invocation of the name being resolved is also from outside of the first candidate's macro expansion.\n\n,compile_fail,E0659\nmacro_rules! define_ambig {\n    () => {\n        macro_rules! ambig {\n            () => {}\n        }\n    }\n}\n\n// Introduce outer candidate definition for `ambig` macro invocation.\nmacro_rules! ambig {\n    () => {}\n}\n\n// Introduce a second candidate definition for `ambig` inside of a\n// macro expansion.\ndefine_ambig!();\n\n// The definition of `ambig` from the second invocation\n// of `define_ambig` is the innermost canadidate.\n//\n// The definition of `ambig` from the first invocation of\n// `define_ambig` is the second candidate.\n//\n// The compiler checks that the first candidate is inside of a macro\n// expansion, that the second candidate is not from within the same\n// macro expansion, and that the name being resolved is not from\n// within the same macro expansion.\nambig!(); // ERROR: `ambig` is ambiguous.\n\nThe reverse is not considered ambiguous.\n\n,no_run\n# macro_rules! define_ambig {\n#     () => {\n#         macro_rules! ambig {\n#             () => {}\n#         }\n#     }\n# }\n// Swap order of definitions.\ndefine_ambig!();\nmacro_rules! ambig {\n    () => {}\n}\n// The innermost candidate is now less expanded so it may shadow more\n// the macro expanded definition above it.\nambig!();\n\nNor is it ambiguous if the invocation being resolved is within the innermost candidate's expansion.\n\n,no_run\nmacro_rules! ambig {\n    () => {}\n}\n\nmacro_rules! define_and_invoke_ambig {\n    () => {\n        // Define innermost candidate.\n        macro_rules! ambig {\n            () => {}\n        }\n\n        // Invocation of `ambig` is in the same expansion as the\n        // innermost candidate.\n        ambig!(); // OK\n    }\n}\n\ndefine_and_invoke_ambig!();\n\nIt doesn't matter if both definitions come from invocations of the same macro; the outermost candidate is still considered \"less expanded\" because it is not within the expansion containing the innermost candidate's definition.\n\n,compile_fail,E0659\n# macro_rules! define_ambig {\n#     () => {\n#         macro_rules! ambig {\n#             () => {}\n#         }\n#     }\n# }\ndefine_ambig!();\ndefine_ambig!();\nambig!(); // ERROR: `ambig` is ambiguous.\n\nThis also applies to imports so long as the innermost candidate for the name is from within a macro expansion.\n\n,compile_fail,E0659\nmacro_rules! define_ambig {\n    () => {\n        mod ambig {\n            pub struct Name;\n        }\n    }\n}\n\nmod ambig {\n    pub struct Name;\n}\n\nconst _: () = {\n    // Introduce innermost candidate for\n    // `ambig` mod in this macro expansion.\n    define_ambig!();\n    use ambig::Name; // ERROR: `ambig` is ambiguous.\n};\n\nUser-defined attributes or derive macros may not shadow built-in non-macro attributes (e.g. inline).\n\n<!-- ignore: test doesn't support proc-macro -->\n,ignore\n// with-helper/src/lib.rs\n# use proc_macro::TokenStream;\n#[proc_macro_derive(WithHelperAttr, attributes(non_exhaustive))]\n//                                             ^^^^^^^^^^^^^^\n//                                   User-defined attribute candidate.\n// ...\n# pub fn derive_with_helper_attr(_item: TokenStream) -> TokenStream {\n#     TokenStream::new()\n# }\n\n<!-- ignore: requires external crates -->\n,ignore\n// src/lib.rs\n#[derive(with_helper::WithHelperAttr)]\n#[non_exhaustive] // ERROR: `non_exhaustive` is ambiguous.\nstruct S;\n\n> [!NOTE]\n> This applies regardless of the name the built-in attribute is a candidate for:\n>\n> <!-- ignore: test doesn't support proc-macro -->\n> ```rust,ignore\n> // with-helper/src/lib.rs\n> # use proc_macro::TokenStream;\n> #\n> #[proc_macro_derive(WithHelperAttr, attributes(helper))]\n> //                                             ^^^^^^\n> //                                 User-defined attribute candidate.\n> // ...\n> # pub fn derive_with_helper_attr(_item: TokenStream) -> TokenStream {\n> #     TokenStream::new()\n> # }\n> ```\n>\n> <!-- ignore: requires external crates -->\n> ```rust,ignore\n> // src/lib.rs\n> use inline as helper;\n> //            ^----- Built-in attribute candidate via reexport.\n>\n> #[derive(with_helper::WithHelperAttr)]\n> #[helper] // ERROR: `helper` is ambiguous.\n> struct S;\n> ```",
+      "parent_id": null,
+      "paragraphs": {
+        "names.resolution.expansion.macros.ambiguity.more-expanded-vs-outer": "Names may not be resolved through ambiguous candidates inside of macro expansions. Candidates inside of macro expansions are ambiguous when they would shadow a candidate for the same name from outside of the first candidate's macro expansion and the invocation of the name being resolved is also from outside of the first candidate's macro expansion.\n\n,compile_fail,E0659\nmacro_rules! define_ambig {\n    () => {\n        macro_rules! ambig {\n            () => {}\n        }\n    }\n}\n\n// Introduce outer candidate definition for `ambig` macro invocation.\nmacro_rules! ambig {\n    () => {}\n}\n\n// Introduce a second candidate definition for `ambig` inside of a\n// macro expansion.\ndefine_ambig!();\n\n// The definition of `ambig` from the second invocation\n// of `define_ambig` is the innermost canadidate.\n//\n// The definition of `ambig` from the first invocation of\n// `define_ambig` is the second candidate.\n//\n// The compiler checks that the first candidate is inside of a macro\n// expansion, that the second candidate is not from within the same\n// macro expansion, and that the name being resolved is not from\n// within the same macro expansion.\nambig!(); // ERROR: `ambig` is ambiguous.\n\nThe reverse is not considered ambiguous.\n\n,no_run\n# macro_rules! define_ambig {\n#     () => {\n#         macro_rules! ambig {\n#             () => {}\n#         }\n#     }\n# }\n// Swap order of definitions.\ndefine_ambig!();\nmacro_rules! ambig {\n    () => {}\n}\n// The innermost candidate is now less expanded so it may shadow more\n// the macro expanded definition above it.\nambig!();\n\nNor is it ambiguous if the invocation being resolved is within the innermost candidate's expansion.\n\n,no_run\nmacro_rules! ambig {\n    () => {}\n}\n\nmacro_rules! define_and_invoke_ambig {\n    () => {\n        // Define innermost candidate.\n        macro_rules! ambig {\n            () => {}\n        }\n\n        // Invocation of `ambig` is in the same expansion as the\n        // innermost candidate.\n        ambig!(); // OK\n    }\n}\n\ndefine_and_invoke_ambig!();\n\nIt doesn't matter if both definitions come from invocations of the same macro; the outermost candidate is still considered \"less expanded\" because it is not within the expansion containing the innermost candidate's definition.\n\n,compile_fail,E0659\n# macro_rules! define_ambig {\n#     () => {\n#         macro_rules! ambig {\n#             () => {}\n#         }\n#     }\n# }\ndefine_ambig!();\ndefine_ambig!();\nambig!(); // ERROR: `ambig` is ambiguous.\n\nThis also applies to imports so long as the innermost candidate for the name is from within a macro expansion.\n\n,compile_fail,E0659\nmacro_rules! define_ambig {\n    () => {\n        mod ambig {\n            pub struct Name;\n        }\n    }\n}\n\nmod ambig {\n    pub struct Name;\n}\n\nconst _: () = {\n    // Introduce innermost candidate for\n    // `ambig` mod in this macro expansion.\n    define_ambig!();\n    use ambig::Name; // ERROR: `ambig` is ambiguous.\n};",
+        "names.resolution.expansion.macros.ambiguity.built-in-attr": "User-defined attributes or derive macros may not shadow built-in non-macro attributes (e.g. inline).\n\n<!-- ignore: test doesn't support proc-macro -->\n,ignore\n// with-helper/src/lib.rs\n# use proc_macro::TokenStream;\n#[proc_macro_derive(WithHelperAttr, attributes(non_exhaustive))]\n//                                             ^^^^^^^^^^^^^^\n//                                   User-defined attribute candidate.\n// ...\n# pub fn derive_with_helper_attr(_item: TokenStream) -> TokenStream {\n#     TokenStream::new()\n# }\n\n<!-- ignore: requires external crates -->\n,ignore\n// src/lib.rs\n#[derive(with_helper::WithHelperAttr)]\n#[non_exhaustive] // ERROR: `non_exhaustive` is ambiguous.\nstruct S;\n\n> [!NOTE]\n> This applies regardless of the name the built-in attribute is a candidate for:\n>\n> <!-- ignore: test doesn't support proc-macro -->\n> ```rust,ignore\n> // with-helper/src/lib.rs\n> # use proc_macro::TokenStream;\n> #\n> #[proc_macro_derive(WithHelperAttr, attributes(helper))]\n> //                                             ^^^^^^\n> //                                 User-defined attribute candidate.\n> // ...\n> # pub fn derive_with_helper_attr(_item: TokenStream) -> TokenStream {\n> #     TokenStream::new()\n> # }\n> ```\n>\n> <!-- ignore: requires external crates -->\n> ```rust,ignore\n> // src/lib.rs\n> use inline as helper;\n> //            ^----- Built-in attribute candidate via reexport.\n>\n> #[derive(with_helper::WithHelperAttr)]\n> #[helper] // ERROR: `helper` is ambiguous.\n> struct S;\n> ```"
+      }
+    },
+    {
+      "id": "names.resolution.primary",
+      "title": "Primary name resolution",
+      "level": 1,
+      "content": "> [!NOTE]\n> This is a placeholder for future expansion about primary name resolution.",
+      "parent_id": null,
+      "paragraphs": {
+        "names.resolution.primary": "> [!NOTE]\n> This is a placeholder for future expansion about primary name resolution."
+      }
+    },
+    {
+      "id": "names.resolution.type-relative",
+      "title": "Type-relative resolution",
+      "level": 2,
+      "content": "> [!NOTE]\n> This is a placeholder for future expansion about type-dependent resolution.\n\n[AST]: glossary.ast\n[Builtin attributes]: ./preludes.md#r-names.preludes.lang\n[Derive helpers]: ../procedural-macros.md#r-macro.proc.derive.attributes\n[Macros]: ../macros.md\n[Path-based scope macros]: ../macros.md#r-macro.invocation.name-resolution\n[Standard library prelude]: ./preludes.md#r-names.preludes.std\n[Textual scope macros]: ../macros-by-example.md#r-macro.decl.scope.textual\n[`let` bindings]: ../statements.md#let-statements\n[`macro_use` prelude]: ./preludes.md#r-names.preludes.macro_use\n[`use` declarations]: ../items/use-declarations.md\n[`use` glob shadowing]: ../items/use-declarations.md#r-items.use.glob.shadowing\n[derive helper scope]: ../procedural-macros.md#r-macro.proc.derive.attributes.scope\n[item definitions]: ../items.md\n[macro invocations]: ../macros.md#macro-invocation\n[macro textual scope shadowing]: ../macros-by-example.md#r-macro.decl.scope.textual.shadow\n.resolution.expansion.imports.ambiguity\n[namespaces]: ../names/namespaces.md\n.resolution.general.scopes\n[path-based scope]: ../macros.md#r-macro.invocation.name-resolution\n[scope]: ../names/scopes.md\n[sub-namespace]: ../names/namespaces.md#r-names.namespaces.sub-namespaces\n[type-relative paths]: names.resolution.type-relative\n[visibility]: ../visibility-and-privacy.md",
+      "parent_id": null,
+      "paragraphs": {
+        "names.resolution.type-relative": "> [!NOTE]\n> This is a placeholder for future expansion about type-dependent resolution.\n\n[AST]: glossary.ast\n[Builtin attributes]: ./preludes.md#r-names.preludes.lang\n[Derive helpers]: ../procedural-macros.md#r-macro.proc.derive.attributes\n[Macros]: ../macros.md\n[Path-based scope macros]: ../macros.md#r-macro.invocation.name-resolution\n[Standard library prelude]: ./preludes.md#r-names.preludes.std\n[Textual scope macros]: ../macros-by-example.md#r-macro.decl.scope.textual\n[`let` bindings]: ../statements.md#let-statements\n[`macro_use` prelude]: ./preludes.md#r-names.preludes.macro_use\n[`use` declarations]: ../items/use-declarations.md\n[`use` glob shadowing]: ../items/use-declarations.md#r-items.use.glob.shadowing\n[derive helper scope]: ../procedural-macros.md#r-macro.proc.derive.attributes.scope\n[item definitions]: ../items.md\n[macro invocations]: ../macros.md#macro-invocation\n[macro textual scope shadowing]: ../macros-by-example.md#r-macro.decl.scope.textual.shadow\n.resolution.expansion.imports.ambiguity\n[namespaces]: ../names/namespaces.md\n.resolution.general.scopes\n[path-based scope]: ../macros.md#r-macro.invocation.name-resolution\n[scope]: ../names/scopes.md\n[sub-namespace]: ../names/namespaces.md#r-names.namespaces.sub-namespaces\n[type-relative paths]: names.resolution.type-relative\n[visibility]: ../visibility-and-privacy.md"
+      }
+    },
+    {
+      "id": "vis",
+      "title": "Visibility and privacy",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "vis.syntax",
+      "title": "Visibility and privacy",
+      "level": 1,
+      "content": ",items\nVisibility ->\n      `pub`\n    | `pub` `(` `crate` `)`\n    | `pub` `(` `self` `)`\n    | `pub` `(` `super` `)`\n    | `pub` `(` `in` SimplePath `)`",
+      "parent_id": null,
+      "paragraphs": {
+        "vis.syntax": ",items\nVisibility ->\n      `pub`\n    | `pub` `(` `crate` `)`\n    | `pub` `(` `self` `)`\n    | `pub` `(` `super` `)`\n    | `pub` `(` `in` SimplePath `)`"
+      }
+    },
+    {
+      "id": "vis.intro",
+      "title": "Visibility and privacy",
+      "level": 1,
+      "content": "These two terms are often used interchangeably, and what they are attempting to\nconvey is the answer to the question \"Can this item be used at this location?\"",
+      "parent_id": null,
+      "paragraphs": {
+        "vis.intro": "These two terms are often used interchangeably, and what they are attempting to\nconvey is the answer to the question \"Can this item be used at this location?\""
+      }
+    },
+    {
+      "id": "vis.name-hierarchy",
+      "title": "Visibility and privacy",
+      "level": 1,
+      "content": "Rust's name resolution operates on a global hierarchy of namespaces. Each level\nin the hierarchy can be thought of as some item. The items are one of those\nmentioned above, but also include external crates. Declaring or defining a new\nmodule can be thought of as inserting a new tree into the hierarchy at the\nlocation of the definition.",
+      "parent_id": null,
+      "paragraphs": {
+        "vis.name-hierarchy": "Rust's name resolution operates on a global hierarchy of namespaces. Each level\nin the hierarchy can be thought of as some item. The items are one of those\nmentioned above, but also include external crates. Declaring or defining a new\nmodule can be thought of as inserting a new tree into the hierarchy at the\nlocation of the definition."
+      }
+    },
+    {
+      "id": "vis.privacy",
+      "title": "Visibility and privacy",
+      "level": 1,
+      "content": "To control whether interfaces can be used across modules, Rust checks each use\nof an item to see whether it should be allowed or not. This is where privacy\nwarnings are generated, or otherwise \"you used a private item of another module\nand weren't allowed to.\"",
+      "parent_id": null,
+      "paragraphs": {
+        "vis.privacy": "To control whether interfaces can be used across modules, Rust checks each use\nof an item to see whether it should be allowed or not. This is where privacy\nwarnings are generated, or otherwise \"you used a private item of another module\nand weren't allowed to.\""
+      }
+    },
+    {
+      "id": "vis.default",
+      "title": "Visibility and privacy",
+      "level": 1,
+      "content": "By default, everything is *private*, with two exceptions: Associated\nitems in a `pub` Trait are public by default; Enum variants\nin a `pub` enum are also public by default. When an item is declared as `pub`,\nit can be thought of as being accessible to the outside world. For example:\n\n# fn main() {}\n// Declare a private struct\nstruct Foo;\n\n// Declare a public struct with a private field\npub struct Bar {\n    field: i32,\n}\n\n// Declare a public enum with two public variants\npub enum State {\n    PubliclyAccessibleState,\n    PubliclyAccessibleState2,\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "vis.default": "By default, everything is *private*, with two exceptions: Associated\nitems in a `pub` Trait are public by default; Enum variants\nin a `pub` enum are also public by default. When an item is declared as `pub`,\nit can be thought of as being accessible to the outside world. For example:\n\n# fn main() {}\n// Declare a private struct\nstruct Foo;\n\n// Declare a public struct with a private field\npub struct Bar {\n    field: i32,\n}\n\n// Declare a public enum with two public variants\npub enum State {\n    PubliclyAccessibleState,\n    PubliclyAccessibleState2,\n}"
+      }
+    },
+    {
+      "id": "vis.access",
+      "title": "fn main() {}",
+      "level": 1,
+      "content": "With the notion of an item being either public or private, Rust allows item\naccesses in two cases:\n\n1. If an item is public, then it can be accessed externally from some module\n   `m` if you can access all the item's ancestor modules from `m`. You can\n   also potentially be able to name the item through re-exports. See below.\n2. If an item is private, it may be accessed by the current module and its\n   descendants.\n\nThese two cases are surprisingly powerful for creating module hierarchies\nexposing public APIs while hiding internal implementation details. To help\nexplain, here's a few use cases and what they would entail:\n\n* A library developer needs to expose functionality to crates which link\n  against their library. As a consequence of the first case, this means that\n  anything which is usable externally must be `pub` from the root down to the\n  destination item. Any private item in the chain will disallow external\n  accesses.\n\n* A crate needs a global available \"helper module\" to itself, but it doesn't\n  want to expose the helper module as a public API. To accomplish this, the\n  root of the crate's hierarchy would have a private module which then\n  internally has a \"public API\". Because the entire crate is a descendant of\n  the root, then the entire local crate can access this private module through\n  the second case.\n\n* When writing unit tests for a module, it's often a common idiom to have an\n  immediate child of the module to-be-tested named `mod test`. This module\n  could access any items of the parent module through the second case, meaning\n  that internal implementation details could also be seamlessly tested from the\n  child module.\n\nIn the second case, it mentions that a private item \"can be accessed\" by the\ncurrent module and its descendants, but the exact meaning of accessing an item\ndepends on what the item is.",
+      "parent_id": null,
+      "paragraphs": {
+        "vis.access": "With the notion of an item being either public or private, Rust allows item\naccesses in two cases:\n\n1. If an item is public, then it can be accessed externally from some module\n   `m` if you can access all the item's ancestor modules from `m`. You can\n   also potentially be able to name the item through re-exports. See below.\n2. If an item is private, it may be accessed by the current module and its\n   descendants.\n\nThese two cases are surprisingly powerful for creating module hierarchies\nexposing public APIs while hiding internal implementation details. To help\nexplain, here's a few use cases and what they would entail:\n\n* A library developer needs to expose functionality to crates which link\n  against their library. As a consequence of the first case, this means that\n  anything which is usable externally must be `pub` from the root down to the\n  destination item. Any private item in the chain will disallow external\n  accesses.\n\n* A crate needs a global available \"helper module\" to itself, but it doesn't\n  want to expose the helper module as a public API. To accomplish this, the\n  root of the crate's hierarchy would have a private module which then\n  internally has a \"public API\". Because the entire crate is a descendant of\n  the root, then the entire local crate can access this private module through\n  the second case.\n\n* When writing unit tests for a module, it's often a common idiom to have an\n  immediate child of the module to-be-tested named `mod test`. This module\n  could access any items of the parent module through the second case, meaning\n  that internal implementation details could also be seamlessly tested from the\n  child module.\n\nIn the second case, it mentions that a private item \"can be accessed\" by the\ncurrent module and its descendants, but the exact meaning of accessing an item\ndepends on what the item is."
+      }
+    },
+    {
+      "id": "vis.usage",
+      "title": "fn main() {}",
+      "level": 1,
+      "content": "Accessing a module, for example, would mean looking inside of it (to import more items). On the other hand, accessing a\nfunction would mean that it is invoked. Additionally, path expressions and\nimport statements are considered to access an item in the sense that the\nimport/expression is only valid if the destination is in the current visibility\nscope.\n\nHere's an example of a program which exemplifies the three cases outlined\nabove:\n\n// This module is private, meaning that no external crate can access this\n// module. Because it is private at the root of this current crate, however, any\n// module in the crate may access any publicly visible item in this module.\nmod crate_helper_module {\n\n    // This function can be used by anything in the current crate\n    pub fn crate_helper() {}\n\n    // This function *cannot* be used by anything else in the crate. It is not\n    // publicly visible outside of the `crate_helper_module`, so only this\n    // current module and its descendants may access it.\n    fn implementation_detail() {}\n}\n\n// This function is \"public to the root\" meaning that it's available to external\n// crates linking against this one.\npub fn public_api() {}\n\n// Similarly to 'public_api', this module is public so external crates may look\n// inside of it.\npub mod submodule {\n    use crate::crate_helper_module;\n\n    pub fn my_method() {\n        // Any item in the local crate may invoke the helper module's public\n        // interface through a combination of the two rules above.\n        crate_helper_module::crate_helper();\n    }\n\n    // This function is hidden to any module which is not a descendant of\n    // `submodule`\n    fn my_implementation() {}\n\n    #[cfg(test)]\n    mod test {\n\n        #[test]\n        fn test_my_implementation() {\n            // Because this module is a descendant of `submodule`, it's allowed\n            // to access private items inside of `submodule` without a privacy\n            // violation.\n            super::my_implementation();\n        }\n    }\n}\n\n# fn main() {}\n\nFor a Rust program to pass the privacy checking pass, all paths must be valid\naccesses given the two rules above. This includes all use statements,\nexpressions, types, etc.",
+      "parent_id": null,
+      "paragraphs": {
+        "vis.usage": "Accessing a module, for example, would mean looking inside of it (to import more items). On the other hand, accessing a\nfunction would mean that it is invoked. Additionally, path expressions and\nimport statements are considered to access an item in the sense that the\nimport/expression is only valid if the destination is in the current visibility\nscope.\n\nHere's an example of a program which exemplifies the three cases outlined\nabove:\n\n// This module is private, meaning that no external crate can access this\n// module. Because it is private at the root of this current crate, however, any\n// module in the crate may access any publicly visible item in this module.\nmod crate_helper_module {\n\n    // This function can be used by anything in the current crate\n    pub fn crate_helper() {}\n\n    // This function *cannot* be used by anything else in the crate. It is not\n    // publicly visible outside of the `crate_helper_module`, so only this\n    // current module and its descendants may access it.\n    fn implementation_detail() {}\n}\n\n// This function is \"public to the root\" meaning that it's available to external\n// crates linking against this one.\npub fn public_api() {}\n\n// Similarly to 'public_api', this module is public so external crates may look\n// inside of it.\npub mod submodule {\n    use crate::crate_helper_module;\n\n    pub fn my_method() {\n        // Any item in the local crate may invoke the helper module's public\n        // interface through a combination of the two rules above.\n        crate_helper_module::crate_helper();\n    }\n\n    // This function is hidden to any module which is not a descendant of\n    // `submodule`\n    fn my_implementation() {}\n\n    #[cfg(test)]\n    mod test {\n\n        #[test]\n        fn test_my_implementation() {\n            // Because this module is a descendant of `submodule`, it's allowed\n            // to access private items inside of `submodule` without a privacy\n            // violation.\n            super::my_implementation();\n        }\n    }\n}\n\n# fn main() {}\n\nFor a Rust program to pass the privacy checking pass, all paths must be valid\naccesses given the two rules above. This includes all use statements,\nexpressions, types, etc."
+      }
+    },
+    {
+      "id": "vis.scoped",
+      "title": "`pub(in path)`, `pub(crate)`, `pub(super)`, and `pub(self)`",
+      "level": 1,
+      "content": "In addition to public and private, Rust allows users to declare an item as\nvisible only within a given scope. The rules for `pub` restrictions are as\nfollows:\n\n- `pub(in path)` makes an item visible within the provided `path`.\n  `path` must be a simple path which resolves to an ancestor module of the item whose visibility is being declared.\n  Each identifier in `path` must refer directly to a module (not to a name introduced by a `use` statement).\n\n- `pub(crate)` makes an item visible within the current crate.\n\n- `pub(super)` makes an item visible to the parent module. This is equivalent\n  to `pub(in super)`.\n\n- `pub(self)` makes an item visible to the current module. This is equivalent\nto `pub(in self)` or not using `pub` at all.\n\n> [!EDITION-2018]\n> Starting with the 2018 edition, paths for `pub(in path)` must start with `crate`, `self`, or `super`. The 2015 edition may also use paths starting with `::` or modules from the crate root.\n\nHere's an example:\n\n,edition2015\npub mod outer_mod {\n    pub mod inner_mod {\n        // This function is visible within `outer_mod`\n        pub(in crate::outer_mod) fn outer_mod_visible_fn() {}\n        // Same as above, this is only valid in the 2015 edition.\n        pub(in outer_mod) fn outer_mod_visible_fn_2015() {}\n\n        // This function is visible to the entire crate\n        pub(crate) fn crate_visible_fn() {}\n\n        // This function is visible within `outer_mod`\n        pub(super) fn super_mod_visible_fn() {\n            // This function is visible since we're in the same `mod`\n            inner_mod_visible_fn();\n        }\n\n        // This function is visible only within `inner_mod`,\n        // which is the same as leaving it private.\n        pub(self) fn inner_mod_visible_fn() {}\n    }\n    pub fn foo() {\n        inner_mod::outer_mod_visible_fn();\n        inner_mod::crate_visible_fn();\n        inner_mod::super_mod_visible_fn();\n\n        // This function is no longer visible since we're outside of `inner_mod`\n        // Error! `inner_mod_visible_fn` is private\n        //inner_mod::inner_mod_visible_fn();\n    }\n}\n\nfn bar() {\n    // This function is still visible since we're in the same crate\n    outer_mod::inner_mod::crate_visible_fn();\n\n    // This function is no longer visible since we're outside of `outer_mod`\n    // Error! `super_mod_visible_fn` is private\n    //outer_mod::inner_mod::super_mod_visible_fn();\n\n    // This function is no longer visible since we're outside of `outer_mod`\n    // Error! `outer_mod_visible_fn` is private\n    //outer_mod::inner_mod::outer_mod_visible_fn();\n\n    outer_mod::foo();\n}\n\nfn main() { bar() }\n\n> [!NOTE]\n> This syntax only adds another restriction to the visibility of an item. It does not guarantee that the item is visible within all parts of the specified scope. To access an item, all of its parent items up to the current scope must still be visible as well.",
+      "parent_id": null,
+      "paragraphs": {
+        "vis.scoped.intro": "In addition to public and private, Rust allows users to declare an item as\nvisible only within a given scope. The rules for `pub` restrictions are as\nfollows:",
+        "vis.scoped.in": "- `pub(in path)` makes an item visible within the provided `path`.\n  `path` must be a simple path which resolves to an ancestor module of the item whose visibility is being declared.\n  Each identifier in `path` must refer directly to a module (not to a name introduced by a `use` statement).",
+        "vis.scoped.crate": "- `pub(crate)` makes an item visible within the current crate.",
+        "vis.scoped.super": "- `pub(super)` makes an item visible to the parent module. This is equivalent\n  to `pub(in super)`.",
+        "vis.scoped.self": "- `pub(self)` makes an item visible to the current module. This is equivalent\nto `pub(in self)` or not using `pub` at all.",
+        "vis.scoped.edition2018": "> [!EDITION-2018]\n> Starting with the 2018 edition, paths for `pub(in path)` must start with `crate`, `self`, or `super`. The 2015 edition may also use paths starting with `::` or modules from the crate root.\n\nHere's an example:\n\n,edition2015\npub mod outer_mod {\n    pub mod inner_mod {\n        // This function is visible within `outer_mod`\n        pub(in crate::outer_mod) fn outer_mod_visible_fn() {}\n        // Same as above, this is only valid in the 2015 edition.\n        pub(in outer_mod) fn outer_mod_visible_fn_2015() {}\n\n        // This function is visible to the entire crate\n        pub(crate) fn crate_visible_fn() {}\n\n        // This function is visible within `outer_mod`\n        pub(super) fn super_mod_visible_fn() {\n            // This function is visible since we're in the same `mod`\n            inner_mod_visible_fn();\n        }\n\n        // This function is visible only within `inner_mod`,\n        // which is the same as leaving it private.\n        pub(self) fn inner_mod_visible_fn() {}\n    }\n    pub fn foo() {\n        inner_mod::outer_mod_visible_fn();\n        inner_mod::crate_visible_fn();\n        inner_mod::super_mod_visible_fn();\n\n        // This function is no longer visible since we're outside of `inner_mod`\n        // Error! `inner_mod_visible_fn` is private\n        //inner_mod::inner_mod_visible_fn();\n    }\n}\n\nfn bar() {\n    // This function is still visible since we're in the same crate\n    outer_mod::inner_mod::crate_visible_fn();\n\n    // This function is no longer visible since we're outside of `outer_mod`\n    // Error! `super_mod_visible_fn` is private\n    //outer_mod::inner_mod::super_mod_visible_fn();\n\n    // This function is no longer visible since we're outside of `outer_mod`\n    // Error! `outer_mod_visible_fn` is private\n    //outer_mod::inner_mod::outer_mod_visible_fn();\n\n    outer_mod::foo();\n}\n\nfn main() { bar() }\n\n> [!NOTE]\n> This syntax only adds another restriction to the visibility of an item. It does not guarantee that the item is visible within all parts of the specified scope. To access an item, all of its parent items up to the current scope must still be visible as well."
+      }
+    },
+    {
+      "id": "vis.reexports",
+      "title": "Re-exporting and visibility",
+      "level": 2,
+      "content": "Rust allows publicly re-exporting items through a `pub use` directive. Because\nthis is a public directive, this allows the item to be used in the current\nmodule through the rules above. It essentially allows public access into the\nre-exported item. For example, this program is valid:\n\npub use self::implementation::api;\n\nmod implementation {\n    pub mod api {\n        pub fn f() {}\n    }\n}\n\n# fn main() {}\n\nThis means that any external crate referencing `implementation::api::f` would\nreceive a privacy violation, while the path `api::f` would be allowed.\n\nWhen re-exporting a private item, it can be thought of as allowing the \"privacy\nchain\" being short-circuited through the reexport instead of passing through\nthe namespace hierarchy as it normally would.",
+      "parent_id": null,
+      "paragraphs": {
+        "vis.reexports.intro": "Rust allows publicly re-exporting items through a `pub use` directive. Because\nthis is a public directive, this allows the item to be used in the current\nmodule through the rules above. It essentially allows public access into the\nre-exported item. For example, this program is valid:\n\npub use self::implementation::api;\n\nmod implementation {\n    pub mod api {\n        pub fn f() {}\n    }\n}\n\n# fn main() {}\n\nThis means that any external crate referencing `implementation::api::f` would\nreceive a privacy violation, while the path `api::f` would be allowed.",
+        "vis.reexports.private-item": "When re-exporting a private item, it can be thought of as allowing the \"privacy\nchain\" being short-circuited through the reexport instead of passing through\nthe namespace hierarchy as it normally would."
+      }
+    }
+  ],
+  "ids": [
+    "names.scopes.lifetimes.impl-trait",
+    "names.namespaces",
+    "names.preludes.tool",
+    "names.scopes.pattern-bindings.items",
+    "paths.qualifiers.mod-self.restriction",
+    "names.implicit.primitive-types",
+    "names.scopes.items.duplicate",
+    "paths",
+    "names.scopes.self.impl-scope",
+    "paths.qualifiers.global-root",
+    "names.resolution.general.scopes.intro",
+    "paths.simple.intro",
+    "names.scopes.associated-items",
+    "names.scopes.generic-parameters.param-list",
+    "names.resolution.expansion.macros.ambiguity.built-in-attr",
+    "paths.qualifiers.type-self.type",
+    "paths.canonical.bare-impl-prefix",
+    "paths.qualifiers.mod-self.intro",
+    "names.scopes.pattern-bindings.let",
+    "paths.qualifiers.macro-crate",
+    "names.implicit.lifetime-static",
+    "names.resolution.expansion.macros.ambiguity.more-expanded-vs-outer",
+    "names.namespaces.without",
+    "names.explicit.binding",
+    "names.scopes",
+    "names.preludes.extern.core",
+    "names.resolution.expansion.imports.ambiguity.glob-vs-glob",
+    "names.preludes.no_implicit_prelude.duplicates",
+    "paths.canonical.def",
+    "names.resolution",
+    "names.scopes.items",
+    "paths.qualified.syntax",
+    "names.resolution.expansion",
+    "names.explicit.macro_export",
+    "names.scopes.pattern-bindings.closure",
+    "names.scopes.loop-label.shadow",
+    "paths.qualifiers.type-self.scope",
+    "names.scopes.intro",
+    "names.resolution.general.scopes",
+    "names.resolution.intro",
+    "vis.scoped.edition2018",
+    "names.namespaces.sub-namespaces.intro",
+    "vis.syntax",
+    "names.implicit.derive-helpers",
+    "paths.qualifiers.type-self",
+    "names.preludes.std.intro",
+    "names.scopes.items.statement",
+    "paths.canonical.trait-impl-prefix",
+    "names.scopes.pattern-bindings.match-arm",
+    "paths.qualifiers.global-root.intro",
+    "names.preludes.extern.edition2018",
+    "names.preludes.no_implicit_prelude.edition2018",
+    "names.preludes.no_implicit_prelude.intro",
+    "paths.qualifiers.global-root.edition2018",
+    "paths.qualifiers.crate",
+    "vis.default",
+    "names.preludes.macro_use",
+    "names.scopes.associated-items.duplicate",
+    "names.resolution.expansion.macros.intro",
+    "paths.expr",
+    "vis.reexports.private-item",
+    "names.scopes.self.def-scope",
+    "names.resolution.expansion.expansion-order-stability",
+    "names.resolution.expansion.imports.shadowing.shared-scope",
+    "names.implicit",
+    "names.preludes.extern.std",
+    "paths.simple.syntax",
+    "paths.qualifiers.super.intro",
+    "names.scopes.lifetimes.generic",
+    "paths.qualifiers",
+    "paths.canonical.module-prefix",
+    "names.resolution.type-relative",
+    "names.preludes.extern.no_std.intro",
+    "vis",
+    "names.preludes.macro_use.intro",
+    "names.scopes.prelude",
+    "paths.qualifiers.type-self.intro",
+    "names.scopes.pattern-bindings",
+    "paths.type",
+    "names.resolution.expansion.imports.ambiguity.intro",
+    "vis.usage",
+    "vis.scoped",
+    "names.preludes.no_implicit_prelude.syntax",
+    "names.scopes.associated-items.scope",
+    "names.scopes.prelude.shadow",
+    "paths.qualifiers.type-self.impl",
+    "names.namespaces.without.use",
+    "paths.qualifiers.super",
+    "names.resolution.expansion.imports.ambiguity.glob-vs-outer",
+    "names.preludes.extern.no_std.allowed-positions",
+    "paths.simple",
+    "paths.canonical.intro",
+    "paths.type.turbofish",
+    "names.explicit.list",
+    "names.implicit.extern-prelude",
+    "names.resolution.expansion.imports.ambiguity.path-vs-textual-macro",
+    "names.preludes.kinds",
+    "names.scopes.loop-label",
+    "names.namespaces.intro",
+    "vis.reexports",
+    "names.namespaces.without.fields",
+    "paths.qualified",
+    "vis.scoped.in",
+    "names.scopes.derive.scope",
+    "names.scopes.items.shadow-prelude",
+    "names.preludes.extern.intro",
+    "names.resolution.expansion.imports.ambiguity",
+    "vis.privacy",
+    "names.preludes.no_implicit_prelude",
+    "names.resolution.expansion.macros",
+    "names.resolution.expansion.macros.ambiguity",
+    "vis.access",
+    "names.scopes.self",
+    "names.preludes.no_implicit_prelude.excluded-preludes",
+    "names.implicit.list",
+    "names.resolution.expansion.speculation",
+    "names.preludes.lang.entities",
+    "names.explicit.macro-invocation",
+    "paths.intro",
+    "vis.scoped.intro",
+    "paths.qualifiers.super.allowed-positions",
+    "names.scopes.pattern-bindings.parameter",
+    "names.preludes.extern",
+    "names.preludes.lang.intro",
+    "paths.expr.argument-order",
+    "paths.qualifiers.type-self.allowed-positions",
+    "names.preludes.extern.no_std.syntax",
+    "names.scopes.lifetimes",
+    "names.preludes.extern.no_std",
+    "names.implicit.root",
+    "names.implicit.builtin-attributes",
+    "names.scopes.generic-parameters.order-independent",
+    "names.scopes.pattern-bindings.shadow",
+    "paths.qualifiers.crate.allowed-positions",
+    "paths.qualifiers.macro-crate.allowed-positions",
+    "names.implicit.stdlib",
+    "names.scopes.generic-parameters.shadow",
+    "paths.type.syntax",
+    "names.scopes.generic-parameters.bounds",
+    "names.preludes",
+    "paths.type.intro",
+    "names.namespaces.kinds",
+    "paths.qualifiers.macro-crate.hygiene",
+    "paths.qualifiers.crate.intro",
+    "names.explicit",
+    "names.resolution.general.intro",
+    "names.scopes.pattern-bindings.let-chains",
+    "names",
+    "paths.qualifiers.self-pat",
+    "names.scopes.lifetimes.special",
+    "names.preludes.std.module",
+    "paths.canonical.local-canonical-path",
+    "paths.qualified.intro",
+    "vis.scoped.self",
+    "paths.qualifiers.type-self.trait",
+    "names.resolution.expansion.imports",
+    "vis.scoped.crate",
+    "paths.qualifiers.super.repetition",
+    "names.implicit.prelude",
+    "names.preludes.tool.intro",
+    "paths.expr.impl-trait-params",
+    "names.intro",
+    "names.explicit.higher-ranked-bounds",
+    "names.preludes.no_implicit_prelude.allowed-positions",
+    "names.resolution.expansion.intro",
+    "names.resolution.expansion.macros.reserved-names",
+    "names.scopes.pattern-bindings.loop",
+    "names.scopes.loop-label.scope",
+    "names.preludes.no_implicit_prelude.lang",
+    "vis.intro",
+    "names.namespaces.sub-namespaces",
+    "paths.expr.turbofish",
+    "names.scopes.items.nested-modules",
+    "paths.qualifiers.mod-self",
+    "names.resolution.primary",
+    "names.implicit.lints",
+    "names.explicit.generics",
+    "names.scopes.prelude.intro",
+    "paths.expr.syntax",
+    "names.explicit.expr",
+    "names.preludes.extern.no_std.edition2018",
+    "names.preludes.extern.no_std.duplicates",
+    "names.resolution.general",
+    "names.resolution.expansion.macros.visitation-order",
+    "names.preludes.lang",
+    "names.scopes.items.module",
+    "names.explicit.macro_use",
+    "names.preludes.intro",
+    "vis.name-hierarchy",
+    "vis.reexports.intro",
+    "names.scopes.self.intro",
+    "paths.canonical.non-canonical",
+    "names.resolution.expansion.unresolved-invocations",
+    "names.scopes.macro_rules",
+    "paths.expr.complex-const-params",
+    "paths.canonical.alias",
+    "names.scopes.derive",
+    "names.resolution.expansion.imports.intro",
+    "names.scopes.lifetimes.higher-ranked",
+    "names.preludes.extern.no_std.macro_use",
+    "paths.expr.intro",
+    "paths.qualifiers.type-self.no-generics",
+    "names.explicit.item-decl",
+    "names.scopes.generic-parameters",
+    "names.scopes.generic-parameters.inner-items",
+    "names.preludes.extern.no_std.module",
+    "names.scopes.prelude.layers",
+    "names.preludes.std",
+    "paths.canonical",
+    "vis.scoped.super",
+    "names.resolution.expansion.imports.shadowing",
+    "names.implicit.tool-attributes",
+    "names.scopes.derive.shadow"
+  ]
+}

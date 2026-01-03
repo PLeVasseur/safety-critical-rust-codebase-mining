@@ -1,0 +1,543 @@
+{
+  "source": "Rust Reference",
+  "source_repo": "https://github.com/rust-lang/reference",
+  "extraction_date": "2026-01-03",
+  "chapter": 10,
+  "title": "Patterns",
+  "file": "patterns.md",
+  "sections": [
+    {
+      "id": "patterns",
+      "title": "Patterns",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "patterns.syntax",
+      "title": "Patterns",
+      "level": 1,
+      "content": ",patterns\nPattern -> `|`? PatternNoTopAlt  ( `|` PatternNoTopAlt )*\n\nPatternNoTopAlt ->\n      PatternWithoutRange\n    | RangePattern\n\nPatternWithoutRange ->\n      LiteralPattern\n    | IdentifierPattern\n    | WildcardPattern\n    | RestPattern\n    | ReferencePattern\n    | StructPattern\n    | TupleStructPattern\n    | TuplePattern\n    | GroupedPattern\n    | SlicePattern\n    | PathPattern\n    | MacroInvocation",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.syntax": ",patterns\nPattern -> `|`? PatternNoTopAlt  ( `|` PatternNoTopAlt )*\n\nPatternNoTopAlt ->\n      PatternWithoutRange\n    | RangePattern\n\nPatternWithoutRange ->\n      LiteralPattern\n    | IdentifierPattern\n    | WildcardPattern\n    | RestPattern\n    | ReferencePattern\n    | StructPattern\n    | TupleStructPattern\n    | TuplePattern\n    | GroupedPattern\n    | SlicePattern\n    | PathPattern\n    | MacroInvocation"
+      }
+    },
+    {
+      "id": "patterns.intro",
+      "title": "Patterns",
+      "level": 1,
+      "content": "Patterns are used to match values against structures and to, optionally, bind variables to values inside these structures.\nThey are also used in variable declarations and parameters for functions and closures.\n\nThe pattern in the following example does four things:\n\n* Tests if `person` has the `car` field filled with something.\n* Tests if the person's `age` field is between 13 and 19, and binds its value to the `person_age` variable.\n* Binds a reference to the `name` field to the variable `person_name`.\n* Ignores the rest of the fields of `person`.\n  The remaining fields can have any value and are not bound to any variables.\n\n# struct Car;\n# struct Computer;\n# struct Person {\n#     name: String,\n#     car: Option<Car>,\n#     computer: Option<Computer>,\n#     age: u8,\n# }\n# let person = Person {\n#     name: String::from(\"John\"),\n#     car: Some(Car),\n#     computer: None,\n#     age: 15,\n# };\nif let\n    Person {\n        car: Some(_),\n        age: person_age @ 13..=19,\n        name: ref person_name,\n        ..\n    } = person\n{\n    println!(\"{} has a car and is {} years old.\", person_name, person_age);\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.intro": "Patterns are used to match values against structures and to, optionally, bind variables to values inside these structures.\nThey are also used in variable declarations and parameters for functions and closures.\n\nThe pattern in the following example does four things:\n\n* Tests if `person` has the `car` field filled with something.\n* Tests if the person's `age` field is between 13 and 19, and binds its value to the `person_age` variable.\n* Binds a reference to the `name` field to the variable `person_name`.\n* Ignores the rest of the fields of `person`.\n  The remaining fields can have any value and are not bound to any variables.\n\n# struct Car;\n# struct Computer;\n# struct Person {\n#     name: String,\n#     car: Option<Car>,\n#     computer: Option<Computer>,\n#     age: u8,\n# }\n# let person = Person {\n#     name: String::from(\"John\"),\n#     car: Some(Car),\n#     computer: None,\n#     age: 15,\n# };\nif let\n    Person {\n        car: Some(_),\n        age: person_age @ 13..=19,\n        name: ref person_name,\n        ..\n    } = person\n{\n    println!(\"{} has a car and is {} years old.\", person_name, person_age);\n}"
+      }
+    },
+    {
+      "id": "patterns.usage",
+      "title": "};",
+      "level": 1,
+      "content": "Patterns are used in:",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.usage": "Patterns are used in:"
+      }
+    },
+    {
+      "id": "patterns.let",
+      "title": "};",
+      "level": 1,
+      "content": "* `let` declarations",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.let": "* `let` declarations"
+      }
+    },
+    {
+      "id": "patterns.param",
+      "title": "};",
+      "level": 1,
+      "content": "* Function and closure parameters",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.param": "* Function and closure parameters"
+      }
+    },
+    {
+      "id": "patterns.match",
+      "title": "};",
+      "level": 1,
+      "content": "* `match` expressions",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.match": "* `match` expressions"
+      }
+    },
+    {
+      "id": "patterns.if-let",
+      "title": "};",
+      "level": 1,
+      "content": "* `if let` expressions",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.if-let": "* `if let` expressions"
+      }
+    },
+    {
+      "id": "patterns.while-let",
+      "title": "};",
+      "level": 1,
+      "content": "* `while let` expressions",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.while-let": "* `while let` expressions"
+      }
+    },
+    {
+      "id": "patterns.for",
+      "title": "};",
+      "level": 1,
+      "content": "* `for` expressions",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.for": "* `for` expressions"
+      }
+    },
+    {
+      "id": "patterns.destructure",
+      "title": "Destructuring",
+      "level": 1,
+      "content": "Patterns can be used to *destructure* [structs], [enums], and [tuples].\nDestructuring breaks up a value into its component pieces.\nThe syntax used is almost the same as when creating such values.\n\nIn a pattern whose [scrutinee] expression has a `struct`, `enum` or `tuple` type, a wildcard pattern (`_`) stands in for a *single* data field, whereas an et cetera or rest pattern (`..`) stands in for *all* the remaining fields of a particular variant.\n\nWhen destructuring a data structure with named (but not numbered) fields, it is allowed to write `fieldname` as a shorthand for `fieldname: fieldname`.\n\n# enum Message {\n#     Quit,\n#     WriteString(String),\n#     Move { x: i32, y: i32 },\n#     ChangeColor(u8, u8, u8),\n# }\n# let message = Message::Quit;\nmatch message {\n    Message::Quit => println!(\"Quit\"),\n    Message::WriteString(write) => println!(\"{}\", &write),\n    Message::Move{ x, y: 0 } => println!(\"move {} horizontally\", x),\n    Message::Move{ .. } => println!(\"other move\"),\n    Message::ChangeColor { 0: red, 1: green, 2: _ } => {\n        println!(\"color change, red: {}, green: {}\", red, green);\n    }\n};",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.destructure.intro": "Patterns can be used to *destructure* [structs], [enums], and [tuples].\nDestructuring breaks up a value into its component pieces.\nThe syntax used is almost the same as when creating such values.",
+        "patterns.destructure.wildcard": "In a pattern whose [scrutinee] expression has a `struct`, `enum` or `tuple` type, a wildcard pattern (`_`) stands in for a *single* data field, whereas an et cetera or rest pattern (`..`) stands in for *all* the remaining fields of a particular variant.",
+        "patterns.destructure.named-field-shorthand": "When destructuring a data structure with named (but not numbered) fields, it is allowed to write `fieldname` as a shorthand for `fieldname: fieldname`.\n\n# enum Message {\n#     Quit,\n#     WriteString(String),\n#     Move { x: i32, y: i32 },\n#     ChangeColor(u8, u8, u8),\n# }\n# let message = Message::Quit;\nmatch message {\n    Message::Quit => println!(\"Quit\"),\n    Message::WriteString(write) => println!(\"{}\", &write),\n    Message::Move{ x, y: 0 } => println!(\"move {} horizontally\", x),\n    Message::Move{ .. } => println!(\"other move\"),\n    Message::ChangeColor { 0: red, 1: green, 2: _ } => {\n        println!(\"color change, red: {}, green: {}\", red, green);\n    }\n};"
+      }
+    },
+    {
+      "id": "patterns.refutable",
+      "title": "Refutability",
+      "level": 1,
+      "content": "A pattern is said to be *refutable* when it has the possibility of not being matched by the value it is being matched against.\n*Irrefutable* patterns, on the other hand, always match the value they are being matched against.\nExamples:\n\nlet (x, y) = (1, 2);               // \"(x, y)\" is an irrefutable pattern\n\nif let (a, 3) = (1, 2) {           // \"(a, 3)\" is refutable, and will not match\n    panic!(\"Shouldn't reach here\");\n} else if let (a, 4) = (3, 4) {    // \"(a, 4)\" is refutable, and will match\n    println!(\"Matched ({}, 4)\", a);\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.refutable": "A pattern is said to be *refutable* when it has the possibility of not being matched by the value it is being matched against.\n*Irrefutable* patterns, on the other hand, always match the value they are being matched against.\nExamples:\n\nlet (x, y) = (1, 2);               // \"(x, y)\" is an irrefutable pattern\n\nif let (a, 3) = (1, 2) {           // \"(a, 3)\" is refutable, and will not match\n    panic!(\"Shouldn't reach here\");\n} else if let (a, 4) = (3, 4) {    // \"(a, 4)\" is refutable, and will match\n    println!(\"Matched ({}, 4)\", a);\n}"
+      }
+    },
+    {
+      "id": "patterns.literal",
+      "title": "Literal patterns",
+      "level": 2,
+      "content": ",patterns\nLiteralPattern -> `-`? LiteralExpression\n\n_Literal patterns_ match exactly the same value as what is created by the literal. Since negative numbers are not [literals], literals in patterns may be prefixed by an optional minus sign, which acts like the negation operator.\n\n> [!WARNING]\n> C string and raw C string literals are accepted in literal patterns, but `&CStr` doesn't implement structural equality (`#[derive(Eq, PartialEq)]`) and therefore any such `match` on a `&CStr` will be rejected with a type error.\n\nLiteral patterns are always refutable.\n\nExamples:\n\nfor i in -2..5 {\n    match i {\n        -1 => println!(\"It's minus one\"),\n        1 => println!(\"It's a one\"),\n        2|4 => println!(\"It's either a two or a four\"),\n        _ => println!(\"Matched none of the arms\"),\n    }\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.literal.syntax": ",patterns\nLiteralPattern -> `-`? LiteralExpression",
+        "patterns.literal.intro": "_Literal patterns_ match exactly the same value as what is created by the literal. Since negative numbers are not [literals], literals in patterns may be prefixed by an optional minus sign, which acts like the negation operator.\n\n> [!WARNING]\n> C string and raw C string literals are accepted in literal patterns, but `&CStr` doesn't implement structural equality (`#[derive(Eq, PartialEq)]`) and therefore any such `match` on a `&CStr` will be rejected with a type error.",
+        "patterns.literal.refutable": "Literal patterns are always refutable.\n\nExamples:\n\nfor i in -2..5 {\n    match i {\n        -1 => println!(\"It's minus one\"),\n        1 => println!(\"It's a one\"),\n        2|4 => println!(\"It's either a two or a four\"),\n        _ => println!(\"Matched none of the arms\"),\n    }\n}"
+      }
+    },
+    {
+      "id": "patterns.ident",
+      "title": "Identifier patterns",
+      "level": 2,
+      "content": ",patterns\nIdentifierPattern -> `ref`? `mut`? IDENTIFIER ( `@` PatternNoTopAlt )?\n\nIdentifier patterns bind the value they match to a variable in the [value namespace].\n\nThe identifier must be unique within the pattern.\n\nThe variable will shadow any variables of the same name in scope.\nThe [scope] of the new binding depends on the context of where the pattern is used (such as a `let` binding or a `match` arm).\n\nPatterns that consist of only an identifier, possibly with a `mut`, match any value and bind it to that identifier.\nThis is the most commonly used pattern in variable declarations and parameters for functions and closures.\n\nlet mut variable = 10;\nfn sum(x: i32, y: i32) -> i32 {\n#    x + y\n# }\n\nTo bind the matched value of a pattern to a variable, use the syntax `variable @ subpattern`.\nFor example, the following binds the value 2 to `e` (not the entire range: the range here is a range subpattern).\n\nlet x = 2;\n\nmatch x {\n    e @ 1 ..= 5 => println!(\"got a range element {}\", e),\n    _ => println!(\"anything\"),\n}\n\nBy default, identifier patterns bind a variable to a copy of or move from the matched value depending on whether the matched value implements [`Copy`].\n\nThis can be changed to bind to a reference by using the `ref` keyword, or to a mutable reference using `ref mut`. For example:\n\n# let a = Some(10);\nmatch a {\n    None => (),\n    Some(value) => (),\n}\n\nmatch a {\n    None => (),\n    Some(ref value) => (),\n}\n\nIn the first match expression, the value is copied (or moved).\nIn the second match, a reference to the same memory location is bound to the variable value.\nThis syntax is needed because in destructuring subpatterns the `&` operator can't be applied to the value's fields.\nFor example, the following is not valid:\n\n,compile_fail\n# struct Person {\n#    name: String,\n#    age: u8,\n# }\n# let value = Person { name: String::from(\"John\"), age: 23 };\nif let Person { name: &person_name, age: 18..=150 } = value { }\n\nTo make it valid, write the following:\n\n# struct Person {\n#    name: String,\n#    age: u8,\n# }\n# let value = Person { name: String::from(\"John\"), age: 23 };\nif let Person { name: ref person_name, age: 18..=150 } = value { }\n\nThus, `ref` is not something that is being matched against.\nIts objective is exclusively to make the matched binding a reference, instead of potentially copying or moving what was matched.\n\nPath patterns take precedence over identifier patterns.\n\n> [!NOTE]\n> When a pattern is a single-segment identifier, the grammar is ambiguous whether it means an [IdentifierPattern] or a [PathPattern]. This ambiguity can only be resolved after [name resolution].\n>\n> ```rust\n> const EXPECTED_VALUE: u8 = 42;\n> //    ^^^^^^^^^^^^^^ That this constant is in scope affects how the\n> //                   patterns below are treated.\n>\n> fn check_value(x: u8) -> Result<u8, u8> {\n>     match x {\n>         EXPECTED_VALUE => Ok(x),\n>     //  ^^^^^^^^^^^^^^ Parsed as a `PathPattern` that resolves to\n>     //                 the constant `42`.\n>         other_value => Err(x),\n>     //  ^^^^^^^^^^^ Parsed as an `IdentifierPattern`.\n>     }\n> }\n>\n> // If `EXPECTED_VALUE` were treated as an `IdentifierPattern` above,\n> // that pattern would always match, making the function always return\n> // `Ok(_) regardless of the input.\n> assert_eq!(check_value(42), Ok(42));\n> assert_eq!(check_value(43), Err(43));\n> ```\n\nIt is an error if `ref` or `ref mut` is specified and the identifier shadows a constant.\n\nIdentifier patterns are irrefutable if the `@` subpattern is irrefutable or the subpattern is not specified.",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.ident.syntax": ",patterns\nIdentifierPattern -> `ref`? `mut`? IDENTIFIER ( `@` PatternNoTopAlt )?",
+        "patterns.ident.intro": "Identifier patterns bind the value they match to a variable in the [value namespace].",
+        "patterns.ident.unique": "The identifier must be unique within the pattern.",
+        "patterns.ident.scope": "The variable will shadow any variables of the same name in scope.\nThe [scope] of the new binding depends on the context of where the pattern is used (such as a `let` binding or a `match` arm).",
+        "patterns.ident.bare": "Patterns that consist of only an identifier, possibly with a `mut`, match any value and bind it to that identifier.\nThis is the most commonly used pattern in variable declarations and parameters for functions and closures.\n\nlet mut variable = 10;\nfn sum(x: i32, y: i32) -> i32 {\n#    x + y\n# }",
+        "patterns.ident.scrutinized": "To bind the matched value of a pattern to a variable, use the syntax `variable @ subpattern`.\nFor example, the following binds the value 2 to `e` (not the entire range: the range here is a range subpattern).\n\nlet x = 2;\n\nmatch x {\n    e @ 1 ..= 5 => println!(\"got a range element {}\", e),\n    _ => println!(\"anything\"),\n}",
+        "patterns.ident.move": "By default, identifier patterns bind a variable to a copy of or move from the matched value depending on whether the matched value implements [`Copy`].",
+        "patterns.ident.ref": "This can be changed to bind to a reference by using the `ref` keyword, or to a mutable reference using `ref mut`. For example:\n\n# let a = Some(10);\nmatch a {\n    None => (),\n    Some(value) => (),\n}\n\nmatch a {\n    None => (),\n    Some(ref value) => (),\n}\n\nIn the first match expression, the value is copied (or moved).\nIn the second match, a reference to the same memory location is bound to the variable value.\nThis syntax is needed because in destructuring subpatterns the `&` operator can't be applied to the value's fields.\nFor example, the following is not valid:\n\n,compile_fail\n# struct Person {\n#    name: String,\n#    age: u8,\n# }\n# let value = Person { name: String::from(\"John\"), age: 23 };\nif let Person { name: &person_name, age: 18..=150 } = value { }\n\nTo make it valid, write the following:\n\n# struct Person {\n#    name: String,\n#    age: u8,\n# }\n# let value = Person { name: String::from(\"John\"), age: 23 };\nif let Person { name: ref person_name, age: 18..=150 } = value { }",
+        "patterns.ident.ref-ignored": "Thus, `ref` is not something that is being matched against.\nIts objective is exclusively to make the matched binding a reference, instead of potentially copying or moving what was matched.",
+        "patterns.ident.precedent": "Path patterns take precedence over identifier patterns.\n\n> [!NOTE]\n> When a pattern is a single-segment identifier, the grammar is ambiguous whether it means an [IdentifierPattern] or a [PathPattern]. This ambiguity can only be resolved after [name resolution].\n>\n> ```rust\n> const EXPECTED_VALUE: u8 = 42;\n> //    ^^^^^^^^^^^^^^ That this constant is in scope affects how the\n> //                   patterns below are treated.\n>\n> fn check_value(x: u8) -> Result<u8, u8> {\n>     match x {\n>         EXPECTED_VALUE => Ok(x),\n>     //  ^^^^^^^^^^^^^^ Parsed as a `PathPattern` that resolves to\n>     //                 the constant `42`.\n>         other_value => Err(x),\n>     //  ^^^^^^^^^^^ Parsed as an `IdentifierPattern`.\n>     }\n> }\n>\n> // If `EXPECTED_VALUE` were treated as an `IdentifierPattern` above,\n> // that pattern would always match, making the function always return\n> // `Ok(_) regardless of the input.\n> assert_eq!(check_value(42), Ok(42));\n> assert_eq!(check_value(43), Err(43));\n> ```",
+        "patterns.ident.constraint": "It is an error if `ref` or `ref mut` is specified and the identifier shadows a constant.",
+        "patterns.ident.refutable": "Identifier patterns are irrefutable if the `@` subpattern is irrefutable or the subpattern is not specified."
+      }
+    },
+    {
+      "id": "patterns.ident.binding",
+      "title": "Binding modes",
+      "level": 1,
+      "content": "To service better ergonomics, patterns operate in different *binding modes* in order to make it easier to bind references to values.\nWhen a reference value is matched by a non-reference pattern, it will be automatically treated as a `ref` or `ref mut` binding.\nExample:\n\nlet x: &Option<i32> = &Some(3);\nif let Some(y) = x {\n    // y was converted to `ref y` and its type is &i32\n}\n\n*Non-reference patterns* include all patterns except bindings, wildcard patterns (`_`), `const` patterns of reference types, and reference patterns.\n\nIf a binding pattern does not explicitly have `ref`, `ref mut`, or `mut`, then it uses the *default binding mode* to determine how the variable is bound.\n\nThe default binding mode starts in \"move\" mode which uses move semantics.\n\nWhen matching a pattern, the compiler starts from the outside of the pattern and works inwards.\n\nEach time a reference is matched using a non-reference pattern, it will automatically dereference the value and update the default binding mode.\n\nReferences will set the default binding mode to `ref`.\n\nMutable references will set the mode to `ref mut` unless the mode is already `ref` in which case it remains `ref`.\n\nIf the automatically dereferenced value is still a reference, it is dereferenced and this process repeats.\n\nThe binding pattern may only explicitly specify a `ref` or `ref mut` binding mode, or specify mutability with `mut`, when the default binding mode is \"move\". For example, these are not accepted:\n\n,edition2024,compile_fail\nlet [mut x] = &[()]; //~ ERROR\nlet [ref x] = &[()]; //~ ERROR\nlet [ref mut x] = &mut [()]; //~ ERROR\n\n> [!EDITION-2024]\n> Before the 2024 edition, bindings could explicitly specify a `ref` or `ref mut` binding mode even when the default binding mode was not \"move\", and they could specify mutability on such bindings with `mut`. In these editions, specifying `mut` on a binding set the binding mode to \"move\" regardless of the current default binding mode.\n\nSimilarly, a reference pattern may only appear when the default binding mode is \"move\". For example, this is not accepted:\n\n,edition2024,compile_fail\nlet [&x] = &[&()]; //~ ERROR\n\n> [!EDITION-2024]\n> Before the 2024 edition, reference patterns could appear even when the default binding mode was not \"move\", and had both the effect of matching against the scrutinee and of causing the default binding mode to be reset to \"move\".\n\nMove bindings and reference bindings can be mixed together in the same pattern.\nDoing so will result in partial move of the object bound to and the object cannot be used afterwards.\nThis applies only if the type cannot be copied.\n\nIn the example below, `name` is moved out of `person`.\nTrying to use `person` as a whole or `person.name` would result in an error because of *partial move*.\n\nExample:\n\n# struct Person {\n#    name: String,\n#    age: u8,\n# }\n# let person = Person{ name: String::from(\"John\"), age: 23 };\n// `name` is moved from person and `age` referenced\nlet Person { name, ref age } = person;",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.ident.binding.intro": "To service better ergonomics, patterns operate in different *binding modes* in order to make it easier to bind references to values.\nWhen a reference value is matched by a non-reference pattern, it will be automatically treated as a `ref` or `ref mut` binding.\nExample:\n\nlet x: &Option<i32> = &Some(3);\nif let Some(y) = x {\n    // y was converted to `ref y` and its type is &i32\n}",
+        "patterns.ident.binding.non-reference": "*Non-reference patterns* include all patterns except bindings, wildcard patterns (`_`), `const` patterns of reference types, and reference patterns.",
+        "patterns.ident.binding.default-mode": "If a binding pattern does not explicitly have `ref`, `ref mut`, or `mut`, then it uses the *default binding mode* to determine how the variable is bound.",
+        "patterns.ident.binding.move": "The default binding mode starts in \"move\" mode which uses move semantics.",
+        "patterns.ident.binding.top-down": "When matching a pattern, the compiler starts from the outside of the pattern and works inwards.",
+        "patterns.ident.binding.auto-deref": "Each time a reference is matched using a non-reference pattern, it will automatically dereference the value and update the default binding mode.",
+        "patterns.ident.binding.ref": "References will set the default binding mode to `ref`.",
+        "patterns.ident.binding.ref-mut": "Mutable references will set the mode to `ref mut` unless the mode is already `ref` in which case it remains `ref`.",
+        "patterns.ident.binding.nested-references": "If the automatically dereferenced value is still a reference, it is dereferenced and this process repeats.",
+        "patterns.ident.binding.mode-limitations-binding": "The binding pattern may only explicitly specify a `ref` or `ref mut` binding mode, or specify mutability with `mut`, when the default binding mode is \"move\". For example, these are not accepted:\n\n,edition2024,compile_fail\nlet [mut x] = &[()]; //~ ERROR\nlet [ref x] = &[()]; //~ ERROR\nlet [ref mut x] = &mut [()]; //~ ERROR",
+        "patterns.ident.binding.mode-limitations.edition2024": "> [!EDITION-2024]\n> Before the 2024 edition, bindings could explicitly specify a `ref` or `ref mut` binding mode even when the default binding mode was not \"move\", and they could specify mutability on such bindings with `mut`. In these editions, specifying `mut` on a binding set the binding mode to \"move\" regardless of the current default binding mode.",
+        "patterns.ident.binding.mode-limitations-reference": "Similarly, a reference pattern may only appear when the default binding mode is \"move\". For example, this is not accepted:\n\n,edition2024,compile_fail\nlet [&x] = &[&()]; //~ ERROR",
+        "patterns.ident.binding.mode-limitations-reference.edition2024": "> [!EDITION-2024]\n> Before the 2024 edition, reference patterns could appear even when the default binding mode was not \"move\", and had both the effect of matching against the scrutinee and of causing the default binding mode to be reset to \"move\".",
+        "patterns.ident.binding.mixed": "Move bindings and reference bindings can be mixed together in the same pattern.\nDoing so will result in partial move of the object bound to and the object cannot be used afterwards.\nThis applies only if the type cannot be copied.\n\nIn the example below, `name` is moved out of `person`.\nTrying to use `person` as a whole or `person.name` would result in an error because of *partial move*.\n\nExample:\n\n# struct Person {\n#    name: String,\n#    age: u8,\n# }\n# let person = Person{ name: String::from(\"John\"), age: 23 };\n// `name` is moved from person and `age` referenced\nlet Person { name, ref age } = person;"
+      }
+    },
+    {
+      "id": "patterns.wildcard",
+      "title": "Wildcard pattern",
+      "level": 1,
+      "content": ",patterns\nWildcardPattern -> `_`\n\nThe _wildcard pattern_ (an underscore symbol) matches any value.\nIt is used to ignore values when they don't matter.\n\nInside other patterns it matches a single data field (as opposed to the `..` which matches the remaining fields).\n\nUnlike identifier patterns, it does not copy, move or borrow the value it matches.\n\nExamples:\n\n# let x = 20;\nlet (a, _) = (10, x);   // the x is always matched by _\n# assert_eq!(a, 10);\n\n// ignore a function/closure param\nlet real_part = |a: f64, _: f64| { a };\n\n// ignore a field from a struct\n# struct RGBA {\n#    r: f32,\n#    g: f32,\n#    b: f32,\n#    a: f32,\n# }\n# let color = RGBA{r: 0.4, g: 0.1, b: 0.9, a: 0.5};\nlet RGBA{r: red, g: green, b: blue, a: _} = color;\n# assert_eq!(color.r, red);\n# assert_eq!(color.g, green);\n# assert_eq!(color.b, blue);\n\n// accept any Some, with any value\n# let x = Some(10);\nif let Some(_) = x {}\n\nThe wildcard pattern is always irrefutable.",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.wildcard.syntax": ",patterns\nWildcardPattern -> `_`",
+        "patterns.wildcard.intro": "The _wildcard pattern_ (an underscore symbol) matches any value.\nIt is used to ignore values when they don't matter.",
+        "patterns.wildcard.struct-matcher": "Inside other patterns it matches a single data field (as opposed to the `..` which matches the remaining fields).",
+        "patterns.wildcard.no-binding": "Unlike identifier patterns, it does not copy, move or borrow the value it matches.\n\nExamples:\n\n# let x = 20;\nlet (a, _) = (10, x);   // the x is always matched by _\n# assert_eq!(a, 10);\n\n// ignore a function/closure param\nlet real_part = |a: f64, _: f64| { a };\n\n// ignore a field from a struct\n# struct RGBA {\n#    r: f32,\n#    g: f32,\n#    b: f32,\n#    a: f32,\n# }\n# let color = RGBA{r: 0.4, g: 0.1, b: 0.9, a: 0.5};\nlet RGBA{r: red, g: green, b: blue, a: _} = color;\n# assert_eq!(color.r, red);\n# assert_eq!(color.g, green);\n# assert_eq!(color.b, blue);\n\n// accept any Some, with any value\n# let x = Some(10);\nif let Some(_) = x {}",
+        "patterns.wildcard.refutable": "The wildcard pattern is always irrefutable."
+      }
+    },
+    {
+      "id": "patterns.rest",
+      "title": "Rest pattern",
+      "level": 1,
+      "content": ",patterns\nRestPattern -> `..`\n\nThe _rest pattern_ (the `..` token) acts as a variable-length pattern which matches zero or more elements that haven't been matched already before and after.\n\nIt may only be used in tuple, tuple struct, and slice patterns, and may only appear once as one of the elements in those patterns.\nIt is also allowed in an identifier pattern for slice patterns only.\n\nThe rest pattern is always irrefutable.\n\nExamples:\n\n# let words = vec![\"a\", \"b\", \"c\"];\n# let slice = &words[..];\nmatch slice {\n    [] => println!(\"slice is empty\"),\n    [one] => println!(\"single element {}\", one),\n    [head, tail @ ..] => println!(\"head={} tail={:?}\", head, tail),\n}\n\nmatch slice {\n    // Ignore everything but the last element, which must be \"!\".\n    [.., \"!\"] => println!(\"!!!\"),\n\n    // `start` is a slice of everything except the last element, which must be \"z\".\n    [start @ .., \"z\"] => println!(\"starts with: {:?}\", start),\n\n    // `end` is a slice of everything but the first element, which must be \"a\".\n    [\"a\", end @ ..] => println!(\"ends with: {:?}\", end),\n\n    // 'whole' is the entire slice and `last` is the final element\n    whole @ [.., last] => println!(\"the last element of {:?} is {}\", whole, last),\n\n    rest => println!(\"{:?}\", rest),\n}\n\nif let [.., penultimate, _] = slice {\n    println!(\"next to last is {}\", penultimate);\n}\n\n# let tuple = (1, 2, 3, 4, 5);\n// The rest pattern may also be used in tuple and tuple\n// struct patterns.\nmatch tuple {\n    (1, .., y, z) => println!(\"y={} z={}\", y, z),\n    (.., 5) => println!(\"tail must be 5\"),\n    (..) => println!(\"matches everything else\"),\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.rest.syntax": ",patterns\nRestPattern -> `..`",
+        "patterns.rest.intro": "The _rest pattern_ (the `..` token) acts as a variable-length pattern which matches zero or more elements that haven't been matched already before and after.",
+        "patterns.rest.allowed-patterns": "It may only be used in tuple, tuple struct, and slice patterns, and may only appear once as one of the elements in those patterns.\nIt is also allowed in an identifier pattern for slice patterns only.",
+        "patterns.rest.refutable": "The rest pattern is always irrefutable.\n\nExamples:\n\n# let words = vec![\"a\", \"b\", \"c\"];\n# let slice = &words[..];\nmatch slice {\n    [] => println!(\"slice is empty\"),\n    [one] => println!(\"single element {}\", one),\n    [head, tail @ ..] => println!(\"head={} tail={:?}\", head, tail),\n}\n\nmatch slice {\n    // Ignore everything but the last element, which must be \"!\".\n    [.., \"!\"] => println!(\"!!!\"),\n\n    // `start` is a slice of everything except the last element, which must be \"z\".\n    [start @ .., \"z\"] => println!(\"starts with: {:?}\", start),\n\n    // `end` is a slice of everything but the first element, which must be \"a\".\n    [\"a\", end @ ..] => println!(\"ends with: {:?}\", end),\n\n    // 'whole' is the entire slice and `last` is the final element\n    whole @ [.., last] => println!(\"the last element of {:?} is {}\", whole, last),\n\n    rest => println!(\"{:?}\", rest),\n}\n\nif let [.., penultimate, _] = slice {\n    println!(\"next to last is {}\", penultimate);\n}\n\n# let tuple = (1, 2, 3, 4, 5);\n// The rest pattern may also be used in tuple and tuple\n// struct patterns.\nmatch tuple {\n    (1, .., y, z) => println!(\"y={} z={}\", y, z),\n    (.., 5) => println!(\"tail must be 5\"),\n    (..) => println!(\"matches everything else\"),\n}"
+      }
+    },
+    {
+      "id": "patterns.range",
+      "title": "Range patterns",
+      "level": 1,
+      "content": ",patterns\nRangePattern ->\n      RangeExclusivePattern\n    | RangeInclusivePattern\n    | RangeFromPattern\n    | RangeToExclusivePattern\n    | RangeToInclusivePattern\n    | ObsoleteRangePattern[^obsolete-range-edition]\n\nRangeExclusivePattern ->\n      RangePatternBound `..` RangePatternBound\n\nRangeInclusivePattern ->\n      RangePatternBound `..=` RangePatternBound\n\nRangeFromPattern ->\n      RangePatternBound `..`\n\nRangeToExclusivePattern ->\n      `..` RangePatternBound\n\nRangeToInclusivePattern ->\n      `..=` RangePatternBound\n\nObsoleteRangePattern ->\n    RangePatternBound `...` RangePatternBound\n\nRangePatternBound ->\n      LiteralPattern\n    | PathExpression\n\n[^obsolete-range-edition]: The [ObsoleteRangePattern] syntax has been removed in the 2021 edition.\n\n*Range patterns* match scalar values within the range defined by their bounds.\nThey comprise a *sigil* (`..` or `..=`) and a bound on one or both sides.\n\nA bound on the left of the sigil is called a *lower bound*.\nA bound on the right is called an *upper bound*.\n\nThe *exclusive range pattern* matches all values from the lower bound up to, but not including the upper bound.\nIt is written as its lower bound, followed by `..`, followed by the upper bound.\n\nFor example, a pattern `'m'..'p'` will match only `'m'`, `'n'` and `'o'`, specifically **not** including `'p'`.\n\nThe *inclusive range pattern* matches all values from the lower bound up to and including the upper bound.\nIt is written as its lower bound, followed by `..=`, followed by the upper bound.\n\nFor example, a pattern `'m'..='p'` will match only the values `'m'`, `'n'`, `'o'`, and `'p'`.\n\nThe *from range pattern* matches all values greater than or equal to the lower bound.\nIt is written as its lower bound followed by `..`.\n\nFor example, `1..` will match any integer greater than or equal to 1, such as 1, 9, or 9001, or 9007199254740991 (if it is of an appropriate size), but not 0, and not negative numbers for signed integers.\n\nThe *to exclusive range pattern* matches all values less than the upper bound.\nIt is written as `..` followed by the upper bound.\n\nFor example, `..10` will match any integer less than 10, such as 9, 1, 0, and for signed integer types, all negative values.\n\nThe *to inclusive range pattern* matches all values less than or equal to the upper bound.\nIt is written as `..=` followed by the upper bound.\n\nFor example, `..=10` will match any integer less than or equal to 10, such as 10, 1, 0, and for signed integer types, all negative values.\n\nA range pattern must be nonempty; it must span at least one value in the set of possible values for its type. In other words:\n\n* In `a..=b`, a &le; b must be the case. For example, it is an error to have a range pattern `10..=0`, but `10..=10` is allowed.\n* In `a..b`, a &lt; b must be the case. For example, it is an error to have a range pattern `10..0` or `10..10`.\n* In `..b`, b must not be the smallest value of its type. For example, it is an error to have a range pattern `..-128i8` or `..f64::NEG_INFINITY`.\n\nA bound is written as one of:\n\n* A character, byte, integer, or float literal.\n* A `-` followed by an integer or float literal.\n* A [path].\n\n> [!NOTE]\n>\n> We syntactically accept more than this for a *[RangePatternBound]*. We later reject the other things semantically.\n\nIf a bound is written as a path, after macro resolution, the path must resolve to a constant item of the type `char`, an integer type, or a float type.\n\nThe range pattern matches the type of its upper and lower bounds, which must be the same type.\n\nIf a bound is a [path], the bound matches the type and has the value of the [constant] the path resolves to.\n\nIf a bound is a literal, the bound matches the type and has the value of the corresponding [literal expression].\n\nIf a bound is a literal preceded by a `-`, the bound matches the same type as the corresponding [literal expression] and has the value of [negating] the value of the corresponding literal expression.\n\nFor float range patterns, the constant may not be a `NaN`.\n\nExamples:\n\n# let c = 'f';\nlet valid_variable = match c {\n    'a'..='z' => true,\n    'A'..='Z' => true,\n    '\u03b1'..='\u03c9' => true,\n    _ => false,\n};\n\n# let ph = 10;\nprintln!(\"{}\", match ph {\n    0..7 => \"acid\",\n    7 => \"neutral\",\n    8..=14 => \"base\",\n    _ => unreachable!(),\n});\n\n# let uint: u32 = 5;\nmatch uint {\n    0 => \"zero!\",\n    1.. => \"positive number!\",\n};\n\n// using paths to constants:\n# const TROPOSPHERE_MIN : u8 = 6;\n# const TROPOSPHERE_MAX : u8 = 20;\n#\n# const STRATOSPHERE_MIN : u8 = TROPOSPHERE_MAX + 1;\n# const STRATOSPHERE_MAX : u8 = 50;\n#\n# const MESOSPHERE_MIN : u8 = STRATOSPHERE_MAX + 1;\n# const MESOSPHERE_MAX : u8 = 85;\n#\n# let altitude = 70;\n#\nprintln!(\"{}\", match altitude {\n    TROPOSPHERE_MIN..=TROPOSPHERE_MAX => \"troposphere\",\n    STRATOSPHERE_MIN..=STRATOSPHERE_MAX => \"stratosphere\",\n    MESOSPHERE_MIN..=MESOSPHERE_MAX => \"mesosphere\",\n    _ => \"outer space, maybe\",\n});\n\n# pub mod binary {\n#     pub const MEGA : u64 = 1024*1024;\n#     pub const GIGA : u64 = 1024*1024*1024;\n# }\n# let n_items = 20_832_425;\n# let bytes_per_item = 12;\nif let size @ binary::MEGA..=binary::GIGA = n_items * bytes_per_item {\n    println!(\"It fits and occupies {} bytes\", size);\n}\n\n# trait MaxValue {\n#     const MAX: u64;\n# }\n# impl MaxValue for u8 {\n#     const MAX: u64 = (1 << 8) - 1;\n# }\n# impl MaxValue for u16 {\n#     const MAX: u64 = (1 << 16) - 1;\n# }\n# impl MaxValue for u32 {\n#     const MAX: u64 = (1 << 32) - 1;\n# }\n// using qualified paths:\nprintln!(\"{}\", match 0xfacade {\n    0 ..= <u8 as MaxValue>::MAX => \"fits in a u8\",\n    0 ..= <u16 as MaxValue>::MAX => \"fits in a u16\",\n    0 ..= <u32 as MaxValue>::MAX => \"fits in a u32\",\n    _ => \"too big\",\n});\n\nRange patterns for fix-width integer and `char` types are irrefutable when they span the entire set of possible values of a type.\nFor example, `0u8..=255u8` is irrefutable.\n\nThe range of values for an integer type is the closed range from its minimum to maximum value.\n\nThe range of values for a `char` type are precisely those ranges containing all Unicode Scalar Values: `'\\u{0000}'..='\\u{D7FF}'` and `'\\u{E000}'..='\\u{10FFFF}'`.\n\n[RangeFromPattern] cannot be used as a top-level pattern for subpatterns in slice patterns.\nFor example, the pattern `[1.., _]` is not a valid pattern.\n\n> [!EDITION-2021]\n> Before the 2021 edition, range patterns with both a lower and upper bound may also be written using `...` in place of `..=`, with the same meaning.",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.range.syntax": ",patterns\nRangePattern ->\n      RangeExclusivePattern\n    | RangeInclusivePattern\n    | RangeFromPattern\n    | RangeToExclusivePattern\n    | RangeToInclusivePattern\n    | ObsoleteRangePattern[^obsolete-range-edition]\n\nRangeExclusivePattern ->\n      RangePatternBound `..` RangePatternBound\n\nRangeInclusivePattern ->\n      RangePatternBound `..=` RangePatternBound\n\nRangeFromPattern ->\n      RangePatternBound `..`\n\nRangeToExclusivePattern ->\n      `..` RangePatternBound\n\nRangeToInclusivePattern ->\n      `..=` RangePatternBound\n\nObsoleteRangePattern ->\n    RangePatternBound `...` RangePatternBound\n\nRangePatternBound ->\n      LiteralPattern\n    | PathExpression\n\n[^obsolete-range-edition]: The [ObsoleteRangePattern] syntax has been removed in the 2021 edition.",
+        "patterns.range.intro": "*Range patterns* match scalar values within the range defined by their bounds.\nThey comprise a *sigil* (`..` or `..=`) and a bound on one or both sides.\n\nA bound on the left of the sigil is called a *lower bound*.\nA bound on the right is called an *upper bound*.",
+        "patterns.range.exclusive": "The *exclusive range pattern* matches all values from the lower bound up to, but not including the upper bound.\nIt is written as its lower bound, followed by `..`, followed by the upper bound.\n\nFor example, a pattern `'m'..'p'` will match only `'m'`, `'n'` and `'o'`, specifically **not** including `'p'`.",
+        "patterns.range.inclusive": "The *inclusive range pattern* matches all values from the lower bound up to and including the upper bound.\nIt is written as its lower bound, followed by `..=`, followed by the upper bound.\n\nFor example, a pattern `'m'..='p'` will match only the values `'m'`, `'n'`, `'o'`, and `'p'`.",
+        "patterns.range.from": "The *from range pattern* matches all values greater than or equal to the lower bound.\nIt is written as its lower bound followed by `..`.\n\nFor example, `1..` will match any integer greater than or equal to 1, such as 1, 9, or 9001, or 9007199254740991 (if it is of an appropriate size), but not 0, and not negative numbers for signed integers.",
+        "patterns.range.to-exclusive": "The *to exclusive range pattern* matches all values less than the upper bound.\nIt is written as `..` followed by the upper bound.\n\nFor example, `..10` will match any integer less than 10, such as 9, 1, 0, and for signed integer types, all negative values.",
+        "patterns.range.to-inclusive": "The *to inclusive range pattern* matches all values less than or equal to the upper bound.\nIt is written as `..=` followed by the upper bound.\n\nFor example, `..=10` will match any integer less than or equal to 10, such as 10, 1, 0, and for signed integer types, all negative values.",
+        "patterns.range.constraint-nonempty": "A range pattern must be nonempty; it must span at least one value in the set of possible values for its type. In other words:\n\n* In `a..=b`, a &le; b must be the case. For example, it is an error to have a range pattern `10..=0`, but `10..=10` is allowed.\n* In `a..b`, a &lt; b must be the case. For example, it is an error to have a range pattern `10..0` or `10..10`.\n* In `..b`, b must not be the smallest value of its type. For example, it is an error to have a range pattern `..-128i8` or `..f64::NEG_INFINITY`.",
+        "patterns.range.bound": "A bound is written as one of:\n\n* A character, byte, integer, or float literal.\n* A `-` followed by an integer or float literal.\n* A [path].\n\n> [!NOTE]\n>\n> We syntactically accept more than this for a *[RangePatternBound]*. We later reject the other things semantically.",
+        "patterns.range.constraint-bound-path": "If a bound is written as a path, after macro resolution, the path must resolve to a constant item of the type `char`, an integer type, or a float type.",
+        "patterns.range.type": "The range pattern matches the type of its upper and lower bounds, which must be the same type.",
+        "patterns.range.path-value": "If a bound is a [path], the bound matches the type and has the value of the [constant] the path resolves to.",
+        "patterns.range.literal-value": "If a bound is a literal, the bound matches the type and has the value of the corresponding [literal expression].",
+        "patterns.range.negation": "If a bound is a literal preceded by a `-`, the bound matches the same type as the corresponding [literal expression] and has the value of [negating] the value of the corresponding literal expression.",
+        "patterns.range.float-restriction": "For float range patterns, the constant may not be a `NaN`.\n\nExamples:\n\n# let c = 'f';\nlet valid_variable = match c {\n    'a'..='z' => true,\n    'A'..='Z' => true,\n    '\u03b1'..='\u03c9' => true,\n    _ => false,\n};\n\n# let ph = 10;\nprintln!(\"{}\", match ph {\n    0..7 => \"acid\",\n    7 => \"neutral\",\n    8..=14 => \"base\",\n    _ => unreachable!(),\n});\n\n# let uint: u32 = 5;\nmatch uint {\n    0 => \"zero!\",\n    1.. => \"positive number!\",\n};\n\n// using paths to constants:\n# const TROPOSPHERE_MIN : u8 = 6;\n# const TROPOSPHERE_MAX : u8 = 20;\n#\n# const STRATOSPHERE_MIN : u8 = TROPOSPHERE_MAX + 1;\n# const STRATOSPHERE_MAX : u8 = 50;\n#\n# const MESOSPHERE_MIN : u8 = STRATOSPHERE_MAX + 1;\n# const MESOSPHERE_MAX : u8 = 85;\n#\n# let altitude = 70;\n#\nprintln!(\"{}\", match altitude {\n    TROPOSPHERE_MIN..=TROPOSPHERE_MAX => \"troposphere\",\n    STRATOSPHERE_MIN..=STRATOSPHERE_MAX => \"stratosphere\",\n    MESOSPHERE_MIN..=MESOSPHERE_MAX => \"mesosphere\",\n    _ => \"outer space, maybe\",\n});\n\n# pub mod binary {\n#     pub const MEGA : u64 = 1024*1024;\n#     pub const GIGA : u64 = 1024*1024*1024;\n# }\n# let n_items = 20_832_425;\n# let bytes_per_item = 12;\nif let size @ binary::MEGA..=binary::GIGA = n_items * bytes_per_item {\n    println!(\"It fits and occupies {} bytes\", size);\n}\n\n# trait MaxValue {\n#     const MAX: u64;\n# }\n# impl MaxValue for u8 {\n#     const MAX: u64 = (1 << 8) - 1;\n# }\n# impl MaxValue for u16 {\n#     const MAX: u64 = (1 << 16) - 1;\n# }\n# impl MaxValue for u32 {\n#     const MAX: u64 = (1 << 32) - 1;\n# }\n// using qualified paths:\nprintln!(\"{}\", match 0xfacade {\n    0 ..= <u8 as MaxValue>::MAX => \"fits in a u8\",\n    0 ..= <u16 as MaxValue>::MAX => \"fits in a u16\",\n    0 ..= <u32 as MaxValue>::MAX => \"fits in a u32\",\n    _ => \"too big\",\n});",
+        "patterns.range.refutable": "Range patterns for fix-width integer and `char` types are irrefutable when they span the entire set of possible values of a type.\nFor example, `0u8..=255u8` is irrefutable.",
+        "patterns.range.refutable-integer": "The range of values for an integer type is the closed range from its minimum to maximum value.",
+        "patterns.range.refutable-char": "The range of values for a `char` type are precisely those ranges containing all Unicode Scalar Values: `'\\u{0000}'..='\\u{D7FF}'` and `'\\u{E000}'..='\\u{10FFFF}'`.",
+        "patterns.range.constraint-slice": "[RangeFromPattern] cannot be used as a top-level pattern for subpatterns in slice patterns.\nFor example, the pattern `[1.., _]` is not a valid pattern.",
+        "patterns.range.edition2021": "> [!EDITION-2021]\n> Before the 2021 edition, range patterns with both a lower and upper bound may also be written using `...` in place of `..=`, with the same meaning."
+      }
+    },
+    {
+      "id": "patterns.ref",
+      "title": "Reference patterns",
+      "level": 1,
+      "content": ",patterns\nReferencePattern -> (`&`|`&&`) `mut`? PatternWithoutRange\n\nReference patterns dereference the pointers that are being matched and, thus, borrow them.\n\nFor example, these two matches on `x: &i32` are equivalent:\n\nlet int_reference = &3;\n\nlet a = match *int_reference { 0 => \"zero\", _ => \"some\" };\nlet b = match int_reference { &0 => \"zero\", _ => \"some\" };\n\nassert_eq!(a, b);\n\nThe grammar production for reference patterns has to match the token `&&` to match a reference to a reference because it is a token by itself, not two `&` tokens.\n\nAdding the `mut` keyword dereferences a mutable reference. The mutability must match the mutability of the reference.\n\nReference patterns are always irrefutable.",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.ref.syntax": ",patterns\nReferencePattern -> (`&`|`&&`) `mut`? PatternWithoutRange",
+        "patterns.ref.intro": "Reference patterns dereference the pointers that are being matched and, thus, borrow them.\n\nFor example, these two matches on `x: &i32` are equivalent:\n\nlet int_reference = &3;\n\nlet a = match *int_reference { 0 => \"zero\", _ => \"some\" };\nlet b = match int_reference { &0 => \"zero\", _ => \"some\" };\n\nassert_eq!(a, b);",
+        "patterns.ref.ref-ref": "The grammar production for reference patterns has to match the token `&&` to match a reference to a reference because it is a token by itself, not two `&` tokens.",
+        "patterns.ref.mut": "Adding the `mut` keyword dereferences a mutable reference. The mutability must match the mutability of the reference.",
+        "patterns.ref.refutable": "Reference patterns are always irrefutable."
+      }
+    },
+    {
+      "id": "patterns.struct",
+      "title": "Struct patterns",
+      "level": 2,
+      "content": ",patterns\nStructPattern ->\n    PathInExpression `{`\n        StructPatternElements?\n    `}`\n\nStructPatternElements ->\n      StructPatternFields (`,` | `,` StructPatternEtCetera)?\n    | StructPatternEtCetera\n\nStructPatternFields ->\n    StructPatternField (`,` StructPatternField)*\n\nStructPatternField ->\n    OuterAttribute*\n    (\n        TUPLE_INDEX `:` Pattern\n      | IDENTIFIER `:` Pattern\n      | `ref`? `mut`? IDENTIFIER\n    )\n\nStructPatternEtCetera -> `..`\n\nStruct patterns match struct, enum, and union values that match all criteria defined by its subpatterns.\nThey are also used to destructure a struct, enum, or union value.\n\nOn a struct pattern, the fields are referenced by name, index (in the case of tuple structs) or ignored by use of `..`:\n\n# struct Point {\n#     x: u32,\n#     y: u32,\n# }\n# let s = Point {x: 1, y: 1};\n#\nmatch s {\n    Point {x: 10, y: 20} => (),\n    Point {y: 10, x: 20} => (),    // order doesn't matter\n    Point {x: 10, ..} => (),\n    Point {..} => (),\n}\n\n# struct PointTuple (\n#     u32,\n#     u32,\n# );\n# let t = PointTuple(1, 2);\n#\nmatch t {\n    PointTuple {0: 10, 1: 20} => (),\n    PointTuple {1: 10, 0: 20} => (),   // order doesn't matter\n    PointTuple {0: 10, ..} => (),\n    PointTuple {..} => (),\n}\n\n# enum Message {\n#     Quit,\n#     Move { x: i32, y: i32 },\n# }\n# let m = Message::Quit;\n#\nmatch m {\n    Message::Quit => (),\n    Message::Move {x: 10, y: 20} => (),\n    Message::Move {..} => (),\n}\n\nIf `..` is not used, a struct pattern used to match a struct is required to specify all fields:\n\n# struct Struct {\n#    a: i32,\n#    b: char,\n#    c: bool,\n# }\n# let mut struct_value = Struct{a: 10, b: 'X', c: false};\n#\nmatch struct_value {\n    Struct{a: 10, b: 'X', c: false} => (),\n    Struct{a: 10, b: 'X', ref c} => (),\n    Struct{a: 10, b: 'X', ref mut c} => (),\n    Struct{a: 10, b: 'X', c: _} => (),\n    Struct{a: _, b: _, c: _} => (),\n}\n\nA struct pattern used to match a union must specify exactly one field (see [Pattern matching on unions]).\n\nThe [IDENTIFIER] syntax matches any value and binds it to a variable with the same name as the given field. It is a shorthand for `fieldname: fieldname`. The `ref` and `mut` qualifiers can be included with the behavior as described in [patterns.ident.ref].\n\n# struct Struct {\n#    a: i32,\n#    b: char,\n#    c: bool,\n# }\n# let struct_value = Struct{a: 10, b: 'X', c: false};\n#\nlet Struct { a, b, c } = struct_value;\n\nA struct pattern is refutable if the [PathInExpression] resolves to a constructor of an enum with more than one variant, or one of its subpatterns is refutable.\n\nA struct pattern matches against the struct, union, or enum variant whose constructor is resolved from [PathInExpression] in the [type namespace]. See [patterns.tuple-struct.namespace] for more details.",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.struct.syntax": ",patterns\nStructPattern ->\n    PathInExpression `{`\n        StructPatternElements?\n    `}`\n\nStructPatternElements ->\n      StructPatternFields (`,` | `,` StructPatternEtCetera)?\n    | StructPatternEtCetera\n\nStructPatternFields ->\n    StructPatternField (`,` StructPatternField)*\n\nStructPatternField ->\n    OuterAttribute*\n    (\n        TUPLE_INDEX `:` Pattern\n      | IDENTIFIER `:` Pattern\n      | `ref`? `mut`? IDENTIFIER\n    )\n\nStructPatternEtCetera -> `..`",
+        "patterns.struct.intro": "Struct patterns match struct, enum, and union values that match all criteria defined by its subpatterns.\nThey are also used to destructure a struct, enum, or union value.",
+        "patterns.struct.ignore-rest": "On a struct pattern, the fields are referenced by name, index (in the case of tuple structs) or ignored by use of `..`:\n\n# struct Point {\n#     x: u32,\n#     y: u32,\n# }\n# let s = Point {x: 1, y: 1};\n#\nmatch s {\n    Point {x: 10, y: 20} => (),\n    Point {y: 10, x: 20} => (),    // order doesn't matter\n    Point {x: 10, ..} => (),\n    Point {..} => (),\n}\n\n# struct PointTuple (\n#     u32,\n#     u32,\n# );\n# let t = PointTuple(1, 2);\n#\nmatch t {\n    PointTuple {0: 10, 1: 20} => (),\n    PointTuple {1: 10, 0: 20} => (),   // order doesn't matter\n    PointTuple {0: 10, ..} => (),\n    PointTuple {..} => (),\n}\n\n# enum Message {\n#     Quit,\n#     Move { x: i32, y: i32 },\n# }\n# let m = Message::Quit;\n#\nmatch m {\n    Message::Quit => (),\n    Message::Move {x: 10, y: 20} => (),\n    Message::Move {..} => (),\n}",
+        "patterns.struct.constraint-struct": "If `..` is not used, a struct pattern used to match a struct is required to specify all fields:\n\n# struct Struct {\n#    a: i32,\n#    b: char,\n#    c: bool,\n# }\n# let mut struct_value = Struct{a: 10, b: 'X', c: false};\n#\nmatch struct_value {\n    Struct{a: 10, b: 'X', c: false} => (),\n    Struct{a: 10, b: 'X', ref c} => (),\n    Struct{a: 10, b: 'X', ref mut c} => (),\n    Struct{a: 10, b: 'X', c: _} => (),\n    Struct{a: _, b: _, c: _} => (),\n}",
+        "patterns.struct.constraint-union": "A struct pattern used to match a union must specify exactly one field (see [Pattern matching on unions]).",
+        "patterns.struct.binding-shorthand": "The [IDENTIFIER] syntax matches any value and binds it to a variable with the same name as the given field. It is a shorthand for `fieldname: fieldname`. The `ref` and `mut` qualifiers can be included with the behavior as described in [patterns.ident.ref].\n\n# struct Struct {\n#    a: i32,\n#    b: char,\n#    c: bool,\n# }\n# let struct_value = Struct{a: 10, b: 'X', c: false};\n#\nlet Struct { a, b, c } = struct_value;",
+        "patterns.struct.refutable": "A struct pattern is refutable if the [PathInExpression] resolves to a constructor of an enum with more than one variant, or one of its subpatterns is refutable.",
+        "patterns.struct.namespace": "A struct pattern matches against the struct, union, or enum variant whose constructor is resolved from [PathInExpression] in the [type namespace]. See [patterns.tuple-struct.namespace] for more details."
+      }
+    },
+    {
+      "id": "patterns.tuple-struct",
+      "title": "Tuple struct patterns",
+      "level": 1,
+      "content": ",patterns\nTupleStructPattern -> PathInExpression `(` TupleStructItems? `)`\n\nTupleStructItems -> Pattern ( `,` Pattern )* `,`?\n\nTuple struct patterns match tuple struct and enum values that match all criteria defined by its subpatterns.\nThey are also used to destructure a tuple struct or enum value.\n\nA tuple struct pattern is refutable if the [PathInExpression] resolves to a constructor of an enum with more than one variant, or one of its subpatterns is refutable.\n\nA tuple struct pattern matches against the tuple struct or [tuple-like enum variant] whose constructor is resolved from [PathInExpression] in the [value namespace].\n\n> [!NOTE]\n> Conversely, a struct pattern for a tuple struct or [tuple-like enum variant], e.g. `S { 0: _ }`, matches against the tuple struct or variant whose constructor is resolved in the [type namespace].\n>\n> ```rust,no_run\n> enum E1 { V(u16) }\n> enum E2 { V(u32) }\n>\n> // Import `E1::V` from the type namespace only.\n> mod _0 {\n>     const V: () = (); // For namespace masking.\n>     pub(super) use super::E1::*;\n> }\n> use _0::*;\n>\n> // Import `E2::V` from the value namespace only.\n> mod _1 {\n>     struct V {} // For namespace masking.\n>     pub(super) use super::E2::*;\n> }\n> use _1::*;\n>\n> fn f() {\n>     // This struct pattern matches against the tuple-like\n>     // enum variant whose constructor was found in the type\n>     // namespace.\n>     let V { 0: ..=u16::MAX } = (loop {}) else { loop {} };\n>     // This tuple struct pattern matches against the tuple-like\n>     // enum variant whose constructor was found in the value\n>     // namespace.\n>     let V(..=u32::MAX) = (loop {}) else { loop {} };\n> }\n> # // Required due to the odd behavior of `super` within functions.\n> # fn main() {}\n> ```\n>\n> The Lang team has made certain decisions, such as in [PR #138458], that raise questions about the desirability of using the value namespace in this way for patterns, as described in [PR #140593]. It might be prudent to not intentionally rely on this nuance in your code.",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.tuple-struct.syntax": ",patterns\nTupleStructPattern -> PathInExpression `(` TupleStructItems? `)`\n\nTupleStructItems -> Pattern ( `,` Pattern )* `,`?",
+        "patterns.tuple-struct.intro": "Tuple struct patterns match tuple struct and enum values that match all criteria defined by its subpatterns.\nThey are also used to destructure a tuple struct or enum value.",
+        "patterns.tuple-struct.refutable": "A tuple struct pattern is refutable if the [PathInExpression] resolves to a constructor of an enum with more than one variant, or one of its subpatterns is refutable.",
+        "patterns.tuple-struct.namespace": "A tuple struct pattern matches against the tuple struct or [tuple-like enum variant] whose constructor is resolved from [PathInExpression] in the [value namespace].\n\n> [!NOTE]\n> Conversely, a struct pattern for a tuple struct or [tuple-like enum variant], e.g. `S { 0: _ }`, matches against the tuple struct or variant whose constructor is resolved in the [type namespace].\n>\n> ```rust,no_run\n> enum E1 { V(u16) }\n> enum E2 { V(u32) }\n>\n> // Import `E1::V` from the type namespace only.\n> mod _0 {\n>     const V: () = (); // For namespace masking.\n>     pub(super) use super::E1::*;\n> }\n> use _0::*;\n>\n> // Import `E2::V` from the value namespace only.\n> mod _1 {\n>     struct V {} // For namespace masking.\n>     pub(super) use super::E2::*;\n> }\n> use _1::*;\n>\n> fn f() {\n>     // This struct pattern matches against the tuple-like\n>     // enum variant whose constructor was found in the type\n>     // namespace.\n>     let V { 0: ..=u16::MAX } = (loop {}) else { loop {} };\n>     // This tuple struct pattern matches against the tuple-like\n>     // enum variant whose constructor was found in the value\n>     // namespace.\n>     let V(..=u32::MAX) = (loop {}) else { loop {} };\n> }\n> # // Required due to the odd behavior of `super` within functions.\n> # fn main() {}\n> ```\n>\n> The Lang team has made certain decisions, such as in [PR #138458], that raise questions about the desirability of using the value namespace in this way for patterns, as described in [PR #140593]. It might be prudent to not intentionally rely on this nuance in your code."
+      }
+    },
+    {
+      "id": "patterns.tuple",
+      "title": "Tuple patterns",
+      "level": 2,
+      "content": ",patterns\nTuplePattern -> `(` TuplePatternItems? `)`\n\nTuplePatternItems ->\n      Pattern `,`\n    | RestPattern\n    | Pattern (`,` Pattern)+ `,`?\n\nTuple patterns match tuple values that match all criteria defined by its subpatterns.\nThey are also used to destructure a tuple.\n\nThe form `(..)` with a single [RestPattern] is a special form that does not require a comma, and matches a tuple of any size.\n\nThe tuple pattern is refutable when one of its subpatterns is refutable.\n\nAn example of using tuple patterns:\n\nlet pair = (10, \"ten\");\nlet (a, b) = pair;\n\nassert_eq!(a, 10);\nassert_eq!(b, \"ten\");",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.tuple.syntax": ",patterns\nTuplePattern -> `(` TuplePatternItems? `)`\n\nTuplePatternItems ->\n      Pattern `,`\n    | RestPattern\n    | Pattern (`,` Pattern)+ `,`?",
+        "patterns.tuple.intro": "Tuple patterns match tuple values that match all criteria defined by its subpatterns.\nThey are also used to destructure a tuple.",
+        "patterns.tuple.rest-syntax": "The form `(..)` with a single [RestPattern] is a special form that does not require a comma, and matches a tuple of any size.",
+        "patterns.tuple.refutable": "The tuple pattern is refutable when one of its subpatterns is refutable.\n\nAn example of using tuple patterns:\n\nlet pair = (10, \"ten\");\nlet (a, b) = pair;\n\nassert_eq!(a, 10);\nassert_eq!(b, \"ten\");"
+      }
+    },
+    {
+      "id": "patterns.paren",
+      "title": "Grouped patterns",
+      "level": 2,
+      "content": ",patterns\nGroupedPattern -> `(` Pattern `)`\n\nEnclosing a pattern in parentheses can be used to explicitly control the precedence of compound patterns.\nFor example, a reference pattern next to a range pattern such as `&0..=5` is ambiguous and is not allowed, but can be expressed with parentheses.\n\nlet int_reference = &3;\nmatch int_reference {\n    &(0..=5) => (),\n    _ => (),\n}",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.paren.syntax": ",patterns\nGroupedPattern -> `(` Pattern `)`",
+        "patterns.paren.intro": "Enclosing a pattern in parentheses can be used to explicitly control the precedence of compound patterns.\nFor example, a reference pattern next to a range pattern such as `&0..=5` is ambiguous and is not allowed, but can be expressed with parentheses.\n\nlet int_reference = &3;\nmatch int_reference {\n    &(0..=5) => (),\n    _ => (),\n}"
+      }
+    },
+    {
+      "id": "patterns.slice",
+      "title": "Slice patterns",
+      "level": 2,
+      "content": ",patterns\nSlicePattern -> `[` SlicePatternItems? `]`\n\nSlicePatternItems -> Pattern (`,` Pattern)* `,`?\n\nSlice patterns can match both arrays of fixed size and slices of dynamic size.\n\n// Fixed size\nlet arr = [1, 2, 3];\nmatch arr {\n    [1, _, _] => \"starts with one\",\n    [a, b, c] => \"starts with something else\",\n};\n// Dynamic size\nlet v = vec![1, 2, 3];\nmatch v[..] {\n    [a, b] => { /* this arm will not apply because the length doesn't match */ }\n    [a, b, c] => { /* this arm will apply */ }\n    _ => { /* this wildcard is required, since the length is not known statically */ }\n};\n\nSlice patterns are irrefutable when matching an array as long as each element is irrefutable.\n\nWhen matching a slice, it is irrefutable only in the form with a single `..` rest pattern or identifier pattern with the `..` rest pattern as a subpattern.\n\nWithin a slice, a range pattern without both lower and upper bound must be enclosed in parentheses, as in `(a..)`, to clarify it is intended to match against a single slice element.\nA range pattern with both lower and upper bound, like `a..=b`, is not required to be enclosed in parentheses.",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.slice.syntax": ",patterns\nSlicePattern -> `[` SlicePatternItems? `]`\n\nSlicePatternItems -> Pattern (`,` Pattern)* `,`?",
+        "patterns.slice.intro": "Slice patterns can match both arrays of fixed size and slices of dynamic size.\n\n// Fixed size\nlet arr = [1, 2, 3];\nmatch arr {\n    [1, _, _] => \"starts with one\",\n    [a, b, c] => \"starts with something else\",\n};\n// Dynamic size\nlet v = vec![1, 2, 3];\nmatch v[..] {\n    [a, b] => { /* this arm will not apply because the length doesn't match */ }\n    [a, b, c] => { /* this arm will apply */ }\n    _ => { /* this wildcard is required, since the length is not known statically */ }\n};",
+        "patterns.slice.refutable-array": "Slice patterns are irrefutable when matching an array as long as each element is irrefutable.",
+        "patterns.slice.refutable-slice": "When matching a slice, it is irrefutable only in the form with a single `..` rest pattern or identifier pattern with the `..` rest pattern as a subpattern.",
+        "patterns.slice.restriction": "Within a slice, a range pattern without both lower and upper bound must be enclosed in parentheses, as in `(a..)`, to clarify it is intended to match against a single slice element.\nA range pattern with both lower and upper bound, like `a..=b`, is not required to be enclosed in parentheses."
+      }
+    },
+    {
+      "id": "patterns.path",
+      "title": "Path patterns",
+      "level": 2,
+      "content": ",patterns\nPathPattern -> PathExpression\n\n_Path patterns_ are patterns that refer either to constant values or\nto structs or enum variants that have no fields.\n\nUnqualified path patterns can refer to:\n\n* enum variants\n* structs\n* constants\n* associated constants\n\nQualified path patterns can only refer to associated constants.\n\nPath patterns are irrefutable when they refer to structs or an enum variant when the enum has only one variant or a constant whose type is irrefutable.\nThey are refutable when they refer to refutable constants or enum variants for enums with multiple variants.",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.path.syntax": ",patterns\nPathPattern -> PathExpression",
+        "patterns.path.intro": "_Path patterns_ are patterns that refer either to constant values or\nto structs or enum variants that have no fields.",
+        "patterns.path.unqualified": "Unqualified path patterns can refer to:\n\n* enum variants\n* structs\n* constants\n* associated constants",
+        "patterns.path.qualified": "Qualified path patterns can only refer to associated constants.",
+        "patterns.path.refutable": "Path patterns are irrefutable when they refer to structs or an enum variant when the enum has only one variant or a constant whose type is irrefutable.\nThey are refutable when they refer to refutable constants or enum variants for enums with multiple variants."
+      }
+    },
+    {
+      "id": "patterns.const",
+      "title": "Constant patterns",
+      "level": 2,
+      "content": "When a constant `C` of type `T` is used as a pattern, we first check that `T: PartialEq`.\n\nFurthermore we require that the value of `C` *has (recursive) structural equality*, which is defined recursively as follows:\n\n- Integers as well as `str`, `bool` and `char` values always have structural equality.\n\n- Tuples, arrays, and slices have structural equality if all their fields/elements have structural equality.\n  (In particular, `()` and `[]` always have structural equality.)\n\n- References have structural equality if the value they point to has structural equality.\n\n- A value of `struct` or `enum` type has structural equality if its `PartialEq` instance is derived via `#[derive(PartialEq)]`,\n  and all fields (for enums: of the active variant) have structural equality.\n\n- A raw pointer has structural equality if it was defined as a constant integer (and then cast/transmuted).\n\n- A float value has structural equality if it is not a `NaN`.\n\n- Nothing else has structural equality.\n\nIn particular, the value of `C` must be known at pattern-building time (which is pre-monomorphization).\nThis means that associated consts that involve generic parameters cannot be used as patterns.\n\nThe value of `C` must not contain any references to mutable statics (`static mut` items or interior mutable `static` items) or `extern` statics.\n\nAfter ensuring all conditions are met, the constant value is translated into a pattern, and now behaves exactly as-if that pattern had been written directly.\nIn particular, it fully participates in exhaustiveness checking.\n(For raw pointers, constants are the only way to write such patterns. Only `_` is ever considered exhaustive for these types.)",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.const.partial-eq": "When a constant `C` of type `T` is used as a pattern, we first check that `T: PartialEq`.",
+        "patterns.const.structural-equality": "Furthermore we require that the value of `C` *has (recursive) structural equality*, which is defined recursively as follows:",
+        "patterns.const.primitive": "- Integers as well as `str`, `bool` and `char` values always have structural equality.",
+        "patterns.const.builtin-aggregate": "- Tuples, arrays, and slices have structural equality if all their fields/elements have structural equality.\n  (In particular, `()` and `[]` always have structural equality.)",
+        "patterns.const.ref": "- References have structural equality if the value they point to has structural equality.",
+        "patterns.const.aggregate": "- A value of `struct` or `enum` type has structural equality if its `PartialEq` instance is derived via `#[derive(PartialEq)]`,\n  and all fields (for enums: of the active variant) have structural equality.",
+        "patterns.const.pointer": "- A raw pointer has structural equality if it was defined as a constant integer (and then cast/transmuted).",
+        "patterns.const.float": "- A float value has structural equality if it is not a `NaN`.",
+        "patterns.const.exhaustive": "- Nothing else has structural equality.",
+        "patterns.const.generic": "In particular, the value of `C` must be known at pattern-building time (which is pre-monomorphization).\nThis means that associated consts that involve generic parameters cannot be used as patterns.",
+        "patterns.const.immutable": "The value of `C` must not contain any references to mutable statics (`static mut` items or interior mutable `static` items) or `extern` statics.",
+        "patterns.const.translation": "After ensuring all conditions are met, the constant value is translated into a pattern, and now behaves exactly as-if that pattern had been written directly.\nIn particular, it fully participates in exhaustiveness checking.\n(For raw pointers, constants are the only way to write such patterns. Only `_` is ever considered exhaustive for these types.)"
+      }
+    },
+    {
+      "id": "patterns.or",
+      "title": "Or-patterns",
+      "level": 3,
+      "content": "_Or-patterns_ are patterns that match on one of two or more sub-patterns (for example `A | B | C`).\nThey can nest arbitrarily.\nSyntactically, or-patterns are allowed in any of the places where other patterns are allowed (represented by the [Pattern] production), with the exceptions of `let`-bindings and function and closure parameters (represented by the [PatternNoTopAlt] production).",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.or": "_Or-patterns_ are patterns that match on one of two or more sub-patterns (for example `A | B | C`).\nThey can nest arbitrarily.\nSyntactically, or-patterns are allowed in any of the places where other patterns are allowed (represented by the [Pattern] production), with the exceptions of `let`-bindings and function and closure parameters (represented by the [PatternNoTopAlt] production)."
+      }
+    },
+    {
+      "id": "patterns.constraints",
+      "title": "Static semantics",
+      "level": 2,
+      "content": "1. Given a pattern `p | q` at some depth for some arbitrary patterns `p` and `q`, the pattern is considered ill-formed if:\n\n   + the type inferred for `p` does not unify with the type inferred for `q`, or\n   + the same set of bindings are not introduced in `p` and `q`, or\n   + the type of any two bindings with the same name in `p` and `q` do not unify with respect to types or binding modes.\n\n   Unification of types is in all instances aforementioned exact and implicit [type coercions] do not apply.\n\n2. When type checking an expression `match e_s { a_1 => e_1, ... a_n => e_n }`,\n   for each match arm `a_i` which contains a pattern of form `p_i | q_i`,\n   the pattern `p_i | q_i` is considered ill formed if,\n   at the depth `d` where it exists the fragment of `e_s` at depth `d`,\n   the type of the expression fragment does not unify with `p_i | q_i`.\n\n3. With respect to exhaustiveness checking, a pattern `p | q` is considered to cover `p` as well as `q`.\n   For some constructor `c(x, ..)` the distributive law applies such that `c(p | q, ..rest)` covers the same set of value as `c(p, ..rest) | c(q, ..rest)` does.\n   This can be applied recursively until there are no more nested patterns of form `p | q` other than those that exist at the top level.\n\n   Note that by *\"constructor\"* we do not refer to tuple struct patterns, but rather we refer to a pattern for any product type.\n   This includes enum variants, tuple structs, structs with named fields, arrays, tuples, and slices.",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.constraints.pattern": "1. Given a pattern `p | q` at some depth for some arbitrary patterns `p` and `q`, the pattern is considered ill-formed if:\n\n   + the type inferred for `p` does not unify with the type inferred for `q`, or\n   + the same set of bindings are not introduced in `p` and `q`, or\n   + the type of any two bindings with the same name in `p` and `q` do not unify with respect to types or binding modes.\n\n   Unification of types is in all instances aforementioned exact and implicit [type coercions] do not apply.",
+        "patterns.constraints.match-type-check": "2. When type checking an expression `match e_s { a_1 => e_1, ... a_n => e_n }`,\n   for each match arm `a_i` which contains a pattern of form `p_i | q_i`,\n   the pattern `p_i | q_i` is considered ill formed if,\n   at the depth `d` where it exists the fragment of `e_s` at depth `d`,\n   the type of the expression fragment does not unify with `p_i | q_i`.",
+        "patterns.constraints.exhaustiveness-or-pattern": "3. With respect to exhaustiveness checking, a pattern `p | q` is considered to cover `p` as well as `q`.\n   For some constructor `c(x, ..)` the distributive law applies such that `c(p | q, ..rest)` covers the same set of value as `c(p, ..rest) | c(q, ..rest)` does.\n   This can be applied recursively until there are no more nested patterns of form `p | q` other than those that exist at the top level.\n\n   Note that by *\"constructor\"* we do not refer to tuple struct patterns, but rather we refer to a pattern for any product type.\n   This includes enum variants, tuple structs, structs with named fields, arrays, tuples, and slices."
+      }
+    },
+    {
+      "id": "patterns.behavior",
+      "title": "Dynamic semantics",
+      "level": 3,
+      "content": "1. The dynamic semantics of pattern matching a scrutinee expression `e_s` against a pattern `c(p | q, ..rest)` at depth `d` where `c` is some constructor,\n   `p` and `q` are arbitrary patterns,\n   and `rest` is optionally any remaining potential factors in `c`,\n   is defined as being the same as that of `c(p, ..rest) | c(q, ..rest)`.",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.behavior.nested-or-patterns": "1. The dynamic semantics of pattern matching a scrutinee expression `e_s` against a pattern `c(p | q, ..rest)` at depth `d` where `c` is some constructor,\n   `p` and `q` are arbitrary patterns,\n   and `rest` is optionally any remaining potential factors in `c`,\n   is defined as being the same as that of `c(p, ..rest) | c(q, ..rest)`."
+      }
+    },
+    {
+      "id": "patterns.precedence",
+      "title": "Precedence with other undelimited patterns",
+      "level": 3,
+      "content": "As shown elsewhere in this chapter, there are several types of patterns that are syntactically undelimited, including identifier patterns, reference patterns, and or-patterns.\nOr-patterns always have the lowest-precedence.\nThis allows us to reserve syntactic space for a possible future type ascription feature and also to reduce ambiguity.\nFor example, `x @ A(..) | B(..)` will result in an error that `x` is not bound in all patterns.\n`&A(x) | B(x)` will result in a type mismatch between `x` in the different subpatterns.\n\n[PR #138458]: https://github.com/rust-lang/rust/pull/138458\n[PR #140593]: https://github.com/rust-lang/rust/pull/140593#issuecomment-2972338457\n[`Copy`]: special-types-and-traits.md#copy\n[constant]: items/constant-items.md\n[enums]: items/enumerations.md\n[literals]: expressions/literal-expr.md\n[literal expression]: expressions/literal-expr.md\n[name resolution]: names/name-resolution.md\n[negating]: expressions/operator-expr.md#negation-operators\n[path]: expressions/path-expr.md\n[pattern matching on unions]: items/unions.md#pattern-matching-on-unions\n[range expressions]: expressions/range-expr.md\n[scope]: names/scopes.md\n[structs]: items/structs.md\n[tuples]: types/tuple.md\n[scrutinee]: glossary.md#scrutinee\n[tuple-like enum variant]: items.enum.tuple-expr\n[type coercions]: type-coercions.md\n[type namespace]: names.namespaces.kinds\n[value namespace]: names.namespaces.kinds",
+      "parent_id": null,
+      "paragraphs": {
+        "patterns.precedence": "As shown elsewhere in this chapter, there are several types of patterns that are syntactically undelimited, including identifier patterns, reference patterns, and or-patterns.\nOr-patterns always have the lowest-precedence.\nThis allows us to reserve syntactic space for a possible future type ascription feature and also to reduce ambiguity.\nFor example, `x @ A(..) | B(..)` will result in an error that `x` is not bound in all patterns.\n`&A(x) | B(x)` will result in a type mismatch between `x` in the different subpatterns.\n\n[PR #138458]: https://github.com/rust-lang/rust/pull/138458\n[PR #140593]: https://github.com/rust-lang/rust/pull/140593#issuecomment-2972338457\n[`Copy`]: special-types-and-traits.md#copy\n[constant]: items/constant-items.md\n[enums]: items/enumerations.md\n[literals]: expressions/literal-expr.md\n[literal expression]: expressions/literal-expr.md\n[name resolution]: names/name-resolution.md\n[negating]: expressions/operator-expr.md#negation-operators\n[path]: expressions/path-expr.md\n[pattern matching on unions]: items/unions.md#pattern-matching-on-unions\n[range expressions]: expressions/range-expr.md\n[scope]: names/scopes.md\n[structs]: items/structs.md\n[tuples]: types/tuple.md\n[scrutinee]: glossary.md#scrutinee\n[tuple-like enum variant]: items.enum.tuple-expr\n[type coercions]: type-coercions.md\n[type namespace]: names.namespaces.kinds\n[value namespace]: names.namespaces.kinds"
+      }
+    }
+  ],
+  "ids": [
+    "patterns.ident.move",
+    "patterns.struct.namespace",
+    "patterns.param",
+    "patterns.constraints.match-type-check",
+    "patterns.tuple.syntax",
+    "patterns.range.constraint-nonempty",
+    "patterns.ref.intro",
+    "patterns.ident.intro",
+    "patterns.const.exhaustive",
+    "patterns.wildcard.intro",
+    "patterns.rest",
+    "patterns.constraints.exhaustiveness-or-pattern",
+    "patterns.range.inclusive",
+    "patterns.tuple.rest-syntax",
+    "patterns.tuple-struct.namespace",
+    "patterns.ident.ref-ignored",
+    "patterns.ref.syntax",
+    "patterns.ident.binding.intro",
+    "patterns.ident.binding.nested-references",
+    "patterns.ident.scrutinized",
+    "patterns.range.intro",
+    "patterns.tuple-struct",
+    "patterns.range.path-value",
+    "patterns.const.pointer",
+    "patterns.struct.constraint-union",
+    "patterns.ident.scope",
+    "patterns.struct",
+    "patterns.const.immutable",
+    "patterns.wildcard.no-binding",
+    "patterns.range.bound",
+    "patterns.paren",
+    "patterns.usage",
+    "patterns.range.syntax",
+    "patterns.slice",
+    "patterns.ident.unique",
+    "patterns.ident",
+    "patterns.ident.binding.top-down",
+    "patterns.literal.syntax",
+    "patterns.const.primitive",
+    "patterns.ident.binding.mode-limitations.edition2024",
+    "patterns.const.float",
+    "patterns.ref.refutable",
+    "patterns.struct.constraint-struct",
+    "patterns.range.float-restriction",
+    "patterns.struct.intro",
+    "patterns.const",
+    "patterns.ident.constraint",
+    "patterns.if-let",
+    "patterns.tuple-struct.intro",
+    "patterns.tuple.refutable",
+    "patterns.rest.syntax",
+    "patterns.const.aggregate",
+    "patterns.range.exclusive",
+    "patterns.path.qualified",
+    "patterns.path.unqualified",
+    "patterns.literal.intro",
+    "patterns.literal",
+    "patterns.rest.refutable",
+    "patterns.const.partial-eq",
+    "patterns.range.negation",
+    "patterns.while-let",
+    "patterns.tuple-struct.syntax",
+    "patterns.tuple-struct.refutable",
+    "patterns.range.to-exclusive",
+    "patterns.slice.refutable-slice",
+    "patterns.range.constraint-bound-path",
+    "patterns.struct.binding-shorthand",
+    "patterns.ident.binding.mode-limitations-reference.edition2024",
+    "patterns.range.edition2021",
+    "patterns.struct.refutable",
+    "patterns.ident.binding.ref-mut",
+    "patterns.ident.binding.mode-limitations-binding",
+    "patterns",
+    "patterns.path.refutable",
+    "patterns.slice.restriction",
+    "patterns.ident.binding.auto-deref",
+    "patterns.range.constraint-slice",
+    "patterns.const.structural-equality",
+    "patterns.range.to-inclusive",
+    "patterns.constraints.pattern",
+    "patterns.const.ref",
+    "patterns.ident.syntax",
+    "patterns.behavior",
+    "patterns.rest.allowed-patterns",
+    "patterns.wildcard.syntax",
+    "patterns.ident.binding.move",
+    "patterns.range.refutable-integer",
+    "patterns.ref.ref-ref",
+    "patterns.ref",
+    "patterns.intro",
+    "patterns.range.type",
+    "patterns.range",
+    "patterns.behavior.nested-or-patterns",
+    "patterns.range.from",
+    "patterns.path",
+    "patterns.ident.binding",
+    "patterns.destructure.named-field-shorthand",
+    "patterns.constraints",
+    "patterns.destructure.intro",
+    "patterns.syntax",
+    "patterns.slice.refutable-array",
+    "patterns.ident.ref",
+    "patterns.rest.intro",
+    "patterns.let",
+    "patterns.ident.bare",
+    "patterns.ident.precedent",
+    "patterns.path.intro",
+    "patterns.or",
+    "patterns.ident.binding.non-reference",
+    "patterns.paren.syntax",
+    "patterns.for",
+    "patterns.slice.syntax",
+    "patterns.destructure.wildcard",
+    "patterns.slice.intro",
+    "patterns.range.refutable-char",
+    "patterns.struct.syntax",
+    "patterns.ref.mut",
+    "patterns.ident.binding.ref",
+    "patterns.paren.intro",
+    "patterns.ident.refutable",
+    "patterns.ident.binding.mixed",
+    "patterns.const.generic",
+    "patterns.refutable",
+    "patterns.tuple",
+    "patterns.literal.refutable",
+    "patterns.wildcard.struct-matcher",
+    "patterns.struct.ignore-rest",
+    "patterns.match",
+    "patterns.path.syntax",
+    "patterns.precedence",
+    "patterns.ident.binding.default-mode",
+    "patterns.const.builtin-aggregate",
+    "patterns.const.translation",
+    "patterns.wildcard.refutable",
+    "patterns.destructure",
+    "patterns.wildcard",
+    "patterns.ident.binding.mode-limitations-reference",
+    "patterns.range.literal-value",
+    "patterns.range.refutable",
+    "patterns.tuple.intro"
+  ]
+}

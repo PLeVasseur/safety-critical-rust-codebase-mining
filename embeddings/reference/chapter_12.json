@@ -1,0 +1,271 @@
+{
+  "source": "Rust Reference",
+  "source_repo": "https://github.com/rust-lang/reference",
+  "extraction_date": "2026-01-03",
+  "chapter": 12,
+  "title": "Special types and traits",
+  "file": "special-types-and-traits.md",
+  "sections": [
+    {
+      "id": "lang-types",
+      "title": "Special types and traits",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "lang-types.intro",
+      "title": "Special types and traits",
+      "level": 1,
+      "content": "Certain types and traits that exist in [the standard library] are known to the\nRust compiler. This chapter documents the special features of these types and\ntraits.",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.intro": "Certain types and traits that exist in [the standard library] are known to the\nRust compiler. This chapter documents the special features of these types and\ntraits."
+      }
+    },
+    {
+      "id": "lang-types.box",
+      "title": "`Box<T>`",
+      "level": 1,
+      "content": "[`Box<T>`] has a few special features that Rust doesn't currently allow for user\ndefined types.\n\n* The [dereference operator] for `Box<T>` produces a place which can be moved\n  from. This means that the `*` operator and the destructor of `Box<T>` are\n  built-in to the language.\n\n* [Methods] can take `Box<Self>` as a receiver.\n\n* A trait may be implemented for `Box<T>` in the same crate as `T`, which the\n  [orphan rules] prevent for other generic types.\n\n<!-- Editor Note: This is nowhere close to an exhaustive list -->",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.box.intro": "[`Box<T>`] has a few special features that Rust doesn't currently allow for user\ndefined types.",
+        "lang-types.box.deref": "* The [dereference operator] for `Box<T>` produces a place which can be moved\n  from. This means that the `*` operator and the destructor of `Box<T>` are\n  built-in to the language.",
+        "lang-types.box.receiver": "* [Methods] can take `Box<Self>` as a receiver.",
+        "lang-types.box.fundamental": "* A trait may be implemented for `Box<T>` in the same crate as `T`, which the\n  [orphan rules] prevent for other generic types.\n\n<!-- Editor Note: This is nowhere close to an exhaustive list -->"
+      }
+    },
+    {
+      "id": "lang-types.rc",
+      "title": "`Rc<T>`",
+      "level": 2,
+      "content": "[Methods] can take [`Rc<Self>`] as a receiver.",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.rc.receiver": "[Methods] can take [`Rc<Self>`] as a receiver."
+      }
+    },
+    {
+      "id": "lang-types.arc",
+      "title": "`Arc<T>`",
+      "level": 2,
+      "content": "[Methods] can take [`Arc<Self>`] as a receiver.",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.arc.receiver": "[Methods] can take [`Arc<Self>`] as a receiver."
+      }
+    },
+    {
+      "id": "lang-types.pin",
+      "title": "`Pin<P>`",
+      "level": 2,
+      "content": "[Methods] can take [`Pin<P>`] as a receiver.",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.pin.receiver": "[Methods] can take [`Pin<P>`] as a receiver."
+      }
+    },
+    {
+      "id": "lang-types.unsafe-cell",
+      "title": "`UnsafeCell<T>`",
+      "level": 2,
+      "content": "[`std::cell::UnsafeCell<T>`] is used for [interior mutability]. It ensures that\nthe compiler doesn't perform optimisations that are incorrect for such types.\n\nIt also ensures that [`static` items] which have a type with interior\nmutability aren't placed in memory marked as read only.",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.unsafe-cell.interior-mut": "[`std::cell::UnsafeCell<T>`] is used for [interior mutability]. It ensures that\nthe compiler doesn't perform optimisations that are incorrect for such types.",
+        "lang-types.unsafe-cell.read-only-alloc": "It also ensures that [`static` items] which have a type with interior\nmutability aren't placed in memory marked as read only."
+      }
+    },
+    {
+      "id": "lang-types.phantom-data",
+      "title": "`PhantomData<T>`",
+      "level": 2,
+      "content": "[`std::marker::PhantomData<T>`] is a zero-sized, minimum alignment, type that\nis considered to own a `T` for the purposes of [variance], [drop check], and\nauto traits.",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.phantom-data": "[`std::marker::PhantomData<T>`] is a zero-sized, minimum alignment, type that\nis considered to own a `T` for the purposes of [variance], [drop check], and\nauto traits."
+      }
+    },
+    {
+      "id": "lang-types.ops",
+      "title": "Operator traits",
+      "level": 2,
+      "content": "The traits in [`std::ops`] and [`std::cmp`] are used to overload [operators],\n[indexing expressions], and [call expressions].",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.ops": "The traits in [`std::ops`] and [`std::cmp`] are used to overload [operators],\n[indexing expressions], and [call expressions]."
+      }
+    },
+    {
+      "id": "lang-types.deref",
+      "title": "`Deref` and `DerefMut`",
+      "level": 2,
+      "content": "As well as overloading the unary `*` operator, [`Deref`] and [`DerefMut`] are\nalso used in [method resolution] and [deref coercions].",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.deref": "As well as overloading the unary `*` operator, [`Deref`] and [`DerefMut`] are\nalso used in [method resolution] and [deref coercions]."
+      }
+    },
+    {
+      "id": "lang-types.drop",
+      "title": "`Drop`",
+      "level": 2,
+      "content": "The [`Drop`] trait provides a [destructor], to be run whenever a value of this\ntype is to be destroyed.",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.drop": "The [`Drop`] trait provides a [destructor], to be run whenever a value of this\ntype is to be destroyed."
+      }
+    },
+    {
+      "id": "lang-types.copy",
+      "title": "`Copy`",
+      "level": 2,
+      "content": "The [`Copy`] trait changes the semantics of a type implementing it.\n\nValues whose type implements `Copy` are copied rather than moved upon assignment.\n\n`Copy` can only be implemented for types which do not implement `Drop`, and whose fields are all `Copy`.\nFor enums, this means all fields of all variants have to be `Copy`.\nFor unions, this means all variants have to be `Copy`.\n\n`Copy` is implemented by the compiler for\n\n* [Tuples] of `Copy` types\n\n* [Function pointers]\n\n* [Function items]\n\n* [Closures] that capture no values or that only capture values of `Copy` types",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.copy.intro": "The [`Copy`] trait changes the semantics of a type implementing it.",
+        "lang-types.copy.behavior": "Values whose type implements `Copy` are copied rather than moved upon assignment.",
+        "lang-types.copy.constraint": "`Copy` can only be implemented for types which do not implement `Drop`, and whose fields are all `Copy`.\nFor enums, this means all fields of all variants have to be `Copy`.\nFor unions, this means all variants have to be `Copy`.",
+        "lang-types.copy.builtin-types": "`Copy` is implemented by the compiler for",
+        "lang-types.copy.tuple": "* [Tuples] of `Copy` types",
+        "lang-types.copy.fn-pointer": "* [Function pointers]",
+        "lang-types.copy.fn-item": "* [Function items]",
+        "lang-types.copy.closure": "* [Closures] that capture no values or that only capture values of `Copy` types"
+      }
+    },
+    {
+      "id": "lang-types.clone",
+      "title": "`Clone`",
+      "level": 2,
+      "content": "The [`Clone`] trait is a supertrait of `Copy`, so it also needs compiler\ngenerated implementations.\n\nIt is implemented by the compiler for the following types:\n\n* Types with a built-in `Copy` implementation (see above)\n\n* [Tuples] of `Clone` types\n\n* [Closures] that only capture values of `Clone` types or capture no values from the environment",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.clone.intro": "The [`Clone`] trait is a supertrait of `Copy`, so it also needs compiler\ngenerated implementations.",
+        "lang-types.clone.builtin-types": "It is implemented by the compiler for the following types:",
+        "lang-types.clone.builtin-copy": "* Types with a built-in `Copy` implementation (see above)",
+        "lang-types.clone.tuple": "* [Tuples] of `Clone` types",
+        "lang-types.clone.closure": "* [Closures] that only capture values of `Clone` types or capture no values from the environment"
+      }
+    },
+    {
+      "id": "lang-types.send",
+      "title": "`Send`",
+      "level": 2,
+      "content": "The [`Send`] trait indicates that a value of this type is safe to send from one\nthread to another.",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.send": "The [`Send`] trait indicates that a value of this type is safe to send from one\nthread to another."
+      }
+    },
+    {
+      "id": "lang-types.sync",
+      "title": "`Sync`",
+      "level": 2,
+      "content": "The [`Sync`] trait indicates that a value of this type is safe to share between\nmultiple threads.\n\nThis trait must be implemented for all types used in immutable [`static` items].",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.sync.intro": "The [`Sync`] trait indicates that a value of this type is safe to share between\nmultiple threads.",
+        "lang-types.sync.static-constraint": "This trait must be implemented for all types used in immutable [`static` items]."
+      }
+    },
+    {
+      "id": "lang-types.termination",
+      "title": "`Termination`",
+      "level": 2,
+      "content": "The [`Termination`] trait indicates the acceptable return types for the [main function] and [test functions].",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.termination": "The [`Termination`] trait indicates the acceptable return types for the [main function] and [test functions]."
+      }
+    },
+    {
+      "id": "lang-types.auto-traits",
+      "title": "Auto traits",
+      "level": 2,
+      "content": "The [`Send`], [`Sync`], [`Unpin`], [`UnwindSafe`], and [`RefUnwindSafe`] traits are _auto\ntraits_. Auto traits have special properties.\n\nIf no explicit implementation or negative implementation is written out for an\nauto trait for a given type, then the compiler implements it automatically\naccording to the following rules:\n\n* `&T`, `&mut T`, `*const T`, `*mut T`, `[T; n]`, and `[T]` implement the trait\n  if `T` does.\n\n* Function item types and function pointers automatically implement the trait.\n\n* Structs, enums, unions, and tuples implement the trait if all of their fields\n  do.\n\n* Closures implement the trait if the types of all of their captures do. A\n  closure that captures a `T` by shared reference and a `U` by value implements\n  any auto traits that both `&T` and `U` do.\n\nFor generic types (counting the built-in types above as generic over `T`), if a\ngeneric implementation is available, then the compiler does not automatically\nimplement it for types that could use the implementation except that they do not\nmeet the requisite trait bounds. For instance, the standard library implements\n`Send` for all `&T` where `T` is `Sync`; this means that the compiler will not\nimplement `Send` for `&T` if `T` is `Send` but not `Sync`.\n\nAuto traits can also have negative implementations, shown as `impl !AutoTrait\nfor T` in the standard library documentation, that override the automatic\nimplementations. For example `*mut T` has a negative implementation of `Send`,\nand so `*mut T` is not `Send`, even if `T` is. There is currently no stable way\nto specify additional negative implementations; they exist only in the standard\nlibrary.\n\nAuto traits may be added as an additional bound to any [trait object], even\nthough normally only one trait is allowed. For instance, `Box<dyn Debug + Send +\nUnwindSafe>` is a valid type.",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.auto-traits": "The [`Send`], [`Sync`], [`Unpin`], [`UnwindSafe`], and [`RefUnwindSafe`] traits are _auto\ntraits_. Auto traits have special properties.",
+        "lang-types.auto-traits.auto-impl": "If no explicit implementation or negative implementation is written out for an\nauto trait for a given type, then the compiler implements it automatically\naccording to the following rules:",
+        "lang-types.auto-traits.builtin-composite": "* `&T`, `&mut T`, `*const T`, `*mut T`, `[T; n]`, and `[T]` implement the trait\n  if `T` does.",
+        "lang-types.auto-traits.fn-item-pointer": "* Function item types and function pointers automatically implement the trait.",
+        "lang-types.auto-traits.aggregate": "* Structs, enums, unions, and tuples implement the trait if all of their fields\n  do.",
+        "lang-types.auto-traits.closure": "* Closures implement the trait if the types of all of their captures do. A\n  closure that captures a `T` by shared reference and a `U` by value implements\n  any auto traits that both `&T` and `U` do.",
+        "lang-types.auto-traits.generic-impl": "For generic types (counting the built-in types above as generic over `T`), if a\ngeneric implementation is available, then the compiler does not automatically\nimplement it for types that could use the implementation except that they do not\nmeet the requisite trait bounds. For instance, the standard library implements\n`Send` for all `&T` where `T` is `Sync`; this means that the compiler will not\nimplement `Send` for `&T` if `T` is `Send` but not `Sync`.",
+        "lang-types.auto-traits.negative": "Auto traits can also have negative implementations, shown as `impl !AutoTrait\nfor T` in the standard library documentation, that override the automatic\nimplementations. For example `*mut T` has a negative implementation of `Send`,\nand so `*mut T` is not `Send`, even if `T` is. There is currently no stable way\nto specify additional negative implementations; they exist only in the standard\nlibrary.",
+        "lang-types.auto-traits.trait-object-marker": "Auto traits may be added as an additional bound to any [trait object], even\nthough normally only one trait is allowed. For instance, `Box<dyn Debug + Send +\nUnwindSafe>` is a valid type."
+      }
+    },
+    {
+      "id": "lang-types.sized",
+      "title": "`Sized`",
+      "level": 2,
+      "content": "The [`Sized`] trait indicates that the size of this type is known at compile-time; that is, it's not a [dynamically sized type].\n\n[Type parameters] (except `Self` in traits) are `Sized` by default, as are [associated types].\n\n`Sized` is always implemented automatically by the compiler, not by [implementation items].\n\nThese implicit `Sized` bounds may be relaxed by using the special `?Sized` bound.\n\n[`Arc<Self>`]: std::sync::Arc\n[`Deref`]: std::ops::Deref\n[`DerefMut`]: std::ops::DerefMut\n[`Pin<P>`]: std::pin::Pin\n[`Rc<Self>`]: std::rc::Rc\n[`RefUnwindSafe`]: std::panic::RefUnwindSafe\n[`Termination`]: std::process::Termination\n[`UnwindSafe`]: std::panic::UnwindSafe\n[`Unpin`]: std::marker::Unpin\n\n[Arrays]: types/array.md\n[associated types]: items/associated-items.md#associated-types\n[call expressions]: expressions/call-expr.md\n[deref coercions]: type-coercions.md#coercion-types\n[dereference operator]: expressions/operator-expr.md#the-dereference-operator\n[destructor]: destructors.md\n[drop check]: ../nomicon/dropck.html\n[dynamically sized type]: dynamically-sized-types.md\n[Function pointers]: types/function-pointer.md\n[Function items]: types/function-item.md\n[implementation items]: items/implementations.md\n[indexing expressions]: expressions/array-expr.md#array-and-slice-indexing-expressions\n[interior mutability]: interior-mutability.md\n[main function]: crates-and-source-files.md#main-functions\n[Methods]: items/associated-items.md#associated-functions-and-methods\n[method resolution]: expressions/method-call-expr.md\n[operators]: expressions/operator-expr.md\n[orphan rules]: items/implementations.md#trait-implementation-coherence\n[`static` items]: items/static-items.md\n[test functions]: attributes/testing.md#the-test-attribute\n[the standard library]: std\n[trait object]: types/trait-object.md\n[Tuples]: types/tuple.md\n[Type parameters]: types/parameters.md\n[variance]: subtyping.md#variance\n[Closures]: types/closure.md",
+      "parent_id": null,
+      "paragraphs": {
+        "lang-types.sized.intro": "The [`Sized`] trait indicates that the size of this type is known at compile-time; that is, it's not a [dynamically sized type].",
+        "lang-types.sized.implicit-sized": "[Type parameters] (except `Self` in traits) are `Sized` by default, as are [associated types].",
+        "lang-types.sized.implicit-impl": "`Sized` is always implemented automatically by the compiler, not by [implementation items].",
+        "lang-types.sized.relaxation": "These implicit `Sized` bounds may be relaxed by using the special `?Sized` bound.\n\n[`Arc<Self>`]: std::sync::Arc\n[`Deref`]: std::ops::Deref\n[`DerefMut`]: std::ops::DerefMut\n[`Pin<P>`]: std::pin::Pin\n[`Rc<Self>`]: std::rc::Rc\n[`RefUnwindSafe`]: std::panic::RefUnwindSafe\n[`Termination`]: std::process::Termination\n[`UnwindSafe`]: std::panic::UnwindSafe\n[`Unpin`]: std::marker::Unpin\n\n[Arrays]: types/array.md\n[associated types]: items/associated-items.md#associated-types\n[call expressions]: expressions/call-expr.md\n[deref coercions]: type-coercions.md#coercion-types\n[dereference operator]: expressions/operator-expr.md#the-dereference-operator\n[destructor]: destructors.md\n[drop check]: ../nomicon/dropck.html\n[dynamically sized type]: dynamically-sized-types.md\n[Function pointers]: types/function-pointer.md\n[Function items]: types/function-item.md\n[implementation items]: items/implementations.md\n[indexing expressions]: expressions/array-expr.md#array-and-slice-indexing-expressions\n[interior mutability]: interior-mutability.md\n[main function]: crates-and-source-files.md#main-functions\n[Methods]: items/associated-items.md#associated-functions-and-methods\n[method resolution]: expressions/method-call-expr.md\n[operators]: expressions/operator-expr.md\n[orphan rules]: items/implementations.md#trait-implementation-coherence\n[`static` items]: items/static-items.md\n[test functions]: attributes/testing.md#the-test-attribute\n[the standard library]: std\n[trait object]: types/trait-object.md\n[Tuples]: types/tuple.md\n[Type parameters]: types/parameters.md\n[variance]: subtyping.md#variance\n[Closures]: types/closure.md"
+      }
+    }
+  ],
+  "ids": [
+    "lang-types.auto-traits.aggregate",
+    "lang-types.drop",
+    "lang-types.clone.builtin-copy",
+    "lang-types.copy.tuple",
+    "lang-types.pin.receiver",
+    "lang-types.auto-traits.closure",
+    "lang-types.auto-traits.negative",
+    "lang-types.box.intro",
+    "lang-types.copy.fn-item",
+    "lang-types.auto-traits.generic-impl",
+    "lang-types.sync",
+    "lang-types.rc",
+    "lang-types.sized.implicit-impl",
+    "lang-types.arc.receiver",
+    "lang-types.deref",
+    "lang-types.unsafe-cell.read-only-alloc",
+    "lang-types.copy.fn-pointer",
+    "lang-types.auto-traits.builtin-composite",
+    "lang-types.rc.receiver",
+    "lang-types.box.deref",
+    "lang-types.sync.intro",
+    "lang-types.unsafe-cell",
+    "lang-types.clone.builtin-types",
+    "lang-types.ops",
+    "lang-types.auto-traits.fn-item-pointer",
+    "lang-types.auto-traits.trait-object-marker",
+    "lang-types.pin",
+    "lang-types.box",
+    "lang-types.copy.closure",
+    "lang-types.clone.tuple",
+    "lang-types.copy",
+    "lang-types.unsafe-cell.interior-mut",
+    "lang-types.copy.constraint",
+    "lang-types.clone.closure",
+    "lang-types.copy.intro",
+    "lang-types.box.fundamental",
+    "lang-types.sized.intro",
+    "lang-types.auto-traits.auto-impl",
+    "lang-types.termination",
+    "lang-types.sized.implicit-sized",
+    "lang-types.intro",
+    "lang-types.clone.intro",
+    "lang-types.copy.builtin-types",
+    "lang-types.auto-traits",
+    "lang-types",
+    "lang-types.arc",
+    "lang-types.clone",
+    "lang-types.sized.relaxation",
+    "lang-types.send",
+    "lang-types.sync.static-constraint",
+    "lang-types.sized",
+    "lang-types.copy.behavior",
+    "lang-types.box.receiver",
+    "lang-types.phantom-data"
+  ]
+}

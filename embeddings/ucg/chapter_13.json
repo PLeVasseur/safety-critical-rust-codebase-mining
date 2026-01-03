@@ -1,0 +1,28 @@
+{
+  "source": "Unsafe Code Guidelines",
+  "source_repo": "https://github.com/rust-lang/unsafe-code-guidelines",
+  "extraction_date": "2026-01-03",
+  "chapter": 13,
+  "title": "Unions",
+  "file": "./validity/unions.md",
+  "sections": [
+    {
+      "id": "ucg_validity_of_unions",
+      "title": "Validity of unions",
+      "level": 1,
+      "content": "**This page has been archived**\n\nIt did not actually reflect current language guarantees and caused frequent confusion.\n\nThe old content can be accessed on GitHub.",
+      "parent_id": null,
+      "paragraphs": {
+        "ucg_validity_of_unions_p1": "**This page has been archived**",
+        "ucg_validity_of_unions_p2": "It did not actually reflect current language guarantees and caused frequent confusion.",
+        "ucg_validity_of_unions_p3": "The old content can be accessed on GitHub."
+      }
+    }
+  ],
+  "ids": [
+    "ucg_validity_of_unions",
+    "ucg_validity_of_unions_p1",
+    "ucg_validity_of_unions_p2",
+    "ucg_validity_of_unions_p3"
+  ]
+}

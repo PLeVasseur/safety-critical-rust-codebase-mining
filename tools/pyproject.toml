@@ -71,6 +71,15 @@ generate-valid-fls-ids = "fls_tools.standards.validation.generate_fls_ids:main"
 analyze-coverage = "fls_tools.analysis.coverage:main"
 review-mappings = "fls_tools.analysis.review:main"
 
+# Rust documentation infrastructure
+clone-rust-docs = "fls_tools.rust_docs.clone:main"
+extract-reference = "fls_tools.rust_docs.extract_reference:main"
+extract-ucg = "fls_tools.rust_docs.extract_ucg:main"
+extract-nomicon = "fls_tools.rust_docs.extract_nomicon:main"
+extract-clippy-lints = "fls_tools.rust_docs.extract_clippy:main"
+generate-rust-embeddings = "fls_tools.rust_docs.generate_embeddings:main"
+search-rust-context = "fls_tools.rust_docs.search:main"
+
 [build-system]
 requires = ["uv_build>=0.9.21,<0.10.0"]
 build-backend = "uv_build"

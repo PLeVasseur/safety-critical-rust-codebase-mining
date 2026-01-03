@@ -1,0 +1,165 @@
+{
+  "source": "Rust Reference",
+  "source_repo": "https://github.com/rust-lang/reference",
+  "extraction_date": "2026-01-03",
+  "total_chapters": 22,
+  "total_sections": 800,
+  "total_paragraphs": 2427,
+  "total_ids": 2897,
+  "chapters": [
+    {
+      "chapter": 1,
+      "title": "Introduction",
+      "file": "chapter_01.json",
+      "sections": 0,
+      "paragraphs": 0
+    },
+    {
+      "chapter": 2,
+      "title": "Notation",
+      "file": "chapter_02.json",
+      "sections": 4,
+      "paragraphs": 3
+    },
+    {
+      "chapter": 3,
+      "title": "Lexical structure",
+      "file": "chapter_03.json",
+      "sections": 51,
+      "paragraphs": 143
+    },
+    {
+      "chapter": 4,
+      "title": "Macros",
+      "file": "chapter_04.json",
+      "sections": 23,
+      "paragraphs": 103
+    },
+    {
+      "chapter": 5,
+      "title": "Crates and source files",
+      "file": "chapter_05.json",
+      "sections": 14,
+      "paragraphs": 16
+    },
+    {
+      "chapter": 6,
+      "title": "Conditional compilation",
+      "file": "chapter_06.json",
+      "sections": 29,
+      "paragraphs": 61
+    },
+    {
+      "chapter": 7,
+      "title": "Items",
+      "file": "chapter_07.json",
+      "sections": 101,
+      "paragraphs": 396
+    },
+    {
+      "chapter": 8,
+      "title": "Attributes",
+      "file": "chapter_08.json",
+      "sections": 59,
+      "paragraphs": 186
+    },
+    {
+      "chapter": 9,
+      "title": "Statements and expressions",
+      "file": "chapter_09.json",
+      "sections": 118,
+      "paragraphs": 457
+    },
+    {
+      "chapter": 10,
+      "title": "Patterns",
+      "file": "chapter_10.json",
+      "sections": 30,
+      "paragraphs": 122
+    },
+    {
+      "chapter": 11,
+      "title": "Type system",
+      "file": "chapter_11.json",
+      "sections": 163,
+      "paragraphs": 397
+    },
+    {
+      "chapter": 12,
+      "title": "Special types and traits",
+      "file": "chapter_12.json",
+      "sections": 18,
+      "paragraphs": 44
+    },
+    {
+      "chapter": 13,
+      "title": "Names",
+      "file": "chapter_13.json",
+      "sections": 60,
+      "paragraphs": 169
+    },
+    {
+      "chapter": 14,
+      "title": "Memory model",
+      "file": "chapter_14.json",
+      "sections": 11,
+      "paragraphs": 12
+    },
+    {
+      "chapter": 15,
+      "title": "Panic",
+      "file": "chapter_15.json",
+      "sections": 9,
+      "paragraphs": 15
+    },
+    {
+      "chapter": 16,
+      "title": "Linkage",
+      "file": "chapter_16.json",
+      "sections": 19,
+      "paragraphs": 24
+    },
+    {
+      "chapter": 17,
+      "title": "Inline assembly",
+      "file": "chapter_17.json",
+      "sections": 23,
+      "paragraphs": 105
+    },
+    {
+      "chapter": 18,
+      "title": "Unsafety",
+      "file": "chapter_18.json",
+      "sections": 39,
+      "paragraphs": 61
+    },
+    {
+      "chapter": 19,
+      "title": "Constant evaluation",
+      "file": "chapter_19.json",
+      "sections": 5,
+      "paragraphs": 40
+    },
+    {
+      "chapter": 20,
+      "title": "Application binary interface",
+      "file": "chapter_20.json",
+      "sections": 6,
+      "paragraphs": 14
+    },
+    {
+      "chapter": 21,
+      "title": "The Rust runtime",
+      "file": "chapter_21.json",
+      "sections": 3,
+      "paragraphs": 14
+    },
+    {
+      "chapter": 22,
+      "title": "Appendices",
+      "file": "chapter_22.json",
+      "sections": 15,
+      "paragraphs": 45
+    }
+  ]
+}

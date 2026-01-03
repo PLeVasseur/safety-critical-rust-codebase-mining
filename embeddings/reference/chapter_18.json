@@ -1,0 +1,492 @@
+{
+  "source": "Rust Reference",
+  "source_repo": "https://github.com/rust-lang/reference",
+  "extraction_date": "2026-01-03",
+  "chapter": 18,
+  "title": "Unsafety",
+  "file": "unsafety.md",
+  "sections": [
+    {
+      "id": "safety",
+      "title": "Unsafety",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "safety.intro",
+      "title": "Unsafety",
+      "level": 1,
+      "content": "Unsafe operations are those that can potentially violate the memory-safety\nguarantees of Rust's static semantics.",
+      "parent_id": null,
+      "paragraphs": {
+        "safety.intro": "Unsafe operations are those that can potentially violate the memory-safety\nguarantees of Rust's static semantics."
+      }
+    },
+    {
+      "id": "safety.unsafe-ops",
+      "title": "Unsafety",
+      "level": 1,
+      "content": "The following language level features cannot be used in the safe subset of\nRust:",
+      "parent_id": null,
+      "paragraphs": {
+        "safety.unsafe-ops": "The following language level features cannot be used in the safe subset of\nRust:"
+      }
+    },
+    {
+      "id": "safety.unsafe-deref",
+      "title": "Unsafety",
+      "level": 1,
+      "content": "- Dereferencing a [raw pointer].",
+      "parent_id": null,
+      "paragraphs": {
+        "safety.unsafe-deref": "- Dereferencing a [raw pointer]."
+      }
+    },
+    {
+      "id": "safety.unsafe-static",
+      "title": "Unsafety",
+      "level": 1,
+      "content": "- Reading or writing a [mutable] or unsafe [external] static variable.",
+      "parent_id": null,
+      "paragraphs": {
+        "safety.unsafe-static": "- Reading or writing a [mutable] or unsafe [external] static variable."
+      }
+    },
+    {
+      "id": "safety.unsafe-union-access",
+      "title": "Unsafety",
+      "level": 1,
+      "content": "- Accessing a field of a [`union`], other than to assign to it.",
+      "parent_id": null,
+      "paragraphs": {
+        "safety.unsafe-union-access": "- Accessing a field of a [`union`], other than to assign to it."
+      }
+    },
+    {
+      "id": "safety.unsafe-call",
+      "title": "Unsafety",
+      "level": 1,
+      "content": "- Calling an unsafe function.",
+      "parent_id": null,
+      "paragraphs": {
+        "safety.unsafe-call": "- Calling an unsafe function."
+      }
+    },
+    {
+      "id": "safety.unsafe-target-feature-call",
+      "title": "Unsafety",
+      "level": 1,
+      "content": "- Calling a safe function marked with a `target_feature` from a function that does not have a `target_feature` attribute enabling the same features (see [attributes.codegen.target_feature.safety-restrictions]).",
+      "parent_id": null,
+      "paragraphs": {
+        "safety.unsafe-target-feature-call": "- Calling a safe function marked with a `target_feature` from a function that does not have a `target_feature` attribute enabling the same features (see [attributes.codegen.target_feature.safety-restrictions])."
+      }
+    },
+    {
+      "id": "safety.unsafe-impl",
+      "title": "Unsafety",
+      "level": 1,
+      "content": "- Implementing an [unsafe trait].",
+      "parent_id": null,
+      "paragraphs": {
+        "safety.unsafe-impl": "- Implementing an [unsafe trait]."
+      }
+    },
+    {
+      "id": "safety.unsafe-extern",
+      "title": "Unsafety",
+      "level": 1,
+      "content": "- Declaring an [`extern`] block[^extern-2024].",
+      "parent_id": null,
+      "paragraphs": {
+        "safety.unsafe-extern": "- Declaring an [`extern`] block[^extern-2024]."
+      }
+    },
+    {
+      "id": "safety.unsafe-attribute",
+      "title": "Unsafety",
+      "level": 1,
+      "content": "- Applying an [unsafe attribute] to an item.\n\n[^extern-2024]: Prior to the 2024 edition, extern blocks were allowed to be declared without `unsafe`.\n\n[`extern`]: items/external-blocks.md\n[`union`]: items/unions.md\n[mutable]: items/static-items.md#mutable-statics\n[external]: items/external-blocks.md\n[raw pointer]: types/pointer.md\n[unsafe trait]: items/traits.md#unsafe-traits\n[unsafe attribute]: attributes.md",
+      "parent_id": null,
+      "paragraphs": {
+        "safety.unsafe-attribute": "- Applying an [unsafe attribute] to an item.\n\n[^extern-2024]: Prior to the 2024 edition, extern blocks were allowed to be declared without `unsafe`.\n\n[`extern`]: items/external-blocks.md\n[`union`]: items/unions.md\n[mutable]: items/static-items.md#mutable-statics\n[external]: items/external-blocks.md\n[raw pointer]: types/pointer.md\n[unsafe trait]: items/traits.md#unsafe-traits\n[unsafe attribute]: attributes.md"
+      }
+    },
+    {
+      "id": "unsafe",
+      "title": "The `unsafe` keyword",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "unsafe.intro",
+      "title": "The `unsafe` keyword",
+      "level": 1,
+      "content": "The `unsafe` keyword is used to create or discharge the obligation to prove something safe. Specifically:\n\n- It is used to mark code that *defines* extra safety conditions that must be upheld elsewhere.\n  - This includes `unsafe fn`, `unsafe static`, and `unsafe trait`.\n- It is used to mark code that the programmer *asserts* satisfies safety conditions defined elsewhere.\n  - This includes `unsafe {}`, `unsafe impl`, `unsafe fn` without [`unsafe_op_in_unsafe_fn`], `unsafe extern`, and `#[unsafe(attr)]`.\n\nThe following discusses each of these cases.\nSee the keyword documentation for some illustrative examples.",
+      "parent_id": null,
+      "paragraphs": {
+        "unsafe.intro": "The `unsafe` keyword is used to create or discharge the obligation to prove something safe. Specifically:\n\n- It is used to mark code that *defines* extra safety conditions that must be upheld elsewhere.\n  - This includes `unsafe fn`, `unsafe static`, and `unsafe trait`.\n- It is used to mark code that the programmer *asserts* satisfies safety conditions defined elsewhere.\n  - This includes `unsafe {}`, `unsafe impl`, `unsafe fn` without [`unsafe_op_in_unsafe_fn`], `unsafe extern`, and `#[unsafe(attr)]`.\n\nThe following discusses each of these cases.\nSee the keyword documentation for some illustrative examples."
+      }
+    },
+    {
+      "id": "unsafe.positions",
+      "title": "The `unsafe` keyword",
+      "level": 1,
+      "content": "The `unsafe` keyword can occur in several different contexts:\n\n- unsafe functions (`unsafe fn`)\n- unsafe blocks (`unsafe {}`)\n- unsafe traits (`unsafe trait`)\n- unsafe trait implementations (`unsafe impl`)\n- unsafe external blocks (`unsafe extern`)\n- unsafe external statics (`unsafe static`)\n- unsafe attributes (`#[unsafe(attr)]`)",
+      "parent_id": null,
+      "paragraphs": {
+        "unsafe.positions": "The `unsafe` keyword can occur in several different contexts:\n\n- unsafe functions (`unsafe fn`)\n- unsafe blocks (`unsafe {}`)\n- unsafe traits (`unsafe trait`)\n- unsafe trait implementations (`unsafe impl`)\n- unsafe external blocks (`unsafe extern`)\n- unsafe external statics (`unsafe static`)\n- unsafe attributes (`#[unsafe(attr)]`)"
+      }
+    },
+    {
+      "id": "unsafe.fn",
+      "title": "Unsafe functions (`unsafe fn`)",
+      "level": 1,
+      "content": "Unsafe functions are functions that are not safe in all contexts and/or for all possible inputs.\nWe say they have *extra safety conditions*, which are requirements that must be upheld by all callers and that the compiler does not check.\nFor example, [`get_unchecked`] has the extra safety condition that the index must be in-bounds.\nThe unsafe function should come with documentation explaining what those extra safety conditions are.\n\nSuch a function must be prefixed with the keyword `unsafe` and can only be called from inside an `unsafe` block, or inside `unsafe fn` without the [`unsafe_op_in_unsafe_fn`] lint.",
+      "parent_id": null,
+      "paragraphs": {
+        "unsafe.fn.intro": "Unsafe functions are functions that are not safe in all contexts and/or for all possible inputs.\nWe say they have *extra safety conditions*, which are requirements that must be upheld by all callers and that the compiler does not check.\nFor example, [`get_unchecked`] has the extra safety condition that the index must be in-bounds.\nThe unsafe function should come with documentation explaining what those extra safety conditions are.",
+        "unsafe.fn.safety": "Such a function must be prefixed with the keyword `unsafe` and can only be called from inside an `unsafe` block, or inside `unsafe fn` without the [`unsafe_op_in_unsafe_fn`] lint."
+      }
+    },
+    {
+      "id": "unsafe.block",
+      "title": "Unsafe blocks (`unsafe {}`)",
+      "level": 2,
+      "content": "A block of code can be prefixed with the `unsafe` keyword to permit using the unsafe actions as defined in the [Unsafety] chapter, such as calling other unsafe functions or dereferencing raw pointers.\n\nBy default, the body of an unsafe function is also considered to be an unsafe block;\nthis can be changed by enabling the [`unsafe_op_in_unsafe_fn`] lint.\n\nBy putting operations into an unsafe block, the programmer states that they have taken care of satisfying the extra safety conditions of all operations inside that block.\n\nUnsafe blocks are the logical dual to unsafe functions:\nwhere unsafe functions define a proof obligation that callers must uphold, unsafe blocks state that all relevant proof obligations of functions or operations called inside the block have been discharged.\nThere are many ways to discharge proof obligations;\nfor example, there could be run-time checks or data structure invariants that guarantee that certain properties are definitely true, or the unsafe block could be inside an `unsafe fn`, in which case the block can use the proof obligations of that function to discharge the proof obligations arising inside the block.\n\nUnsafe blocks are used to wrap foreign libraries, make direct use of hardware or implement features not directly present in the language.\nFor example, Rust provides the language features necessary to implement memory-safe concurrency in the language but the implementation of threads and message passing in the standard library uses unsafe blocks.\n\nRust's type system is a conservative approximation of the dynamic safety requirements, so in some cases there is a performance cost to using safe code.\nFor example, a doubly-linked list is not a tree structure and can only be represented with reference-counted pointers in safe code.\nBy using `unsafe` blocks to represent the reverse links as raw pointers, it can be implemented without reference counting.\n(See \"Learn Rust With Entirely Too Many Linked Lists\" for a more in-depth exploration of this particular example.)\n\n[Unsafety]: unsafety.md",
+      "parent_id": null,
+      "paragraphs": {
+        "unsafe.block.intro": "A block of code can be prefixed with the `unsafe` keyword to permit using the unsafe actions as defined in the [Unsafety] chapter, such as calling other unsafe functions or dereferencing raw pointers.",
+        "unsafe.block.fn-body": "By default, the body of an unsafe function is also considered to be an unsafe block;\nthis can be changed by enabling the [`unsafe_op_in_unsafe_fn`] lint.\n\nBy putting operations into an unsafe block, the programmer states that they have taken care of satisfying the extra safety conditions of all operations inside that block.\n\nUnsafe blocks are the logical dual to unsafe functions:\nwhere unsafe functions define a proof obligation that callers must uphold, unsafe blocks state that all relevant proof obligations of functions or operations called inside the block have been discharged.\nThere are many ways to discharge proof obligations;\nfor example, there could be run-time checks or data structure invariants that guarantee that certain properties are definitely true, or the unsafe block could be inside an `unsafe fn`, in which case the block can use the proof obligations of that function to discharge the proof obligations arising inside the block.\n\nUnsafe blocks are used to wrap foreign libraries, make direct use of hardware or implement features not directly present in the language.\nFor example, Rust provides the language features necessary to implement memory-safe concurrency in the language but the implementation of threads and message passing in the standard library uses unsafe blocks.\n\nRust's type system is a conservative approximation of the dynamic safety requirements, so in some cases there is a performance cost to using safe code.\nFor example, a doubly-linked list is not a tree structure and can only be represented with reference-counted pointers in safe code.\nBy using `unsafe` blocks to represent the reverse links as raw pointers, it can be implemented without reference counting.\n(See \"Learn Rust With Entirely Too Many Linked Lists\" for a more in-depth exploration of this particular example.)\n\n[Unsafety]: unsafety.md"
+      }
+    },
+    {
+      "id": "unsafe.trait",
+      "title": "Unsafe traits (`unsafe trait`)",
+      "level": 2,
+      "content": "An unsafe trait is a trait that comes with extra safety conditions that must be upheld by *implementations* of the trait.\nThe unsafe trait should come with documentation explaining what those extra safety conditions are.\n\nSuch a trait must be prefixed with the keyword `unsafe` and can only be implemented by `unsafe impl` blocks.",
+      "parent_id": null,
+      "paragraphs": {
+        "unsafe.trait.intro": "An unsafe trait is a trait that comes with extra safety conditions that must be upheld by *implementations* of the trait.\nThe unsafe trait should come with documentation explaining what those extra safety conditions are.",
+        "unsafe.trait.safety": "Such a trait must be prefixed with the keyword `unsafe` and can only be implemented by `unsafe impl` blocks."
+      }
+    },
+    {
+      "id": "unsafe.impl",
+      "title": "Unsafe trait implementations (`unsafe impl`)",
+      "level": 2,
+      "content": "When implementing an unsafe trait, the implementation needs to be prefixed with the `unsafe` keyword.\nBy writing `unsafe impl`, the programmer states that they have taken care of satisfying the extra safety conditions required by the trait.\n\nUnsafe trait implementations are the logical dual to unsafe traits: where unsafe traits define a proof obligation that implementations must uphold, unsafe implementations state that all relevant proof obligations have been discharged.\n\n[keyword]: ../std/keyword.unsafe.html\n[`get_unchecked`]: slice::get_unchecked\n[`unsafe_op_in_unsafe_fn`]: ../rustc/lints/listing/allowed-by-default.html#unsafe-op-in-unsafe-fn",
+      "parent_id": null,
+      "paragraphs": {
+        "unsafe.impl": "When implementing an unsafe trait, the implementation needs to be prefixed with the `unsafe` keyword.\nBy writing `unsafe impl`, the programmer states that they have taken care of satisfying the extra safety conditions required by the trait.\n\nUnsafe trait implementations are the logical dual to unsafe traits: where unsafe traits define a proof obligation that implementations must uphold, unsafe implementations state that all relevant proof obligations have been discharged.\n\n[keyword]: ../std/keyword.unsafe.html\n[`get_unchecked`]: slice::get_unchecked\n[`unsafe_op_in_unsafe_fn`]: ../rustc/lints/listing/allowed-by-default.html#unsafe-op-in-unsafe-fn"
+      }
+    },
+    {
+      "id": "unsafe.extern",
+      "title": "Unsafe external blocks (`unsafe extern`)",
+      "level": 2,
+      "content": "The programmer who declares an [external block] must assure that the signatures of the items contained within are correct. Failing to do so may lead to undefined behavior.  That this obligation has been met is indicated by writing `unsafe extern`.\n\n> [!EDITION-2024]\n> Prior to edition 2024, `extern` blocks were allowed without being qualified as `unsafe`.\n\n[external block]: items/external-blocks.md",
+      "parent_id": null,
+      "paragraphs": {
+        "unsafe.extern": "The programmer who declares an [external block] must assure that the signatures of the items contained within are correct. Failing to do so may lead to undefined behavior.  That this obligation has been met is indicated by writing `unsafe extern`.",
+        "unsafe.extern.edition2024": "> [!EDITION-2024]\n> Prior to edition 2024, `extern` blocks were allowed without being qualified as `unsafe`.\n\n[external block]: items/external-blocks.md"
+      }
+    },
+    {
+      "id": "unsafe.attribute",
+      "title": "Unsafe attributes (`#[unsafe(attr)]`)",
+      "level": 2,
+      "content": "An [unsafe attribute] is one that has extra safety conditions that must be upheld when using the attribute. The compiler cannot check whether these conditions have been upheld.  To assert that they have been, these attributes must be wrapped in `unsafe(..)`, e.g. `#[unsafe(no_mangle)]`.\n\n[unsafe attribute]: attributes.md",
+      "parent_id": null,
+      "paragraphs": {
+        "unsafe.attribute": "An [unsafe attribute] is one that has extra safety conditions that must be upheld when using the attribute. The compiler cannot check whether these conditions have been upheld.  To assert that they have been, these attributes must be wrapped in `unsafe(..)`, e.g. `#[unsafe(no_mangle)]`.\n\n[unsafe attribute]: attributes.md"
+      }
+    },
+    {
+      "id": "undefined",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "",
+      "parent_id": null,
+      "paragraphs": {}
+    },
+    {
+      "id": "undefined.general",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "Rust code is incorrect if it exhibits any of the behaviors in the following\nlist. This includes code within `unsafe` blocks and `unsafe` functions.\n`unsafe` only means that avoiding undefined behavior is on the programmer; it\ndoes not change anything about the fact that Rust programs must never cause\nundefined behavior.",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.general": "Rust code is incorrect if it exhibits any of the behaviors in the following\nlist. This includes code within `unsafe` blocks and `unsafe` functions.\n`unsafe` only means that avoiding undefined behavior is on the programmer; it\ndoes not change anything about the fact that Rust programs must never cause\nundefined behavior."
+      }
+    },
+    {
+      "id": "undefined.soundness",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "It is the programmer's responsibility when writing `unsafe` code to ensure that\nany safe code interacting with the `unsafe` code cannot trigger these\nbehaviors. `unsafe` code that satisfies this property for any safe client is\ncalled *sound*; if `unsafe` code can be misused by safe code to exhibit\nundefined behavior, it is *unsound*.\n\n> [!WARNING]\n> The following list is not exhaustive; it may grow or shrink. There is no formal model of Rust's semantics for what is and is not allowed in unsafe code, so there may be more behavior considered unsafe. We also reserve the right to make some of the behavior in that list defined in the future. In other words, this list does not say that anything will *definitely* always be undefined in all future Rust version (but we might make such commitments for some list items in the future).\n>\n> Please read the [Rustonomicon] before writing unsafe code.",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.soundness": "It is the programmer's responsibility when writing `unsafe` code to ensure that\nany safe code interacting with the `unsafe` code cannot trigger these\nbehaviors. `unsafe` code that satisfies this property for any safe client is\ncalled *sound*; if `unsafe` code can be misused by safe code to exhibit\nundefined behavior, it is *unsound*.\n\n> [!WARNING]\n> The following list is not exhaustive; it may grow or shrink. There is no formal model of Rust's semantics for what is and is not allowed in unsafe code, so there may be more behavior considered unsafe. We also reserve the right to make some of the behavior in that list defined in the future. In other words, this list does not say that anything will *definitely* always be undefined in all future Rust version (but we might make such commitments for some list items in the future).\n>\n> Please read the [Rustonomicon] before writing unsafe code."
+      }
+    },
+    {
+      "id": "undefined.race",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "* Data races.",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.race": "* Data races."
+      }
+    },
+    {
+      "id": "undefined.pointer-access",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "* Accessing (loading from or storing to) a place that is [dangling] or [based on\n  a misaligned pointer].",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.pointer-access": "* Accessing (loading from or storing to) a place that is [dangling] or [based on\n  a misaligned pointer]."
+      }
+    },
+    {
+      "id": "undefined.place-projection",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "* Performing a place projection that violates the requirements of in-bounds\n  pointer arithmetic. A place projection is a field\n  expression, a tuple index expression, or an\n  array/slice index expression.",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.place-projection": "* Performing a place projection that violates the requirements of in-bounds\n  pointer arithmetic. A place projection is a field\n  expression, a tuple index expression, or an\n  array/slice index expression."
+      }
+    },
+    {
+      "id": "undefined.alias",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "* Breaking the pointer aliasing rules. The exact aliasing rules are not determined yet, but here is an outline of the general principles:\n  `&T` must point to memory that is not mutated while they are live (except for data inside an [`UnsafeCell<U>`]),\n  and `&mut T` must point to memory that is not read or written by any pointer not derived from the reference and that no other reference points to while they are live.\n  `Box<T>` is treated similar to `&'static mut T` for the purpose of these rules.\n  The exact liveness duration is not specified, but some bounds exist:\n  * For references, the liveness duration is upper-bounded by the syntactic\n    lifetime assigned by the borrow checker; it cannot be live any *longer* than that lifetime.\n  * Each time a reference or box is dereferenced or reborrowed, it is considered live.\n  * Each time a reference or box is passed to or returned from a function, it is considered live.\n  * When a reference (but not a `Box`!) is passed to a function, it is live at least as long as that function call, again except if the `&T` contains an [`UnsafeCell<U>`].\n\n  All this also applies when values of these types are passed in a (nested) field of a compound type, but not behind pointer indirections.",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.alias": "* Breaking the pointer aliasing rules. The exact aliasing rules are not determined yet, but here is an outline of the general principles:\n  `&T` must point to memory that is not mutated while they are live (except for data inside an [`UnsafeCell<U>`]),\n  and `&mut T` must point to memory that is not read or written by any pointer not derived from the reference and that no other reference points to while they are live.\n  `Box<T>` is treated similar to `&'static mut T` for the purpose of these rules.\n  The exact liveness duration is not specified, but some bounds exist:\n  * For references, the liveness duration is upper-bounded by the syntactic\n    lifetime assigned by the borrow checker; it cannot be live any *longer* than that lifetime.\n  * Each time a reference or box is dereferenced or reborrowed, it is considered live.\n  * Each time a reference or box is passed to or returned from a function, it is considered live.\n  * When a reference (but not a `Box`!) is passed to a function, it is live at least as long as that function call, again except if the `&T` contains an [`UnsafeCell<U>`].\n\n  All this also applies when values of these types are passed in a (nested) field of a compound type, but not behind pointer indirections."
+      }
+    },
+    {
+      "id": "undefined.immutable",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "* Mutating immutable bytes.\n  All bytes reachable through a [const-promoted] expression are immutable, as well as bytes reachable through borrows in `static` and `const` initializers that have been [lifetime-extended] to `'static`.\n  The bytes owned by an immutable binding or immutable `static` are immutable, unless those bytes are part of an [`UnsafeCell<U>`].\n\n  Moreover, the bytes [pointed to] by a shared reference, including transitively through other references (both shared and mutable) and `Box`es, are immutable; transitivity includes those references stored in fields of compound types.\n\n  A mutation is any write of more than 0 bytes which overlaps with any of the relevant bytes (even if that write does not change the memory contents).",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.immutable": "* Mutating immutable bytes.\n  All bytes reachable through a [const-promoted] expression are immutable, as well as bytes reachable through borrows in `static` and `const` initializers that have been [lifetime-extended] to `'static`.\n  The bytes owned by an immutable binding or immutable `static` are immutable, unless those bytes are part of an [`UnsafeCell<U>`].\n\n  Moreover, the bytes [pointed to] by a shared reference, including transitively through other references (both shared and mutable) and `Box`es, are immutable; transitivity includes those references stored in fields of compound types.\n\n  A mutation is any write of more than 0 bytes which overlaps with any of the relevant bytes (even if that write does not change the memory contents)."
+      }
+    },
+    {
+      "id": "undefined.intrinsic",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "* Invoking undefined behavior via compiler intrinsics.",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.intrinsic": "* Invoking undefined behavior via compiler intrinsics."
+      }
+    },
+    {
+      "id": "undefined.target-feature",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "* Executing code compiled with platform features that the current platform\n  does not support (see [`target_feature`]), *except* if the platform explicitly documents this to be safe.",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.target-feature": "* Executing code compiled with platform features that the current platform\n  does not support (see [`target_feature`]), *except* if the platform explicitly documents this to be safe."
+      }
+    },
+    {
+      "id": "undefined.call",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "* Calling a function with the wrong call ABI, or unwinding past a stack frame that does not allow unwinding (e.g. by calling a `\"C-unwind\"` function imported or transmuted as a `\"C\"` function or function pointer).",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.call": "* Calling a function with the wrong call ABI, or unwinding past a stack frame that does not allow unwinding (e.g. by calling a `\"C-unwind\"` function imported or transmuted as a `\"C\"` function or function pointer)."
+      }
+    },
+    {
+      "id": "undefined.invalid",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "* Producing an invalid value. \"Producing\" a\n  value happens any time a value is assigned to or read from a place, passed to\n  a function/primitive operation or returned from a function/primitive\n  operation.",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.invalid": "* Producing an invalid value. \"Producing\" a\n  value happens any time a value is assigned to or read from a place, passed to\n  a function/primitive operation or returned from a function/primitive\n  operation."
+      }
+    },
+    {
+      "id": "undefined.asm",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "* Incorrect use of inline assembly. For more details, refer to the [rules] to\n  follow when writing code that uses inline assembly.",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.asm": "* Incorrect use of inline assembly. For more details, refer to the [rules] to\n  follow when writing code that uses inline assembly."
+      }
+    },
+    {
+      "id": "undefined.runtime",
+      "title": "Behavior considered undefined",
+      "level": 1,
+      "content": "* Violating assumptions of the Rust runtime. Most assumptions of the Rust runtime are currently not explicitly documented.\n  * For assumptions specifically related to unwinding, see the panic documentation.\n  * The runtime assumes that a Rust stack frame is not deallocated without executing destructors for local variables owned by the stack frame. This assumption can be violated by C functions like `longjmp`.\n\n> [!NOTE]\n> Undefined behavior affects the entire program. For example, calling a function in C that exhibits undefined behavior of C means your entire program contains undefined behaviour that can also affect the Rust code. And vice versa, undefined behavior in Rust can cause adverse affects on code executed by any FFI calls to other languages.",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.runtime": "* Violating assumptions of the Rust runtime. Most assumptions of the Rust runtime are currently not explicitly documented.\n  * For assumptions specifically related to unwinding, see the panic documentation.\n  * The runtime assumes that a Rust stack frame is not deallocated without executing destructors for local variables owned by the stack frame. This assumption can be violated by C functions like `longjmp`.\n\n> [!NOTE]\n> Undefined behavior affects the entire program. For example, calling a function in C that exhibits undefined behavior of C means your entire program contains undefined behaviour that can also affect the Rust code. And vice versa, undefined behavior in Rust can cause adverse affects on code executed by any FFI calls to other languages."
+      }
+    },
+    {
+      "id": "undefined.pointed-to",
+      "title": "Pointed-to bytes",
+      "level": 1,
+      "content": "The span of bytes a pointer or reference \"points to\" is determined by the pointer value and the size of the pointee type (using `size_of_val`).",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.pointed-to": "The span of bytes a pointer or reference \"points to\" is determined by the pointer value and the size of the pointee type (using `size_of_val`)."
+      }
+    },
+    {
+      "id": "undefined.misaligned",
+      "title": "Places based on misaligned pointers",
+      "level": 2,
+      "content": "A place is said to be \"based on a misaligned pointer\" if the last `*` projection\nduring place computation was performed on a pointer that was not aligned for its\ntype. (If there is no `*` projection in the place expression, then this is\naccessing the field of a local or `static` and rustc will guarantee proper alignment. If\nthere are multiple `*` projection, then each of them incurs a load of the\npointer-to-be-dereferenced itself from memory, and each of these loads is\nsubject to the alignment constraint. Note that some `*` projections can be\nomitted in surface Rust syntax due to automatic dereferencing; we are\nconsidering the fully expanded place expression here.)\n\nFor instance, if `ptr` has type `*const S` where `S` has an alignment of 8, then\n`ptr` must be 8-aligned or else `(*ptr).f` is \"based on an misaligned pointer\".\nThis is true even if the type of the field `f` is `u8` (i.e., a type with\nalignment 1). In other words, the alignment requirement derives from the type of\nthe pointer that was dereferenced, *not* the type of the field that is being\naccessed.\n\nNote that a place based on a misaligned pointer only leads to undefined behavior\nwhen it is loaded from or stored to.\n\n`&raw const`/`&raw mut` on such a place is allowed.\n\n`&`/`&mut` on a place requires the alignment of the field type (or\nelse the program would be \"producing an invalid value\"), which generally is a\nless restrictive requirement than being based on an aligned pointer.\n\nTaking a reference will lead to a compiler error in cases where the field type might be\nmore aligned than the type that contains it, i.e., `repr(packed)`. This means\nthat being based on an aligned pointer is always sufficient to ensure that the\nnew reference is aligned, but it is not always necessary.",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.misaligned.general": "A place is said to be \"based on a misaligned pointer\" if the last `*` projection\nduring place computation was performed on a pointer that was not aligned for its\ntype. (If there is no `*` projection in the place expression, then this is\naccessing the field of a local or `static` and rustc will guarantee proper alignment. If\nthere are multiple `*` projection, then each of them incurs a load of the\npointer-to-be-dereferenced itself from memory, and each of these loads is\nsubject to the alignment constraint. Note that some `*` projections can be\nomitted in surface Rust syntax due to automatic dereferencing; we are\nconsidering the fully expanded place expression here.)\n\nFor instance, if `ptr` has type `*const S` where `S` has an alignment of 8, then\n`ptr` must be 8-aligned or else `(*ptr).f` is \"based on an misaligned pointer\".\nThis is true even if the type of the field `f` is `u8` (i.e., a type with\nalignment 1). In other words, the alignment requirement derives from the type of\nthe pointer that was dereferenced, *not* the type of the field that is being\naccessed.",
+        "undefined.misaligned.load-store": "Note that a place based on a misaligned pointer only leads to undefined behavior\nwhen it is loaded from or stored to.",
+        "undefined.misaligned.raw": "`&raw const`/`&raw mut` on such a place is allowed.",
+        "undefined.misaligned.reference": "`&`/`&mut` on a place requires the alignment of the field type (or\nelse the program would be \"producing an invalid value\"), which generally is a\nless restrictive requirement than being based on an aligned pointer.",
+        "undefined.misaligned.packed": "Taking a reference will lead to a compiler error in cases where the field type might be\nmore aligned than the type that contains it, i.e., `repr(packed)`. This means\nthat being based on an aligned pointer is always sufficient to ensure that the\nnew reference is aligned, but it is not always necessary."
+      }
+    },
+    {
+      "id": "undefined.dangling",
+      "title": "Dangling pointers",
+      "level": 2,
+      "content": "A reference/pointer is \"dangling\" if not all of the bytes it\n[points to] are part of the same live allocation (so in particular they all have to be\npart of *some* allocation).\n\nIf the size is 0, then the pointer is trivially never \"dangling\"\n(even if it is a null pointer).\n\nNote that dynamically sized types (such as slices and strings) point to their\nentire range, so it is important that the length metadata is never too large.\n\nIn particular, the dynamic size of a Rust value (as determined by `size_of_val`)\nmust never exceed `isize::MAX`, since it is impossible for a single allocation\nto be larger than `isize::MAX`.",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.dangling.general": "A reference/pointer is \"dangling\" if not all of the bytes it\n[points to] are part of the same live allocation (so in particular they all have to be\npart of *some* allocation).",
+        "undefined.dangling.zero-size": "If the size is 0, then the pointer is trivially never \"dangling\"\n(even if it is a null pointer).",
+        "undefined.dangling.dynamic-size": "Note that dynamically sized types (such as slices and strings) point to their\nentire range, so it is important that the length metadata is never too large.",
+        "undefined.dangling.alloc-limit": "In particular, the dynamic size of a Rust value (as determined by `size_of_val`)\nmust never exceed `isize::MAX`, since it is impossible for a single allocation\nto be larger than `isize::MAX`."
+      }
+    },
+    {
+      "id": "undefined.validity",
+      "title": "Invalid values",
+      "level": 2,
+      "content": "The Rust compiler assumes that all values produced during program execution are\n\"valid\", and producing an invalid value is hence immediate UB.\n\nWhether a value is valid depends on the type:\n\n* A [`bool`] value must be `false` (`0`) or `true` (`1`).\n\n* A `fn` pointer value must be non-null.\n\n* A `char` value must not be a surrogate (i.e., must not be in the range `0xD800..=0xDFFF`) and must be equal to or less than `char::MAX`.\n\n* A `!` value must never exist.\n\n* An integer (`i*`/`u*`), floating point value (`f*`), or raw pointer must be\n  initialized, i.e., must not be obtained from uninitialized memory.\n\n* A `str` value is treated like `[u8]`, i.e. it must be initialized.\n\n* An `enum` must have a valid discriminant, and all fields of the variant indicated by that discriminant must be valid at their respective type.\n\n* A `struct`, tuple, and array requires all fields/elements to be valid at their respective type.\n\n* For a `union`, the exact validity requirements are not decided yet.\n  Obviously, all values that can be created entirely in safe code are valid.\n  If the union has a zero-sized field, then every possible value is valid.\n  Further details are still being debated.\n\n* A reference or [`Box<T>`] must be aligned and non-null, it cannot be [dangling], and it must point to a valid value\n  (in case of dynamically sized types, using the actual dynamic type of the\n  pointee as determined by the metadata).\n  Note that the last point (about pointing to a valid value) remains a subject of some debate.\n\n* The metadata of a wide reference, [`Box<T>`], or raw pointer must match\n  the type of the unsized tail:\n  * `dyn Trait` metadata must be a pointer to a compiler-generated vtable for `Trait`.\n    (For raw pointers, this requirement remains a subject of some debate.)\n  * Slice (`[T]`) metadata must be a valid `usize`.\n    Furthermore, for wide references and [`Box<T>`], slice metadata is invalid\n    if it makes the total size of the pointed-to value bigger than `isize::MAX`.\n\n* If a type has a custom range of a valid values, then a valid value must be in that range.\n  In the standard library, this affects [`NonNull<T>`] and [`NonZero<T>`].\n\n  > [!NOTE]\n  > `rustc` achieves this with the unstable `rustc_layout_scalar_valid_range_*` attributes.\n\n* **In [const contexts]**: In addition to what is described above, further provenance-related requirements apply during const evaluation. Any value that holds pure integer data (the `i*`/`u*`/`f*` types as well as `bool` and `char`, enum discriminants, and slice metadata) must not carry any provenance. Any value that holds pointer data (references, raw pointers, function pointers, and `dyn Trait` metadata) must either carry no provenance, or all bytes must be fragments of the same original pointer value in the correct order.\n\n  This implies that transmuting or otherwise reinterpreting a pointer (reference, raw pointer, or function pointer) into a non-pointer type (such as integers) is undefined behavior if the pointer had provenance.\n\n  > [!EXAMPLE]\n  > All of the following are UB:\n  >\n  > ```rust,compile_fail\n  > # use core::mem::MaybeUninit;\n  > # use core::ptr;\n  > // We cannot reinterpret a pointer with provenance as an integer,\n  > // as then the bytes of the integer will have provenance.\n  > const _: usize = {\n  >     let ptr = &0;\n  >     unsafe { (&raw const ptr as *const usize).read() }\n  > };\n  >\n  > // We cannot rearrange the bytes of a pointer with provenance and\n  > // then interpret them as a reference, as then a value holding\n  > // pointer data will have pointer fragments in the wrong order.\n  > const _: &i32 = {\n  >     let mut ptr = &0;\n  >     let ptr_bytes = &raw mut ptr as *mut MaybeUninit::<u8>;\n  >     unsafe { ptr::swap(ptr_bytes.add(1), ptr_bytes.add(2)) };\n  >     ptr\n  > };\n  > ```\n\n**Note:** Uninitialized memory is also implicitly invalid for any type that has\na restricted set of valid values. In other words, the only cases in which\nreading uninitialized memory is permitted are inside `union`s and in \"padding\"\n(the gaps between the fields of a type).\n\n[`bool`]: types/boolean.md\n[`const`]: items/constant-items.md\n[abi]: items/external-blocks.md#abi\n[const contexts]: const-eval.const-context\n[`target_feature`]: attributes/codegen.md#the-target_feature-attribute\n[`UnsafeCell<U>`]: std::cell::UnsafeCell\n[Rustonomicon]: ../nomicon/index.html\n[`NonNull<T>`]: core::ptr::NonNull\n[`NonZero<T>`]: core::num::NonZero\n[place expression context]: expressions.md#place-expressions-and-value-expressions\n[rules]: inline-assembly.md#rules-for-inline-assembly\n\n[project-field]: expressions/field-expr.md\n[project-tuple]: expressions/tuple-expr.md#tuple-indexing-expressions\n[project-slice]: expressions/array-expr.md#array-and-slice-indexing-expressions\n[unwinding-ffi]: panic.md#unwinding-across-ffi-boundaries\n[const-promoted]: destructors.md#constant-promotion\n[lifetime-extended]: destructors.md#temporary-lifetime-extension",
+      "parent_id": null,
+      "paragraphs": {
+        "undefined.validity.general": "The Rust compiler assumes that all values produced during program execution are\n\"valid\", and producing an invalid value is hence immediate UB.\n\nWhether a value is valid depends on the type:",
+        "undefined.validity.bool": "* A [`bool`] value must be `false` (`0`) or `true` (`1`).",
+        "undefined.validity.fn-pointer": "* A `fn` pointer value must be non-null.",
+        "undefined.validity.char": "* A `char` value must not be a surrogate (i.e., must not be in the range `0xD800..=0xDFFF`) and must be equal to or less than `char::MAX`.",
+        "undefined.validity.never": "* A `!` value must never exist.",
+        "undefined.validity.scalar": "* An integer (`i*`/`u*`), floating point value (`f*`), or raw pointer must be\n  initialized, i.e., must not be obtained from uninitialized memory.",
+        "undefined.validity.str": "* A `str` value is treated like `[u8]`, i.e. it must be initialized.",
+        "undefined.validity.enum": "* An `enum` must have a valid discriminant, and all fields of the variant indicated by that discriminant must be valid at their respective type.",
+        "undefined.validity.struct": "* A `struct`, tuple, and array requires all fields/elements to be valid at their respective type.",
+        "undefined.validity.union": "* For a `union`, the exact validity requirements are not decided yet.\n  Obviously, all values that can be created entirely in safe code are valid.\n  If the union has a zero-sized field, then every possible value is valid.\n  Further details are still being debated.",
+        "undefined.validity.reference-box": "* A reference or [`Box<T>`] must be aligned and non-null, it cannot be [dangling], and it must point to a valid value\n  (in case of dynamically sized types, using the actual dynamic type of the\n  pointee as determined by the metadata).\n  Note that the last point (about pointing to a valid value) remains a subject of some debate.",
+        "undefined.validity.wide": "* The metadata of a wide reference, [`Box<T>`], or raw pointer must match\n  the type of the unsized tail:\n  * `dyn Trait` metadata must be a pointer to a compiler-generated vtable for `Trait`.\n    (For raw pointers, this requirement remains a subject of some debate.)\n  * Slice (`[T]`) metadata must be a valid `usize`.\n    Furthermore, for wide references and [`Box<T>`], slice metadata is invalid\n    if it makes the total size of the pointed-to value bigger than `isize::MAX`.",
+        "undefined.validity.valid-range": "* If a type has a custom range of a valid values, then a valid value must be in that range.\n  In the standard library, this affects [`NonNull<T>`] and [`NonZero<T>`].\n\n  > [!NOTE]\n  > `rustc` achieves this with the unstable `rustc_layout_scalar_valid_range_*` attributes.",
+        "undefined.validity.const-provenance": "* **In [const contexts]**: In addition to what is described above, further provenance-related requirements apply during const evaluation. Any value that holds pure integer data (the `i*`/`u*`/`f*` types as well as `bool` and `char`, enum discriminants, and slice metadata) must not carry any provenance. Any value that holds pointer data (references, raw pointers, function pointers, and `dyn Trait` metadata) must either carry no provenance, or all bytes must be fragments of the same original pointer value in the correct order.\n\n  This implies that transmuting or otherwise reinterpreting a pointer (reference, raw pointer, or function pointer) into a non-pointer type (such as integers) is undefined behavior if the pointer had provenance.\n\n  > [!EXAMPLE]\n  > All of the following are UB:\n  >\n  > ```rust,compile_fail\n  > # use core::mem::MaybeUninit;\n  > # use core::ptr;\n  > // We cannot reinterpret a pointer with provenance as an integer,\n  > // as then the bytes of the integer will have provenance.\n  > const _: usize = {\n  >     let ptr = &0;\n  >     unsafe { (&raw const ptr as *const usize).read() }\n  > };\n  >\n  > // We cannot rearrange the bytes of a pointer with provenance and\n  > // then interpret them as a reference, as then a value holding\n  > // pointer data will have pointer fragments in the wrong order.\n  > const _: &i32 = {\n  >     let mut ptr = &0;\n  >     let ptr_bytes = &raw mut ptr as *mut MaybeUninit::<u8>;\n  >     unsafe { ptr::swap(ptr_bytes.add(1), ptr_bytes.add(2)) };\n  >     ptr\n  > };\n  > ```",
+        "undefined.validity.undef": "**Note:** Uninitialized memory is also implicitly invalid for any type that has\na restricted set of valid values. In other words, the only cases in which\nreading uninitialized memory is permitted are inside `union`s and in \"padding\"\n(the gaps between the fields of a type).\n\n[`bool`]: types/boolean.md\n[`const`]: items/constant-items.md\n[abi]: items/external-blocks.md#abi\n[const contexts]: const-eval.const-context\n[`target_feature`]: attributes/codegen.md#the-target_feature-attribute\n[`UnsafeCell<U>`]: std::cell::UnsafeCell\n[Rustonomicon]: ../nomicon/index.html\n[`NonNull<T>`]: core::ptr::NonNull\n[`NonZero<T>`]: core::num::NonZero\n[place expression context]: expressions.md#place-expressions-and-value-expressions\n[rules]: inline-assembly.md#rules-for-inline-assembly\n\n[project-field]: expressions/field-expr.md\n[project-tuple]: expressions/tuple-expr.md#tuple-indexing-expressions\n[project-slice]: expressions/array-expr.md#array-and-slice-indexing-expressions\n[unwinding-ffi]: panic.md#unwinding-across-ffi-boundaries\n[const-promoted]: destructors.md#constant-promotion\n[lifetime-extended]: destructors.md#temporary-lifetime-extension"
+      }
+    },
+    {
+      "id": "behavior_not_considered_unsafe",
+      "title": "Behavior not considered unsafe",
+      "level": 1,
+      "content": "# Behavior not considered `unsafe`\n\nThe Rust compiler does not consider the following behaviors _unsafe_,\nthough a programmer may (should) find them undesirable, unexpected,\nor erroneous.\n\n- Deadlocks\n- Leaks of memory and other resources\n- Exiting without calling destructors\n- Exposing randomized base addresses through pointer leaks\n\n## Integer overflow\n\nIf a program contains arithmetic overflow, the programmer has made an\nerror. In the following discussion, we maintain a distinction between\narithmetic overflow and wrapping arithmetic. The first is erroneous,\nwhile the second is intentional.\n\nWhen the programmer has enabled `debug_assert!` assertions (for\nexample, by enabling a non-optimized build), implementations must\ninsert dynamic checks that `panic` on overflow. Other kinds of builds\nmay result in `panics` or silently wrapped values on overflow, at the\nimplementation's discretion.\n\nIn the case of implicitly-wrapped overflow, implementations must\nprovide well-defined (even if still considered erroneous) results by\nusing two's complement overflow conventions.\n\nThe integral types provide inherent methods to allow programmers\nexplicitly to perform wrapping arithmetic. For example,\n`i32::wrapping_add` provides two's complement, wrapping addition.\n\nThe standard library also provides a `Wrapping<T>` newtype which\nensures all standard arithmetic operations for `T` have wrapping\nsemantics.\n\nSee [RFC 560] for error conditions, rationale, and more details about\ninteger overflow.\n\n## Logic errors\n\nSafe code may impose extra logical constraints that can be checked\nat neither compile-time nor runtime. If a program breaks such\na constraint, the behavior may be unspecified but will not result in\nundefined behavior. This could include panics, incorrect results,\naborts, and non-termination. The behavior may also differ between\nruns, builds, or kinds of build.\n\nFor example, implementing both `Hash` and `Eq` requires that values\nconsidered equal have equal hashes. Another example are data structures\nlike `BinaryHeap`, `BTreeMap`, `BTreeSet`, `HashMap` and `HashSet`\nwhich describe constraints on the modification of their keys while\nthey are in the data structure. Violating such constraints is not\nconsidered unsafe, yet the program is considered erroneous and\nits behavior unpredictable.\n\n[RFC 560]: https://github.com/rust-lang/rfcs/blob/master/text/0560-integer-overflow.md",
+      "parent_id": null,
+      "paragraphs": {
+        "behavior_not_considered_unsafe_p1": "# Behavior not considered `unsafe`\n\nThe Rust compiler does not consider the following behaviors _unsafe_,\nthough a programmer may (should) find them undesirable, unexpected,\nor erroneous.\n\n- Deadlocks\n- Leaks of memory and other resources\n- Exiting without calling destructors\n- Exposing randomized base addresses through pointer leaks\n\n## Integer overflow\n\nIf a program contains arithmetic overflow, the programmer has made an\nerror. In the following discussion, we maintain a distinction between\narithmetic overflow and wrapping arithmetic. The first is erroneous,\nwhile the second is intentional.\n\nWhen the programmer has enabled `debug_assert!` assertions (for\nexample, by enabling a non-optimized build), implementations must\ninsert dynamic checks that `panic` on overflow. Other kinds of builds\nmay result in `panics` or silently wrapped values on overflow, at the\nimplementation's discretion.\n\nIn the case of implicitly-wrapped overflow, implementations must\nprovide well-defined (even if still considered erroneous) results by\nusing two's complement overflow conventions.\n\nThe integral types provide inherent methods to allow programmers\nexplicitly to perform wrapping arithmetic. For example,\n`i32::wrapping_add` provides two's complement, wrapping addition.\n\nThe standard library also provides a `Wrapping<T>` newtype which\nensures all standard arithmetic operations for `T` have wrapping\nsemantics.\n\nSee [RFC 560] for error conditions, rationale, and more details about\ninteger overflow.\n\n## Logic errors\n\nSafe code may impose extra logical constraints that can be checked\nat neither compile-time nor runtime. If a program breaks such\na constraint, the behavior may be unspecified but will not result in\nundefined behavior. This could include panics, incorrect results,\naborts, and non-termination. The behavior may also differ between\nruns, builds, or kinds of build.\n\nFor example, implementing both `Hash` and `Eq` requires that values\nconsidered equal have equal hashes. Another example are data structures\nlike `BinaryHeap`, `BTreeMap`, `BTreeSet`, `HashMap` and `HashSet`\nwhich describe constraints on the modification of their keys while\nthey are in the data structure. Violating such constraints is not\nconsidered unsafe, yet the program is considered erroneous and\nits behavior unpredictable.\n\n[RFC 560]: https://github.com/rust-lang/rfcs/blob/master/text/0560-integer-overflow.md"
+      }
+    }
+  ],
+  "ids": [
+    "safety.unsafe-extern",
+    "undefined.target-feature",
+    "safety.unsafe-deref",
+    "undefined.general",
+    "unsafe.trait.intro",
+    "safety.unsafe-static",
+    "undefined",
+    "undefined.misaligned",
+    "undefined.validity.wide",
+    "behavior_not_considered_unsafe_p1",
+    "behavior_not_considered_unsafe",
+    "unsafe.fn",
+    "undefined.validity.enum",
+    "undefined.dangling",
+    "unsafe.attribute",
+    "undefined.validity.scalar",
+    "undefined.validity.reference-box",
+    "undefined.place-projection",
+    "undefined.validity.fn-pointer",
+    "undefined.validity",
+    "undefined.misaligned.raw",
+    "unsafe.impl",
+    "undefined.validity.bool",
+    "undefined.misaligned.reference",
+    "undefined.validity.undef",
+    "undefined.validity.struct",
+    "undefined.misaligned.packed",
+    "undefined.soundness",
+    "undefined.pointed-to",
+    "undefined.pointer-access",
+    "unsafe.extern.edition2024",
+    "undefined.misaligned.general",
+    "undefined.validity.str",
+    "undefined.runtime",
+    "unsafe.trait",
+    "safety.unsafe-target-feature-call",
+    "unsafe.fn.intro",
+    "undefined.asm",
+    "undefined.misaligned.load-store",
+    "unsafe.extern",
+    "undefined.validity.valid-range",
+    "undefined.validity.const-provenance",
+    "undefined.validity.union",
+    "undefined.dangling.zero-size",
+    "unsafe.fn.safety",
+    "undefined.intrinsic",
+    "undefined.alias",
+    "safety.unsafe-ops",
+    "safety.unsafe-attribute",
+    "safety.unsafe-impl",
+    "unsafe.intro",
+    "unsafe.positions",
+    "undefined.immutable",
+    "undefined.validity.char",
+    "undefined.invalid",
+    "unsafe.trait.safety",
+    "unsafe.block",
+    "unsafe.block.fn-body",
+    "undefined.race",
+    "safety.unsafe-call",
+    "undefined.validity.general",
+    "safety.unsafe-union-access",
+    "unsafe",
+    "undefined.dangling.alloc-limit",
+    "safety",
+    "safety.intro",
+    "undefined.validity.never",
+    "unsafe.block.intro",
+    "undefined.dangling.general",
+    "undefined.dangling.dynamic-size",
+    "undefined.call"
+  ]
+}

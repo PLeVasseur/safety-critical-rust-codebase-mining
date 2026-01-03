@@ -53,21 +53,21 @@ from fls_tools.shared import (
     get_project_root,
     get_fls_dir,
     get_fls_index_path,
-    get_misra_embeddings_dir,
-    get_misra_c_extracted_text_path,
     get_fls_section_embeddings_path,
     get_fls_paragraph_embeddings_path,
-    get_misra_c_embeddings_path,
-    get_misra_c_query_embeddings_path,
-    get_misra_c_rationale_embeddings_path,
-    get_misra_c_amplification_embeddings_path,
+    get_standard_embeddings_dir,
+    get_standard_extracted_text_path,
+    get_standard_embeddings_path,
+    get_standard_query_embeddings_path,
+    get_standard_rationale_embeddings_path,
+    get_standard_amplification_embeddings_path,
     CATEGORY_NAMES,
 )
 
 
-def load_misra_text(project_root: Path) -> list[dict]:
+def load_misra_text(project_root: Path, standard: str = "misra-c") -> list[dict]:
     """Load MISRA extracted text from cache."""
-    cache_path = get_misra_c_extracted_text_path(project_root)
+    cache_path = get_standard_extracted_text_path(project_root, standard)
     if not cache_path.exists():
         raise FileNotFoundError(
             f"MISRA text not found at {cache_path}. "
@@ -391,7 +391,7 @@ def main():
     print("\nGenerating MISRA embeddings...")
     misra_embeddings = generate_embeddings(misra_texts, model)
     
-    misra_output = get_misra_c_embeddings_path(project_root)
+    misra_output = get_standard_embeddings_path(project_root, "misra-c")
     misra_output.parent.mkdir(parents=True, exist_ok=True)
     
     with open(misra_output, 'wb') as f:
@@ -420,7 +420,7 @@ def main():
             print("\nGenerating MISRA query embeddings...")
             query_embeddings = generate_embeddings(query_texts, model)
             
-            query_output = get_misra_c_query_embeddings_path(project_root)
+            query_output = get_standard_query_embeddings_path(project_root, "misra-c")
             
             with open(query_output, 'wb') as f:
                 pickle.dump({
@@ -454,7 +454,7 @@ def main():
             print("\nGenerating MISRA rationale embeddings...")
             rationale_embeddings = generate_embeddings(rationale_texts, model)
             
-            rationale_output = get_misra_c_rationale_embeddings_path(project_root)
+            rationale_output = get_standard_rationale_embeddings_path(project_root, "misra-c")
             
             with open(rationale_output, 'wb') as f:
                 pickle.dump({
@@ -487,7 +487,7 @@ def main():
             print("\nGenerating MISRA amplification embeddings...")
             amplification_embeddings = generate_embeddings(amplification_texts, model)
             
-            amplification_output = get_misra_c_amplification_embeddings_path(project_root)
+            amplification_output = get_standard_amplification_embeddings_path(project_root, "misra-c")
             
             with open(amplification_output, 'wb') as f:
                 pickle.dump({
