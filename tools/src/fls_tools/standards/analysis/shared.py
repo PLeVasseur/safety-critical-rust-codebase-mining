@@ -26,6 +26,8 @@ from fls_tools.shared import (
     normalize_standard,
     is_v2_family,
     is_v1_family,
+    load_fls_chapters,
+    build_fls_metadata,
 )
 
 
@@ -275,37 +277,94 @@ def load_all_decision_files(
 # FLS Content Loading
 # =============================================================================
 
+# Cache for FLS metadata (expensive to rebuild)
+_fls_metadata_cache: tuple[dict, dict] | None = None
+
+
+def get_fls_metadata(root: Path | None = None) -> tuple[dict[str, dict], dict[str, dict]]:
+    """
+    Get cached FLS metadata (sections and paragraphs).
+    
+    Returns:
+        Tuple of (sections_metadata, paragraphs_metadata)
+        - sections_metadata: fls_id -> {title, chapter, category}
+        - paragraphs_metadata: para_id -> {text, section_fls_id, section_title, category, category_name, chapter}
+    """
+    global _fls_metadata_cache
+    if _fls_metadata_cache is None:
+        chapters = load_fls_chapters(root)
+        _fls_metadata_cache = build_fls_metadata(chapters)
+    return _fls_metadata_cache
+
+
 def load_fls_content(fls_id: str, root: Path | None = None) -> dict | None:
     """
-    Load FLS section content by ID.
+    Load FLS content by ID (handles both section-level and paragraph-level IDs).
     
-    Returns dict with:
-    - content: Section text
-    - title: Section title
-    - rubrics: Dict of rubric category -> list of paragraph texts
+    For section-level IDs:
+        Returns dict with:
+        - fls_id: The section FLS ID
+        - title: Section title
+        - content: Section text (intro/overview)
+        - chapter: Chapter number
+        - category: Category code (0 for sections)
+        - rubrics: Dict of rubric category -> list of paragraph texts
+        - is_paragraph: False
+    
+    For paragraph-level IDs:
+        Returns dict with:
+        - fls_id: The paragraph FLS ID
+        - title: Parent section title
+        - content: The paragraph text
+        - chapter: Chapter number
+        - category: Category code (-2 for legality rules, etc.)
+        - category_name: Human-readable category name
+        - parent_section_fls_id: The parent section's FLS ID
+        - is_paragraph: True
     """
-    fls_dir = get_fls_dir(root)
+    sections_meta, paragraphs_meta = get_fls_metadata(root)
     
-    # Search through all chapter files
-    for chapter_file in sorted(fls_dir.glob("chapter_*.json")):
-        chapter = load_json_file(chapter_file)
-        if not chapter:
-            continue
+    # First check if it's a section-level ID
+    if fls_id in sections_meta:
+        section_info = sections_meta[fls_id]
+        # Load full section content from chapter file
+        fls_dir = get_fls_dir(root)
+        chapter_num = section_info["chapter"]
+        chapter_file = fls_dir / f"chapter_{chapter_num:02d}.json"
         
-        for section in chapter.get("sections", []):
-            if section.get("fls_id") == fls_id:
-                result = {
-                    "fls_id": fls_id,
-                    "title": section.get("title", ""),
-                    "content": section.get("content", ""),
-                    "rubrics": {},
-                }
-                # Extract rubric paragraphs
-                for cat_code, rubric_data in section.get("rubrics", {}).items():
-                    paragraphs = rubric_data.get("paragraphs", {})
-                    if paragraphs:
-                        result["rubrics"][cat_code] = list(paragraphs.values())
-                return result
+        chapter = load_json_file(chapter_file)
+        if chapter:
+            for section in chapter.get("sections", []):
+                if section.get("fls_id") == fls_id:
+                    result = {
+                        "fls_id": fls_id,
+                        "title": section.get("title", ""),
+                        "content": section.get("content", ""),
+                        "chapter": chapter_num,
+                        "category": section.get("category", 0),
+                        "rubrics": {},
+                        "is_paragraph": False,
+                    }
+                    # Extract rubric paragraphs
+                    for cat_code, rubric_data in section.get("rubrics", {}).items():
+                        paragraphs = rubric_data.get("paragraphs", {})
+                        if paragraphs:
+                            result["rubrics"][cat_code] = list(paragraphs.values())
+                    return result
+    
+    # Check if it's a paragraph-level ID
+    if fls_id in paragraphs_meta:
+        para_info = paragraphs_meta[fls_id]
+        return {
+            "fls_id": fls_id,
+            "title": para_info.get("section_title", ""),
+            "content": para_info.get("text", ""),
+            "chapter": para_info.get("chapter"),
+            "category": para_info.get("category"),
+            "category_name": para_info.get("category_name", ""),
+            "parent_section_fls_id": para_info.get("section_fls_id"),
+            "is_paragraph": True,
+        }
     
     return None
 
@@ -314,17 +373,29 @@ def enrich_match_with_fls_content(match: dict, root: Path | None = None) -> dict
     """
     Enrich a match dict with FLS content.
     
-    Adds fls_content and fls_rubrics fields based on fls_id.
+    For section-level IDs: adds fls_content and fls_rubrics fields.
+    For paragraph-level IDs: adds fls_content (the paragraph text), 
+        fls_category_name, and fls_parent_section fields.
     """
     fls_id = match.get("fls_id")
     if not fls_id:
         return match
     
-    fls_content = load_fls_content(fls_id, root)
-    if fls_content:
+    fls_data = load_fls_content(fls_id, root)
+    if fls_data:
         match = match.copy()
-        match["fls_content"] = fls_content.get("content", "")
-        match["fls_rubrics"] = fls_content.get("rubrics", {})
+        match["fls_content"] = fls_data.get("content", "")
+        match["fls_title"] = fls_data.get("title", match.get("fls_title", ""))
+        match["fls_chapter"] = fls_data.get("chapter")
+        match["fls_category"] = fls_data.get("category")
+        
+        if fls_data.get("is_paragraph"):
+            # Paragraph-level: include category name and parent info
+            match["fls_category_name"] = fls_data.get("category_name", "")
+            match["fls_parent_section"] = fls_data.get("parent_section_fls_id")
+        else:
+            # Section-level: include rubrics
+            match["fls_rubrics"] = fls_data.get("rubrics", {})
     return match
 
 

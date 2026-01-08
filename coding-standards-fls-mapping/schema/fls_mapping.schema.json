@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/eclipse-iceoryx/iceoryx2/coding-standards-fls-mapping/schema/fls_mapping.schema.json",
   "title": "Coding Standard to FLS Mapping",
-  "description": "Schema for mapping coding standard guidelines (MISRA/CERT) to Ferrocene Language Specification (FLS) sections. Supports v1.0, v1.1, v2.0, v2.1, and v3.0 formats.",
+  "description": "Schema for mapping coding standard guidelines (MISRA/CERT) to Ferrocene Language Specification (FLS) sections. Supports v1.x, v2.x, v3.x, and v4.0 formats.",
   "type": "object",
   "required": [
     "standard",
@@ -67,14 +67,18 @@
     },
     "mappings": {
       "type": "array",
-      "description": "Array of guideline-to-FLS mappings (can contain mixed v1.0, v1.1, v2.0, v2.1, and v3.0 entries)",
+      "description": "Array of guideline-to-FLS mappings (can contain mixed schema versions)",
       "items": {
         "oneOf": [
           { "$ref": "#/$defs/mapping_entry_v1" },
           { "$ref": "#/$defs/mapping_entry_v1_1" },
+          { "$ref": "#/$defs/mapping_entry_v1_2" },
           { "$ref": "#/$defs/mapping_entry_v2" },
           { "$ref": "#/$defs/mapping_entry_v2_1" },
-          { "$ref": "#/$defs/mapping_entry_v3" }
+          { "$ref": "#/$defs/mapping_entry_v2_2" },
+          { "$ref": "#/$defs/mapping_entry_v3" },
+          { "$ref": "#/$defs/mapping_entry_v3_2" },
+          { "$ref": "#/$defs/mapping_entry_v4" }
         ]
       }
     }
@@ -213,6 +217,21 @@
         "notes": {
           "type": ["string", "null"],
           "description": "Context-specific notes"
+        },
+        "paragraph_match_count": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Count of paragraph-level matches (category != 0). Required in v1.2+, v2.2+, v3.2+, v4.0."
+        },
+        "section_match_count": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Count of section-level matches (category = 0). Required in v1.2+, v2.2+, v3.2+, v4.0."
+        },
+        "paragraph_level_waiver": {
+          "type": ["string", "null"],
+          "minLength": 50,
+          "description": "If no paragraph matches, explains why (min 50 chars). Null if has paragraphs. Required in v4.0 if paragraph_match_count = 0."
         }
       }
     },
@@ -460,6 +479,203 @@
         "safe_rust": {
           "$ref": "#/$defs/applicability_context",
           "description": "Applicability and verification data for SAFE Rust code only"
+        }
+      }
+    },
+    "mapping_entry_v1_2": {
+      "type": "object",
+      "description": "v1.2 format: v1.1 + paragraph coverage fields (migrated with waiver if needed)",
+      "required": ["schema_version", "guideline_id", "guideline_title", "guideline_type", "applicability_all_rust", "applicability_safe_rust", "misra_add6", "paragraph_match_count", "section_match_count"],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "1.2",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "ID from the coding standard (e.g., 'Rule 1.1', 'MEM30-C')"
+        },
+        "guideline_title": {
+          "type": "string",
+          "description": "Title/summary of the guideline"
+        },
+        "guideline_type": {
+          "type": "string",
+          "enum": ["rule", "directive", "recommendation"],
+          "description": "Type of guideline"
+        },
+        "misra_add6": {
+          "$ref": "#/$defs/misra_add6",
+          "description": "MISRA ADD-6 Rust applicability data"
+        },
+        "applicability_all_rust": {
+          "type": "string",
+          "enum": ["direct", "partial", "not_applicable", "rust_prevents", "unmapped"],
+          "description": "How this guideline applies to ALL Rust code (including unsafe)"
+        },
+        "applicability_safe_rust": {
+          "type": "string",
+          "enum": ["direct", "partial", "not_applicable", "rust_prevents", "unmapped"],
+          "description": "How this guideline applies to SAFE Rust code only"
+        },
+        "accepted_matches": {
+          "type": "array",
+          "description": "FLS sections accepted as matches (shared across contexts in v1)",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "rejected_matches": {
+          "type": "array",
+          "description": "FLS sections rejected despite high similarity (shared across contexts in v1)",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "fls_rationale_type": {
+          "type": ["string", "null"],
+          "enum": ["direct_mapping", "rust_alternative", "rust_prevents", "no_equivalent", "partial_mapping", null],
+          "description": "Explains the relationship between the guideline and the FLS sections"
+        },
+        "misra_rust_category": {
+          "type": ["string", "null"],
+          "enum": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a", null],
+          "description": "MISRA's adjusted category for Rust (from MISRA ADD-6)"
+        },
+        "misra_rust_comment": {
+          "type": ["string", "null"],
+          "description": "MISRA's comment on Rust applicability (from MISRA ADD-6)"
+        },
+        "confidence": {
+          "type": ["string", "null"],
+          "enum": ["high", "medium", "low", null],
+          "description": "Confidence level in the mapping accuracy"
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "High-level summary of the mapping rationale"
+        },
+        "paragraph_match_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of paragraph-level matches (category != 0) in accepted_matches"
+        },
+        "section_match_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of section-level matches (category = 0) in accepted_matches"
+        },
+        "paragraph_level_waiver": {
+          "type": ["string", "null"],
+          "description": "If no paragraph matches, explains why (min 50 chars for non-migration waivers). Null if has paragraphs."
+        }
+      }
+    },
+    "mapping_entry_v2_2": {
+      "type": "object",
+      "description": "v2.2 format: v2.1 + paragraph coverage fields per context (migrated with waiver if needed)",
+      "required": ["schema_version", "guideline_id", "guideline_title", "guideline_type", "misra_add6", "all_rust", "safe_rust"],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "2.2",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "ID from the coding standard (e.g., 'Rule 1.1', 'MEM30-C')"
+        },
+        "guideline_title": {
+          "type": "string",
+          "description": "Title/summary of the guideline"
+        },
+        "guideline_type": {
+          "type": "string",
+          "enum": ["rule", "directive", "recommendation"],
+          "description": "Type of guideline"
+        },
+        "misra_add6": {
+          "$ref": "#/$defs/misra_add6",
+          "description": "MISRA ADD-6 Rust applicability data"
+        },
+        "all_rust": {
+          "$ref": "#/$defs/applicability_context",
+          "description": "Applicability and verification data for ALL Rust code (including unsafe)"
+        },
+        "safe_rust": {
+          "$ref": "#/$defs/applicability_context",
+          "description": "Applicability and verification data for SAFE Rust code only"
+        }
+      }
+    },
+    "mapping_entry_v3_2": {
+      "type": "object",
+      "description": "v3.2 format: v3.0/v3.1 + paragraph coverage fields per context (migrated with waiver if needed)",
+      "required": ["schema_version", "guideline_id", "guideline_title", "guideline_type", "misra_add6", "all_rust", "safe_rust"],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "3.2",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "ID from the coding standard (e.g., 'Rule 1.1', 'MEM30-C')"
+        },
+        "guideline_title": {
+          "type": "string",
+          "description": "Title/summary of the guideline"
+        },
+        "guideline_type": {
+          "type": "string",
+          "enum": ["rule", "directive", "recommendation"],
+          "description": "Type of guideline"
+        },
+        "misra_add6": {
+          "$ref": "#/$defs/misra_add6",
+          "description": "MISRA ADD-6 Rust applicability data"
+        },
+        "all_rust": {
+          "$ref": "#/$defs/applicability_context",
+          "description": "Applicability and verification data for ALL Rust code (including unsafe)"
+        },
+        "safe_rust": {
+          "$ref": "#/$defs/applicability_context",
+          "description": "Applicability and verification data for SAFE Rust code only"
+        }
+      }
+    },
+    "mapping_entry_v4": {
+      "type": "object",
+      "description": "v4.0 format: Per-context with enforced paragraph-level requirements. Fresh verification must have paragraph matches or explicit waiver.",
+      "required": ["schema_version", "guideline_id", "guideline_title", "guideline_type", "misra_add6", "all_rust", "safe_rust"],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "4.0",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "ID from the coding standard (e.g., 'Rule 1.1', 'MEM30-C')"
+        },
+        "guideline_title": {
+          "type": "string",
+          "description": "Title/summary of the guideline"
+        },
+        "guideline_type": {
+          "type": "string",
+          "enum": ["rule", "directive", "recommendation"],
+          "description": "Type of guideline"
+        },
+        "misra_add6": {
+          "$ref": "#/$defs/misra_add6",
+          "description": "MISRA ADD-6 Rust applicability data"
+        },
+        "all_rust": {
+          "$ref": "#/$defs/applicability_context",
+          "description": "Applicability and verification data for ALL Rust code (including unsafe). Must have paragraph_match_count > 0 OR paragraph_level_waiver."
+        },
+        "safe_rust": {
+          "$ref": "#/$defs/applicability_context",
+          "description": "Applicability and verification data for SAFE Rust code only. Must have paragraph_match_count > 0 OR paragraph_level_waiver."
         }
       }
     }

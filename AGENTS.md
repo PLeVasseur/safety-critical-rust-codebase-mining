@@ -280,11 +280,70 @@ Compare new decision files against existing mapping file to assess quality and i
 | `extract-comparison-data` | Extract raw comparison data, compute flags | `uv run extract-comparison-data --standard misra-c --batches 1,2,3` |
 | `list-pending-outliers` | Show outliers not yet analyzed | `uv run list-pending-outliers --standard misra-c --batches 1,2,3` |
 | `diff-fls-matches` | Human-readable diff for one guideline | `uv run diff-fls-matches --standard misra-c --guideline "Rule 10.1" --batch 1` |
-| `record-outlier-analysis` | Record LLM analysis for one outlier | See docs |
+| `check-analysis-progress` | Show progress, suggest next guideline | `uv run check-analysis-progress --standard misra-c --batches 1,2,3` |
+| `prepare-outlier-analysis` | Display full context for ONE guideline | `uv run prepare-outlier-analysis --standard misra-c --guideline "Rule 10.1" --batch 1` |
+| `record-outlier-analysis` | Record LLM analysis for one outlier | See Outlier Analysis Protocol below |
 | `generate-analysis-reports` | Generate Markdown reports | `uv run generate-analysis-reports --standard misra-c --batches 1,2,3` |
 | `review-outliers` | Interactive human review of outliers | `uv run review-outliers --standard misra-c --guideline "Rule 10.1" --accept-all` |
 
 See [`plans/verification-comparison-analysis.md`](plans/verification-comparison-analysis.md) for detailed design.
+
+#### Outlier Analysis Protocol
+
+**CRITICAL:** Process guidelines ONE AT A TIME. Do not batch analyze multiple guidelines.
+
+**Why Single-Guideline Focus:**
+- Pattern matching across guidelines leads to shallow reasoning
+- Each guideline requires reading actual FLS content for that specific concern
+- FLS detail justifications (min 50 chars) must quote specific FLS text
+
+**Workflow:**
+
+1. **Check Progress:**
+   ```bash
+   uv run check-analysis-progress --standard misra-c --batches 1,2,3
+   ```
+   Shows progress and suggests next guideline.
+
+2. **Prepare Context for ONE Guideline:**
+   ```bash
+   uv run prepare-outlier-analysis --standard misra-c --guideline "Rule X.Y" --batch N
+   ```
+   Displays:
+   - Full comparison data (mapping vs decision vs ADD-6)
+   - Actual FLS content for all removed/added sections
+   - Required flags based on active outlier flags
+   - Template command with all required arguments
+
+3. **Read and Analyze FLS Content:**
+   - Read the FLS content displayed by `prepare-outlier-analysis`
+   - For each FLS removal/addition, understand what the FLS text actually says
+   - Quote specific FLS text in your justifications
+
+4. **Record Decision:**
+   ```bash
+   uv run record-outlier-analysis --standard misra-c --guideline "Rule X.Y" --batch N \
+       --analysis-summary "Brief summary of MISRA concern and Rust handling" \
+       --overall-recommendation accept \
+       ... (see template from prepare command)
+   ```
+
+**Validation Requirements:**
+
+| Field | Requirement |
+|-------|-------------|
+| `--fls-removal-detail` | Min 50 chars, must quote FLS (include "FLS", quotes, or "Per FLS:") |
+| `--fls-addition-detail` | Min 50 chars, must quote FLS (include "FLS", quotes, or "Per FLS:") |
+| Acknowledgment fields | Min 20 chars each |
+
+**Example Proper Justification:**
+```
+--fls-removal-detail "fls_3fg60jblx0xb:all_rust:Per FLS: 'Inline assembly is written as an assembly code block that is wrapped inside a macro invocation' - this text is redundant with the parent section content"
+```
+
+**Checkpoints:** Every 5 guidelines, check progress and consider reviewing completed analyses.
+
+**Output:** Analysis files saved to `cache/analysis/outlier_analysis/`
 
 **Legacy Analysis Tools:**
 

@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 """
-record_decision.py - Record a v3 verification decision for a guideline.
+record_decision.py - Record a v4.0 verification decision for a guideline.
 
-This tool records verification decisions in v3 format (per-context + ADD-6 snapshot).
+This tool records verification decisions in v4.0 format (per-context + ADD-6 snapshot
++ enforced paragraph-level coverage).
+
 Each guideline has independent decisions for all_rust and safe_rust contexts.
 
 Features:
-- Always writes v3 format decision files (includes misra_add6_snapshot)
+- Always writes v4.0 format decision files (includes misra_add6_snapshot)
 - Single decision file per guideline contains both contexts
 - Recording one context preserves the other context's data
 - Validates decisions against schema
 - Supports accepted and rejected matches with full metadata
+- Enforces paragraph-level FLS matches (category != 0) or waiver
 
 Usage:
     # Record all_rust context
@@ -88,6 +91,7 @@ from fls_tools.shared import (
     load_valid_fls_ids,
     validate_fls_id,
     build_misra_add6_snapshot,
+    count_matches_by_category,
 )
 
 
@@ -111,7 +115,10 @@ VALID_SEARCH_TOOLS = ["search-fls", "search-fls-deep", "search-rust-context", "r
 MIN_SEARCHES_PER_CONTEXT = 4
 
 # Schema version for new decisions
-DECISION_SCHEMA_VERSION = "3.1"
+DECISION_SCHEMA_VERSION = "4.0"
+
+# Paragraph coverage requirements
+MIN_PARAGRAPH_WAIVER_LENGTH = 50
 
 
 def load_json(path: Path) -> dict:
@@ -558,6 +565,13 @@ def main():
         action="store_true",
         help="Override requirement for FLS matches (requires --notes justification)",
     )
+    parser.add_argument(
+        "--paragraph-level-waiver",
+        type=str,
+        default=None,
+        help=f"Waiver explaining why no paragraph-level matches (min {MIN_PARAGRAPH_WAIVER_LENGTH} chars). "
+             "Required if all accepted matches are section-level (category=0).",
+    )
     
     args = parser.parse_args()
     
@@ -675,13 +689,13 @@ Use --force-no-matches only for exceptional cases (requires --notes).
     # Load existing decision file or create new one
     if output_path.exists():
         decision_file = load_json(output_path)
-        # Accept v2.0, v2.1, v3.0, or v3.1 - upgrade to v3.1 if needed
+        # Accept v2.0, v2.1, v3.0, v3.1, v3.2, or v4.0 - upgrade to v4.0 if needed
         existing_version = decision_file.get("schema_version")
-        if existing_version not in ("2.0", "2.1", "3.0", "3.1"):
+        if existing_version not in ("2.0", "2.1", "3.0", "3.1", "3.2", "4.0"):
             print(f"ERROR: Existing decision file has unsupported version: {existing_version}", file=sys.stderr)
             sys.exit(1)
-        # Upgrade to v3.1
-        if existing_version in ("2.0", "2.1", "3.0"):
+        # Upgrade to v4.0
+        if existing_version in ("2.0", "2.1", "3.0", "3.1", "3.2"):
             decision_file["schema_version"] = DECISION_SCHEMA_VERSION
             if "misra_add6_snapshot" not in decision_file and add6_snapshot:
                 decision_file["misra_add6_snapshot"] = add6_snapshot
@@ -707,6 +721,35 @@ Use --force-no-matches only for exceptional cases (requires --notes).
         print("Only search-fls-deep UUIDs can be shared across contexts of the same guideline.", file=sys.stderr)
         sys.exit(1)
     
+    # Compute paragraph coverage
+    paragraph_count, section_count = count_matches_by_category(accepted_matches)
+    
+    # Validate paragraph coverage for v4.0
+    if paragraph_count == 0 and accepted_matches:
+        # Has matches but none are paragraph-level
+        if not args.paragraph_level_waiver:
+            print(f"""ERROR: No paragraph-level matches found (all {section_count} matches are section-level).
+
+Section headers (category=0) are not quotable - coding guidelines need specific FLS text.
+Either:
+  1. Find paragraph-level matches (category != 0) using search-fls
+  2. Provide --paragraph-level-waiver explaining why no paragraphs apply
+
+Example search for paragraph content:
+  uv run search-fls --query "<your query>" --top 20
+  (Look for results with category -2, -3, -4, etc.)
+
+Use --paragraph-level-waiver only for exceptional cases like:
+  - MISRA rule addresses C preprocessor with no Rust parallel
+  - The relevant FLS sections truly have no rubric content
+""", file=sys.stderr)
+            sys.exit(1)
+        elif len(args.paragraph_level_waiver) < MIN_PARAGRAPH_WAIVER_LENGTH:
+            print(f"ERROR: --paragraph-level-waiver too short ({len(args.paragraph_level_waiver)} chars). "
+                  f"Minimum {MIN_PARAGRAPH_WAIVER_LENGTH} chars required to ensure adequate justification.", 
+                  file=sys.stderr)
+            sys.exit(1)
+    
     # Build the context decision
     context_decision = {
         "decision": args.decision,
@@ -721,6 +764,9 @@ Use --force-no-matches only for exceptional cases (requires --notes).
         "accepted_matches": accepted_matches,
         "rejected_matches": rejected_matches,
         "search_tools_used": search_tools_used,
+        "paragraph_match_count": paragraph_count,
+        "section_match_count": section_count,
+        "paragraph_level_waiver": args.paragraph_level_waiver,
         "notes": args.notes,
     }
     
@@ -760,10 +806,13 @@ Use --force-no-matches only for exceptional cases (requires --notes).
         print(f"  Confidence: {args.confidence}")
         print(f"  MISRA Concern: {args.misra_concern}")
         print(f"  Rust Analysis: {args.rust_analysis}")
-        print(f"  Accepted Matches: {len(accepted_matches)}")
+        print(f"  Accepted Matches: {len(accepted_matches)} ({paragraph_count} paragraph, {section_count} section)")
         for m in accepted_matches:
+            cat_label = f"cat={m['category']}" if m['category'] != 0 else "section"
             reason_preview = m['reason'][:60] + '...' if len(m['reason']) > 60 else m['reason']
-            print(f"    - {m['fls_id']} ({m['score']:.3f}): {reason_preview}")
+            print(f"    - {m['fls_id']} [{cat_label}] ({m['score']:.3f}): {reason_preview}")
+        if args.paragraph_level_waiver:
+            print(f"  Paragraph Waiver: {args.paragraph_level_waiver[:60]}...")
         print(f"  Rejected Matches: {len(rejected_matches)}")
         for m in rejected_matches:
             reason_preview = m['reason'][:60] + '...' if len(m['reason']) > 60 else m['reason']
@@ -795,8 +844,10 @@ Use --force-no-matches only for exceptional cases (requires --notes).
         print(f"  Decision: {args.decision}")
         print(f"  Applicability: {args.applicability}, Category: {args.adjusted_category}")
         print(f"  Rationale: {args.rationale_type}, Confidence: {args.confidence}")
-        print(f"  Matches: {len(accepted_matches)} accepted, {len(rejected_matches)} rejected")
+        print(f"  Matches: {len(accepted_matches)} accepted ({paragraph_count} para, {section_count} sect), {len(rejected_matches)} rejected")
         print(f"  Searches: {len(search_tools_used)}")
+        if args.paragraph_level_waiver:
+            print(f"  Paragraph waiver: {args.paragraph_level_waiver[:50]}...")
         
         # Show other context status
         other_context = "safe_rust" if context == "all_rust" else "all_rust"

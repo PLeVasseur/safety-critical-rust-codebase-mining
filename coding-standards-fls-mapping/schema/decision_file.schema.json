@@ -2,14 +2,18 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "decision_file.schema.json",
   "title": "Verification Decision File",
-  "description": "Schema for individual guideline verification decision files. Supports v1.0, v1.1, v2.0, v2.1, v3.0, and v3.1 formats.",
+  "description": "Schema for individual guideline verification decision files. Supports v1.x, v2.x, v3.x, and v4.0 formats.",
   "oneOf": [
     { "$ref": "#/$defs/decision_file_v1" },
     { "$ref": "#/$defs/decision_file_v1_1" },
+    { "$ref": "#/$defs/decision_file_v1_2" },
     { "$ref": "#/$defs/decision_file_v2" },
     { "$ref": "#/$defs/decision_file_v2_1" },
+    { "$ref": "#/$defs/decision_file_v2_2" },
     { "$ref": "#/$defs/decision_file_v3" },
-    { "$ref": "#/$defs/decision_file_v3_1" }
+    { "$ref": "#/$defs/decision_file_v3_1" },
+    { "$ref": "#/$defs/decision_file_v3_2" },
+    { "$ref": "#/$defs/decision_file_v4" }
   ],
   "$defs": {
     "misra_add6_snapshot": {
@@ -672,6 +676,327 @@
           "type": "integer",
           "minimum": 0,
           "description": "Number of results returned"
+        }
+      }
+    },
+    "context_decision_complete_v4": {
+      "type": "object",
+      "description": "Complete verification decision with paragraph coverage fields (v4.0)",
+      "required": [
+        "decision",
+        "applicability",
+        "adjusted_category",
+        "rationale_type",
+        "confidence",
+        "analysis_summary",
+        "accepted_matches",
+        "rejected_matches",
+        "search_tools_used",
+        "paragraph_match_count",
+        "section_match_count"
+      ],
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": ["accept_with_modifications", "accept_no_matches", "accept_existing", "reject"],
+          "description": "The verification decision type"
+        },
+        "applicability": {
+          "type": "string",
+          "enum": ["yes", "no", "partial"],
+          "description": "Whether the MISRA guideline applies in this context (aligns with MISRA ADD-6)"
+        },
+        "adjusted_category": {
+          "type": "string",
+          "enum": ["required", "advisory", "recommended", "disapplied", "implicit", "n_a"],
+          "description": "MISRA's adjusted category for Rust"
+        },
+        "rationale_type": {
+          "type": "string",
+          "enum": ["direct_mapping", "partial_mapping", "rust_alternative", "rust_prevents", "no_equivalent"],
+          "description": "Type of relationship between the guideline and FLS"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Confidence level in the verification decision"
+        },
+        "analysis_summary": {
+          "$ref": "#/$defs/analysis_summary",
+          "description": "Context-specific MISRA concern and Rust analysis for audit trail"
+        },
+        "accepted_matches": {
+          "type": "array",
+          "description": "FLS sections accepted as matches for this context",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "rejected_matches": {
+          "type": "array",
+          "description": "FLS sections rejected for this context",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "search_tools_used": {
+          "type": "array",
+          "minItems": 4,
+          "description": "Search tools used during verification (at least 4 required per context)",
+          "items": { "$ref": "#/$defs/search_tool_usage" }
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "Context-specific notes about the decision"
+        },
+        "paragraph_match_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of paragraph-level matches (category != 0) in accepted_matches"
+        },
+        "section_match_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of section-level matches (category = 0) in accepted_matches"
+        },
+        "paragraph_level_waiver": {
+          "type": ["string", "null"],
+          "minLength": 50,
+          "description": "If paragraph_match_count = 0, explains why (min 50 chars). Null if has paragraphs."
+        },
+        "proposed_change": {
+          "type": "object",
+          "description": "Proposed change to a context field (requires human approval)",
+          "required": ["field", "current_value", "proposed_value", "rationale"],
+          "properties": {
+            "field": {
+              "type": "string",
+              "enum": ["applicability", "adjusted_category", "rationale_type"]
+            },
+            "current_value": { "type": "string" },
+            "proposed_value": { "type": "string" },
+            "rationale": { "type": "string" }
+          }
+        }
+      }
+    },
+    "decision_file_v1_2": {
+      "type": "object",
+      "description": "v1.2 format: v1.1 + paragraph coverage fields (migrated with waiver if needed)",
+      "required": [
+        "schema_version",
+        "guideline_id",
+        "misra_add6_snapshot",
+        "decision",
+        "confidence",
+        "fls_rationale_type",
+        "accepted_matches",
+        "rejected_matches",
+        "search_tools_used",
+        "recorded_at",
+        "paragraph_match_count",
+        "section_match_count"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "1.2",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "MISRA guideline ID (e.g., 'Rule 10.1', 'Dir 4.1')"
+        },
+        "misra_add6_snapshot": {
+          "$ref": "#/$defs/misra_add6_snapshot",
+          "description": "MISRA ADD-6 data captured at decision time"
+        },
+        "decision": {
+          "type": "string",
+          "enum": ["accept_with_modifications", "accept_no_matches", "accept_existing", "reject"],
+          "description": "The verification decision type"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Confidence level in the verification decision"
+        },
+        "fls_rationale_type": {
+          "type": "string",
+          "enum": ["direct_mapping", "rust_alternative", "rust_prevents", "no_equivalent", "partial_mapping"],
+          "description": "Type of relationship between the guideline and FLS"
+        },
+        "accepted_matches": {
+          "type": "array",
+          "description": "FLS sections accepted as matches",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "rejected_matches": {
+          "type": "array",
+          "description": "FLS sections rejected",
+          "items": { "$ref": "#/$defs/fls_match" }
+        },
+        "search_tools_used": {
+          "type": "array",
+          "description": "Search tools used during verification",
+          "items": { "$ref": "#/$defs/search_tool_usage" }
+        },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "Notes about the decision"
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when decision was recorded"
+        },
+        "paragraph_match_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of paragraph-level matches (category != 0)"
+        },
+        "section_match_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of section-level matches (category = 0)"
+        },
+        "paragraph_level_waiver": {
+          "type": ["string", "null"],
+          "description": "If no paragraph matches, explains why. Null if has paragraphs."
+        }
+      }
+    },
+    "decision_file_v2_2": {
+      "type": "object",
+      "description": "v2.2 format: v2.1 + paragraph coverage fields per context (migrated with waiver if needed)",
+      "required": [
+        "schema_version",
+        "guideline_id",
+        "misra_add6_snapshot",
+        "all_rust",
+        "safe_rust",
+        "recorded_at"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "2.2",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "MISRA guideline ID (e.g., 'Rule 10.1', 'Dir 4.1')"
+        },
+        "misra_add6_snapshot": {
+          "$ref": "#/$defs/misra_add6_snapshot",
+          "description": "MISRA ADD-6 data captured at decision time"
+        },
+        "all_rust": {
+          "oneOf": [
+            { "$ref": "#/$defs/context_decision_complete_v4" },
+            { "$ref": "#/$defs/context_decision_scaffolded" }
+          ],
+          "description": "Verification decision for ALL Rust code (including unsafe)"
+        },
+        "safe_rust": {
+          "oneOf": [
+            { "$ref": "#/$defs/context_decision_complete_v4" },
+            { "$ref": "#/$defs/context_decision_scaffolded" }
+          ],
+          "description": "Verification decision for SAFE Rust code only"
+        },
+        "recorded_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of last update (null if never recorded)"
+        }
+      }
+    },
+    "decision_file_v3_2": {
+      "type": "object",
+      "description": "v3.2 format: v3.1 + paragraph coverage fields per context (migrated with waiver if needed)",
+      "required": [
+        "schema_version",
+        "guideline_id",
+        "misra_add6_snapshot",
+        "all_rust",
+        "safe_rust",
+        "recorded_at"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "3.2",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "MISRA guideline ID (e.g., 'Rule 10.1', 'Dir 4.1')"
+        },
+        "misra_add6_snapshot": {
+          "$ref": "#/$defs/misra_add6_snapshot",
+          "description": "MISRA ADD-6 data captured at decision time"
+        },
+        "all_rust": {
+          "oneOf": [
+            { "$ref": "#/$defs/context_decision_complete_v4" },
+            { "$ref": "#/$defs/context_decision_scaffolded" }
+          ],
+          "description": "Verification decision for ALL Rust code (including unsafe)"
+        },
+        "safe_rust": {
+          "oneOf": [
+            { "$ref": "#/$defs/context_decision_complete_v4" },
+            { "$ref": "#/$defs/context_decision_scaffolded" }
+          ],
+          "description": "Verification decision for SAFE Rust code only"
+        },
+        "recorded_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of last update (null if never recorded)"
+        }
+      }
+    },
+    "decision_file_v4": {
+      "type": "object",
+      "description": "v4.0 format: Per-context with enforced paragraph-level requirements. Fresh verification must have paragraph matches or explicit waiver per context.",
+      "required": [
+        "schema_version",
+        "guideline_id",
+        "misra_add6_snapshot",
+        "all_rust",
+        "safe_rust",
+        "recorded_at"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "4.0",
+          "description": "Schema version identifier"
+        },
+        "guideline_id": {
+          "type": "string",
+          "description": "MISRA guideline ID (e.g., 'Rule 10.1', 'Dir 4.1')"
+        },
+        "misra_add6_snapshot": {
+          "$ref": "#/$defs/misra_add6_snapshot",
+          "description": "MISRA ADD-6 data captured at decision time"
+        },
+        "all_rust": {
+          "oneOf": [
+            { "$ref": "#/$defs/context_decision_complete_v4" },
+            { "$ref": "#/$defs/context_decision_scaffolded" }
+          ],
+          "description": "Verification decision for ALL Rust code. Must have paragraph_match_count > 0 OR paragraph_level_waiver."
+        },
+        "safe_rust": {
+          "oneOf": [
+            { "$ref": "#/$defs/context_decision_complete_v4" },
+            { "$ref": "#/$defs/context_decision_scaffolded" }
+          ],
+          "description": "Verification decision for SAFE Rust code. Must have paragraph_match_count > 0 OR paragraph_level_waiver."
+        },
+        "recorded_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of last update (null if never recorded)"
         }
       }
     }

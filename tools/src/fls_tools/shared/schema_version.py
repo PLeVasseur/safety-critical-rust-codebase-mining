@@ -7,21 +7,27 @@ in mapping files, batch reports, decision files, and progress files.
 Schema versions:
 - v1.0: Flat structure with shared applicability fields
 - v1.1: v1.0 + misra_add6 block (enriched via migration)
+- v1.2: v1.1 + paragraph coverage fields (migrated with waiver if needed)
 - v2.0: Per-context structure with independent all_rust and safe_rust sections
 - v2.1: v2.0 + misra_add6 block (enriched via migration)
+- v2.2: v2.1 + paragraph coverage fields per context (migrated with waiver if needed)
 - v3.0: Per-context + misra_add6, fresh verification (structurally same as v2.1)
 - v3.1: v3.0 + analysis_summary structured field (same per-context structure)
+- v3.2: v3.1 + paragraph coverage fields per context (migrated with waiver if needed)
+- v4.0: Per-context + misra_add6 + enforced paragraph coverage requirements
 
 Version semantics:
 - v1.1/v2.1 = Enriched legacy data (ADD-6 added via migration tool)
+- v1.2/v2.2/v3.2 = Grandfather versions (paragraph fields added via migration, waiver for legacy)
 - v3.x = Fresh verification decisions (created with full ADD-6 context)
+- v4.0 = Fresh verification with enforced paragraph-level requirements
 
-Note: is_v2_family() returns True for v2.x AND v3.x since both use per-context structure.
+Note: is_v2_family() returns True for v2.x, v3.x, and v4.0 since they use per-context structure.
 """
 
 from typing import Dict, Any, Literal, Optional
 
-SchemaVersion = Literal["1.0", "1.1", "2.0", "2.1", "3.0"]
+SchemaVersion = Literal["1.0", "1.1", "1.2", "2.0", "2.1", "2.2", "3.0", "3.1", "3.2", "4.0"]
 
 
 def detect_schema_version(data: Dict[str, Any]) -> SchemaVersion:
@@ -62,15 +68,15 @@ def is_v3(data: Dict[str, Any]) -> bool:
 
 
 def is_v1_family(data: Dict[str, Any]) -> bool:
-    """Check if data is v1 family (v1.0 or v1.1 - flat structure)."""
-    return detect_schema_version(data) in ("1.0", "1.1")
+    """Check if data is v1 family (v1.0, v1.1, v1.2 - flat structure)."""
+    return str(detect_schema_version(data)).startswith("1.")
 
 
 def is_v2_family(data: Dict[str, Any]) -> bool:
-    """Check if data is v2 family (v2.0, v2.1, or v3.x - per-context structure)."""
-    version = detect_schema_version(data)
-    # v2.0, v2.1, and any v3.x use per-context structure
-    return version in ("2.0", "2.1") or str(version).startswith("3.")
+    """Check if data is v2+ family (v2.x, v3.x, v4.x - per-context structure)."""
+    version = str(detect_schema_version(data))
+    # v2.x, v3.x, and v4.x use per-context structure
+    return version.startswith("2.") or version.startswith("3.") or version.startswith("4.")
 
 
 def has_add6_data(data: Dict[str, Any]) -> bool:
@@ -311,3 +317,333 @@ def check_add6_mismatch(
         )
     
     return mismatches
+
+
+# =============================================================================
+# v4.0 and vX.2 version detection
+# =============================================================================
+
+def is_v1_2(data: Dict[str, Any]) -> bool:
+    """Check if data is v1.2 format (v1.1 + paragraph fields, migrated with waiver)."""
+    return detect_schema_version(data) == "1.2"
+
+
+def is_v2_2(data: Dict[str, Any]) -> bool:
+    """Check if data is v2.2 format (v2.1 + paragraph fields, migrated with waiver)."""
+    return detect_schema_version(data) == "2.2"
+
+
+def is_v3_2(data: Dict[str, Any]) -> bool:
+    """Check if data is v3.2 format (v3.x + paragraph fields, migrated with waiver)."""
+    return detect_schema_version(data) == "3.2"
+
+
+def is_v4(data: Dict[str, Any]) -> bool:
+    """Check if data is v4.0 format (enforced paragraph requirements)."""
+    return detect_schema_version(data) == "4.0"
+
+
+def is_grandfather_version(data: Dict[str, Any]) -> bool:
+    """
+    Check if data is a grandfather version (v1.2, v2.2, v3.2).
+    
+    Grandfather versions have paragraph fields added via migration, with migration
+    waivers allowed for entries without paragraph-level matches.
+    """
+    version = detect_schema_version(data)
+    return version in ("1.2", "2.2", "3.2")
+
+
+def has_paragraph_coverage_fields(data: Dict[str, Any]) -> bool:
+    """
+    Check if entry has paragraph coverage fields.
+    
+    Returns True if the entry has paragraph_match_count field at the
+    appropriate level (entry-level for v1, context-level for v2+).
+    """
+    version = detect_schema_version(data)
+    
+    # v1.x uses entry-level fields
+    if version.startswith("1."):
+        return "paragraph_match_count" in data
+    
+    # v2+/v3+/v4.0 uses per-context fields
+    for ctx in ["all_rust", "safe_rust"]:
+        ctx_data = data.get(ctx, {})
+        if ctx_data and "paragraph_match_count" in ctx_data:
+            return True
+    
+    return False
+
+
+# =============================================================================
+# Paragraph counting utilities
+# =============================================================================
+
+def count_matches_by_category(matches: list[Dict[str, Any]]) -> tuple[int, int]:
+    """
+    Count paragraph-level and section-level matches.
+    
+    Args:
+        matches: List of FLS match objects with 'category' field
+    
+    Returns:
+        Tuple of (paragraph_count, section_count)
+        - paragraph_count: matches where category != 0
+        - section_count: matches where category == 0
+    """
+    paragraph_count = 0
+    section_count = 0
+    
+    for match in matches:
+        category = match.get("category", 0)
+        if category == 0:
+            section_count += 1
+        else:
+            paragraph_count += 1
+    
+    return paragraph_count, section_count
+
+
+def count_entry_matches(entry: Dict[str, Any]) -> tuple[int, int]:
+    """
+    Count paragraph and section matches for an entry.
+    
+    Handles both v1 (flat) and v2+ (per-context) structures.
+    For v2+, returns the sum across both contexts.
+    
+    Args:
+        entry: A mapping entry or decision file
+    
+    Returns:
+        Tuple of (paragraph_count, section_count)
+    """
+    version = detect_schema_version(entry)
+    
+    # v1.x uses flat structure
+    if version.startswith("1."):
+        matches = entry.get("accepted_matches", [])
+        return count_matches_by_category(matches)
+    
+    # v2+/v3+/v4.0 uses per-context structure
+    total_para = 0
+    total_section = 0
+    
+    for ctx in ["all_rust", "safe_rust"]:
+        ctx_data = entry.get(ctx, {})
+        if ctx_data:
+            matches = ctx_data.get("accepted_matches", [])
+            para, section = count_matches_by_category(matches)
+            total_para += para
+            total_section += section
+    
+    return total_para, total_section
+
+
+def count_context_matches(ctx_data: Dict[str, Any]) -> tuple[int, int]:
+    """
+    Count paragraph and section matches for a single context.
+    
+    Args:
+        ctx_data: Context data (all_rust or safe_rust) from an entry
+    
+    Returns:
+        Tuple of (paragraph_count, section_count)
+    """
+    matches = ctx_data.get("accepted_matches", [])
+    return count_matches_by_category(matches)
+
+
+# =============================================================================
+# Paragraph coverage validation
+# =============================================================================
+
+MIGRATION_WAIVER_PREFIX = "Migrated from"
+MIN_WAIVER_LENGTH = 50
+
+
+def is_migration_waiver(waiver: Optional[str]) -> bool:
+    """Check if a waiver is a migration waiver (starts with 'Migrated from')."""
+    if waiver is None:
+        return False
+    return waiver.startswith(MIGRATION_WAIVER_PREFIX)
+
+
+def validate_paragraph_coverage_v1(
+    entry: Dict[str, Any],
+    strict: bool = False,
+) -> list[str]:
+    """
+    Validate paragraph coverage for a v1.x entry.
+    
+    Args:
+        entry: A v1.x mapping entry
+        strict: If True, enforce 50-char minimum for non-migration waivers
+    
+    Returns:
+        List of validation errors (empty if valid)
+    """
+    errors = []
+    version = detect_schema_version(entry)
+    
+    if not version.startswith("1."):
+        return ["Not a v1.x entry"]
+    
+    matches = entry.get("accepted_matches", [])
+    para_count, section_count = count_matches_by_category(matches)
+    waiver = entry.get("paragraph_level_waiver")
+    
+    # Check actual counts match stored counts (if present)
+    stored_para = entry.get("paragraph_match_count")
+    stored_section = entry.get("section_match_count")
+    
+    if stored_para is not None and stored_para != para_count:
+        errors.append(
+            f"paragraph_match_count mismatch: stored={stored_para}, actual={para_count}"
+        )
+    if stored_section is not None and stored_section != section_count:
+        errors.append(
+            f"section_match_count mismatch: stored={stored_section}, actual={section_count}"
+        )
+    
+    # v1.2 and v4.0 require paragraph coverage
+    if version in ("1.2", "4.0"):
+        if para_count == 0 and not waiver:
+            errors.append(
+                f"No paragraph-level matches (has {section_count} section matches). "
+                "Requires paragraph_level_waiver with justification."
+            )
+        elif waiver and strict and not is_migration_waiver(waiver):
+            if len(waiver) < MIN_WAIVER_LENGTH:
+                errors.append(
+                    f"paragraph_level_waiver too short ({len(waiver)} chars, min {MIN_WAIVER_LENGTH})"
+                )
+    
+    return errors
+
+
+def validate_paragraph_coverage_context(
+    ctx_name: str,
+    ctx_data: Dict[str, Any],
+    schema_version: str,
+    strict: bool = False,
+) -> list[str]:
+    """
+    Validate paragraph coverage for a single context.
+    
+    Args:
+        ctx_name: Context name ('all_rust' or 'safe_rust')
+        ctx_data: Context data from an entry
+        schema_version: The entry's schema version
+        strict: If True, enforce 50-char minimum for non-migration waivers
+    
+    Returns:
+        List of validation errors (empty if valid)
+    """
+    errors = []
+    
+    if not ctx_data:
+        return errors  # Empty/null context is allowed (scaffolded)
+    
+    # Check if context is scaffolded (decision is null)
+    if ctx_data.get("decision") is None:
+        return errors  # Scaffolded context, no validation needed
+    
+    matches = ctx_data.get("accepted_matches", [])
+    para_count, section_count = count_matches_by_category(matches)
+    waiver = ctx_data.get("paragraph_level_waiver")
+    
+    # Check actual counts match stored counts (if present)
+    stored_para = ctx_data.get("paragraph_match_count")
+    stored_section = ctx_data.get("section_match_count")
+    
+    if stored_para is not None and stored_para != para_count:
+        errors.append(
+            f"{ctx_name}: paragraph_match_count mismatch: stored={stored_para}, actual={para_count}"
+        )
+    if stored_section is not None and stored_section != section_count:
+        errors.append(
+            f"{ctx_name}: section_match_count mismatch: stored={stored_section}, actual={section_count}"
+        )
+    
+    # v2.2, v3.2, and v4.0 require paragraph coverage
+    if schema_version in ("2.2", "3.2", "4.0"):
+        if para_count == 0 and not waiver:
+            errors.append(
+                f"{ctx_name}: No paragraph-level matches (has {section_count} section matches). "
+                "Requires paragraph_level_waiver with justification."
+            )
+        elif waiver and strict and not is_migration_waiver(waiver):
+            if len(waiver) < MIN_WAIVER_LENGTH:
+                errors.append(
+                    f"{ctx_name}: paragraph_level_waiver too short ({len(waiver)} chars, min {MIN_WAIVER_LENGTH})"
+                )
+    
+    return errors
+
+
+def validate_paragraph_coverage(
+    entry: Dict[str, Any],
+    strict: bool = False,
+) -> list[str]:
+    """
+    Validate paragraph coverage for a mapping entry.
+    
+    Handles both v1.x (flat) and v2+/v3+/v4.0 (per-context) structures.
+    
+    Args:
+        entry: A mapping entry
+        strict: If True, enforce 50-char minimum for non-migration waivers
+    
+    Returns:
+        List of validation errors (empty if valid)
+    """
+    version = detect_schema_version(entry)
+    
+    # v1.x uses flat structure
+    if version.startswith("1."):
+        return validate_paragraph_coverage_v1(entry, strict)
+    
+    # v2+/v3+/v4.0 uses per-context structure
+    errors = []
+    
+    for ctx_name in ["all_rust", "safe_rust"]:
+        ctx_data = entry.get(ctx_name, {})
+        ctx_errors = validate_paragraph_coverage_context(
+            ctx_name, ctx_data, version, strict
+        )
+        errors.extend(ctx_errors)
+    
+    return errors
+
+
+def build_migration_waiver(
+    from_version: str,
+    date: str,
+    paragraph_count: int,
+    section_count: int,
+) -> str:
+    """
+    Build a migration waiver string.
+    
+    Args:
+        from_version: Original schema version (e.g., "2.1")
+        date: Migration date in YYYY-MM-DD format
+        paragraph_count: Number of paragraph-level matches
+        section_count: Number of section-level matches
+    
+    Returns:
+        Migration waiver string
+    """
+    if paragraph_count == 0 and section_count == 0:
+        status = "requires re-verification"
+    elif paragraph_count == 0:
+        status = "requires re-verification for paragraph coverage"
+    else:
+        status = "OK"
+    
+    return (
+        f"Migrated from v{from_version} on {date} - "
+        f"has {paragraph_count} paragraph matches, {section_count} section matches - "
+        f"{status}"
+    )

@@ -48,7 +48,7 @@ def is_context_verified_in_decision(decision: dict, context: str) -> bool:
     if not decision:
         return False
     
-    # v2 family (v2.0, v2.1, v3.0) has per-context structure
+    # v2+ family (v2.x, v3.x, v4.x) has per-context structure
     if is_v2_family(decision):
         ctx_data = decision.get(context, {})
         return ctx_data.get("decision") is not None
@@ -59,7 +59,7 @@ def is_context_verified_in_decision(decision: dict, context: str) -> bool:
 
 def is_context_verified_in_mapping(entry: dict, context: str) -> bool:
     """Check if a context is verified in a mapping file entry."""
-    # v2 family (v2.0, v2.1, v3.0) has per-context structure
+    # v2+ family (v2.x, v3.x, v4.x) has per-context structure
     if is_v2_family(entry):
         ctx_data = entry.get(context, {})
         return ctx_data.get("verified", False)
@@ -81,7 +81,7 @@ def find_batch_reports(cache_dir: Path) -> list[dict]:
                 version = data.get("schema_version", "1.0")
                 total = len(data.get("guidelines", []))
                 
-                # v2 family (v2.0, v2.1, v3.0) has per-context structure
+                # v2+ family (v2.x, v3.x, v4.x) has per-context structure
                 if is_v2_family(data):
                     # Count per-context verification
                     all_rust_verified = 0
@@ -199,7 +199,7 @@ def analyze_decisions_directory_v2(
         if is_valid and guideline_id and data:
             valid_count += 1
             
-            # v2 family (v2.0, v2.1, v3.0) has per-context structure
+            # v2+ family (v2.x, v3.x, v4.x) has per-context structure
             if is_v2_family(data):
                 ar = data.get("all_rust", {})
                 sr = data.get("safe_rust", {})
@@ -288,7 +288,7 @@ def get_progress_from_mapping(root: Path, standard: str) -> dict:
     for entry in data.get("mappings", []):
         total += 1
         
-        # v2 family (v2.0, v2.1, v3.0) has per-context structure
+        # v2+ family (v2.x, v3.x, v4.x) has per-context structure
         if is_v2_family(entry):
             v2_count += 1
             ar_verified = entry.get("all_rust", {}).get("verified", False)
@@ -482,7 +482,7 @@ def main():
             print(f"  Session: {latest['session_id']}")
             print(f"  Schema: {latest.get('schema_version', '1.0')}")
             
-            # v2 family (v2.0, v2.1, v3.0) has per-context tracking
+            # v2+ family (v2.x, v3.x, v4.x) has per-context tracking
             if latest.get("schema_version") in ("2.0", "2.1", "3.0"):
                 ar = latest.get("all_rust_verified", 0)
                 sr = latest.get("safe_rust_verified", 0)

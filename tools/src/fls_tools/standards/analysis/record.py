@@ -5,16 +5,22 @@ record-outlier-analysis - Record LLM analysis for flagged guidelines.
 This tool records LLM analysis with full context for flagged guidelines,
 including the full comparison data, rich FLS content, and per-aspect verdicts.
 
+The tool enforces per-context acknowledgment of all flagged changes and divergences
+to prevent lazy analysis that skips over important items.
+
 Usage:
-    uv run record-outlier-analysis --standard misra-c --guideline "Rule 10.1" --batch 2 \\
-        --analysis-summary "MISRA Rule 10.1 addresses essential type model..." \\
-        --categorization-verdict appropriate \\
-        --categorization-reasoning "The change is appropriate because..." \\
-        --fls-removals-verdict appropriate \\
-        --fls-removals-reasoning "Removed sections were over-matched..." \\
-        --fls-removal-detail "fls_def456:Too generic for this concern" \\
+    uv run record-outlier-analysis --standard misra-c --guideline "Dir 4.3" --batch 1 \\
+        --analysis-summary "MISRA Dir 4.3 requires assembly encapsulation..." \\
+        --categorization-verdict-all-rust appropriate \\
+        --categorization-reasoning-all-rust "applicability=yes correct - asm! encapsulates" \\
+        --categorization-verdict-safe-rust appropriate \\
+        --categorization-reasoning-safe-rust "applicability=no correct - requires unsafe" \\
+        --cat-ack-diverge-applicability-safe-rust "ADD-6 says Yes but asm! requires unsafe per FLS fls_s5nfhBFOk8Bu" \\
+        --fls-removals-verdict inappropriate \\
+        --fls-removals-reasoning "Removed paragraphs are directly relevant legality rules" \\
+        --fls-removal-detail "fls_3fg60jblx0xb:all_rust:KEEP - directly relevant legality rule" \\
         --add6-divergence-verdict justified \\
-        --add6-divergence-reasoning "ADD-6 says Yes but Rust has no essential type model..." \\
+        --add6-divergence-reasoning "safe_rust cannot use asm!, divergence is correct" \\
         --overall-recommendation accept
 """
 
@@ -35,6 +41,11 @@ from .shared import (
     get_active_flags,
     save_json_file,
 )
+
+
+# Minimum lengths for validation
+MIN_ACK_LENGTH = 20  # For acknowledgment fields
+MIN_FLS_DETAIL_LENGTH = 50  # For per-FLS-ID justifications (must quote FLS)
 
 
 def parse_fls_detail(detail_str: str) -> tuple[str, str, str]:
@@ -64,14 +75,186 @@ def parse_fls_detail(detail_str: str) -> tuple[str, str, str]:
     return fls_id, context, justification
 
 
+def validate_fls_detail_justification(fls_id: str, justification: str, detail_type: str) -> list[str]:
+    """
+    Validate FLS detail justification meets quality requirements.
+    
+    Requirements:
+    - Minimum 50 characters
+    - Must reference FLS content (contains 'FLS', quotes, or fls_id patterns)
+    
+    Args:
+        fls_id: The FLS ID being justified
+        justification: The justification text
+        detail_type: 'removal' or 'addition' for error messages
+    
+    Returns:
+        List of validation error messages (empty if valid)
+    """
+    errors = []
+    
+    # Check minimum length
+    if len(justification) < MIN_FLS_DETAIL_LENGTH:
+        errors.append(
+            f"--fls-{detail_type}-detail for {fls_id}: justification too short "
+            f"(min {MIN_FLS_DETAIL_LENGTH} chars, got {len(justification)}). "
+            f"Must include FLS quote or specific reference."
+        )
+    
+    # Check for FLS reference indicators
+    has_fls_reference = (
+        "FLS" in justification or
+        "fls_" in justification.lower() or
+        '"' in justification or
+        "'" in justification or
+        "Per FLS" in justification or
+        "states" in justification.lower()
+    )
+    
+    if not has_fls_reference:
+        errors.append(
+            f"--fls-{detail_type}-detail for {fls_id}: justification must reference FLS content. "
+            f"Include a quote (using quotes), 'FLS', 'fls_id', or 'Per FLS: ...' pattern."
+        )
+    
+    return errors
+
+
+def get_diverging_contexts(comparison: dict, add6: dict) -> list[str]:
+    """
+    Return list of contexts that diverge from ADD-6.
+    
+    Checks both applicability and adjusted_category divergence per context.
+    """
+    diverging = []
+    for ctx in ["all_rust", "safe_rust"]:
+        ctx_comp = comparison.get(ctx, {})
+        if ctx_comp.get("applicability_differs_from_add6"):
+            add6_key = f"applicability_{ctx}"
+            add6_val = add6.get(add6_key, "N/A")
+            diverging.append(f"{ctx} (applicability differs from ADD-6={add6_val})")
+        if ctx_comp.get("adjusted_category_differs_from_add6"):
+            add6_val = add6.get("adjusted_category", "N/A")
+            diverging.append(f"{ctx} (adjusted_category differs from ADD-6={add6_val})")
+    return diverging
+
+
+def build_categorization_per_context(
+    ctx: str,
+    comparison_data: dict,
+    verdict: str | None,
+    reasoning: str | None,
+    ack_change_applicability: str | None,
+    ack_change_rationale: str | None,
+    ack_change_category: str | None,
+    ack_diverge_applicability: str | None,
+    ack_diverge_category: str | None,
+) -> dict:
+    """
+    Build the per-context categorization structure with actual values and acknowledgments.
+    
+    Returns a dict with:
+    - actual_values: current decision values
+    - changes_from_mapping: detected changes (with from/to values) or null
+    - diverges_from_add6: detected divergences (with decision/add6 values) or null
+    - verdict: LLM verdict
+    - reasoning: LLM reasoning
+    - change_acknowledgments: explicit acknowledgments of changes
+    - divergence_acknowledgments: explicit acknowledgments of divergences
+    """
+    comparison = comparison_data.get("comparison", {}).get(ctx, {})
+    decision = comparison_data.get("decision", {}).get(ctx, {})
+    mapping = comparison_data.get("mapping", {}).get(ctx, {})
+    add6 = comparison_data.get("add6", {})
+    
+    # Build actual values from decision
+    actual_values = {
+        "applicability": decision.get("applicability"),
+        "rationale_type": decision.get("rationale_type"),
+        "adjusted_category": decision.get("adjusted_category"),
+    }
+    
+    # Build changes_from_mapping (only for fields that changed)
+    changes_from_mapping = {}
+    if comparison.get("applicability_changed"):
+        changes_from_mapping["applicability"] = {
+            "from": mapping.get("applicability"),
+            "to": decision.get("applicability"),
+        }
+    if comparison.get("rationale_type_changed"):
+        changes_from_mapping["rationale_type"] = {
+            "from": mapping.get("rationale_type"),
+            "to": decision.get("rationale_type"),
+        }
+    if comparison.get("adjusted_category_changed"):
+        changes_from_mapping["adjusted_category"] = {
+            "from": mapping.get("adjusted_category"),
+            "to": decision.get("adjusted_category"),
+        }
+    
+    # Build diverges_from_add6 (only for fields that diverge)
+    diverges_from_add6 = {}
+    add6_app_key = f"applicability_{ctx}"
+    if comparison.get("applicability_differs_from_add6"):
+        diverges_from_add6["applicability"] = {
+            "decision": decision.get("applicability"),
+            "add6": add6.get(add6_app_key),
+        }
+    if comparison.get("adjusted_category_differs_from_add6"):
+        diverges_from_add6["adjusted_category"] = {
+            "decision": decision.get("adjusted_category"),
+            "add6": add6.get("adjusted_category"),
+        }
+    
+    # Build acknowledgments (only include those provided)
+    change_acknowledgments = {}
+    if ack_change_applicability:
+        change_acknowledgments["applicability"] = ack_change_applicability
+    if ack_change_rationale:
+        change_acknowledgments["rationale_type"] = ack_change_rationale
+    if ack_change_category:
+        change_acknowledgments["adjusted_category"] = ack_change_category
+    
+    divergence_acknowledgments = {}
+    if ack_diverge_applicability:
+        divergence_acknowledgments["applicability"] = ack_diverge_applicability
+    if ack_diverge_category:
+        divergence_acknowledgments["adjusted_category"] = ack_diverge_category
+    
+    return {
+        "actual_values": actual_values,
+        "changes_from_mapping": changes_from_mapping if changes_from_mapping else None,
+        "diverges_from_add6": diverges_from_add6 if diverges_from_add6 else None,
+        "verdict": verdict,
+        "reasoning": reasoning,
+        "change_acknowledgments": change_acknowledgments if change_acknowledgments else None,
+        "divergence_acknowledgments": divergence_acknowledgments if divergence_acknowledgments else None,
+    }
+
+
 def create_outlier_analysis(
     guideline_id: str,
     batch: int,
     comparison_data: dict,
     analysis_summary: str,
     overall_recommendation: str,
-    categorization_verdict: str | None,
-    categorization_reasoning: str | None,
+    categorization_verdict_all_rust: str | None,
+    categorization_reasoning_all_rust: str | None,
+    categorization_verdict_safe_rust: str | None,
+    categorization_reasoning_safe_rust: str | None,
+    # Change acknowledgments (mapping -> decision)
+    ack_change_applicability_all_rust: str | None,
+    ack_change_applicability_safe_rust: str | None,
+    ack_change_rationale_all_rust: str | None,
+    ack_change_rationale_safe_rust: str | None,
+    ack_change_category_all_rust: str | None,
+    ack_change_category_safe_rust: str | None,
+    # Divergence acknowledgments (decision -> ADD-6)
+    ack_diverge_applicability_all_rust: str | None,
+    ack_diverge_applicability_safe_rust: str | None,
+    ack_diverge_category_all_rust: str | None,
+    ack_diverge_category_safe_rust: str | None,
+    # FLS changes
     fls_removals_verdict: str | None,
     fls_removals_reasoning: str | None,
     fls_removal_details: list[tuple[str, str, str]],  # (fls_id, context, justification)
@@ -84,6 +267,7 @@ def create_outlier_analysis(
     specificity_reasoning: str | None,
     routine_pattern: str | None,
     notes: str | None,
+    general_recommendation: str | None,
     root: Path | None = None,
 ) -> dict:
     """
@@ -107,6 +291,35 @@ def create_outlier_analysis(
     enriched_mapping_sr = []
     for match in comparison_data["mapping"]["safe_rust"].get("accepted_matches", []):
         enriched_mapping_sr.append(enrich_match_with_fls_content(match, root))
+    
+    # Extract context metadata (applicability, rationale_type, adjusted_category per context)
+    # This data is needed for per-context categorization review
+    context_metadata = {
+        "decision": {
+            "all_rust": {
+                "applicability": comparison_data["decision"]["all_rust"].get("applicability"),
+                "rationale_type": comparison_data["decision"]["all_rust"].get("rationale_type"),
+                "adjusted_category": comparison_data["decision"]["all_rust"].get("adjusted_category"),
+            },
+            "safe_rust": {
+                "applicability": comparison_data["decision"]["safe_rust"].get("applicability"),
+                "rationale_type": comparison_data["decision"]["safe_rust"].get("rationale_type"),
+                "adjusted_category": comparison_data["decision"]["safe_rust"].get("adjusted_category"),
+            },
+        },
+        "mapping": {
+            "all_rust": {
+                "applicability": comparison_data["mapping"]["all_rust"].get("applicability"),
+                "rationale_type": comparison_data["mapping"]["all_rust"].get("rationale_type"),
+                "adjusted_category": comparison_data["mapping"]["all_rust"].get("adjusted_category"),
+            },
+            "safe_rust": {
+                "applicability": comparison_data["mapping"]["safe_rust"].get("applicability"),
+                "rationale_type": comparison_data["mapping"]["safe_rust"].get("rationale_type"),
+                "adjusted_category": comparison_data["mapping"]["safe_rust"].get("adjusted_category"),
+            },
+        },
+    }
     
     # Build per-ID structures for removals
     # Structure: {fls_id: {title, category, contexts: [...], original_reason, removal_decisions: {ctx: justification}}}
@@ -192,6 +405,31 @@ def create_outlier_analysis(
     flags = comparison_data.get("flags", {})
     active_flags = get_active_flags(flags)
     
+    # Build per-context categorization with acknowledgments
+    categorization_all_rust = build_categorization_per_context(
+        "all_rust",
+        comparison_data,
+        categorization_verdict_all_rust,
+        categorization_reasoning_all_rust,
+        ack_change_applicability_all_rust,
+        ack_change_rationale_all_rust,
+        ack_change_category_all_rust,
+        ack_diverge_applicability_all_rust,
+        ack_diverge_category_all_rust,
+    ) if categorization_verdict_all_rust else None
+    
+    categorization_safe_rust = build_categorization_per_context(
+        "safe_rust",
+        comparison_data,
+        categorization_verdict_safe_rust,
+        categorization_reasoning_safe_rust,
+        ack_change_applicability_safe_rust,
+        ack_change_rationale_safe_rust,
+        ack_change_category_safe_rust,
+        ack_diverge_applicability_safe_rust,
+        ack_diverge_category_safe_rust,
+    ) if categorization_verdict_safe_rust else None
+    
     return {
         "guideline_id": guideline_id,
         "batch": batch,
@@ -207,6 +445,10 @@ def create_outlier_analysis(
         
         # Comparison details
         "comparison": comparison,
+        
+        # Context metadata (applicability, rationale_type, adjusted_category per context)
+        # Used for per-context categorization review
+        "context_metadata": context_metadata,
         
         # Enriched FLS content
         "enriched_matches": {
@@ -227,9 +469,9 @@ def create_outlier_analysis(
             "analyzed_at": datetime.utcnow().isoformat() + "Z",
             
             "categorization": {
-                "verdict": categorization_verdict,
-                "reasoning": categorization_reasoning,
-            } if categorization_verdict else None,
+                "all_rust": categorization_all_rust,
+                "safe_rust": categorization_safe_rust,
+            } if (categorization_all_rust or categorization_safe_rust) else None,
             
             "fls_removals": {
                 "verdict": fls_removals_verdict,
@@ -257,6 +499,7 @@ def create_outlier_analysis(
             
             "routine_pattern": routine_pattern,
             "notes": notes,
+            "general_recommendation": general_recommendation,
         },
         
         # Human review section (populated by review-outliers)
@@ -299,15 +542,70 @@ def main():
         help="Overall recommendation for the decision",
     )
     
-    # Categorization verdict
+    # Categorization verdict (per-context)
     parser.add_argument(
-        "--categorization-verdict",
-        choices=["appropriate", "inappropriate", "needs_review"],
-        help="Verdict on categorization changes (applicability, category, rationale type)",
+        "--categorization-verdict-all-rust",
+        choices=["appropriate", "inappropriate", "needs_review", "n_a"],
+        help="Verdict on all_rust categorization (applicability, category, rationale type)",
     )
     parser.add_argument(
-        "--categorization-reasoning",
-        help="Reasoning for categorization verdict",
+        "--categorization-reasoning-all-rust",
+        help="Reasoning for all_rust categorization verdict",
+    )
+    parser.add_argument(
+        "--categorization-verdict-safe-rust",
+        choices=["appropriate", "inappropriate", "needs_review", "n_a"],
+        help="Verdict on safe_rust categorization (applicability, category, rationale type)",
+    )
+    parser.add_argument(
+        "--categorization-reasoning-safe-rust",
+        help="Reasoning for safe_rust categorization verdict",
+    )
+    
+    # Change acknowledgments (mapping -> decision)
+    # Required when the corresponding change flag is set in comparison data
+    parser.add_argument(
+        "--cat-ack-change-applicability-all-rust",
+        help="Acknowledge applicability change for all_rust (required if changed)",
+    )
+    parser.add_argument(
+        "--cat-ack-change-applicability-safe-rust",
+        help="Acknowledge applicability change for safe_rust (required if changed)",
+    )
+    parser.add_argument(
+        "--cat-ack-change-rationale-all-rust",
+        help="Acknowledge rationale_type change for all_rust (required if changed)",
+    )
+    parser.add_argument(
+        "--cat-ack-change-rationale-safe-rust",
+        help="Acknowledge rationale_type change for safe_rust (required if changed)",
+    )
+    parser.add_argument(
+        "--cat-ack-change-category-all-rust",
+        help="Acknowledge adjusted_category change for all_rust (required if changed)",
+    )
+    parser.add_argument(
+        "--cat-ack-change-category-safe-rust",
+        help="Acknowledge adjusted_category change for safe_rust (required if changed)",
+    )
+    
+    # Divergence acknowledgments (decision -> ADD-6)
+    # Required when the corresponding divergence flag is set in comparison data
+    parser.add_argument(
+        "--cat-ack-diverge-applicability-all-rust",
+        help="Acknowledge applicability diverges from ADD-6 for all_rust (required if diverges)",
+    )
+    parser.add_argument(
+        "--cat-ack-diverge-applicability-safe-rust",
+        help="Acknowledge applicability diverges from ADD-6 for safe_rust (required if diverges)",
+    )
+    parser.add_argument(
+        "--cat-ack-diverge-category-all-rust",
+        help="Acknowledge adjusted_category diverges from ADD-6 for all_rust (required if diverges)",
+    )
+    parser.add_argument(
+        "--cat-ack-diverge-category-safe-rust",
+        help="Acknowledge adjusted_category diverges from ADD-6 for safe_rust (required if diverges)",
     )
     
     # FLS removals verdict
@@ -378,6 +676,10 @@ def main():
         help="Additional notes",
     )
     parser.add_argument(
+        "--general-recommendation",
+        help="General recommendation applicable to similar guidelines (if any)",
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help="Overwrite existing analysis",
@@ -424,14 +726,30 @@ def main():
             print(f"ERROR: {e}", file=sys.stderr)
             sys.exit(1)
     
+    # Validate FLS detail justifications (min length, must quote FLS)
+    fls_detail_errors = []
+    for fls_id, context, justification in fls_removal_details:
+        fls_detail_errors.extend(validate_fls_detail_justification(fls_id, justification, "removal"))
+    for fls_id, context, justification in fls_addition_details:
+        fls_detail_errors.extend(validate_fls_detail_justification(fls_id, justification, "addition"))
+    
+    if fls_detail_errors:
+        print(f"ERROR: FLS detail justification validation failed:", file=sys.stderr)
+        for err in fls_detail_errors:
+            print(f"  - {err}", file=sys.stderr)
+        sys.exit(1)
+    
     # Validate conditional requirements based on flags
     flags = comparison_data.get("flags", {})
     comparison = comparison_data.get("comparison", {})
     validation_errors = []
     
-    # Categorization verdict required if rationale_type_changed or batch_pattern_outlier
-    if (flags.get("rationale_type_changed") or flags.get("batch_pattern_outlier")) and not args.categorization_verdict:
-        validation_errors.append("Missing --categorization-verdict (required: rationale_type_changed or batch_pattern_outlier flag set)")
+    # Categorization verdict required if rationale_type_changed or batch_pattern_outlier (per-context)
+    if flags.get("rationale_type_changed") or flags.get("batch_pattern_outlier"):
+        if not args.categorization_verdict_all_rust:
+            validation_errors.append("Missing --categorization-verdict-all-rust (required: rationale_type_changed or batch_pattern_outlier flag set)")
+        if not args.categorization_verdict_safe_rust:
+            validation_errors.append("Missing --categorization-verdict-safe-rust (required: rationale_type_changed or batch_pattern_outlier flag set)")
     
     # FLS removals verdict required if fls_removed
     if flags.get("fls_removed") and not args.fls_removals_verdict:
@@ -441,13 +759,97 @@ def main():
     if flags.get("fls_added") and not args.fls_additions_verdict:
         validation_errors.append("Missing --fls-additions-verdict (required: fls_added flag set)")
     
-    # ADD-6 divergence verdict required if divergence flags
-    if (flags.get("applicability_differs_from_add6") or flags.get("adjusted_category_differs_from_add6")) and not args.add6_divergence_verdict:
-        validation_errors.append("Missing --add6-divergence-verdict (required: ADD-6 divergence flag set)")
+    # ADD-6 divergence verdict required if divergence flags, and n_a is not valid
+    has_add6_divergence = flags.get("applicability_differs_from_add6") or flags.get("adjusted_category_differs_from_add6")
+    if has_add6_divergence:
+        if not args.add6_divergence_verdict:
+            validation_errors.append("Missing --add6-divergence-verdict (required: ADD-6 divergence flag set)")
+        elif args.add6_divergence_verdict == "n_a":
+            diverging = get_diverging_contexts(comparison, comparison_data.get("add6", {}))
+            validation_errors.append(
+                f"Cannot use 'n_a' for --add6-divergence-verdict when divergence flag is set. "
+                f"Use 'justified', 'questionable', or 'incorrect'. "
+                f"Diverging contexts: {', '.join(diverging)}"
+            )
     
     # Specificity verdict required if specificity_decreased flag
     if flags.get("specificity_decreased") and not args.specificity_verdict:
         validation_errors.append("Missing --specificity-verdict (required: specificity_decreased flag set)")
+    
+    # Validate per-context change acknowledgments
+    for ctx in ["all_rust", "safe_rust"]:
+        ctx_comp = comparison.get(ctx, {})
+        ctx_flag = ctx.replace("_", "-")  # for CLI flag names
+        
+        # Applicability change acknowledgment
+        if ctx_comp.get("applicability_changed"):
+            ack_val = getattr(args, f"cat_ack_change_applicability_{ctx}")
+            if not ack_val:
+                validation_errors.append(
+                    f"Missing --cat-ack-change-applicability-{ctx_flag} "
+                    f"(required: comparison.{ctx}.applicability_changed is true)"
+                )
+            elif len(ack_val) < MIN_ACK_LENGTH:
+                validation_errors.append(
+                    f"--cat-ack-change-applicability-{ctx_flag} too short "
+                    f"(min {MIN_ACK_LENGTH} chars, got {len(ack_val)})"
+                )
+        
+        # Rationale type change acknowledgment
+        if ctx_comp.get("rationale_type_changed"):
+            ack_val = getattr(args, f"cat_ack_change_rationale_{ctx}")
+            if not ack_val:
+                validation_errors.append(
+                    f"Missing --cat-ack-change-rationale-{ctx_flag} "
+                    f"(required: comparison.{ctx}.rationale_type_changed is true)"
+                )
+            elif len(ack_val) < MIN_ACK_LENGTH:
+                validation_errors.append(
+                    f"--cat-ack-change-rationale-{ctx_flag} too short "
+                    f"(min {MIN_ACK_LENGTH} chars, got {len(ack_val)})"
+                )
+        
+        # Adjusted category change acknowledgment
+        if ctx_comp.get("adjusted_category_changed"):
+            ack_val = getattr(args, f"cat_ack_change_category_{ctx}")
+            if not ack_val:
+                validation_errors.append(
+                    f"Missing --cat-ack-change-category-{ctx_flag} "
+                    f"(required: comparison.{ctx}.adjusted_category_changed is true)"
+                )
+            elif len(ack_val) < MIN_ACK_LENGTH:
+                validation_errors.append(
+                    f"--cat-ack-change-category-{ctx_flag} too short "
+                    f"(min {MIN_ACK_LENGTH} chars, got {len(ack_val)})"
+                )
+        
+        # Applicability divergence acknowledgment
+        if ctx_comp.get("applicability_differs_from_add6"):
+            ack_val = getattr(args, f"cat_ack_diverge_applicability_{ctx}")
+            if not ack_val:
+                validation_errors.append(
+                    f"Missing --cat-ack-diverge-applicability-{ctx_flag} "
+                    f"(required: comparison.{ctx}.applicability_differs_from_add6 is true)"
+                )
+            elif len(ack_val) < MIN_ACK_LENGTH:
+                validation_errors.append(
+                    f"--cat-ack-diverge-applicability-{ctx_flag} too short "
+                    f"(min {MIN_ACK_LENGTH} chars, got {len(ack_val)})"
+                )
+        
+        # Adjusted category divergence acknowledgment
+        if ctx_comp.get("adjusted_category_differs_from_add6"):
+            ack_val = getattr(args, f"cat_ack_diverge_category_{ctx}")
+            if not ack_val:
+                validation_errors.append(
+                    f"Missing --cat-ack-diverge-category-{ctx_flag} "
+                    f"(required: comparison.{ctx}.adjusted_category_differs_from_add6 is true)"
+                )
+            elif len(ack_val) < MIN_ACK_LENGTH:
+                validation_errors.append(
+                    f"--cat-ack-diverge-category-{ctx_flag} too short "
+                    f"(min {MIN_ACK_LENGTH} chars, got {len(ack_val)})"
+                )
     
     # Validate per-ID coverage for removals
     all_removed_ids = set()
@@ -487,8 +889,23 @@ def main():
         comparison_data,
         args.analysis_summary,
         args.overall_recommendation,
-        args.categorization_verdict,
-        args.categorization_reasoning,
+        args.categorization_verdict_all_rust,
+        args.categorization_reasoning_all_rust,
+        args.categorization_verdict_safe_rust,
+        args.categorization_reasoning_safe_rust,
+        # Change acknowledgments
+        args.cat_ack_change_applicability_all_rust,
+        args.cat_ack_change_applicability_safe_rust,
+        args.cat_ack_change_rationale_all_rust,
+        args.cat_ack_change_rationale_safe_rust,
+        args.cat_ack_change_category_all_rust,
+        args.cat_ack_change_category_safe_rust,
+        # Divergence acknowledgments
+        args.cat_ack_diverge_applicability_all_rust,
+        args.cat_ack_diverge_applicability_safe_rust,
+        args.cat_ack_diverge_category_all_rust,
+        args.cat_ack_diverge_category_safe_rust,
+        # FLS changes
         args.fls_removals_verdict,
         args.fls_removals_reasoning,
         fls_removal_details,
@@ -501,6 +918,7 @@ def main():
         args.specificity_reasoning,
         args.routine_pattern,
         args.notes,
+        args.general_recommendation,
         root,
     )
     

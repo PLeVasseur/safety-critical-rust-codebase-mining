@@ -37,6 +37,9 @@ from fls_tools.shared import (
     is_v1,
     is_v2,
     has_add6_data,
+    count_matches_by_category,
+    validate_paragraph_coverage,
+    has_paragraph_coverage_fields,
 )
 
 # Use shared path utilities to get correct paths
@@ -137,17 +140,20 @@ def validate_schema(data: dict, schema: dict, filename: str) -> list[str]:
 def validate_fls_ids(data: dict, valid_fls_ids: set[str], filename: str) -> list[str]:
     """Validate that all FLS IDs in a mapping file are valid.
     
-    Handles v1.0/v1.1 (flat) and v2.0/v2.1/v3.0 (per-context) formats.
+    Handles v1.x (flat) and v2.x/v3.x/v4.x (per-context) formats.
     
     Checks FLS IDs in:
     - fls_ids array (v1.x)
-    - accepted_matches array (v1.x or v2.x context)
-    - rejected_matches array (v1.x or v2.x context)
+    - accepted_matches array (v1.x or v2.x+ context)
+    - rejected_matches array (v1.x or v2.x+ context)
     """
     errors = []
 
     if "mappings" not in data:
         return errors
+
+    # Per-context versions
+    per_context_versions = ("2.0", "2.1", "2.2", "3.0", "3.1", "3.2", "4.0")
 
     def check_matches(matches: list, location: str, guideline_id: str) -> None:
         """Helper to check FLS IDs in a matches array."""
@@ -160,7 +166,7 @@ def validate_fls_ids(data: dict, valid_fls_ids: set[str], filename: str) -> list
         guideline_id = mapping.get("guideline_id", "unknown")
         schema_version = get_guideline_schema_version(mapping)
         
-        if schema_version in ("1.0", "1.1"):
+        if schema_version in ("1.0", "1.1", "1.2"):
             # v1.x: Check flat structure
             fls_ids = mapping.get("fls_ids", [])
             for fls_id in fls_ids:
@@ -170,8 +176,8 @@ def validate_fls_ids(data: dict, valid_fls_ids: set[str], filename: str) -> list
             check_matches(mapping.get("accepted_matches", []), "accepted_matches", guideline_id)
             check_matches(mapping.get("rejected_matches", []), "rejected_matches", guideline_id)
         
-        elif schema_version in ("2.0", "2.1", "3.0"):
-            # v2.x/v3.x: Check per-context structure
+        elif schema_version in per_context_versions:
+            # v2.x/v3.x/v4.x: Check per-context structure
             for context in ["all_rust", "safe_rust"]:
                 ctx_data = mapping.get(context, {})
                 check_matches(ctx_data.get("accepted_matches", []), f"{context}.accepted_matches", guideline_id)
@@ -204,7 +210,7 @@ def validate_mapping_file(
 ) -> tuple[list[str], dict, list[str]]:
     """Validate a mapping file and return errors, statistics, and warnings.
     
-    Handles v1.0/v1.1 (flat) and v2.0/v2.1/v3.0 (per-context) formats.
+    Handles v1.x (flat) and v2.x/v3.x/v4.x (per-context) formats.
     
     Returns:
         (errors, stats, warnings)
@@ -222,7 +228,10 @@ def validate_mapping_file(
     
     # Count entries by schema version
     version_counts = {
-        "1.0": 0, "1.1": 0, "2.0": 0, "2.1": 0, "3.0": 0
+        "1.0": 0, "1.1": 0, "1.2": 0,
+        "2.0": 0, "2.1": 0, "2.2": 0,
+        "3.0": 0, "3.1": 0, "3.2": 0,
+        "4.0": 0,
     }
     for m in mappings:
         v = get_guideline_schema_version(m)
@@ -232,16 +241,65 @@ def validate_mapping_file(
     # Count entries with ADD-6 data
     add6_count = sum(1 for m in mappings if has_add6_data(m))
     
-    # Warn if enriched versions (1.1, 2.1, 3.0) are missing ADD-6 data
+    # Count paragraph coverage
+    para_stats = {
+        "with_paragraphs": 0,
+        "section_only": 0,
+        "no_matches": 0,
+        "has_waiver": 0,
+        "coverage_errors": 0,
+    }
+    
+    # Warn if enriched versions (1.1+, 2.1+, 3.x, 4.x) are missing ADD-6 data
+    add6_versions = ("1.1", "1.2", "2.1", "2.2", "3.0", "3.1", "3.2", "4.0")
     for m in mappings:
         v = get_guideline_schema_version(m)
-        if v in ("1.1", "2.1", "3.0") and not has_add6_data(m):
-            gid = m.get("guideline_id", "unknown")
+        gid = m.get("guideline_id", "unknown")
+        
+        if v in add6_versions and not has_add6_data(m):
             warnings.append(f"{filepath.name}: {gid}: v{v} entry missing misra_add6 block")
+        
+        # Validate paragraph coverage
+        para_errors = validate_paragraph_coverage(m, strict=False)
+        if para_errors:
+            para_stats["coverage_errors"] += 1
+            for err in para_errors:
+                warnings.append(f"{filepath.name}: {gid}: {err}")
+        
+        # Count paragraph coverage categories
+        if has_paragraph_coverage_fields(m):
+            if v.startswith("1."):
+                para_count = m.get("paragraph_match_count", 0)
+                section_count = m.get("section_match_count", 0)
+                has_waiver = m.get("paragraph_level_waiver") is not None
+            else:
+                # Per-context: count both contexts
+                para_count = 0
+                section_count = 0
+                has_waiver = False
+                for ctx in ["all_rust", "safe_rust"]:
+                    ctx_data = m.get(ctx, {})
+                    para_count += ctx_data.get("paragraph_match_count", 0)
+                    section_count += ctx_data.get("section_match_count", 0)
+                    if ctx_data.get("paragraph_level_waiver"):
+                        has_waiver = True
+            
+            if para_count > 0:
+                para_stats["with_paragraphs"] += 1
+            elif section_count > 0:
+                para_stats["section_only"] += 1
+            else:
+                para_stats["no_matches"] += 1
+            
+            if has_waiver:
+                para_stats["has_waiver"] += 1
+    
+    v1_versions = ("1.0", "1.1", "1.2")
+    v2_versions = ("2.0", "2.1", "2.2", "3.0", "3.1", "3.2", "4.0")
     
     def count_v1_applicability(field: str) -> dict[str, int]:
         """Count v1.x applicability values for a given field."""
-        v1_mappings = [m for m in mappings if get_guideline_schema_version(m) in ("1.0", "1.1")]
+        v1_mappings = [m for m in mappings if get_guideline_schema_version(m) in v1_versions]
         return {
             "direct": sum(1 for m in v1_mappings if m.get(field) == "direct"),
             "partial": sum(1 for m in v1_mappings if m.get(field) == "partial"),
@@ -251,8 +309,8 @@ def validate_mapping_file(
         }
     
     def count_v2_applicability(context: str) -> dict[str, int]:
-        """Count v2.x/v3.x applicability values for a given context."""
-        v2_mappings = [m for m in mappings if get_guideline_schema_version(m) in ("2.0", "2.1", "3.0")]
+        """Count v2.x+ applicability values for a given context."""
+        v2_mappings = [m for m in mappings if get_guideline_schema_version(m) in v2_versions]
         counts = {"yes": 0, "no": 0, "partial": 0}
         for m in v2_mappings:
             ctx = m.get(context, {})
@@ -261,8 +319,8 @@ def validate_mapping_file(
                 counts[app] += 1
         return counts
     
-    v1_total = version_counts["1.0"] + version_counts["1.1"]
-    v2_total = version_counts["2.0"] + version_counts["2.1"] + version_counts["3.0"]
+    v1_total = sum(version_counts.get(v, 0) for v in v1_versions)
+    v2_total = sum(version_counts.get(v, 0) for v in v2_versions)
     
     stats = {
         "standard": data.get("standard", "unknown"),
@@ -271,6 +329,7 @@ def validate_mapping_file(
         "v1_count": v1_total,
         "v2_count": v2_total,
         "add6_count": add6_count,
+        "paragraph_coverage": para_stats,
         "all_rust": count_v1_applicability("applicability_all_rust"),
         "safe_rust": count_v1_applicability("applicability_safe_rust"),
     }
@@ -443,7 +502,7 @@ def main():
                     # Show version breakdown
                     vc = stats.get("version_counts", {})
                     version_parts = []
-                    for v in ["1.0", "1.1", "2.0", "2.1", "3.0"]:
+                    for v in ["1.0", "1.1", "1.2", "2.0", "2.1", "2.2", "3.0", "3.1", "3.2", "4.0"]:
                         if vc.get(v, 0) > 0:
                             version_parts.append(f"v{v}={vc[v]}")
                     if version_parts:
@@ -453,6 +512,24 @@ def main():
                     add6_count = stats.get("add6_count", 0)
                     total = stats.get("total", 0)
                     print(f"       ADD-6 data: {add6_count}/{total} entries")
+                    
+                    # Show paragraph coverage
+                    para = stats.get("paragraph_coverage", {})
+                    if para:
+                        with_para = para.get("with_paragraphs", 0)
+                        sect_only = para.get("section_only", 0)
+                        no_match = para.get("no_matches", 0)
+                        has_waiver = para.get("has_waiver", 0)
+                        cov_err = para.get("coverage_errors", 0)
+                        
+                        # Only show if any entries have paragraph coverage fields
+                        if with_para + sect_only + no_match > 0:
+                            print(f"       Paragraph coverage: {with_para} have paragraphs, "
+                                  f"{sect_only} section-only, {no_match} no matches")
+                            if has_waiver > 0:
+                                print(f"       Paragraph waivers: {has_waiver}")
+                            if cov_err > 0:
+                                print(f"       Paragraph coverage errors: {cov_err}")
                     
                     if stats['v1_count'] > 0:
                         all_rust = stats["all_rust"]

@@ -60,6 +60,9 @@ remediate-decisions = "fls_tools.standards.verification.remediate:main"
 check-guideline = "fls_tools.standards.verification.batch_check:main"
 migrate-mappings = "fls_tools.standards.verification.migrate_mappings:main"
 
+# Pipeline 2: Standards -> FLS (migration)
+migrate-to-v4 = "fls_tools.standards.migration.migrate_v4:main"
+
 # Pipeline 2: Standards -> FLS (validation)
 validate-standards = "fls_tools.standards.validation.standards:main"
 validate-synthetic-ids = "fls_tools.standards.validation.synthetic:main"
@@ -69,12 +72,15 @@ generate-valid-fls-ids = "fls_tools.standards.validation.generate_fls_ids:main"
 
 # Pipeline 3: Analysis (comparison and review)
 extract-comparison-data = "fls_tools.standards.analysis.extract:main"
+prepare-outlier-analysis = "fls_tools.standards.analysis.prepare:main"
 record-outlier-analysis = "fls_tools.standards.analysis.record:main"
+record-investigation = "fls_tools.standards.analysis.record_investigation:main"
 list-pending-outliers = "fls_tools.standards.analysis.pending:main"
 diff-fls-matches = "fls_tools.standards.analysis.diff:main"
 generate-analysis-reports = "fls_tools.standards.analysis.reports:main"
 review-outliers = "fls_tools.standards.analysis.review:main"
 reset-review = "fls_tools.standards.analysis.reset_review:main"
+check-analysis-progress = "fls_tools.standards.analysis.analysis_progress:main"
 
 # Analysis (legacy)
 analyze-coverage = "fls_tools.analysis.coverage:main"

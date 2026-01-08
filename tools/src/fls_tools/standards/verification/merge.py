@@ -3,16 +3,17 @@
 merge_decisions.py - Merge decision files into a batch report.
 
 This tool merges individual decision files from a decisions directory back into
-a batch report for Phase 3 review. Supports v2.0, v2.1, and v3.0 decision files.
+a batch report for Phase 3 review. Supports v2.0 through v4.0 decision files.
 
 Features:
-    - Merges v2.0/v2.1/v3.0/v3.1 decision files with all_rust and safe_rust contexts
+- Merges v2.0/v2.1/v3.0/v3.1/v3.2/v4.0 decision files with all_rust and safe_rust contexts
 - Populates verification_decision fields in batch report
 - Aggregates proposed changes to top-level applicability_changes array
 - Updates summary statistics with per-context counts
 - Validates for duplicate search UUIDs across all decision files
-    - Preserves misra_add6_snapshot from v2.1/v3.0/v3.1 decision files
+- Preserves misra_add6_snapshot from v2.1+ decision files
 - Warns if ADD-6 snapshot mismatches batch report's misra_add6
+- Validates paragraph coverage fields (v3.2/v4.0) and warns on mismatches
 
 Usage:
     # Using --batch for automatic path resolution (recommended):
@@ -43,6 +44,7 @@ from fls_tools.shared import (
     PathOutsideProjectError,
     VALID_STANDARDS,
     check_add6_mismatch,
+    count_matches_by_category,
 )
 
 
@@ -181,7 +183,7 @@ def check_duplicate_search_ids(decisions: list[dict]) -> dict[str, list[str]]:
     2. All other search UUIDs (search-fls, etc.) must be unique per context
     3. Any UUID reuse across DIFFERENT guidelines is always flagged
     
-    Supports v1.0, v1.1, v2.0, v2.1, v3.0, and v3.1 decision files.
+    Supports v1.0, v1.1, v2.0, v2.1, v3.0, v3.1, v3.2, and v4.0 decision files.
     
     Returns:
         Dict mapping duplicate search_id -> list of usages that violate rules
@@ -189,12 +191,14 @@ def check_duplicate_search_ids(decisions: list[dict]) -> dict[str, list[str]]:
     # Track: search_id -> list of (guideline_id, context, tool)
     search_id_usage: dict[str, list[tuple[str, str, str]]] = defaultdict(list)
     
+    # Per-context versions (v2.x, v3.x, v4.x)
+    per_context_versions = ("2.0", "2.1", "2.2", "3.0", "3.1", "3.2", "4.0")
+    
     for decision in decisions:
         guideline_id = decision.get("guideline_id", "(unknown)")
         schema_version = decision.get("schema_version", "1.0")
         
-        # v2.0, v2.1, v3.0, v3.1 have per-context structure
-        if schema_version in ("2.0", "2.1", "3.0", "3.1"):
+        if schema_version in per_context_versions:
             for context in ["all_rust", "safe_rust"]:
                 ctx_data = decision.get(context, {})
                 search_tools = ctx_data.get("search_tools_used", [])
@@ -205,7 +209,7 @@ def check_duplicate_search_ids(decisions: list[dict]) -> dict[str, list[str]]:
                     if search_id:
                         search_id_usage[search_id].append((guideline_id, context, tool_name))
         else:
-            # v1.0, v1.1: flat structure
+            # v1.0, v1.1, v1.2: flat structure
             search_tools = decision.get("search_tools_used", [])
             if isinstance(search_tools, list):
                 for tool in search_tools:
@@ -238,27 +242,64 @@ def check_duplicate_search_ids(decisions: list[dict]) -> dict[str, list[str]]:
     return duplicates
 
 
+def validate_paragraph_counts(ctx_data: dict, context_name: str, guideline_id: str) -> list[str]:
+    """
+    Validate paragraph_match_count and section_match_count match actual matches.
+    
+    Returns list of warning messages (empty if valid).
+    """
+    warnings = []
+    
+    if not ctx_data or ctx_data.get("decision") is None:
+        return warnings  # Scaffolded context, skip validation
+    
+    matches = ctx_data.get("accepted_matches", [])
+    actual_para, actual_section = count_matches_by_category(matches)
+    
+    stored_para = ctx_data.get("paragraph_match_count")
+    stored_section = ctx_data.get("section_match_count")
+    
+    if stored_para is not None and stored_para != actual_para:
+        warnings.append(
+            f"{guideline_id} {context_name}: paragraph_match_count={stored_para} but actual={actual_para}"
+        )
+    
+    if stored_section is not None and stored_section != actual_section:
+        warnings.append(
+            f"{guideline_id} {context_name}: section_match_count={stored_section} but actual={actual_section}"
+        )
+    
+    return warnings
+
+
 def merge_decisions_into_report(
     report: dict,
     decisions: list[dict],
-) -> tuple[int, int, list[str], dict, list[tuple[str, list[str]]]]:
+) -> tuple[int, int, list[str], dict, list[tuple[str, list[str]]], list[str]]:
     """
-    Merge v2.0/v2.1/v3.0 decisions into a batch report.
+    Merge v2.0/v2.1/v3.0/v3.1/v3.2/v4.0 decisions into a batch report.
     
-    Preserves misra_add6_snapshot from v2.1/v3.0 decision files and validates
-    against the batch report's misra_add6 block.
+    Preserves misra_add6_snapshot from v2.1+ decision files and validates
+    against the batch report's misra_add6 block. Validates paragraph counts
+    for v3.2/v4.0 decisions.
     
     Returns:
-        (merged_count, skipped_count, skipped_guidelines, context_counts, add6_mismatches)
+        (merged_count, skipped_count, skipped_guidelines, context_counts, add6_mismatches, paragraph_warnings)
     """
     merged_count = 0
     skipped_count = 0
     skipped_guidelines = []
     add6_mismatches = []
+    paragraph_warnings = []
     
     # Per-context counts
     all_rust_merged = 0
     safe_rust_merged = 0
+    
+    # Per-context versions (v2.x, v3.x, v4.x)
+    per_context_versions = ("2.0", "2.1", "2.2", "3.0", "3.1", "3.2", "4.0")
+    add6_versions = ("2.1", "2.2", "3.0", "3.1", "3.2", "4.0")
+    paragraph_versions = ("3.2", "4.0")  # Versions with paragraph coverage fields
     
     # Track existing applicability changes by (guideline_id, context, field)
     existing_changes = {
@@ -282,8 +323,7 @@ def merge_decisions_into_report(
         
         schema_version = decision.get("schema_version", "1.0")
         
-        # v2.0, v2.1, v3.0, v3.1: per-context structure
-        if schema_version in ("2.0", "2.1", "3.0", "3.1"):
+        if schema_version in per_context_versions:
             # Merge per-context decisions
             verification_decision = {
                 "all_rust": decision.get("all_rust", {}),
@@ -295,6 +335,13 @@ def merge_decisions_into_report(
                 all_rust_merged += 1
             if verification_decision["safe_rust"].get("decision"):
                 safe_rust_merged += 1
+            
+            # Validate paragraph counts for v3.2/v4.0
+            if schema_version in paragraph_versions:
+                for ctx in ["all_rust", "safe_rust"]:
+                    ctx_data = decision.get(ctx, {})
+                    warnings = validate_paragraph_counts(ctx_data, ctx, guideline_id)
+                    paragraph_warnings.extend(warnings)
             
             # Handle proposed changes from each context
             for context in ["all_rust", "safe_rust"]:
@@ -321,8 +368,8 @@ def merge_decisions_into_report(
                         report["applicability_changes"].append(change_entry)
                         existing_changes[key] = len(report["applicability_changes"]) - 1
             
-            # Check ADD-6 snapshot consistency for v2.1/v3.0/v3.1
-            if schema_version in ("2.1", "3.0", "3.1"):
+            # Check ADD-6 snapshot consistency for v2.1+
+            if schema_version in add6_versions:
                 decision_add6 = decision.get("misra_add6_snapshot")
                 report_add6 = report["guidelines"][idx].get("misra_add6")
                 
@@ -331,7 +378,7 @@ def merge_decisions_into_report(
                     if mismatches:
                         add6_mismatches.append((guideline_id, mismatches))
         else:
-            # v1.0, v1.1: convert flat structure to per-context for the report
+            # v1.0, v1.1, v1.2: convert flat structure to per-context for the report
             # Both contexts get the same decision
             ctx_decision = {
                 "decision": decision.get("decision"),
@@ -342,6 +389,12 @@ def merge_decisions_into_report(
                 "search_tools_used": decision.get("search_tools_used", []),
                 "notes": decision.get("notes"),
             }
+            
+            # Add paragraph fields if present (v1.2)
+            if "paragraph_match_count" in decision:
+                ctx_decision["paragraph_match_count"] = decision.get("paragraph_match_count")
+                ctx_decision["section_match_count"] = decision.get("section_match_count")
+                ctx_decision["paragraph_level_waiver"] = decision.get("paragraph_level_waiver")
             
             verification_decision = {
                 "all_rust": ctx_decision.copy(),
@@ -361,7 +414,7 @@ def merge_decisions_into_report(
         "safe_rust_merged": safe_rust_merged,
     }
     
-    return merged_count, skipped_count, skipped_guidelines, context_counts, add6_mismatches
+    return merged_count, skipped_count, skipped_guidelines, context_counts, add6_mismatches, paragraph_warnings
 
 
 def main():
@@ -520,9 +573,17 @@ def main():
     
     # Merge decisions
     print(f"\nMerging decisions into batch report...")
-    merged_count, skipped_count, skipped_guidelines, context_counts, add6_mismatches = merge_decisions_into_report(
+    merged_count, skipped_count, skipped_guidelines, context_counts, add6_mismatches, paragraph_warnings = merge_decisions_into_report(
         report, decisions
     )
+    
+    # Report paragraph count warnings
+    if paragraph_warnings:
+        print(f"\nWARNING: Paragraph count mismatches for {len(paragraph_warnings)} context(s):", file=sys.stderr)
+        for warning in paragraph_warnings[:10]:
+            print(f"  {warning}", file=sys.stderr)
+        if len(paragraph_warnings) > 10:
+            print(f"  ... and {len(paragraph_warnings) - 10} more", file=sys.stderr)
     
     # Report ADD-6 mismatches as warnings
     if add6_mismatches:

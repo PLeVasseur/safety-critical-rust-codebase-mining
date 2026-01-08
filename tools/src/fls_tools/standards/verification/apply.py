@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """
-apply_verification.py - Phase 4: Apply Verified Changes (Upgrade to v3)
+apply_verification.py - Phase 4: Apply Verified Changes (Upgrade to v4.0)
 
-This script applies verified decisions from a v3 batch report to:
-- misra_c_to_fls.json: Update to v3 format with per-context decisions + ADD-6
+This script applies verified decisions from a batch report to:
+- misra_c_to_fls.json: Update to v4.0 format with per-context decisions + ADD-6 + paragraph coverage
 - verification_progress.json: Mark guidelines as verified per-context
 
 **IMPORTANT: This is where schema upgrades happen.**
 
-When applying v3 decisions, entries are upgraded to v3.0 format regardless
-of their original version (v1.0, v1.1, v2.0, v2.1).
+When applying decisions, entries are upgraded to v4.0 format regardless
+of their original version (v1.x, v2.x, v3.x). This includes:
+- paragraph_match_count per context
+- section_match_count per context  
+- paragraph_level_waiver per context (null for fresh verification)
 
 **Analysis Gate (Optional):**
 
@@ -57,6 +60,7 @@ from fls_tools.shared import (
     convert_v1_applicability_to_v2,
     build_misra_add6_block,
     check_add6_mismatch,
+    count_matches_by_category,
 )
 
 # Analysis imports - lazy loaded to avoid circular imports
@@ -121,14 +125,15 @@ def validate_batch_report(report: dict) -> list[str]:
     """
     Validate that a batch report is ready to apply.
     
-    Accepts v2.0, v2.1, or v3.0 batch reports.
+    Accepts v2.0, v2.1, v3.0, v3.1, v3.2, or v4.0 batch reports.
     Checks that verification_decision has both contexts with decisions.
     """
     errors = []
     
     schema_version = report.get("schema_version", "1.0")
-    if schema_version not in ("2.0", "2.1", "3.0"):
-        errors.append(f"Expected v2.0, v2.1, or v3.0 batch report, got {schema_version}")
+    valid_versions = ("2.0", "2.1", "3.0", "3.1", "3.2", "4.0")
+    if schema_version not in valid_versions:
+        errors.append(f"Expected v2.0-v4.0 batch report, got {schema_version}")
         return errors
     
     if not report.get("guidelines"):
@@ -152,15 +157,19 @@ def validate_batch_report(report: dict) -> list[str]:
     return errors
 
 
-def migrate_v1_to_v3_entry(v1_entry: dict, add6_data: dict | None) -> dict:
+def migrate_v1_to_v4_entry(v1_entry: dict, add6_data: dict | None) -> dict:
     """
-    Convert a v1.0 or v1.1 mapping entry to v3.0 structure.
+    Convert a v1.0, v1.1, or v1.2 mapping entry to v4.0 structure.
     
     The v1 data is split into both contexts as a starting point.
     The actual verified data will be applied on top.
     """
+    # Get matches (v1 has flat structure)
+    matches = deepcopy(v1_entry.get("accepted_matches", []))
+    para_count, section_count = count_matches_by_category(matches)
+    
     entry = {
-        "schema_version": "3.0",
+        "schema_version": "4.0",
         "guideline_id": v1_entry["guideline_id"],
         "guideline_title": v1_entry.get("guideline_title", ""),
         "guideline_type": v1_entry.get("guideline_type", "rule"),
@@ -169,8 +178,11 @@ def migrate_v1_to_v3_entry(v1_entry: dict, add6_data: dict | None) -> dict:
             "adjusted_category": None,  # Not in v1
             "rationale_type": v1_entry.get("fls_rationale_type"),
             "confidence": v1_entry.get("confidence", "medium"),
-            "accepted_matches": deepcopy(v1_entry.get("accepted_matches", [])),
+            "accepted_matches": matches,
             "rejected_matches": deepcopy(v1_entry.get("rejected_matches", [])),
+            "paragraph_match_count": para_count,
+            "section_match_count": section_count,
+            "paragraph_level_waiver": None,  # Fresh verification
             "verified": False,
             "verified_by_session": None,
             "notes": v1_entry.get("notes"),
@@ -180,8 +192,11 @@ def migrate_v1_to_v3_entry(v1_entry: dict, add6_data: dict | None) -> dict:
             "adjusted_category": None,
             "rationale_type": v1_entry.get("fls_rationale_type"),
             "confidence": v1_entry.get("confidence", "medium"),
-            "accepted_matches": deepcopy(v1_entry.get("accepted_matches", [])),
+            "accepted_matches": deepcopy(matches),
             "rejected_matches": deepcopy(v1_entry.get("rejected_matches", [])),
+            "paragraph_match_count": para_count,
+            "section_match_count": section_count,
+            "paragraph_level_waiver": None,  # Fresh verification
             "verified": False,
             "verified_by_session": None,
             "notes": v1_entry.get("notes"),
@@ -195,50 +210,78 @@ def migrate_v1_to_v3_entry(v1_entry: dict, add6_data: dict | None) -> dict:
     return entry
 
 
-def migrate_v2_to_v3_entry(v2_entry: dict, add6_data: dict | None) -> dict:
+def migrate_v2_to_v4_entry(v2_entry: dict, add6_data: dict | None) -> dict:
     """
-    Convert a v2.0 or v2.1 mapping entry to v3.0 structure.
+    Convert a v2.x or v3.x mapping entry to v4.0 structure.
     
-    Preserves the existing per-context structure and adds/updates misra_add6.
+    Preserves the existing per-context structure and adds/updates:
+    - misra_add6 block
+    - paragraph_match_count per context
+    - section_match_count per context
+    - paragraph_level_waiver per context (null for fresh verification)
     """
     entry = deepcopy(v2_entry)
-    entry["schema_version"] = "3.0"
+    entry["schema_version"] = "4.0"
     
     # Add or update ADD-6 block
     if add6_data:
         entry["misra_add6"] = build_misra_add6_block(add6_data)
     
+    # Add paragraph coverage fields to each context
+    for ctx in ["all_rust", "safe_rust"]:
+        ctx_data = entry.get(ctx, {})
+        if ctx_data:
+            matches = ctx_data.get("accepted_matches", [])
+            para_count, section_count = count_matches_by_category(matches)
+            ctx_data["paragraph_match_count"] = para_count
+            ctx_data["section_match_count"] = section_count
+            ctx_data["paragraph_level_waiver"] = None  # Fresh verification
+    
     return entry
 
 
-def apply_v2_decision_to_context(
+def apply_v4_decision_to_context(
     entry: dict,
     context: str,
     decision: dict,
     session_id: int,
 ) -> None:
     """
-    Apply a v2 context decision to a v2 entry.
+    Apply a v4 context decision to a v4 entry.
     
-    Modifies entry in place.
+    Modifies entry in place. Updates paragraph coverage fields based on
+    accepted_matches from the decision.
     """
     ctx = entry.get(context, {})
+    
+    # Get accepted matches from decision
+    accepted_matches = decision.get("accepted_matches", [])
+    
+    # Compute paragraph coverage from the decision's matches
+    para_count, section_count = count_matches_by_category(accepted_matches)
     
     # Apply all decision fields
     ctx["applicability"] = decision.get("applicability")
     ctx["adjusted_category"] = decision.get("adjusted_category")
     ctx["rationale_type"] = decision.get("rationale_type")
     ctx["confidence"] = decision.get("confidence", "high")
-    ctx["accepted_matches"] = decision.get("accepted_matches", [])
+    ctx["accepted_matches"] = accepted_matches
     ctx["rejected_matches"] = decision.get("rejected_matches", [])
     ctx["notes"] = decision.get("notes")
     ctx["verified"] = True
     ctx["verified_by_session"] = session_id
     
+    # Update paragraph coverage fields
+    ctx["paragraph_match_count"] = para_count
+    ctx["section_match_count"] = section_count
+    
+    # Preserve waiver from decision if provided, otherwise null (fresh verification)
+    ctx["paragraph_level_waiver"] = decision.get("paragraph_level_waiver")
+    
     entry[context] = ctx
 
 
-def update_mappings_to_v3(
+def update_mappings_to_v4(
     mappings: dict,
     report: dict,
     session_id: int,
@@ -246,12 +289,12 @@ def update_mappings_to_v3(
     add6_all: dict,
 ) -> tuple[dict, int, dict]:
     """
-    Update mappings with decisions, upgrading all entries to v3.0.
+    Update mappings with decisions, upgrading all entries to v4.0.
     
     Returns:
         (updated_mappings, guidelines_updated, upgrade_stats)
     
-    upgrade_stats is a dict with keys like "v1.0→v3.0", "v1.1→v3.0", etc.
+    upgrade_stats is a dict with keys like "v1.0→v4.0", "v1.1→v4.0", etc.
     """
     # Build lookup by guideline_id
     mapping_lookup = {m["guideline_id"]: (i, m) for i, m in enumerate(mappings["mappings"])}
@@ -271,11 +314,10 @@ def update_mappings_to_v3(
     
     updated_count = 0
     upgrade_stats = {
-        "v1.0→v3.0": 0,
-        "v1.1→v3.0": 0,
-        "v2.0→v3.0": 0,
-        "v2.1→v3.0": 0,
-        "v3.0 updated": 0,
+        "v1.x→v4.0": 0,
+        "v2.x→v4.0": 0,
+        "v3.x→v4.0": 0,
+        "v4.0 updated": 0,
     }
     add6_mismatches = []
     
@@ -294,20 +336,27 @@ def update_mappings_to_v3(
         existing_version = get_guideline_schema_version(existing)
         add6_data = add6_all.get(gid)
         
-        # Migrate to v3.0 based on existing version
-        if existing_version in ("1.0", "1.1"):
-            entry = migrate_v1_to_v3_entry(existing, add6_data)
-            upgrade_stats[f"v{existing_version}→v3.0"] += 1
-        elif existing_version in ("2.0", "2.1"):
-            entry = migrate_v2_to_v3_entry(existing, add6_data)
-            upgrade_stats[f"v{existing_version}→v3.0"] += 1
-        else:
-            # Already v3.0
+        # Migrate to v4.0 based on existing version
+        if existing_version.startswith("1."):
+            entry = migrate_v1_to_v4_entry(existing, add6_data)
+            upgrade_stats["v1.x→v4.0"] += 1
+        elif existing_version.startswith("2.") or existing_version.startswith("3."):
+            entry = migrate_v2_to_v4_entry(existing, add6_data)
+            if existing_version.startswith("2."):
+                upgrade_stats["v2.x→v4.0"] += 1
+            else:
+                upgrade_stats["v3.x→v4.0"] += 1
+        elif existing_version == "4.0":
+            # Already v4.0
             entry = deepcopy(existing)
             # Ensure ADD-6 block is present/updated
             if add6_data:
                 entry["misra_add6"] = build_misra_add6_block(add6_data)
-            upgrade_stats["v3.0 updated"] += 1
+            upgrade_stats["v4.0 updated"] += 1
+        else:
+            # Unknown version, treat as v2+
+            entry = migrate_v2_to_v4_entry(existing, add6_data)
+            upgrade_stats["v3.x→v4.0"] += 1
         
         # Check for ADD-6 mismatch if batch report has misra_add6
         batch_add6 = g.get("misra_add6")
@@ -320,7 +369,7 @@ def update_mappings_to_v3(
         for context in ["all_rust", "safe_rust"]:
             ctx_decision = vd.get(context, {})
             if ctx_decision.get("decision") is not None:
-                apply_v2_decision_to_context(entry, context, ctx_decision, session_id)
+                apply_v4_decision_to_context(entry, context, ctx_decision, session_id)
         
         # Apply approved applicability changes
         if gid in approved_changes:
@@ -812,10 +861,10 @@ def main():
     mappings = load_json(mappings_path, "Mappings")
     progress = load_json(progress_path, "Verification progress")
     
-    # Apply updates (always output v3.0)
+    # Apply updates (always output v4.0)
     print(f"\nApplying changes from batch {report['batch_id']}...", file=sys.stderr)
     
-    updated_mappings, mapping_count, upgrade_stats = update_mappings_to_v3(
+    updated_mappings, mapping_count, upgrade_stats = update_mappings_to_v4(
         mappings, report, args.session, args.apply_applicability_changes, add6_all
     )
     updated_progress, all_rust_count, safe_rust_count = update_progress_v2(

@@ -57,6 +57,185 @@ from .shared import (
 
 VALID_CONTEXTS = ["all_rust", "safe_rust", "both"]
 
+# Investigation request marker for OpenCode integration
+INVESTIGATION_REQUEST_PREFIX = "INVESTIGATION_REQUEST:"
+
+
+def output_investigation_request(
+    guideline_id: str,
+    aspect: str,
+    fls_id: str | None = None,
+    context: str | None = None,
+    user_guidance: str | None = None,
+) -> None:
+    """
+    Output a structured investigation request for OpenCode to intercept.
+    
+    Args:
+        guideline_id: The guideline being reviewed (e.g., "Dir 4.3")
+        aspect: The aspect to investigate ("fls_removal", "fls_addition", "categorization", 
+                "specificity", "add6_divergence", "all")
+        fls_id: Optional FLS ID for FLS-specific investigations
+        context: Optional context for context-specific investigations ("all_rust", "safe_rust")
+        user_guidance: Optional natural language guidance from the user
+    """
+    import json
+    request = {
+        "guideline_id": guideline_id,
+        "aspect": aspect,
+    }
+    if fls_id:
+        request["fls_id"] = fls_id
+    if context:
+        request["context"] = context
+    if user_guidance:
+        request["user_guidance"] = user_guidance
+    
+    print(f"\n{INVESTIGATION_REQUEST_PREFIX}{json.dumps(request)}")
+    print("\nInvestigation requested. Perform investigation and press Enter when complete...")
+    print("(Or press 'c' then Enter to cancel)")
+
+
+def wait_for_investigation_completion() -> bool:
+    """
+    Wait for user to signal that investigation is complete.
+    
+    Returns True if investigation was completed, False if cancelled.
+    """
+    try:
+        response = input("\nPress Enter when investigation is complete (or 'c' to cancel) > ").strip().lower()
+        if response in ("c", "cancel"):
+            print("Investigation cancelled.")
+            return False
+        return True
+    except (EOFError, KeyboardInterrupt):
+        print("\nInvestigation cancelled.")
+        return False
+
+
+def is_investigate_response(response: str | tuple) -> tuple[bool, str | None]:
+    """
+    Check if a prompt response is an investigate request.
+    
+    Args:
+        response: Either a string or a tuple from a prompt function
+    
+    Returns:
+        (is_investigate, user_guidance) tuple
+    """
+    if isinstance(response, tuple) and len(response) == 2 and response[0] in ("investigate", "investigate_all"):
+        return (True, response[1])
+    return (False, None)
+
+
+def parse_investigate_command(response: str) -> tuple[bool, str | None]:
+    """
+    Parse an investigate command, extracting optional quoted guidance.
+    
+    Args:
+        response: The user's input (e.g., 'i', 'i "some guidance"', 'investigate "guidance"')
+    
+    Returns:
+        (is_investigate, user_guidance) tuple.
+        is_investigate is True if this is an investigate command.
+        user_guidance is the quoted string if provided, else None.
+    
+    Examples:
+        'i' -> (True, None)
+        'i "check encapsulation"' -> (True, "check encapsulation")
+        'investigate "look at X"' -> (True, "look at X")
+        'y' -> (False, None)
+    """
+    import re
+    
+    response = response.strip()
+    
+    # Check if starts with i or investigate
+    if not response.lower().startswith(("i ", "i\"", "investigate")) and response.lower() not in ("i", "investigate"):
+        return (False, None)
+    
+    # It's an investigate command - extract optional guidance
+    # Pattern: i or investigate followed by optional quoted string
+    match = re.match(r'^(?:i|investigate)\s*"([^"]*)"?\s*$', response, re.IGNORECASE)
+    if match:
+        return (True, match.group(1))
+    
+    # Check for simple i or investigate without quotes
+    if response.lower() in ("i", "investigate"):
+        return (True, None)
+    
+    # i followed by something but not in quotes - treat as guidance anyway
+    match = re.match(r'^(?:i|investigate)\s+(.+)$', response, re.IGNORECASE)
+    if match:
+        guidance = match.group(1).strip()
+        # Remove surrounding quotes if present
+        if guidance.startswith('"') and guidance.endswith('"'):
+            guidance = guidance[1:-1]
+        elif guidance.startswith("'") and guidance.endswith("'"):
+            guidance = guidance[1:-1]
+        return (True, guidance if guidance else None)
+    
+    return (True, None)
+
+
+def display_investigation_findings(analysis: dict, aspect: str | None = None, fls_id: str | None = None, context: str | None = None) -> bool:
+    """
+    Display investigation findings from the outlier analysis file.
+    
+    Args:
+        analysis: The full outlier analysis data
+        aspect: Optional filter by aspect type
+        fls_id: Optional filter by FLS ID
+        context: Optional filter by context
+    
+    Returns True if any findings were displayed.
+    """
+    investigations = analysis.get("llm_investigation", {}).get("investigations", [])
+    if not investigations:
+        return False
+    
+    # Filter investigations
+    filtered = investigations
+    if aspect:
+        filtered = [inv for inv in filtered if inv.get("aspect") == aspect]
+    if fls_id:
+        filtered = [inv for inv in filtered if inv.get("target", {}).get("fls_id") == fls_id]
+    if context:
+        filtered = [inv for inv in filtered if inv.get("target", {}).get("context") == context]
+    
+    if not filtered:
+        return False
+    
+    print("\n" + "─" * 60)
+    print("INVESTIGATION FINDINGS")
+    print("─" * 60)
+    
+    for inv in filtered:
+        timestamp = inv.get("timestamp", "Unknown time")
+        inv_aspect = inv.get("aspect", "unknown")
+        target = inv.get("target", {})
+        findings = inv.get("findings", {})
+        
+        target_str = ""
+        if target.get("fls_id"):
+            target_str = f" - {target['fls_id']}"
+            if target.get("context"):
+                target_str += f" ({target['context']})"
+        
+        print(f"\n[{timestamp}] {inv_aspect}{target_str}")
+        print(f"  Sources: {', '.join(inv.get('sources_consulted', []))[:80]}...")
+        
+        if findings.get("fls_content_summary"):
+            print(f"  FLS Content: {findings['fls_content_summary'][:100]}...")
+        if findings.get("relevance_assessment"):
+            print(f"  Relevance: {findings['relevance_assessment'][:100]}...")
+        if findings.get("recommendation"):
+            confidence = findings.get("confidence", "unknown")
+            print(f"  Recommendation: {findings['recommendation']} (confidence: {confidence})")
+    
+    print("─" * 60)
+    return True
+
 
 def create_human_review_section() -> dict:
     """Create initial human_review section structure."""
@@ -81,11 +260,22 @@ def compute_overall_status(human_review: dict, flags: dict, llm_analysis: dict) 
     pending_aspects = 0
     total_aspects = 0
     
-    # Check categorization if relevant flags set
+    # Check categorization if relevant flags set - now per-context
     if flags.get("rationale_type_changed") or flags.get("batch_pattern_outlier"):
-        total_aspects += 1
-        if not human_review.get("categorization"):
-            pending_aspects += 1
+        cat = human_review.get("categorization")
+        if cat is None:
+            cat = {}
+        # Handle both old format (single decision) and new format (per-context)
+        if isinstance(cat, dict) and cat.get("decision"):
+            # Old format - single decision applies to both contexts
+            pass  # Already decided
+        else:
+            # New format - per-context decisions
+            for ctx in ["all_rust", "safe_rust"]:
+                total_aspects += 1
+                ctx_cat = cat.get(ctx) if isinstance(cat, dict) else None
+                if not ctx_cat or not ctx_cat.get("decision"):
+                    pending_aspects += 1
     
     # Check FLS removals - need per-context decisions
     for fls_id, item in human_review.get("fls_removals", {}).items():
@@ -140,12 +330,23 @@ def display_llm_analysis(analysis: dict) -> None:
     print(f"\nOverall Recommendation: {llm.get('overall_recommendation', 'N/A')}")
     print(f"\nSummary:\n  {llm.get('summary', 'N/A')}")
     
-    # Categorization
+    # Categorization (supports both old single-verdict and new per-context format)
     cat = llm.get("categorization")
     if cat:
         print(f"\n--- Categorization ---")
-        print(f"  Verdict: {cat.get('verdict')}")
-        print(f"  Reasoning: {cat.get('reasoning')}")
+        # Check if it's the new per-context format
+        if cat.get("all_rust") is not None or cat.get("safe_rust") is not None:
+            # New per-context format
+            for ctx in ["all_rust", "safe_rust"]:
+                ctx_cat = cat.get(ctx)
+                if ctx_cat:
+                    print(f"  {ctx}:")
+                    print(f"    Verdict: {ctx_cat.get('verdict')}")
+                    print(f"    Reasoning: {ctx_cat.get('reasoning')}")
+        else:
+            # Old single-verdict format
+            print(f"  Verdict: {cat.get('verdict')}")
+            print(f"  Reasoning: {cat.get('reasoning')}")
     
     # FLS Removals
     removals = llm.get("fls_removals")
@@ -187,12 +388,51 @@ def display_llm_analysis(analysis: dict) -> None:
                 for ctx, justification in decisions.items():
                     print(f"      LLM justification ({ctx}): {justification}")
     
-    # ADD-6 Divergence
-    add6 = llm.get("add6_divergence")
-    if add6:
+    # ADD-6 Divergence - always show if divergence flags are set or analysis exists
+    add6_analysis = llm.get("add6_divergence")
+    flags = analysis.get("flags", {})
+    has_divergence_flag = flags.get("applicability_differs_from_add6") or flags.get("adjusted_category_differs_from_add6")
+    
+    if add6_analysis or has_divergence_flag:
         print(f"\n--- ADD-6 Divergence ---")
-        print(f"  Verdict: {add6.get('verdict')}")
-        print(f"  Reasoning: {add6.get('reasoning')}")
+        
+        # Show per-context comparison
+        add6_data = analysis.get("add6", {})
+        comparison = analysis.get("comparison", {})
+        mapping = analysis.get("enriched_matches", {}).get("mapping", {})
+        decision = analysis.get("enriched_matches", {}).get("decision", {})
+        
+        print(f"  Per-context comparison:")
+        for ctx in ["all_rust", "safe_rust"]:
+            add6_key = f"applicability_{ctx}"
+            add6_app = add6_data.get(add6_key, "N/A")
+            
+            # Get decision applicability - try multiple sources
+            ctx_comp = comparison.get(ctx, {})
+            # The decision applicability might be in different places depending on data structure
+            # Check comparison data first, then look at the decision matches
+            dec_app = "N/A"
+            if ctx_comp:
+                # Try to infer from the comparison - if applicability_changed is false, it matches mapping
+                if not ctx_comp.get("applicability_changed", True):
+                    # No change means decision = mapping
+                    dec_app = "(unchanged)"
+                else:
+                    trans = ctx_comp.get("applicability_mapping_to_decision")
+                    if trans:
+                        # Format is "old→new"
+                        dec_app = trans.split("→")[-1] if "→" in trans else trans
+            
+            diverges = ctx_comp.get("applicability_differs_from_add6", False)
+            status = "✗ DIVERGES" if diverges else "✓"
+            print(f"    {ctx}: ADD-6={add6_app}, Decision={dec_app} {status}")
+        
+        if add6_analysis:
+            print(f"  Verdict: {add6_analysis.get('verdict')}")
+            print(f"  Reasoning: {add6_analysis.get('reasoning')}")
+        else:
+            print(f"  Verdict: (not analyzed)")
+            print(f"  WARNING: Divergence flags are set but no analysis recorded!")
     
     # Specificity
     spec = llm.get("specificity")
@@ -232,9 +472,20 @@ def display_pending_decisions(analysis: dict) -> None:
     
     pending = []
     
-    # Check categorization
-    if (flags.get("rationale_type_changed") or flags.get("batch_pattern_outlier")) and not human_review.get("categorization"):
-        pending.append("categorization")
+    # Check categorization - now per-context
+    if flags.get("rationale_type_changed") or flags.get("batch_pattern_outlier"):
+        cat = human_review.get("categorization")
+        if cat is None:
+            cat = {}
+        # Handle both old format (single decision) and new format (per-context)
+        if isinstance(cat, dict) and cat.get("decision"):
+            # Old format - already decided
+            pass
+        else:
+            for ctx in ["all_rust", "safe_rust"]:
+                ctx_cat = cat.get(ctx) if isinstance(cat, dict) else None
+                if not ctx_cat or not ctx_cat.get("decision"):
+                    pending.append(f"categorization:{ctx}")
     
     # Check FLS removals
     for fls_id, item in human_review.get("fls_removals", {}).items():
@@ -425,56 +676,94 @@ def get_pending_guidelines(root: Path, batch: int | None = None) -> list[str]:
     return sorted(pending)
 
 
-def prompt_yes_no_skip_quit(prompt: str) -> str:
+def prompt_yes_no_skip_quit(prompt: str, show_help: bool = True, allow_investigate: bool = False) -> str | tuple[str, str | None]:
     """
     Prompt user for y/n/s/q response.
     
-    Returns: 'yes', 'no', 'skip', or 'quit'
+    Returns: 
+        - 'yes', 'no', 'skip', 'quit', 'help' as strings
+        - ('investigate', user_guidance) tuple when investigate is chosen
+          user_guidance may be None or a string with optional guidance
     """
+    help_text = " | [?] help" if show_help else ""
+    investigate_text = ' | [i]nvestigate or i "guidance"' if allow_investigate else ""
     while True:
         try:
-            response = input(f"{prompt} [y]es | [n]o | [s]kip | [q]uit > ").strip().lower()
+            response = input(f"{prompt} [y]es | [n]o | [s]kip{investigate_text}{help_text} | [q]uit > ").strip()
         except (EOFError, KeyboardInterrupt):
             print("\n")
             return "quit"
         
-        if response in ("y", "yes"):
+        response_lower = response.lower()
+        
+        if response_lower in ("y", "yes"):
             return "yes"
-        elif response in ("n", "no"):
+        elif response_lower in ("n", "no"):
             return "no"
-        elif response in ("s", "skip"):
+        elif response_lower in ("s", "skip"):
             return "skip"
-        elif response in ("q", "quit"):
+        elif response_lower in ("q", "quit"):
             return "quit"
-        else:
-            print("  Invalid input. Please enter y, n, s, or q.")
+        elif response_lower == "?" and show_help:
+            return "help"
+        elif allow_investigate:
+            is_investigate, user_guidance = parse_investigate_command(response)
+            if is_investigate:
+                return ("investigate", user_guidance)
+        
+        valid_parts = ["y", "n", "s"]
+        if allow_investigate:
+            valid_parts.append('i or i "guidance"')
+        if show_help:
+            valid_parts.append("?")
+        valid_parts.append("q")
+        print(f"  Invalid input. Please enter {', '.join(valid_parts)}.")
 
 
-def prompt_yes_no_na(prompt: str, allow_na: bool = True) -> str:
+def prompt_yes_no_na(prompt: str, allow_na: bool = True, show_help: bool = True, allow_investigate: bool = False) -> str | tuple[str, str | None]:
     """
     Prompt user for y/n/n_a response.
     
-    Returns: 'yes', 'no', 'n_a', or 'quit'
+    Returns:
+        - 'yes', 'no', 'n_a', 'quit', 'help' as strings
+        - ('investigate', user_guidance) tuple when investigate is chosen
     """
-    options = "[y]es | [n]o | [n/a]" if allow_na else "[y]es | [n]o"
+    na_text = " | [n/a]" if allow_na else ""
+    help_text = " | [?] help" if show_help else ""
+    investigate_text = ' | [i]nvestigate or i "guidance"' if allow_investigate else ""
     while True:
         try:
-            response = input(f"{prompt} {options} > ").strip().lower()
+            response = input(f"{prompt} [y]es | [n]o{na_text}{investigate_text}{help_text} > ").strip()
         except (EOFError, KeyboardInterrupt):
             print("\n")
             return "quit"
         
-        if response in ("y", "yes"):
+        response_lower = response.lower()
+        
+        if response_lower in ("y", "yes"):
             return "yes"
-        elif response in ("n", "no"):
+        elif response_lower in ("n", "no"):
             return "no"
-        elif allow_na and response in ("na", "n/a", "n_a"):
+        elif allow_na and response_lower in ("na", "n/a", "n_a"):
             return "n_a"
-        elif response in ("q", "quit"):
+        elif response_lower in ("q", "quit"):
             return "quit"
-        else:
-            valid = "y, n, n/a, or q" if allow_na else "y, n, or q"
-            print(f"  Invalid input. Please enter {valid}.")
+        elif response_lower == "?" and show_help:
+            return "help"
+        elif allow_investigate:
+            is_investigate, user_guidance = parse_investigate_command(response)
+            if is_investigate:
+                return ("investigate", user_guidance)
+        
+        valid_parts = ["y", "n"]
+        if allow_na:
+            valid_parts.append("n/a")
+        if allow_investigate:
+            valid_parts.append('i or i "guidance"')
+        if show_help:
+            valid_parts.append("?")
+        valid_parts.append("q")
+        print(f"  Invalid input. Please enter {', '.join(valid_parts)}.")
 
 
 def prompt_accept_all(prompt: str) -> str:
@@ -500,6 +789,41 @@ def prompt_accept_all(prompt: str) -> str:
             return "quit"
         else:
             print("  Invalid input. Please enter y, n, a, or q.")
+
+
+def prompt_initial_action(allow_investigate: bool = True) -> str | tuple[str, str | None]:
+    """
+    Prompt user for initial action after seeing full analysis.
+    
+    Returns:
+        - 'accept_all', 'review', 'skip', 'quit' as strings
+        - ('investigate_all', user_guidance) tuple when investigate is chosen
+    """
+    investigate_text = ' | [i]nvestigate all or i "guidance"' if allow_investigate else ""
+    while True:
+        try:
+            response = input(f"\n[a]ccept all | [r]eview each{investigate_text} | [s]kip | [q]uit > ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\n")
+            return "quit"
+        
+        response_lower = response.lower()
+        
+        if response_lower in ("a", "accept", "accept all"):
+            return "accept_all"
+        elif response_lower in ("r", "review", "review each"):
+            return "review"
+        elif response_lower in ("s", "skip"):
+            return "skip"
+        elif response_lower in ("q", "quit"):
+            return "quit"
+        elif allow_investigate:
+            is_investigate, user_guidance = parse_investigate_command(response)
+            if is_investigate:
+                return ("investigate_all", user_guidance)
+        
+        valid = 'a, r, i or i "guidance", s, or q' if allow_investigate else "a, r, s, or q"
+        print(f"  Invalid input. Please enter {valid}.")
 
 
 def display_header(guideline_id: str, batch: int, current: int, total: int) -> None:
@@ -544,6 +868,12 @@ def interactive_review_guideline(
     """
     Interactively review a single guideline.
     
+    Flow:
+    1. Display header and quick reference
+    2. Display full LLM analysis (like --show)
+    3. Prompt: [a]ccept all | [r]eview each | [s]kip | [q]uit
+    4. If review: prompt per-aspect with [?] help option to re-show analysis
+    
     Returns: 'continue', 'skip', or 'quit'
     """
     analysis = load_outlier_analysis(guideline_id, root)
@@ -556,9 +886,12 @@ def interactive_review_guideline(
     llm_analysis = analysis.get("llm_analysis", {})
     comparison = analysis.get("comparison", {})
     
-    # Display header
+    # Display header and quick reference
     display_header(guideline_id, batch, current, total)
     display_quick_reference(analysis)
+    
+    # Display full LLM analysis (Phase 1)
+    display_llm_analysis(analysis)
     
     # Initialize human_review if needed
     if analysis.get("human_review") is None:
@@ -571,66 +904,142 @@ def interactive_review_guideline(
     current_status = compute_overall_status(human_review, flags, llm_analysis)
     if current_status == "fully_reviewed":
         print(f"\n✓ Already fully reviewed")
-        response = prompt_yes_no_skip_quit("Re-review this guideline?")
+        response = prompt_yes_no_skip_quit("Re-review this guideline?", show_help=False)
         if response == "quit":
             return "quit"
         elif response in ("no", "skip"):
             return "continue"
         # Otherwise continue to re-review
     
-    # Offer accept-all option first
-    llm_recommendation = llm_analysis.get("overall_recommendation", "N/A")
-    print(f"\nLLM Recommendation: {llm_recommendation}")
-    print(f"Summary: {llm_analysis.get('summary', 'N/A')}")
-    
-    response = prompt_accept_all("\nAccept all LLM recommendations?")
+    # Initial action prompt (Phase 2)
+    response = prompt_initial_action(allow_investigate=True)
     if response == "quit":
         return "quit"
-    elif response == "all":
-        # Accept everything
+    elif response == "accept_all":
         _accept_all(human_review, flags, llm_analysis)
         human_review["overall_status"] = "fully_reviewed"
         human_review["reviewed_at"] = datetime.utcnow().isoformat() + "Z"
         if not dry_run:
             save_outlier_analysis(guideline_id, analysis, root)
-        print(f"\n✓ {guideline_id}: Accepted all")
+        print(f"\n✓ {guideline_id}: Accepted all LLM recommendations")
         _wait_for_enter()
         return "continue"
+    
+    # Check for investigate_all (with optional user guidance)
+    is_inv, user_guidance = is_investigate_response(response)
+    if is_inv:
+        # Request investigation for all pending aspects
+        output_investigation_request(guideline_id, "all", user_guidance=user_guidance)
+        if wait_for_investigation_completion():
+            # Reload analysis after investigation
+            updated = load_outlier_analysis(guideline_id, root)
+            if updated:
+                analysis.update(updated)
+                flags = analysis.get("flags", {})
+                llm_analysis = analysis.get("llm_analysis", {})
+                comparison = analysis.get("comparison", {})
+                human_review = analysis.get("human_review", create_human_review_section())
+                analysis["human_review"] = human_review
+                initialize_fls_structures(human_review, llm_analysis, comparison)
+            
+            # Re-display with investigation findings
+            print("\n" + "═" * 78)
+            print("INVESTIGATION COMPLETE - Updated Analysis:")
+            print("═" * 78)
+            display_investigation_findings(analysis)
+            display_llm_analysis(analysis)
+            
+            # Re-prompt for action
+            response = prompt_initial_action(allow_investigate=False)  # Don't allow another investigate
+            if response == "quit":
+                return "quit"
+            elif response == "accept_all":
+                _accept_all(human_review, flags, llm_analysis)
+                human_review["overall_status"] = "fully_reviewed"
+                human_review["reviewed_at"] = datetime.utcnow().isoformat() + "Z"
+                if not dry_run:
+                    save_outlier_analysis(guideline_id, analysis, root)
+                print(f"\n✓ {guideline_id}: Accepted all LLM recommendations")
+                _wait_for_enter()
+                return "continue"
+            elif response == "skip":
+                return "continue"
+            # Otherwise continue to review each
+        else:
+            # Investigation cancelled, continue with review
+            pass
     elif response == "skip":
         return "continue"
     
-    # Detailed review
-    quit_requested = False
+    # Detailed per-aspect review with help option
+    # Pass analysis for re-display on '?'
     
     # 1. Categorization
     if flags.get("rationale_type_changed") or flags.get("batch_pattern_outlier"):
-        quit_requested = _review_categorization(human_review, llm_analysis, comparison, flags)
-        if quit_requested:
+        result = _review_categorization(human_review, llm_analysis, comparison, flags, analysis, root)
+        if result == "quit":
             return "quit"
+        elif result == "accept_remaining":
+            _accept_remaining(human_review, flags, llm_analysis, skip_categorization=True)
+            human_review["overall_status"] = "fully_reviewed"
+            human_review["reviewed_at"] = datetime.utcnow().isoformat() + "Z"
+            if not dry_run:
+                save_outlier_analysis(guideline_id, analysis, root)
+            _display_review_summary(guideline_id, human_review, flags)
+            _wait_for_enter()
+            return "continue"
     
     # 2. FLS Removals
     if flags.get("fls_removed"):
-        quit_requested = _review_fls_removals(human_review, llm_analysis, comparison)
-        if quit_requested:
+        result = _review_fls_removals(human_review, llm_analysis, comparison, analysis, root)
+        if result == "quit":
             return "quit"
+        elif result == "accept_remaining":
+            _accept_remaining(human_review, flags, llm_analysis, skip_fls_removals=True)
+            human_review["overall_status"] = "fully_reviewed"
+            human_review["reviewed_at"] = datetime.utcnow().isoformat() + "Z"
+            if not dry_run:
+                save_outlier_analysis(guideline_id, analysis, root)
+            _display_review_summary(guideline_id, human_review, flags)
+            _wait_for_enter()
+            return "continue"
     
     # 3. FLS Additions
     if flags.get("fls_added"):
-        quit_requested = _review_fls_additions(human_review, llm_analysis, comparison)
-        if quit_requested:
+        result = _review_fls_additions(human_review, llm_analysis, comparison, analysis, root)
+        if result == "quit":
             return "quit"
+        elif result == "accept_remaining":
+            _accept_remaining(human_review, flags, llm_analysis, skip_fls_additions=True)
+            human_review["overall_status"] = "fully_reviewed"
+            human_review["reviewed_at"] = datetime.utcnow().isoformat() + "Z"
+            if not dry_run:
+                save_outlier_analysis(guideline_id, analysis, root)
+            _display_review_summary(guideline_id, human_review, flags)
+            _wait_for_enter()
+            return "continue"
     
     # 4. Specificity
     if flags.get("specificity_decreased"):
-        quit_requested = _review_specificity(human_review, llm_analysis)
-        if quit_requested:
+        result = _review_specificity(human_review, llm_analysis, analysis, root)
+        if result == "quit":
             return "quit"
+        elif result == "accept_remaining":
+            _accept_remaining(human_review, flags, llm_analysis, skip_specificity=True)
+            human_review["overall_status"] = "fully_reviewed"
+            human_review["reviewed_at"] = datetime.utcnow().isoformat() + "Z"
+            if not dry_run:
+                save_outlier_analysis(guideline_id, analysis, root)
+            _display_review_summary(guideline_id, human_review, flags)
+            _wait_for_enter()
+            return "continue"
     
     # 5. ADD-6 Divergence
     if flags.get("applicability_differs_from_add6") or flags.get("adjusted_category_differs_from_add6"):
-        quit_requested = _review_add6_divergence(human_review, llm_analysis, analysis.get("add6", {}))
-        if quit_requested:
+        result = _review_add6_divergence(human_review, llm_analysis, analysis.get("add6", {}), analysis, root)
+        if result == "quit":
             return "quit"
+        # No more aspects after this, so accept_remaining is the same as completing
     
     # Update status and save
     human_review["overall_status"] = compute_overall_status(human_review, flags, llm_analysis)
@@ -648,128 +1057,303 @@ def interactive_review_guideline(
 
 def _accept_all(human_review: dict, flags: dict, llm_analysis: dict) -> None:
     """Accept all aspects based on LLM recommendations."""
-    # Categorization
-    if flags.get("rationale_type_changed") or flags.get("batch_pattern_outlier"):
-        human_review["categorization"] = {
-            "decision": "accept",
-            "reason": "Accepted per LLM recommendation",
-        }
+    _accept_remaining(human_review, flags, llm_analysis)
+
+
+def _accept_remaining(
+    human_review: dict,
+    flags: dict,
+    llm_analysis: dict,
+    skip_categorization: bool = False,
+    skip_fls_removals: bool = False,
+    skip_fls_additions: bool = False,
+    skip_specificity: bool = False,
+    skip_add6: bool = False,
+) -> None:
+    """Accept remaining aspects that haven't been decided yet."""
+    # Categorization - now per-context
+    if not skip_categorization and (flags.get("rationale_type_changed") or flags.get("batch_pattern_outlier")):
+        if not human_review.get("categorization"):
+            human_review["categorization"] = {}
+        for ctx in ["all_rust", "safe_rust"]:
+            if not human_review["categorization"].get(ctx, {}).get("decision"):
+                human_review["categorization"][ctx] = {
+                    "decision": "accept",
+                    "reason": "Accepted per LLM recommendation",
+                }
     
     # FLS Removals
-    for fls_id, item in human_review.get("fls_removals", {}).items():
-        for ctx in item.get("contexts", []):
-            if "decisions" not in item:
-                item["decisions"] = {}
-            item["decisions"][ctx] = {
-                "decision": "accept",
-                "reason": "Accepted per LLM recommendation",
-            }
+    if not skip_fls_removals:
+        for fls_id, item in human_review.get("fls_removals", {}).items():
+            for ctx in item.get("contexts", []):
+                if "decisions" not in item:
+                    item["decisions"] = {}
+                if not item["decisions"].get(ctx):
+                    item["decisions"][ctx] = {
+                        "decision": "accept",
+                        "reason": "Accepted per LLM recommendation",
+                    }
     
     # FLS Additions
-    for fls_id, item in human_review.get("fls_additions", {}).items():
-        for ctx in item.get("contexts", []):
-            if "decisions" not in item:
-                item["decisions"] = {}
-            item["decisions"][ctx] = {
+    if not skip_fls_additions:
+        for fls_id, item in human_review.get("fls_additions", {}).items():
+            for ctx in item.get("contexts", []):
+                if "decisions" not in item:
+                    item["decisions"] = {}
+                if not item["decisions"].get(ctx):
+                    item["decisions"][ctx] = {
+                        "decision": "accept",
+                        "reason": "Accepted per LLM recommendation",
+                    }
+    
+    # Specificity
+    if not skip_specificity and flags.get("specificity_decreased"):
+        if not human_review.get("specificity"):
+            human_review["specificity"] = {
                 "decision": "accept",
                 "reason": "Accepted per LLM recommendation",
             }
     
-    # Specificity
-    if flags.get("specificity_decreased"):
-        human_review["specificity"] = {
-            "decision": "accept",
-            "reason": "Accepted per LLM recommendation",
-        }
-    
     # ADD-6 Divergence
-    if flags.get("applicability_differs_from_add6") or flags.get("adjusted_category_differs_from_add6"):
-        human_review["add6_divergence"] = {
-            "decision": "accept",
-            "reason": "Accepted per LLM recommendation",
-        }
+    if not skip_add6 and (flags.get("applicability_differs_from_add6") or flags.get("adjusted_category_differs_from_add6")):
+        if not human_review.get("add6_divergence"):
+            human_review["add6_divergence"] = {
+                "decision": "accept",
+                "reason": "Accepted per LLM recommendation",
+            }
 
 
-def _review_categorization(human_review: dict, llm_analysis: dict, comparison: dict, flags: dict) -> bool:
-    """Review categorization changes. Returns True if quit requested."""
+def _review_categorization(human_review: dict, llm_analysis: dict, comparison: dict, flags: dict, analysis: dict, root: Path | None = None) -> str:
+    """Review categorization changes per-context. Returns 'continue', 'quit', or 'accept_remaining'."""
+    guideline_id = analysis.get("guideline_id", "Unknown")
+    add6 = analysis.get("add6", {})
+    context_metadata = analysis.get("context_metadata", {})
+    
     print()
     print("═" * 78)
-    print("CATEGORIZATION CHANGE")
+    print("CATEGORIZATION")
     print("═" * 78)
     
-    cat = llm_analysis.get("categorization", {})
-    print(f"LLM Verdict: {cat.get('verdict', 'N/A')}")
-    print(f"LLM Reasoning: {cat.get('reasoning', 'N/A')}")
+    # Display any existing investigation findings for categorization
+    display_investigation_findings(analysis, aspect="categorization")
     
-    # Show changes per context
+    # Get per-context LLM categorization (new format) or single verdict (old format)
+    llm_cat = llm_analysis.get("categorization", {})
+    
+    # Check if it's the new per-context format or old single-verdict format
+    is_per_context_format = llm_cat and (llm_cat.get("all_rust") is not None or llm_cat.get("safe_rust") is not None)
+    
+    if not is_per_context_format:
+        # Old format - show single verdict as overview
+        print(f"LLM Verdict (overall): {llm_cat.get('verdict', 'N/A')}")
+        reasoning = llm_cat.get("reasoning")
+        if reasoning:
+            print(f"LLM Reasoning: {reasoning}")
+    
+    # Initialize per-context categorization if needed
+    if human_review.get("categorization") is None or not isinstance(human_review.get("categorization"), dict):
+        human_review["categorization"] = {}
+    
+    # Review each context separately
     for ctx in ["all_rust", "safe_rust"]:
         ctx_comp = comparison.get(ctx, {})
-        app_trans = ctx_comp.get("applicability_mapping_to_decision") or "no change"
-        rat_trans = ctx_comp.get("rationale_type_mapping_to_decision") or "no change"
-        print(f"\n  {ctx}: applicability {app_trans}, rationale {rat_trans}")
+        ctx_decision = context_metadata.get("decision", {}).get(ctx, {})
+        ctx_mapping = context_metadata.get("mapping", {}).get(ctx, {})
+        
+        # Get actual values (from decision, falling back to mapping if unchanged)
+        dec_app = ctx_decision.get("applicability") or ctx_mapping.get("applicability") or "N/A"
+        dec_rat = ctx_decision.get("rationale_type") or ctx_mapping.get("rationale_type") or "N/A"
+        dec_adj = ctx_decision.get("adjusted_category") or ctx_mapping.get("adjusted_category") or "N/A"
+        
+        # Get transition text for change indication
+        app_changed = ctx_comp.get("applicability_changed", False)
+        rat_changed = ctx_comp.get("rationale_type_changed", False)
+        adj_changed = ctx_comp.get("adjusted_category_changed", False)
+        
+        app_trans = ctx_comp.get("applicability_mapping_to_decision") if app_changed else "no change from mapping"
+        rat_trans = ctx_comp.get("rationale_type_mapping_to_decision") if rat_changed else "no change from mapping"
+        adj_trans = ctx_comp.get("adjusted_category_mapping_to_decision") if adj_changed else "no change from mapping"
+        
+        # Get ADD-6 expected values
+        add6_app_key = f"applicability_{ctx}"
+        add6_app = add6.get(add6_app_key, "N/A")
+        add6_adj = add6.get("adjusted_category", "N/A")
+        
+        # Check divergence
+        app_diverges = ctx_comp.get("applicability_differs_from_add6", False)
+        adj_diverges = ctx_comp.get("adjusted_category_differs_from_add6", False)
+        
+        print()
+        print("─" * 78)
+        print(f"Context: {ctx}")
+        print("─" * 78)
+        
+        # Show per-context LLM verdict if available
+        if is_per_context_format:
+            ctx_llm = llm_cat.get(ctx, {})
+            if ctx_llm:
+                print(f"LLM Verdict: {ctx_llm.get('verdict', 'N/A')}")
+                ctx_reasoning = ctx_llm.get("reasoning")
+                if ctx_reasoning:
+                    print(f"LLM Reasoning: {ctx_reasoning}")
+                print()
+        
+        print(f"  Applicability:      {dec_app} ({app_trans})")
+        print(f"  Rationale type:     {dec_rat} ({rat_trans})")
+        print(f"  Adjusted category:  {dec_adj} ({adj_trans})")
+        print()
+        print(f"  ADD-6 Reference:")
+        app_status = "✗ DIVERGES" if app_diverges else "✓ matches"
+        adj_status = "✗ DIVERGES" if adj_diverges else "✓ matches"
+        print(f"    Applicability:    {add6_app} {app_status}")
+        print(f"    Adjusted category: {add6_adj} {adj_status}")
+        
+        # Check if already decided for this context
+        existing = human_review["categorization"].get(ctx, {}).get("decision")
+        if existing:
+            print(f"\n  [Already decided: {existing}]")
+            while True:
+                response = prompt_yes_no_skip_quit(f"\nChange {ctx} categorization decision?", show_help=True, allow_investigate=True)
+                if response == "help":
+                    display_llm_analysis(analysis)
+                    continue
+                is_inv, user_guidance = is_investigate_response(response)
+                if is_inv:
+                    output_investigation_request(guideline_id, "categorization", context=ctx, user_guidance=user_guidance)
+                    if wait_for_investigation_completion() and root:
+                        updated = load_outlier_analysis(guideline_id, root)
+                        if updated:
+                            analysis.update(updated)
+                            display_investigation_findings(analysis, aspect="categorization", context=ctx)
+                    continue
+                break
+            if response == "quit":
+                return "quit"
+            elif response in ("no", "skip"):
+                continue  # Keep existing decision, move to next context
+        
+        # Prompt for decision
+        while True:
+            response = prompt_yes_no_skip_quit(f"\nAccept {ctx} categorization?", show_help=True, allow_investigate=True)
+            if response == "help":
+                display_llm_analysis(analysis)
+                continue
+            is_inv, user_guidance = is_investigate_response(response)
+            if is_inv:
+                output_investigation_request(guideline_id, "categorization", context=ctx, user_guidance=user_guidance)
+                if wait_for_investigation_completion() and root:
+                    updated = load_outlier_analysis(guideline_id, root)
+                    if updated:
+                        analysis.update(updated)
+                        display_investigation_findings(analysis, aspect="categorization", context=ctx)
+                continue
+            break
+        
+        if response == "quit":
+            return "quit"
+        elif response == "skip":
+            pass  # Leave as-is for this context
+        elif response == "yes":
+            human_review["categorization"][ctx] = {"decision": "accept", "reason": None}
+        elif response == "no":
+            human_review["categorization"][ctx] = {"decision": "reject", "reason": None}
     
-    response = prompt_yes_no_skip_quit("\nAccept categorization?")
-    if response == "quit":
-        return True
-    elif response == "skip":
-        pass  # Leave as-is
-    elif response == "yes":
-        human_review["categorization"] = {"decision": "accept", "reason": None}
-    elif response == "no":
-        human_review["categorization"] = {"decision": "reject", "reason": None}
-    
-    return False
+    return "continue"
 
 
-def _review_fls_removals(human_review: dict, llm_analysis: dict, comparison: dict) -> bool:
-    """Review FLS removals. Returns True if quit requested."""
+def _review_fls_removals(human_review: dict, llm_analysis: dict, comparison: dict, analysis: dict, root: Path | None = None) -> str:
+    """Review FLS removals. Returns 'continue', 'quit', or 'accept_remaining'."""
     removals = llm_analysis.get("fls_removals", {})
     per_id = removals.get("per_id", {})
+    guideline_id = analysis.get("guideline_id", "Unknown")
     
     if not human_review.get("fls_removals"):
-        return False
+        return "continue"
     
     removal_count = sum(len(item.get("contexts", [])) for item in human_review["fls_removals"].values())
     if removal_count == 0:
-        return False
+        return "continue"
     
     print()
     print("═" * 78)
-    print(f"FLS REMOVALS ({removal_count} context decisions)")
+    print(f"FLS REMOVALS ({removal_count} items)")
     print("═" * 78)
     print(f"LLM Verdict: {removals.get('verdict', 'N/A')}")
-    print(f"LLM Reasoning: {removals.get('reasoning', 'N/A')}")
+    
+    # Show overall LLM reasoning for removals
+    overall_reasoning = removals.get("reasoning")
+    if overall_reasoning:
+        print(f"LLM Reasoning: {overall_reasoning}")
     
     idx = 0
+    total_items = removal_count
     for fls_id, item in human_review["fls_removals"].items():
         contexts = item.get("contexts", [])
         llm_info = per_id.get(fls_id, {})
         
         for ctx in contexts:
             idx += 1
-            print(f"\n  [{idx}] {fls_id}: {item.get('title', 'Unknown')} (category: {item.get('category')})")
-            print(f"      Context: {ctx}")
+            print(f"\n  [{idx}/{total_items}] {fls_id}: {item.get('title', 'Unknown')} (category: {item.get('category')})")
+            print(f"        Contexts: {', '.join(contexts)}")
+            
+            # Display any existing investigation findings for this FLS ID
+            display_investigation_findings(analysis, aspect="fls_removal", fls_id=fls_id, context=ctx)
+            
+            # Show the original reason why this FLS was matched (from mapping)
+            # No truncation - reviewer needs full context to make informed decisions
+            original_reason = llm_info.get("original_reason")
+            if original_reason:
+                print(f"        Original reason: {original_reason}")
             
             # Get LLM justification for this context
             removal_decisions = llm_info.get("removal_decisions", {})
             justification = removal_decisions.get(ctx, "No justification provided")
-            print(f"      LLM justification: {justification}")
+            print(f"        LLM justification ({ctx}): {justification}")
             
             # Check if already decided
             existing = item.get("decisions", {}).get(ctx, {}).get("decision")
             if existing:
-                print(f"      [Already decided: {existing}]")
-                response = prompt_yes_no_skip_quit(f"      Change decision for {ctx}?")
+                print(f"        [Already decided: {existing}]")
+                while True:
+                    response = prompt_yes_no_skip_quit(f"        Change decision for {ctx}?", show_help=True, allow_investigate=True)
+                    if response == "help":
+                        display_llm_analysis(analysis)
+                        continue
+                    is_inv, user_guidance = is_investigate_response(response)
+                    if is_inv:
+                        output_investigation_request(guideline_id, "fls_removal", fls_id=fls_id, context=ctx, user_guidance=user_guidance)
+                        if wait_for_investigation_completion() and root:
+                            # Reload analysis after investigation
+                            updated = load_outlier_analysis(guideline_id, root)
+                            if updated:
+                                analysis.update(updated)
+                                display_investigation_findings(analysis, aspect="fls_removal", fls_id=fls_id, context=ctx)
+                        continue
+                    break
                 if response == "quit":
-                    return True
+                    return "quit"
                 elif response in ("no", "skip"):
                     continue
             
-            response = prompt_yes_no_na(f"      Accept removal for {ctx}?", allow_na=(ctx not in contexts))
+            while True:
+                response = prompt_yes_no_na(f"        Accept removal for {ctx}?", allow_na=False, show_help=True, allow_investigate=True)
+                if response == "help":
+                    display_llm_analysis(analysis)
+                    continue
+                is_inv, user_guidance = is_investigate_response(response)
+                if is_inv:
+                    output_investigation_request(guideline_id, "fls_removal", fls_id=fls_id, context=ctx, user_guidance=user_guidance)
+                    if wait_for_investigation_completion() and root:
+                        # Reload analysis after investigation
+                        updated = load_outlier_analysis(guideline_id, root)
+                        if updated:
+                            analysis.update(updated)
+                            display_investigation_findings(analysis, aspect="fls_removal", fls_id=fls_id, context=ctx)
+                    continue
+                break
+            
             if response == "quit":
-                return True
-            elif response == "n_a":
-                continue
+                return "quit"
             else:
                 if "decisions" not in item:
                     item["decisions"] = {}
@@ -778,58 +1362,100 @@ def _review_fls_removals(human_review: dict, llm_analysis: dict, comparison: dic
                     "reason": None,
                 }
     
-    return False
+    return "continue"
 
 
-def _review_fls_additions(human_review: dict, llm_analysis: dict, comparison: dict) -> bool:
-    """Review FLS additions. Returns True if quit requested."""
+def _review_fls_additions(human_review: dict, llm_analysis: dict, comparison: dict, analysis: dict, root: Path | None = None) -> str:
+    """Review FLS additions. Returns 'continue', 'quit', or 'accept_remaining'."""
     additions = llm_analysis.get("fls_additions", {})
     per_id = additions.get("per_id", {})
+    guideline_id = analysis.get("guideline_id", "Unknown")
     
     if not human_review.get("fls_additions"):
-        return False
+        return "continue"
     
     addition_count = sum(len(item.get("contexts", [])) for item in human_review["fls_additions"].values())
     if addition_count == 0:
-        return False
+        return "continue"
     
     print()
     print("═" * 78)
-    print(f"FLS ADDITIONS ({addition_count} context decisions)")
+    print(f"FLS ADDITIONS ({addition_count} items)")
     print("═" * 78)
     print(f"LLM Verdict: {additions.get('verdict', 'N/A')}")
-    print(f"LLM Reasoning: {additions.get('reasoning', 'N/A')}")
+    
+    # Show overall LLM reasoning for additions
+    overall_reasoning = additions.get("reasoning")
+    if overall_reasoning:
+        print(f"LLM Reasoning: {overall_reasoning}")
     
     idx = 0
+    total_items = addition_count
     for fls_id, item in human_review["fls_additions"].items():
         contexts = item.get("contexts", [])
         llm_info = per_id.get(fls_id, {})
         
         for ctx in contexts:
             idx += 1
-            print(f"\n  [{idx}] {fls_id}: {item.get('title', 'Unknown')} (category: {item.get('category')})")
-            print(f"      Context: {ctx}")
+            print(f"\n  [{idx}/{total_items}] {fls_id}: {item.get('title', 'Unknown')} (category: {item.get('category')})")
+            print(f"        Contexts: {', '.join(contexts)}")
+            
+            # Display any existing investigation findings for this FLS ID
+            display_investigation_findings(analysis, aspect="fls_addition", fls_id=fls_id, context=ctx)
+            
+            # Show the new reason why this FLS was added (from decision)
+            # No truncation - reviewer needs full context to make informed decisions
+            new_reason = llm_info.get("new_reason")
+            if new_reason:
+                print(f"        New reason: {new_reason}")
             
             # Get LLM justification
             addition_decisions = llm_info.get("addition_decisions", {})
             justification = addition_decisions.get(ctx, "No justification provided")
-            print(f"      LLM justification: {justification}")
+            print(f"        LLM justification ({ctx}): {justification}")
             
             # Check if already decided
             existing = item.get("decisions", {}).get(ctx, {}).get("decision")
             if existing:
-                print(f"      [Already decided: {existing}]")
-                response = prompt_yes_no_skip_quit(f"      Change decision for {ctx}?")
+                print(f"        [Already decided: {existing}]")
+                while True:
+                    response = prompt_yes_no_skip_quit(f"        Change decision for {ctx}?", show_help=True, allow_investigate=True)
+                    if response == "help":
+                        display_llm_analysis(analysis)
+                        continue
+                    is_inv, user_guidance = is_investigate_response(response)
+                    if is_inv:
+                        output_investigation_request(guideline_id, "fls_addition", fls_id=fls_id, context=ctx, user_guidance=user_guidance)
+                        if wait_for_investigation_completion() and root:
+                            updated = load_outlier_analysis(guideline_id, root)
+                            if updated:
+                                analysis.update(updated)
+                                display_investigation_findings(analysis, aspect="fls_addition", fls_id=fls_id, context=ctx)
+                        continue
+                    break
                 if response == "quit":
-                    return True
+                    return "quit"
                 elif response in ("no", "skip"):
                     continue
             
-            response = prompt_yes_no_na(f"      Accept addition for {ctx}?", allow_na=(ctx not in contexts))
+            while True:
+                response = prompt_yes_no_na(f"        Accept addition for {ctx}?", allow_na=False, show_help=True, allow_investigate=True)
+                if response == "help":
+                    display_llm_analysis(analysis)
+                    continue
+                is_inv, user_guidance = is_investigate_response(response)
+                if is_inv:
+                    output_investigation_request(guideline_id, "fls_addition", fls_id=fls_id, context=ctx, user_guidance=user_guidance)
+                    if wait_for_investigation_completion() and root:
+                        updated = load_outlier_analysis(guideline_id, root)
+                        if updated:
+                            analysis.update(updated)
+                            display_investigation_findings(analysis, aspect="fls_addition", fls_id=fls_id, context=ctx)
+                    continue
+                break
+            
             if response == "quit":
-                return True
-            elif response == "n_a":
-                continue
+                return "quit"
             else:
                 if "decisions" not in item:
                     item["decisions"] = {}
@@ -838,29 +1464,54 @@ def _review_fls_additions(human_review: dict, llm_analysis: dict, comparison: di
                     "reason": None,
                 }
     
-    return False
+    return "continue"
 
 
-def _review_specificity(human_review: dict, llm_analysis: dict) -> bool:
-    """Review specificity loss. Returns True if quit requested."""
+def _review_specificity(human_review: dict, llm_analysis: dict, analysis: dict, root: Path | None = None) -> str:
+    """Review specificity loss. Returns 'continue', 'quit', or 'accept_remaining'."""
+    guideline_id = analysis.get("guideline_id", "Unknown")
     spec = llm_analysis.get("specificity", {})
     
     print()
     print("═" * 78)
-    print("SPECIFICITY CHANGE")
+    print("SPECIFICITY")
     print("═" * 78)
-    print(f"LLM Verdict: {spec.get('verdict', 'N/A')}")
-    print(f"LLM Reasoning: {spec.get('reasoning', 'N/A')}")
     
+    # Display any existing investigation findings for specificity
+    display_investigation_findings(analysis, aspect="specificity")
+    
+    print(f"LLM Verdict: {spec.get('verdict', 'N/A')}")
+    
+    # Show full LLM reasoning - no truncation
+    reasoning = spec.get("reasoning")
+    if reasoning:
+        print(f"LLM Reasoning: {reasoning}")
+    
+    # Show all lost paragraphs - no limit, reviewer needs complete picture
     lost = spec.get("lost_paragraphs", [])
     if lost:
-        print(f"\nLost paragraphs:")
-        for p in lost[:10]:
+        print(f"\nLost paragraphs ({len(lost)}):")
+        for p in lost:
             print(f"  - {p.get('fls_id')} (category {p.get('category')}): {p.get('fls_title')}")
     
-    response = prompt_yes_no_skip_quit("\nAccept specificity loss?")
+    while True:
+        response = prompt_yes_no_skip_quit("\nAccept specificity loss?", show_help=True, allow_investigate=True)
+        if response == "help":
+            display_llm_analysis(analysis)
+            continue
+        is_inv, user_guidance = is_investigate_response(response)
+        if is_inv:
+            output_investigation_request(guideline_id, "specificity", user_guidance=user_guidance)
+            if wait_for_investigation_completion() and root:
+                updated = load_outlier_analysis(guideline_id, root)
+                if updated:
+                    analysis.update(updated)
+                    display_investigation_findings(analysis, aspect="specificity")
+            continue
+        break
+    
     if response == "quit":
-        return True
+        return "quit"
     elif response == "skip":
         pass
     elif response == "yes":
@@ -868,28 +1519,74 @@ def _review_specificity(human_review: dict, llm_analysis: dict) -> bool:
     elif response == "no":
         human_review["specificity"] = {"decision": "reject", "reason": None}
     
-    return False
+    return "continue"
 
 
-def _review_add6_divergence(human_review: dict, llm_analysis: dict, add6: dict) -> bool:
-    """Review ADD-6 divergence. Returns True if quit requested."""
+def _review_add6_divergence(human_review: dict, llm_analysis: dict, add6: dict, analysis: dict, root: Path | None = None) -> str:
+    """Review ADD-6 divergence. Returns 'continue', 'quit', or 'accept_remaining'."""
+    guideline_id = analysis.get("guideline_id", "Unknown")
     div = llm_analysis.get("add6_divergence", {})
+    comparison = analysis.get("comparison", {})
     
     print()
     print("═" * 78)
     print("ADD-6 DIVERGENCE")
     print("═" * 78)
+    
+    # Display any existing investigation findings for ADD-6
+    display_investigation_findings(analysis, aspect="add6_divergence")
+    
     print(f"LLM Verdict: {div.get('verdict', 'N/A')}")
-    print(f"LLM Reasoning: {div.get('reasoning', 'N/A')}")
+    
+    # Show full LLM reasoning - no truncation
+    reasoning = div.get("reasoning")
+    if reasoning:
+        print(f"LLM Reasoning: {reasoning}")
     
     print(f"\nADD-6 Reference:")
     print(f"  applicability_all_rust: {add6.get('applicability_all_rust', 'N/A')}")
     print(f"  applicability_safe_rust: {add6.get('applicability_safe_rust', 'N/A')}")
     print(f"  adjusted_category: {add6.get('adjusted_category', 'N/A')}")
     
-    response = prompt_yes_no_skip_quit("\nAccept divergence from ADD-6?")
+    # Show per-context divergence status
+    print(f"\nPer-context divergence:")
+    for ctx in ["all_rust", "safe_rust"]:
+        add6_key = f"applicability_{ctx}"
+        add6_app = add6.get(add6_key, "N/A")
+        
+        ctx_comp = comparison.get(ctx, {})
+        # Get decision applicability from comparison data
+        dec_app = "N/A"
+        if ctx_comp:
+            if not ctx_comp.get("applicability_changed", True):
+                dec_app = "(unchanged)"
+            else:
+                trans = ctx_comp.get("applicability_mapping_to_decision")
+                if trans:
+                    dec_app = trans.split("→")[-1] if "→" in trans else trans
+        
+        diverges = ctx_comp.get("applicability_differs_from_add6", False)
+        status = "✗ DIVERGES" if diverges else "✓"
+        print(f"  {ctx}: ADD-6={add6_app}, Decision={dec_app} {status}")
+    
+    while True:
+        response = prompt_yes_no_skip_quit("\nAccept divergence from ADD-6?", show_help=True, allow_investigate=True)
+        if response == "help":
+            display_llm_analysis(analysis)
+            continue
+        is_inv, user_guidance = is_investigate_response(response)
+        if is_inv:
+            output_investigation_request(guideline_id, "add6_divergence", user_guidance=user_guidance)
+            if wait_for_investigation_completion() and root:
+                updated = load_outlier_analysis(guideline_id, root)
+                if updated:
+                    analysis.update(updated)
+                    display_investigation_findings(analysis, aspect="add6_divergence")
+            continue
+        break
+    
     if response == "quit":
-        return True
+        return "quit"
     elif response == "skip":
         pass
     elif response == "yes":
@@ -897,7 +1594,7 @@ def _review_add6_divergence(human_review: dict, llm_analysis: dict, add6: dict) 
     elif response == "no":
         human_review["add6_divergence"] = {"decision": "reject", "reason": None}
     
-    return False
+    return "continue"
 
 
 def _display_review_summary(guideline_id: str, human_review: dict, flags: dict) -> None:
@@ -907,8 +1604,15 @@ def _display_review_summary(guideline_id: str, human_review: dict, flags: dict) 
     print(f"✓ {guideline_id} review complete")
     print(f"  Overall status: {human_review.get('overall_status')}")
     
-    if human_review.get("categorization"):
-        print(f"  Categorization: {human_review['categorization'].get('decision')}")
+    cat = human_review.get("categorization", {})
+    if cat:
+        cat_decisions = []
+        for ctx in ["all_rust", "safe_rust"]:
+            dec = cat.get(ctx, {}).get("decision")
+            if dec:
+                cat_decisions.append(f"{ctx}={dec}")
+        if cat_decisions:
+            print(f"  Categorization: {', '.join(cat_decisions)}")
     
     removal_decisions = []
     for fls_id, item in human_review.get("fls_removals", {}).items():

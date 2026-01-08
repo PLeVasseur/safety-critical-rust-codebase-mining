@@ -281,7 +281,7 @@ Where `context` is one of:
 - `categorization-verdict`: `appropriate | inappropriate | needs_review`
 - `fls-removals-verdict`: `appropriate | inappropriate | needs_review | n_a`
 - `fls-additions-verdict`: `appropriate | inappropriate | needs_review | n_a`
-- `add6-divergence-verdict`: `justified | questionable | incorrect | n_a`
+- `add6-divergence-verdict`: `justified | questionable | incorrect | n_a` (note: `n_a` rejected if divergence flags are set)
 - `specificity-verdict`: `appropriate | inappropriate | needs_review | n_a`
 - `overall-recommendation`: `accept | accept_with_notes | needs_review | reject`
 
@@ -306,6 +306,59 @@ Where `context` is one of:
 The `context` must be one of `all_rust`, `safe_rust`, or `both`. The tool validates that the FLS ID actually appears in the specified context(s) from comparison data.
 
 These per-ID justifications with context information enable the human reviewer to make granular per-context accept/reject decisions on individual FLS changes.
+
+#### ADD-6 Divergence Analysis
+
+When analyzing ADD-6 divergence, follow this process:
+
+1. **Check top-level flags first:**
+   - `flags.applicability_differs_from_add6`
+   - `flags.adjusted_category_differs_from_add6`
+   
+   If EITHER is `true`, there IS a divergence that must be addressed.
+
+2. **Identify which context(s) diverge:**
+   Check `comparison.all_rust` and `comparison.safe_rust` for:
+   - `applicability_differs_from_add6: true`
+   - `adjusted_category_differs_from_add6: true`
+
+3. **Compare values:**
+   For each diverging context, compare:
+   - ADD-6 value: `add6.applicability_all_rust` or `add6.applicability_safe_rust`
+   - Decision value: `decision.{context}.applicability`
+
+4. **Determine verdict:**
+   - `justified`: The divergence is intentional AND correct (e.g., ADD-6 is wrong, or Rust semantics differ)
+   - `questionable`: The divergence may be wrong and needs human review
+   - `incorrect`: The divergence is clearly wrong and should be fixed
+   - `n_a`: **ONLY valid when top-level divergence flags are FALSE** - the tool will reject `n_a` if divergence flags are set
+
+5. **Document reasoning per context:**
+   The reasoning should explain WHY each diverging context's decision differs from ADD-6.
+
+**Example (Dir 4.3):**
+```
+Flags show: applicability_differs_from_add6=true
+Context analysis:
+  - all_rust: applicability=yes matches ADD-6=Yes ✓
+  - safe_rust: applicability=no DIFFERS from ADD-6=Yes ✗
+
+Verdict: justified
+Reasoning: Safe Rust cannot use asm! macros (FLS fls_s5nfhBFOk8Bu lists 'Calling 
+macro core::arch::asm' as an unsafe operation). ADD-6 appears to be incorrect 
+for safe_rust context - the guideline is not applicable when assembly is 
+impossible.
+```
+
+**Common ADD-6 Divergence Patterns:**
+
+| Pattern | Verdict | Typical Reasoning |
+|---------|---------|-------------------|
+| Safe Rust prevents the concern entirely | `justified` | FLS shows Rust's type system/borrow checker prevents the issue |
+| Unsafe-only operation | `justified` | Operation requires `unsafe`, so safe_rust applicability should be `no` |
+| Different Rust semantics | `justified` | Rust handles the concept differently than C |
+| Potential ADD-6 error | `questionable` | ADD-6 may have incorrect applicability |
+| Decision appears wrong | `incorrect` | The verification decision should be updated to match ADD-6 |
 
 **Output file structure:**
 
@@ -848,7 +901,18 @@ uv run review-outliers --standard misra-c \
     --reason "Only relevant in safe_rust context"
 ```
 
-#### Interactive Display
+#### Interactive Flow
+
+The interactive review follows a two-phase approach:
+
+1. **Phase 1: Full Analysis Display** - Show all LLM analysis upfront (same as `--show`)
+2. **Phase 2: Per-Aspect Prompting** - Sequentially prompt for each aspect
+
+**Help Feature:** At any prompt, enter `?` to re-display the full analysis.
+
+**Accept All Shortcut:** After the full display, offer `[a]ccept all` to accept all LLM recommendations for the current guideline.
+
+#### Interactive Display Example
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -863,82 +927,444 @@ Quick Reference:
   Decision (all_rust): applicability=yes, rationale_type=direct_mapping
   Decision (safe_rust): applicability=no, rationale_type=rust_prevents
 
+============================================================
+LLM ANALYSIS: Dir 4.3
+============================================================
+
+Overall Recommendation: accept
+
+Summary:
+  MISRA Dir 4.3 requires assembly to be encapsulated. Rust naturally
+  satisfies this via asm! macro requirement in unsafe blocks.
+
+--- Categorization ---
+  Verdict: appropriate
+  Reasoning: The applicability=yes and rationale_type=direct_mapping are
+             correct. Rust's asm! macro requirement aligns with MISRA's
+             encapsulation intent.
+
+--- FLS Removals ---
+  Verdict: inappropriate
+  Reasoning: The removed paragraphs are directly relevant legality rules
+             about inline assembly - they should be retained.
+  Per-ID:
+    fls_3fg60jblx0xb (contexts: all_rust):
+      Title: Inline Assembly legality
+      Category: -2
+      Original reason: Per FLS: 'Inline assembly is written as an assembly
+                       code block that is wrapped inside a macro invocation'
+      LLM justification (all_rust): This legality rule is directly relevant -
+                                     should not be removed
+
+    fls_4lb6yh12w1cv (contexts: all_rust):
+      Title: asm macro invocation
+      Category: -2
+      Original reason: Per FLS: 'Invoking macro core::arch::asm causes...'
+      LLM justification (all_rust): Directly relevant - should not be removed
+
+--- Specificity ---
+  Verdict: inappropriate
+  Reasoning: Lost 2 paragraph-level legality rules about inline assembly
+  Lost paragraphs:
+    - fls_3fg60jblx0xb (Inline Assembly legality)
+    - fls_4lb6yh12w1cv (asm macro invocation)
+
+--- ADD-6 Divergence ---
+  Verdict: n_a
+  Reasoning: Decision matches ADD-6 applicability
+
+============================================================
+
+[a]ccept all | [r]eview each | [s]kip | [q]uit > r
+
 ══════════════════════════════════════════════════════════════════════════════
-CATEGORIZATION CHANGE
+CATEGORIZATION
 ══════════════════════════════════════════════════════════════════════════════
 LLM Verdict: appropriate
-LLM Reasoning: "The applicability=yes and rationale_type=direct_mapping are
+LLM Reasoning: The applicability=yes and rationale_type=direct_mapping are
                correct. Rust's asm! macro requirement aligns with MISRA's
-               encapsulation intent."
+               encapsulation intent.
 
-  all_rust:  applicability yes→yes, rationale direct_mapping→direct_mapping (no change)
-  safe_rust: applicability no→no, rationale rust_prevents→rust_prevents (no change)
+  all_rust:  applicability no change, rationale no change
+  safe_rust: applicability no change, rationale no change
 
-Accept categorization? [y]es | [n]o | [s]kip | [q]uit > y
-
-══════════════════════════════════════════════════════════════════════════════
-FLS REMOVALS (2 removed)
-══════════════════════════════════════════════════════════════════════════════
-LLM Verdict: inappropriate
-LLM Reasoning: "The removed paragraphs are directly relevant legality rules
-               about inline assembly - they should be retained for citing
-               specific FLS normative text."
-
-  [1] fls_3fg60jblx0xb: Inline Assembly legality (category: -2, legality rule)
-      Context: all_rust
-      Original reason: "Per FLS: 'Inline assembly is written as an assembly
-                        code block that is wrapped inside a macro invocation'"
-      LLM justification: "This legality rule about inline assembly is directly
-                          relevant to MISRA's assembly encapsulation concern -
-                          should not be removed"
-
-      Accept removal for all_rust?  [y]es | [n]o > n
-      Accept removal for safe_rust? [y]es | [n]o | [n/a] > n/a
-
-  [2] fls_4lb6yh12w1cv: asm macro invocation (category: -2, legality rule)
-      Context: all_rust
-      Original reason: "Per FLS: 'Invoking macro core::arch::asm causes...'"
-      LLM justification: "This legality rule about asm macro invocation is
-                          directly relevant - should not be removed"
-
-      Accept removal for all_rust?  [y]es | [n]o > n
-      Accept removal for safe_rust? [y]es | [n]o | [n/a] > n/a
+Accept categorization? [y]es | [n]o | [s]kip | [?] help | [q]uit > y
 
 ══════════════════════════════════════════════════════════════════════════════
-SPECIFICITY CHANGE
+FLS REMOVALS (2 items)
 ══════════════════════════════════════════════════════════════════════════════
 LLM Verdict: inappropriate
-LLM Reasoning: "Lost 2 paragraph-level legality rules about inline assembly,
-               replaced with only unsafety legality. The inline assembly rules
-               are more specific to this MISRA concern."
+LLM Reasoning: The removed paragraphs are directly relevant legality rules
+               about inline assembly - they should be retained.
+
+  [1/2] fls_3fg60jblx0xb: Inline Assembly legality (category: -2)
+        Contexts: all_rust
+        Original reason: Per FLS: 'Inline assembly is written as an assembly
+                         code block that is wrapped inside a macro invocation'
+        LLM justification (all_rust): This legality rule is directly relevant -
+                                       should not be removed
+
+        Accept removal for all_rust? [y]es | [n]o | [?] help > n
+
+  [2/2] fls_4lb6yh12w1cv: asm macro invocation (category: -2)
+        Contexts: all_rust
+        Original reason: Per FLS: 'Invoking macro core::arch::asm causes...'
+        LLM justification (all_rust): Directly relevant - should not be removed
+
+        Accept removal for all_rust? [y]es | [n]o | [?] help > n
+
+══════════════════════════════════════════════════════════════════════════════
+SPECIFICITY
+══════════════════════════════════════════════════════════════════════════════
+LLM Verdict: inappropriate
+LLM Reasoning: Lost 2 paragraph-level legality rules about inline assembly
+               that should be restored.
 
 Lost paragraphs:
   - fls_3fg60jblx0xb (category -2): Inline Assembly legality
   - fls_4lb6yh12w1cv (category -2): asm macro invocation
 
-Accept specificity loss? [y]es | [n]o > n
+Accept specificity loss? [y]es | [n]o | [s]kip | [?] help > n
 
 ══════════════════════════════════════════════════════════════════════════════
 ADD-6 DIVERGENCE
 ══════════════════════════════════════════════════════════════════════════════
-LLM Verdict: n_a
-LLM Reasoning: "Decision matches ADD-6 applicability (Yes for all_rust), so
-               no divergence for all_rust."
+LLM Verdict: justified
+LLM Reasoning: safe_rust applicability is no because asm! macro requires
+               unsafe context (FLS fls_s5nfhBFOk8Bu). ADD-6 says Yes which
+               appears incorrect for safe Rust.
 
-No divergence detected - skipping.
+ADD-6 Reference:
+  applicability_all_rust: Yes
+  applicability_safe_rust: Yes
+  adjusted_category: advisory
+
+Per-context divergence:
+  all_rust: ADD-6=Yes, Decision=(unchanged) ✓
+  safe_rust: ADD-6=Yes, Decision=(unchanged) ✗ DIVERGES
+
+Accept divergence from ADD-6? [y]es | [n]o | [s]kip | [?] help > y
 
 ══════════════════════════════════════════════════════════════════════════════
 
 ✓ Dir 4.3 review complete
   Categorization: accepted
   FLS Removals:
-    fls_3fg60jblx0xb: all_rust=reject, safe_rust=n/a
-    fls_4lb6yh12w1cv: all_rust=reject, safe_rust=n/a
-  Specificity: rejected (will restore lost paragraphs)
-  ADD-6 Divergence: n/a
+    fls_3fg60jblx0xb: all_rust=reject
+    fls_4lb6yh12w1cv: all_rust=reject
+  Specificity: rejected
+  ADD-6 Divergence: accepted
 
 Press Enter to continue to next outlier...
 ```
+
+#### Context Display at Each Prompt (Enhanced)
+
+**Problem identified (2026-01-09):** The original design only showed minimal context at each per-aspect prompt. For example, at the categorization prompt:
+
+```
+══════════════════════════════════════════════════════════════════════════════
+CATEGORIZATION
+══════════════════════════════════════════════════════════════════════════════
+LLM Verdict: appropriate
+
+  all_rust:  applicability no change, rationale no change
+  safe_rust: applicability no change, rationale no change
+
+Accept categorization? [y]es | [n]o | [s]kip | [?] help | [q]uit > 
+```
+
+This lacks the **LLM reasoning** which is critical for informed decisions.
+
+**Solution:** Each per-aspect section MUST display:
+
+| Aspect | Must Display |
+|--------|--------------|
+| Categorization | LLM verdict + **full reasoning** + per-context changes |
+| FLS Removals | LLM verdict + **full overall reasoning** + per-ID: title, category, **full original reason**, LLM justification |
+| FLS Additions | LLM verdict + **full overall reasoning** + per-ID: title, category, **full new reason**, LLM justification |
+| Specificity | LLM verdict + **full reasoning** + complete lost paragraphs list |
+| ADD-6 Divergence | LLM verdict + **full reasoning** + ADD-6 reference values + per-context divergence |
+
+**No truncation at decision prompts:** Unlike the overview display (`display_llm_analysis()` which truncates for brevity), the per-aspect prompts must show **complete, untruncated content**. The human reviewer needs the full FLS quotes and reasoning to make informed accept/reject decisions. Long content will naturally wrap in the terminal.
+
+The `[?] help` option remains available to re-display the full analysis overview, but the key reasoning for the current aspect should always be visible in full without needing to press `?`.
+
+#### Per-Context Categorization Review
+
+**Problem identified (2026-01-09):** The original CATEGORIZATION prompt treated both contexts as a single decision:
+
+```
+══════════════════════════════════════════════════════════════════════════════
+CATEGORIZATION
+══════════════════════════════════════════════════════════════════════════════
+LLM Verdict: appropriate
+
+  all_rust: applicability no change, rationale no change
+  safe_rust: applicability no change, rationale no change
+
+Accept categorization? [y]es | [n]o | [s]kip | [?] help | [q]uit >
+```
+
+**Issues:**
+1. Shows "no change" without showing what the actual values are
+2. Doesn't show whether those values diverge from ADD-6
+3. Records a single decision for both contexts when they may need different decisions
+4. Reviewer cannot accept one context and reject the other
+
+**Solution:** Categorization must be reviewed per-context, showing:
+- Actual applicability value (yes/no/partial)
+- Actual rationale_type value (direct_mapping/rust_prevents/etc.)
+- Actual adjusted_category value (advisory/required/etc.)
+- ADD-6 expected values and divergence status
+- Separate accept/reject decision for each context
+
+**Enhanced CATEGORIZATION display:**
+
+```
+══════════════════════════════════════════════════════════════════════════════
+CATEGORIZATION
+══════════════════════════════════════════════════════════════════════════════
+LLM Verdict: appropriate
+LLM Reasoning: applicability=yes and rationale_type=direct_mapping correct 
+               for all_rust - Rust asm! macro encapsulates assembly
+
+─────────────────────────────────────────────────────────────────────────────
+Context: all_rust
+─────────────────────────────────────────────────────────────────────────────
+  Applicability:      yes (no change from mapping)
+  Rationale type:     direct_mapping (no change from mapping)
+  Adjusted category:  advisory (no change from mapping)
+  
+  ADD-6 Reference:
+    Applicability:    Yes ✓ (matches)
+    Adjusted category: advisory ✓ (matches)
+
+Accept all_rust categorization? [y]es | [n]o | [s]kip | [i]nvestigate | [?] help | [q]uit > y
+
+─────────────────────────────────────────────────────────────────────────────
+Context: safe_rust
+─────────────────────────────────────────────────────────────────────────────
+  Applicability:      no (no change from mapping)
+  Rationale type:     rust_prevents (no change from mapping)
+  Adjusted category:  n_a (no change from mapping)
+  
+  ADD-6 Reference:
+    Applicability:    Yes ✗ DIVERGES (decision says 'no', ADD-6 says 'Yes')
+    Adjusted category: advisory ✗ DIVERGES (decision says 'n_a', ADD-6 says 'advisory')
+
+Accept safe_rust categorization? [y]es | [n]o | [s]kip | [i]nvestigate | [?] help | [q]uit > y
+```
+
+**Data requirements:** The outlier_analysis file must include context metadata from the comparison_data:
+- `context_metadata.all_rust.{applicability, rationale_type, adjusted_category}` (from decision)
+- `context_metadata.safe_rust.{applicability, rationale_type, adjusted_category}` (from decision)
+- `context_metadata.mapping.all_rust.{applicability, rationale_type, adjusted_category}` (from mapping)
+- `context_metadata.mapping.safe_rust.{applicability, rationale_type, adjusted_category}` (from mapping)
+
+This data is already extracted in comparison_data files - record.py needs to copy it to outlier_analysis files.
+
+**human_review structure change:** The `categorization` field must store per-context decisions:
+
+```json
+"human_review": {
+  "categorization": {
+    "all_rust": {"decision": "accept", "reason": null},
+    "safe_rust": {"decision": "accept", "reason": null}
+  },
+  ...
+}
+```
+
+#### Per-Context Categorization in record-outlier-analysis
+
+**Problem:** The `record-outlier-analysis` tool originally accepted a single `--categorization-verdict` and `--categorization-reasoning` for the entire guideline. But since the two contexts (all_rust, safe_rust) can have very different characteristics - one might be applicable while the other is not - the LLM analysis should provide per-context verdicts.
+
+**Solution:** Update `record-outlier-analysis` to accept per-context categorization:
+
+**Old CLI (single verdict):**
+```bash
+uv run record-outlier-analysis \
+    --categorization-verdict appropriate \
+    --categorization-reasoning "Both contexts correctly categorized"
+```
+
+**New CLI (per-context verdicts):**
+```bash
+uv run record-outlier-analysis \
+    --categorization-verdict-all-rust appropriate \
+    --categorization-reasoning-all-rust "applicability=yes, rationale_type=direct_mapping correct for Rust asm! encapsulation" \
+    --categorization-verdict-safe-rust appropriate \
+    --categorization-reasoning-safe-rust "applicability=no correct - asm! requires unsafe context, ADD-6 divergence is justified"
+```
+
+**New CLI options:**
+- `--categorization-verdict-all-rust {appropriate,inappropriate,needs_review,n_a}`
+- `--categorization-reasoning-all-rust TEXT`
+- `--categorization-verdict-safe-rust {appropriate,inappropriate,needs_review,n_a}`
+- `--categorization-reasoning-safe-rust TEXT`
+
+**llm_analysis structure change:**
+
+```json
+"llm_analysis": {
+  "categorization": {
+    "all_rust": {
+      "verdict": "appropriate",
+      "reasoning": "applicability=yes, rationale_type=direct_mapping correct..."
+    },
+    "safe_rust": {
+      "verdict": "appropriate", 
+      "reasoning": "applicability=no correct - asm! requires unsafe..."
+    }
+  },
+  ...
+}
+```
+
+**Review tool display change:** The review tool should show the per-context LLM verdict alongside each context section:
+
+```
+──────────────────────────────────────────────────────────────────────────────
+Context: all_rust
+──────────────────────────────────────────────────────────────────────────────
+LLM Verdict: appropriate
+LLM Reasoning: applicability=yes, rationale_type=direct_mapping correct...
+
+  Applicability:      yes (no change from mapping)
+  ...
+```
+
+#### Per-Context Acknowledgment Requirements
+
+**Problem identified (2026-01-09):** The original outlier analysis approach allowed lazy LLM analysis. An LLM could generate analysis without explicitly addressing:
+1. **Mapping → Decision changes** - Changes detected in the comparison data
+2. **Decision → ADD-6 divergence** - Divergence from MISRA ADD-6 official applicability
+
+Without forced acknowledgment, the LLM might produce shallow analysis that misses important changes or divergences.
+
+**Solution:** Require explicit acknowledgment of every flagged change/divergence in the `record-outlier-analysis` tool.
+
+##### What Must Be Acknowledged
+
+For each context (all_rust, safe_rust), the LLM must acknowledge:
+
+| Category | When Required | Source Flag |
+|----------|---------------|-------------|
+| Applicability change from mapping | If `comparison.{ctx}.applicability_changed == true` | `flags.rationale_type_changed` |
+| Rationale type change from mapping | If `comparison.{ctx}.rationale_type_changed == true` | `flags.rationale_type_changed` |
+| Adjusted category change from mapping | If `comparison.{ctx}.adjusted_category_changed == true` | `flags.adjusted_category_differs_from_add6` |
+| Applicability diverges from ADD-6 | If `comparison.{ctx}.applicability_differs_from_add6 == true` | `flags.applicability_differs_from_add6` |
+| Adjusted category diverges from ADD-6 | If `comparison.{ctx}.adjusted_category_differs_from_add6 == true` | `flags.adjusted_category_differs_from_add6` |
+
+##### New CLI Flags for record-outlier-analysis
+
+**Change acknowledgment flags (mapping → decision):**
+```bash
+--cat-ack-change-applicability-all-rust "Acknowledgment text..."
+--cat-ack-change-applicability-safe-rust "Acknowledgment text..."
+--cat-ack-change-rationale-all-rust "Acknowledgment text..."
+--cat-ack-change-rationale-safe-rust "Acknowledgment text..."
+--cat-ack-change-category-all-rust "Acknowledgment text..."
+--cat-ack-change-category-safe-rust "Acknowledgment text..."
+```
+
+**Divergence acknowledgment flags (decision → ADD-6):**
+```bash
+--cat-ack-diverge-applicability-all-rust "Acknowledgment text..."
+--cat-ack-diverge-applicability-safe-rust "Acknowledgment text..."
+--cat-ack-diverge-category-all-rust "Acknowledgment text..."
+--cat-ack-diverge-category-safe-rust "Acknowledgment text..."
+```
+
+##### Validation Rules
+
+1. **Required when flagged:** If a change/divergence is flagged in comparison data, the corresponding acknowledgment MUST be provided
+2. **Minimum length:** Each acknowledgment must be ≥20 characters (prevents lazy "same" or "OK" responses)
+3. **Cross-validation:** The actual values provided in acknowledgments must reference what's in comparison_data
+4. **No shared reasoning:** If both contexts have identical reasoning, the reasoning must explicitly note this (e.g., "Same rationale applies to both contexts because...")
+
+##### Updated llm_analysis.categorization Structure
+
+```json
+"llm_analysis": {
+  "categorization": {
+    "all_rust": {
+      "actual_values": {
+        "applicability": "no",
+        "rationale_type": "no_equivalent",
+        "adjusted_category": "n_a"
+      },
+      "changes_from_mapping": {
+        "applicability": { "from": "yes", "to": "no" },
+        "rationale_type": { "from": "direct_mapping", "to": "no_equivalent" },
+        "adjusted_category": null
+      },
+      "diverges_from_add6": {
+        "applicability": { "decision": "no", "add6": "Yes" },
+        "adjusted_category": null
+      },
+      "verdict": "appropriate",
+      "reasoning": "The overall categorization is appropriate...",
+      "change_acknowledgments": {
+        "applicability": "Changed from yes to no because Rust has no equivalent to X...",
+        "rationale_type": "Changed from direct_mapping to no_equivalent because..."
+      },
+      "divergence_acknowledgments": {
+        "applicability": "Diverges from ADD-6=Yes because safe Rust cannot access..."
+      }
+    },
+    "safe_rust": {
+      // Same structure
+    }
+  }
+}
+```
+
+##### Example: Dir 4.3 with Full Acknowledgments
+
+**Comparison data shows:**
+- `all_rust`: No changes, no divergence
+- `safe_rust`: applicability_differs_from_add6=true (decision=no, ADD-6=Yes)
+
+**Required CLI flags:**
+```bash
+uv run record-outlier-analysis --standard misra-c --guideline "Dir 4.3" --batch 1 \
+    --analysis-summary "MISRA Dir 4.3 requires assembly encapsulation..." \
+    --categorization-verdict-all-rust appropriate \
+    --categorization-reasoning-all-rust "applicability=yes correct - asm! macro provides encapsulation" \
+    --categorization-verdict-safe-rust appropriate \
+    --categorization-reasoning-safe-rust "applicability=no correct - asm! requires unsafe context" \
+    --cat-ack-diverge-applicability-safe-rust "ADD-6 says Yes but asm! requires unsafe per FLS fls_s5nfhBFOk8Bu. Safe Rust cannot use asm!, so applicability must be no." \
+    ... (other flags)
+```
+
+**Note:** `--cat-ack-diverge-applicability-all-rust` is NOT required because `all_rust` does not diverge from ADD-6.
+
+##### Validation Failure Example
+
+```
+ERROR: Dir 4.3 has validation errors:
+  - Missing --cat-ack-diverge-applicability-safe-rust (required: comparison.safe_rust.applicability_differs_from_add6 is true)
+```
+
+##### Why This Matters
+
+1. **Forces thorough analysis:** LLM cannot skip over flagged items
+2. **Creates audit trail:** Each divergence/change has explicit justification
+3. **Enables human review:** Reviewer sees exactly what was acknowledged and why
+4. **Prevents lazy patterns:** Short or templated responses are rejected
+
+#### Prompt Options
+
+| Key | Meaning |
+|-----|---------|
+| `y` | Accept this aspect/decision |
+| `n` | Reject this aspect/decision |
+| `s` | Skip (leave undecided for now) |
+| `a` | Accept all remaining aspects for this guideline |
+| `?` | Re-display full LLM analysis |
+| `q` | Quit and show resume command |
 
 #### Per-Context Decision Structure
 
@@ -1136,6 +1562,302 @@ def compute_overall_status(human_review: dict, flags: dict, comparison: dict) ->
     else:
         return "pending"
 ```
+
+---
+
+### 6b. LLM-Assisted Review Mode (OpenCode Integration)
+
+**Purpose:** Enable human reviewers to request LLM investigation during interactive review, with findings recorded to the outlier analysis file for informed decision-making. Integrates with OpenCode via a skill and CLI tool.
+
+#### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  Human runs review tool inside OpenCode TUI                                  │
+│  > uv run review-outliers --standard misra-c --batch 1                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  Interactive review displays guideline analysis                              │
+│                                                                              │
+│  Accept removal for all_rust? [y]es | [n]o | [i]nvestigate | [?] help >     │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                    ┌───────────────┴───────────────┐
+                    │                               │
+                    ▼                               ▼
+            [y/n/s/q]                    [i] or [i "guidance..."]
+            Normal flow                              │
+                                                     ▼
+                                    ┌─────────────────────────────────────────┐
+                                    │  review-outliers outputs:               │
+                                    │  INVESTIGATION_REQUEST:{...json...}     │
+                                    │                                         │
+                                    │  Then waits for Enter                   │
+                                    └─────────────────────────────────────────┘
+                                                     │
+                                                     ▼
+                                    ┌─────────────────────────────────────────┐
+                                    │  OpenCode LLM (via skill) sees request: │
+                                    │  1. Loads outlier-review skill          │
+                                    │  2. Reads FLS content, MISRA rationale  │
+                                    │  3. Considers user_guidance if provided │
+                                    │  4. Calls record-investigation tool     │
+                                    │  5. Reports findings to user            │
+                                    └─────────────────────────────────────────┘
+                                                     │
+                                                     ▼
+                                    ┌─────────────────────────────────────────┐
+                                    │  User presses Enter in review tool      │
+                                    │  Tool reloads outlier file              │
+                                    │  Displays investigation findings        │
+                                    │  Re-prompts for decision                │
+                                    └─────────────────────────────────────────┘
+```
+
+#### Investigation Input Syntax
+
+The `[i]nvestigate` option accepts optional natural language guidance:
+
+| Input | Effect |
+|-------|--------|
+| `i` | Investigate current aspect with no additional guidance |
+| `i "guidance text"` | Investigate with user-provided context/instructions |
+
+**Examples:**
+
+```
+# Simple investigation
+Accept removal for all_rust? [y]es | [n]o | [i]nvestigate | [?] help > i
+
+# Investigation with guidance  
+Accept removal for all_rust? [y]es | [n]o | [i]nvestigate | [?] help > i "I reread MISRA Dir 4.3 - it's about encapsulation not safety. Check if asm! macro satisfies the encapsulation requirement."
+
+# Investigation with domain knowledge
+Accept ADD-6 divergence? [y]es | [n]o | [i]nvestigate | [?] help > i "ADD-6 says Yes for safe_rust but asm! requires unsafe. Verify this is actually a divergence."
+```
+
+#### Investigation Request Format
+
+When user triggers investigation, the review tool outputs:
+
+```
+INVESTIGATION_REQUEST:{"guideline_id":"Dir 4.3","aspect":"fls_removal","fls_id":"fls_3fg60jblx0xb","context":"all_rust","user_guidance":"I reread MISRA Dir 4.3 - it's about encapsulation..."}
+
+Investigation requested. Perform investigation and press Enter when complete...
+(Or press 'c' then Enter to cancel)
+```
+
+**JSON fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `guideline_id` | string | The MISRA guideline being reviewed |
+| `aspect` | string | One of: `fls_removal`, `fls_addition`, `categorization`, `specificity`, `add6_divergence`, `all` |
+| `fls_id` | string? | FLS ID for FLS-specific investigations |
+| `context` | string? | `all_rust` or `safe_rust` for context-specific investigations |
+| `user_guidance` | string? | Optional natural language guidance from user |
+
+#### OpenCode Skill: `outlier-review`
+
+**Location:** `.opencode/skill/outlier-review/SKILL.md`
+
+**Purpose:** Teaches the LLM how to handle `INVESTIGATION_REQUEST` markers and conduct investigations.
+
+**Skill responsibilities:**
+1. Watch for `INVESTIGATION_REQUEST:` in tool output
+2. Parse the JSON request
+3. Read relevant source files (FLS chapters, MISRA text, outlier file)
+4. Consider `user_guidance` if provided
+5. Call `record-investigation` tool to persist findings
+6. Report findings to the user
+7. Instruct user to press Enter to continue the review tool
+
+#### CLI Tool: `record-investigation`
+
+**Purpose:** Record investigation findings to an outlier analysis file in a structured format.
+
+**Command:**
+```bash
+uv run record-investigation \
+    --standard misra-c \
+    --guideline "Dir 4.3" \
+    --aspect fls_removal \
+    --fls-id fls_3fg60jblx0xb \
+    --context all_rust \
+    --source "embeddings/fls/chapter_22.json" \
+    --source "cache/misra_c_extracted_text.json" \
+    --fls-content "Inline assembly is written as an assembly code block..." \
+    --relevance "This legality rule directly addresses MISRA Dir 4.3's requirement" \
+    --recommendation "KEEP" \
+    --confidence high \
+    --user-guidance "User noted: encapsulation is the key concern"
+```
+
+**Required parameters:**
+
+| Parameter | Description |
+|-----------|-------------|
+| `--standard` | Standard (misra-c, etc.) |
+| `--guideline` | Guideline ID (e.g., "Dir 4.3") |
+| `--aspect` | Aspect type being investigated |
+| `--relevance` | Assessment of relevance to MISRA concern |
+| `--recommendation` | Recommended action (KEEP, REMOVE, ACCEPT, etc.) |
+| `--confidence` | Confidence level (high, medium, low) |
+
+**Optional parameters:**
+
+| Parameter | Description |
+|-----------|-------------|
+| `--fls-id` | FLS ID (for FLS-specific aspects) |
+| `--context` | Context (all_rust, safe_rust) |
+| `--source` | Source file consulted (can repeat) |
+| `--fls-content` | Summary of FLS content examined |
+| `--user-guidance` | User's guidance that informed investigation |
+| `--notes` | Additional notes |
+
+**Output:** Updates the outlier file's `llm_investigation.investigations` array.
+
+#### Investigation Data Structure
+
+```json
+{
+  "guideline_id": "Dir 4.3",
+  "llm_analysis": { ... },
+  "llm_investigation": {
+    "investigations": [
+      {
+        "timestamp": "2026-01-09T15:30:00Z",
+        "aspect": "fls_removal",
+        "target": {
+          "fls_id": "fls_3fg60jblx0xb",
+          "context": "all_rust"
+        },
+        "trigger": "human_request",
+        "user_guidance": "I reread MISRA Dir 4.3 - it's about encapsulation...",
+        "sources_consulted": [
+          "embeddings/fls/chapter_22.json (Inline Assembly)",
+          "embeddings/fls/chapter_19.json (Unsafety)",
+          "cache/misra_c_extracted_text.json (Dir 4.3)"
+        ],
+        "findings": {
+          "fls_content_summary": "FLS fls_3fg60jblx0xb states: 'Inline assembly is written as an assembly code block that is wrapped inside a macro invocation of macro core::arch::asm, macro core::arch::global_asm, or macro core::arch::naked_asm.'",
+          "relevance_assessment": "This legality rule directly addresses MISRA Dir 4.3's requirement that assembly be encapsulated. The FLS mandates macro encapsulation, which satisfies the MISRA intent.",
+          "recommendation": "KEEP - This FLS paragraph provides citable normative text for coding guidelines about assembly encapsulation.",
+          "confidence": "high"
+        }
+      }
+    ]
+  },
+  "human_review": { ... }
+}
+```
+
+#### Complete Workflow Example
+
+1. **User starts review in OpenCode:**
+   ```
+   > uv run review-outliers --standard misra-c --batch 1
+   ```
+
+2. **Review tool displays Dir 4.3 analysis:**
+   ```
+   ╔══════════════════════════════════════════════════════════════════════════════╗
+   ║  Outlier Review: Dir 4.3                                  (1/20)             ║
+   ╚══════════════════════════════════════════════════════════════════════════════╝
+   
+   [... LLM analysis displayed ...]
+   
+   ══════════════════════════════════════════════════════════════════════════════
+   FLS REMOVALS (2 items)
+   ══════════════════════════════════════════════════════════════════════════════
+   
+     [1/2] fls_3fg60jblx0xb: Inline Assembly legality (category: -2)
+           LLM justification: KEEP - directly relevant legality rule
+   
+           Accept removal for all_rust? [y]es | [n]o | [i]nvestigate | [?] help > 
+   ```
+
+3. **User requests investigation with guidance:**
+   ```
+   > i "MISRA Dir 4.3 is about encapsulation of assembly, not safety. Does asm! macro satisfy encapsulation?"
+   ```
+
+4. **Review tool outputs request and waits:**
+   ```
+   INVESTIGATION_REQUEST:{"guideline_id":"Dir 4.3","aspect":"fls_removal","fls_id":"fls_3fg60jblx0xb","context":"all_rust","user_guidance":"MISRA Dir 4.3 is about encapsulation of assembly, not safety. Does asm! macro satisfy encapsulation?"}
+   
+   Investigation requested. Perform investigation and press Enter when complete...
+   (Or press 'c' then Enter to cancel)
+   ```
+
+5. **OpenCode LLM (me) sees the request, loads skill, investigates:**
+   - Reads FLS chapter 22 (Inline Assembly)
+   - Reads MISRA Dir 4.3 rationale
+   - Notes user guidance about encapsulation
+   - Calls `record-investigation` tool:
+     ```bash
+     uv run record-investigation --standard misra-c --guideline "Dir 4.3" \
+       --aspect fls_removal --fls-id fls_3fg60jblx0xb --context all_rust \
+       --source "embeddings/fls/chapter_22.json" \
+       --fls-content "asm! macro wraps assembly in a macro invocation, providing syntactic encapsulation" \
+       --relevance "Directly satisfies MISRA's encapsulation requirement - assembly must go through asm! macro" \
+       --recommendation "KEEP" --confidence high \
+       --user-guidance "User noted: encapsulation is the key concern, not safety"
+     ```
+   - Reports to user: "Investigation complete. The FLS shows asm! provides encapsulation via macro syntax. Press Enter to continue."
+
+6. **User presses Enter, review tool continues:**
+   ```
+   ────────────────────────────────────────────────────────────────
+   INVESTIGATION FINDINGS
+   ────────────────────────────────────────────────────────────────
+   
+   [2026-01-09T15:30:00Z] fls_removal - fls_3fg60jblx0xb (all_rust)
+     User guidance: MISRA Dir 4.3 is about encapsulation...
+     FLS Content: asm! macro wraps assembly in a macro invocation...
+     Relevance: Directly satisfies MISRA's encapsulation requirement
+     Recommendation: KEEP (confidence: high)
+   ────────────────────────────────────────────────────────────────
+   
+   Accept removal for all_rust? [y]es | [n]o | [?] help > n
+     Decision recorded: reject (keep FLS match)
+   ```
+
+#### Implementation Checklist
+
+1. **`review.py` updates:**
+   - [ ] Parse `i` with optional quoted string argument
+   - [ ] Include `user_guidance` in `INVESTIGATION_REQUEST` JSON
+   - [ ] Display investigation findings after reload
+
+2. **`record-investigation` tool:**
+   - [ ] Create `tools/src/fls_tools/standards/analysis/record_investigation.py`
+   - [ ] Add entry point in `pyproject.toml`
+   - [ ] Validate parameters and update outlier file
+
+3. **OpenCode skill:**
+   - [ ] Create `.opencode/skill/outlier-review/SKILL.md`
+   - [ ] Document how to handle `INVESTIGATION_REQUEST`
+   - [ ] Document how to use `record-investigation` tool
+   - [ ] Document key file locations
+
+4. **Testing:**
+   - [ ] Test `i` without guidance
+   - [ ] Test `i "guidance"` with guidance
+   - [ ] Test `record-investigation` tool
+   - [ ] Test full workflow in OpenCode
+
+#### Implementation Notes
+
+1. **Skill loading:** The OpenCode LLM should load the `outlier-review` skill when it sees `INVESTIGATION_REQUEST:` in output. The skill provides detailed instructions for conducting investigations.
+
+2. **Investigation history:** Keep all investigations in an array - don't overwrite previous investigations. This creates an audit trail.
+
+3. **Graceful degradation:** If investigation fails (file not found, etc.), the LLM should report the error and the user can press Enter to continue without findings.
+
+4. **Control flow:** The review tool maintains control of the interactive loop. The LLM only updates the outlier file; the review tool handles all prompts and decisions.
 
 ---
 
@@ -2144,3 +2866,463 @@ These files were created between 05:23-05:49 on 2026-01-08. The per-ID validatio
 ### Resolution
 
 These 9 files must be re-recorded with `--force` and proper `--fls-removal-detail` / `--fls-addition-detail` arguments for each missing FLS ID.
+
+---
+
+## Enforced Single-Guideline Analysis (2026-01-09)
+
+### Problem Identified
+
+LLM batch-processing of guidelines led to:
+1. **Pattern matching** instead of genuine analysis - recognizing "standard patterns" without examining specifics
+2. **Shallow reasoning** that restates comparison data without evaluating actual FLS content
+3. **Missing nuances** - not reading the actual text of removed/added FLS sections
+
+The core issue: when reading multiple comparison files at once, the LLM optimizes for speed over depth, generating plausible-sounding analysis without actually:
+- Reading the **content** of removed FLS sections to assess if they were valuable
+- Checking if added FLS sections actually address the MISRA concern better
+- Evaluating whether ADD-6 divergence is genuinely justified
+
+### Solution: Enforced Single-Guideline Workflow
+
+#### New Tool: `prepare-outlier-analysis`
+
+A tool that displays everything needed to analyze ONE guideline, including full FLS content for removed/added sections.
+
+**Purpose:**
+- Force the LLM to see actual FLS text before making judgments
+- Provide all context in a single output that must be read
+- Generate a template command showing required flags
+- Enable general recommendations based on FLS content review
+
+**Usage:**
+```bash
+uv run prepare-outlier-analysis --standard misra-c --guideline "Rule 9.7" --batch 1
+```
+
+**Output Structure:**
+```
+================================================================================
+OUTLIER ANALYSIS: Rule 9.7 (Batch 1)
+================================================================================
+
+MISRA CONCERN: [Title from standards file]
+ADD-6: all_rust=Yes, safe_rust=No, adjusted_category=required, rationale=[UB]
+
+ACTIVE FLAGS:
+  ✓ adjusted_category_differs_from_add6 (safe_rust)
+  ✓ fls_removed (2 IDs)
+  ✓ fls_added (3 IDs)
+
+--------------------------------------------------------------------------------
+CONTEXT: all_rust
+--------------------------------------------------------------------------------
+Decision: applicability=yes, rationale_type=direct_mapping, adjusted_category=required
+Mapping:  applicability=yes, rationale_type=direct_mapping, adjusted_category=required
+ADD-6:    applicability=Yes, adjusted_category=required
+
+Changes from mapping: None
+Divergence from ADD-6: None
+
+FLS REMOVED (from mapping → not in decision):
+
+  [1] fls_3pjla9s93mhd - "Atomics legality" (category: -2, score: 0.71)
+      Mapping reason: "Per FLS: Defines atomic types in core::sync::atomic..."
+      
+      FLS CONTENT:
+      ┌────────────────────────────────────────────────────────────────────────
+      │ Module core::sync::atomic defines the following atomic types:
+      │ - AtomicBool
+      │ - AtomicI8, AtomicI16, AtomicI32, AtomicI64, AtomicIsize
+      │ - AtomicU8, AtomicU16, AtomicU32, AtomicU64, AtomicUsize
+      │ - AtomicPtr<T>
+      │ 
+      │ An atomic type provides atomic load, store, and compare-and-swap
+      │ operations with configurable memory ordering.
+      └────────────────────────────────────────────────────────────────────────
+      
+      LEGALITY RULES (-2):
+        • "An atomic operation shall specify a memory ordering."
+        • "Atomic types implement Send and Sync."
+      
+      DYNAMIC SEMANTICS (-3):
+        • "An atomic load returns the current value..."
+      
+      UNDEFINED BEHAVIOR (-4):
+        • (none for this section)
+
+FLS ADDED (in decision → not in mapping):
+
+  [1] fls_46910buiwvv9 - "Initialization legality rule" (category: -2, score: 0.73)
+      Decision reason: "FLS states 'A variable shall be initialized before accessed.'"
+      
+      FLS CONTENT:
+      ┌────────────────────────────────────────────────────────────────────────
+      │ A variable shall be initialized before it is accessed.
+      │ 
+      │ The value of a binding is the value of the expression of the
+      │ corresponding let initializer.
+      └────────────────────────────────────────────────────────────────────────
+
+--------------------------------------------------------------------------------
+CONTEXT: safe_rust  
+--------------------------------------------------------------------------------
+[Similar structure...]
+
+================================================================================
+REQUIRED FLAGS (based on active flags):
+================================================================================
+
+The following flags MUST be provided:
+
+  --cat-ack-diverge-category-safe-rust "..."   # safe_rust.adjusted_category_differs_from_add6
+
+  --fls-removal-detail "fls_3pjla9s93mhd:all_rust:..."
+  --fls-removal-detail "fls_xdvdl2ssnhlo:all_rust:..."
+  
+  --fls-addition-detail "fls_46910buiwvv9:all_rust:..."
+  ...
+
+================================================================================
+TEMPLATE COMMAND:
+================================================================================
+
+uv run record-outlier-analysis --standard misra-c --guideline "Rule 9.7" --batch 1 \
+    --analysis-summary "FILL: 1-2 sentence summary" \
+    --overall-recommendation FILL \
+    --categorization-verdict-all-rust FILL \
+    --categorization-reasoning-all-rust "FILL" \
+    --categorization-verdict-safe-rust FILL \
+    --categorization-reasoning-safe-rust "FILL" \
+    --cat-ack-diverge-category-safe-rust "FILL: Why does safe_rust adjusted_category differ from ADD-6?" \
+    --fls-removals-verdict FILL \
+    --fls-removals-reasoning "FILL" \
+    --fls-removal-detail "fls_3pjla9s93mhd:all_rust:FILL" \
+    --fls-removal-detail "fls_xdvdl2ssnhlo:all_rust:FILL" \
+    --fls-additions-verdict FILL \
+    --fls-additions-reasoning "FILL" \
+    --fls-addition-detail "fls_46910buiwvv9:all_rust:FILL" \
+    --add6-divergence-verdict FILL \
+    --add6-divergence-reasoning "FILL" \
+    --general-recommendation "FILL or omit if none" \
+    --force
+```
+
+#### Enhanced Validation for `record-outlier-analysis`
+
+**Increased minimum justification length:**
+- Per-ID justifications: minimum 50 characters (up from no minimum)
+- Must contain either an FLS ID reference OR a quoted phrase from FLS content
+
+**Quote/Reference requirement:**
+```python
+def validate_fls_justification(text: str, fls_id: str) -> list[str]:
+    errors = []
+    if len(text) < 50:
+        errors.append(f"Justification for {fls_id} too short (min 50 chars, got {len(text)})")
+    
+    # Must reference an FLS ID or contain a quoted phrase
+    has_fls_ref = "fls_" in text.lower()
+    has_quote = '"' in text or "'" in text or "FLS states" in text or "Per FLS" in text
+    if not (has_fls_ref or has_quote):
+        errors.append(f"Justification for {fls_id} must quote FLS content or reference an FLS ID")
+    
+    return errors
+```
+
+**Specificity loss enforcement:**
+- When `specificity_decreased` flag is set, `--specificity-verdict` cannot be "n_a"
+- `--specificity-reasoning` must reference specific lost paragraph IDs
+
+#### New Flag: `--general-recommendation`
+
+For observations that go beyond the single guideline:
+- FLS paragraphs that seem relevant but weren't in similarity results
+- Patterns noticed across guidelines (e.g., "this FLS section appears relevant to all FFI rules")
+- Suggestions for cross-guideline consistency
+
+These are recorded in the analysis file and aggregated in batch reports.
+
+#### Progress Tracking Tool: `check-analysis-progress`
+
+```bash
+uv run check-analysis-progress --standard misra-c
+```
+
+**Output:**
+```
+ANALYSIS PROGRESS: misra-c
+==========================
+
+Batch 1: 6/20 complete (30%)
+  Last completed: Rule 9.4
+  Next pending: Rule 9.7
+
+Recent verdicts:
+  Dir 4.3:  accept
+  Dir 5.1:  accept  
+  Rule 5.1: accept
+  Rule 5.9: needs_review (ADD-6 divergence questionable)
+  Rule 8.6: accept
+  Rule 9.4: accept
+
+General recommendations recorded: 2
+  - "fls_xyz should be considered for all atomics rules"
+  - "Batch 2 FFI guidelines share common divergence pattern"
+
+To continue:
+  uv run prepare-outlier-analysis --standard misra-c --guideline "Rule 9.7" --batch 1
+```
+
+### LLM Analysis Protocol (for AGENTS.md)
+
+When analyzing outliers, follow this single-guideline workflow:
+
+1. **Prepare**: Run `uv run prepare-outlier-analysis --standard misra-c --guideline "Rule X.Y" --batch N`
+
+2. **Read**: Read the ENTIRE output. Do not skim. The FLS content sections contain the actual specification text needed to evaluate removals/additions.
+
+3. **Analyze Each Removal**: For each FLS ID in "FLS REMOVED":
+   - Read the FLS content shown (main content + all rubrics)
+   - Decide: Does removing this section lose important information for understanding how Rust handles this MISRA concern?
+   - If YES (inappropriate removal): Note why the content is valuable, quote specific text
+   - If NO (appropriate removal): Note why the content is redundant or tangential
+
+4. **Analyze Each Addition**: For each FLS ID in "FLS ADDED":
+   - Read the FLS content shown
+   - Decide: Does this section provide useful information about the MISRA concern?
+   - If YES (appropriate addition): Note what value it adds, quote specific text
+   - If NO (inappropriate addition): Note why it's not relevant
+
+5. **Evaluate Divergence**: If ADD-6 divergence is flagged:
+   - Read the ADD-6 values shown
+   - Read the decision values shown
+   - Decide: Is the divergence justified by Rust language semantics?
+
+6. **Check for General Recommendations**: While reviewing FLS content, note if:
+   - Any FLS paragraphs in rubrics seem relevant but weren't matched
+   - This guideline's pattern might apply to other guidelines
+   - There's a cross-guideline consistency issue
+
+7. **Fill Template**: Copy the template command and fill in each FILL placeholder:
+   - Each justification must be at least 50 characters
+   - Each justification must quote or reference specific FLS content
+   - Explain the reasoning, not just state the verdict
+
+8. **Record**: Execute the filled command
+
+9. **Checkpoint**: After every 5 guidelines, output a summary showing:
+   - Guidelines processed in this batch of 5
+   - Verdicts given (accept/needs_review/reject counts)
+   - Any general recommendations recorded
+   - Any patterns noticed
+   - Which guidelines (if any) were marked needs_review and why
+
+### Implementation Plan
+
+#### Phase 1: Create `prepare-outlier-analysis` tool
+
+Location: `tools/src/fls_tools/standards/analysis/prepare.py`
+
+Features:
+- Loads comparison data for single guideline
+- Loads FLS content for all added/removed IDs (including all rubrics)
+- Formats output with actual FLS text in readable blocks
+- Shows which flags require acknowledgment
+- Generates template command with all required flags pre-filled
+
+Entry point: `prepare-outlier-analysis = "fls_tools.standards.analysis.prepare:main"`
+
+#### Phase 2: Update `record-outlier-analysis` validation
+
+Changes to `tools/src/fls_tools/standards/analysis/record.py`:
+- Add `--general-recommendation` flag (optional, aggregated to batch report)
+- Increase minimum justification length to 50 chars
+- Add quote/reference validation
+- Enforce specificity_decreased handling (cannot be n_a when flagged)
+
+#### Phase 3: Create `check-analysis-progress` tool
+
+Location: `tools/src/fls_tools/standards/analysis/progress.py`
+
+Features:
+- Shows completion status per batch
+- Lists recent verdicts
+- Shows pending next guideline
+- Aggregates general recommendations
+
+Entry point: `check-analysis-progress = "fls_tools.standards.analysis.progress:main"`
+
+#### Phase 4: Update AGENTS.md
+
+Add "Outlier Analysis Protocol" section with the workflow defined above.
+
+#### Phase 5: Clear existing analysis and restart
+
+```bash
+# Backup existing (incomplete) analysis
+mv cache/analysis/outlier_analysis cache/analysis/outlier_analysis_backup_20260109
+
+# Create fresh directory
+mkdir -p cache/analysis/outlier_analysis
+
+# Re-extract comparison data (if needed)
+uv run extract-comparison-data --standard misra-c --batches 1,2,3 --force
+```
+
+### Checkpoint Format
+
+After every 5 guidelines, the LLM outputs:
+
+```
+================================================================================
+CHECKPOINT: Guidelines 6-10 of Batch 1
+================================================================================
+
+Completed:
+  1. Rule 9.7:  accept - Atomic initialization maps directly to Rust atomics
+  2. Rule 10.5: accept - Type casting rules align with FLS cast expressions
+  3. Rule 11.1: needs_review - Pointer conversion divergence from ADD-6 questionable
+  4. Rule 11.4: accept - Pointer-to-integer cast maps to raw pointer operations
+  5. Rule 11.6: accept - Object pointer conversion aligns with FLS unsafety
+
+Summary:
+  - Accepted: 4
+  - Needs review: 1 (Rule 11.1)
+  - Rejected: 0
+
+General recommendations recorded:
+  - Rule 11.1: "All pointer rules may need consistent ADD-6 divergence rationale"
+
+Patterns noticed:
+  - Rules 11.x share common FLS sections for pointer/unsafety operations
+  - safe_rust consistently n_a for pointer manipulation rules
+
+Next: Rule 12.1
+================================================================================
+```
+
+### Implementation Plan (Detailed)
+
+Based on code review, here's the refined implementation:
+
+#### Phase 1: Fix `load_fls_content` to Handle Paragraph IDs
+
+**Problem:** The current `load_fls_content()` in `analysis/shared.py` only finds section-level FLS IDs. Paragraph-level IDs (like `fls_3fg60jblx0xb`) are stored inside rubrics and aren't found.
+
+**Solution:** Update `load_fls_content()` to use existing `build_fls_metadata()` from `fls_tools.shared.fls` which already builds both `sections_metadata` and `paragraphs_metadata`.
+
+**Changes to `tools/src/fls_tools/standards/analysis/shared.py`:**
+```python
+from fls_tools.shared import load_fls_chapters, build_fls_metadata
+
+# Module-level cache
+_fls_metadata_cache = None
+
+def get_fls_metadata(root: Path | None = None) -> tuple[dict, dict]:
+    """Get cached FLS metadata (sections and paragraphs)."""
+    global _fls_metadata_cache
+    if _fls_metadata_cache is None:
+        chapters = load_fls_chapters(root)
+        _fls_metadata_cache = build_fls_metadata(chapters)
+    return _fls_metadata_cache
+
+def load_fls_content(fls_id: str, root: Path | None = None) -> dict | None:
+    """
+    Load FLS content by ID (section or paragraph).
+    
+    For section IDs: Returns section content with all rubrics
+    For paragraph IDs: Returns parent section content with paragraph highlighted
+    """
+    sections_meta, paragraphs_meta = get_fls_metadata(root)
+    
+    # Check if it's a section ID
+    if fls_id in sections_meta:
+        return _load_section_content(fls_id, root)
+    
+    # Check if it's a paragraph ID
+    if fls_id in paragraphs_meta:
+        para_info = paragraphs_meta[fls_id]
+        parent_section = para_info.get("section_fls_id")
+        return {
+            "fls_id": fls_id,
+            "is_paragraph": True,
+            "paragraph_text": para_info.get("text", ""),
+            "category": para_info.get("category"),
+            "category_name": para_info.get("category_name"),
+            "parent_section_fls_id": parent_section,
+            "parent_section_title": para_info.get("section_title", ""),
+            "chapter": para_info.get("chapter"),
+            # Also load parent section for context
+            "parent_section": _load_section_content(parent_section, root) if parent_section else None,
+        }
+    
+    return None
+```
+
+#### Phase 2: Update `prepare-outlier-analysis` Tool
+
+Already created at `tools/src/fls_tools/standards/analysis/prepare.py`. After Phase 1 fix, it will correctly show FLS content for both section and paragraph IDs.
+
+**Entry point added to pyproject.toml:**
+```toml
+prepare-outlier-analysis = "fls_tools.standards.analysis.prepare:main"
+```
+
+#### Phase 3: Update `record-outlier-analysis` Validation
+
+**Changes to `tools/src/fls_tools/standards/analysis/record.py`:**
+
+1. Add `--general-recommendation` flag (optional, stored in analysis file)
+2. Increase minimum per-ID justification length to 50 chars
+3. Add quote/reference validation:
+   - Must contain `fls_` reference OR
+   - Must contain quoted text indicators (`"`, `'`, `"FLS states"`, `"Per FLS"`)
+4. Specificity enforcement when `specificity_decreased` flag set
+
+#### Phase 4: Create `check-analysis-progress` Tool
+
+**Location:** `tools/src/fls_tools/standards/analysis/analysis_progress.py`
+
+**Features:**
+- Shows completion status per batch by counting files in `cache/analysis/outlier_analysis/`
+- Lists recent verdicts from completed analysis files
+- Shows next pending guideline
+- Aggregates general recommendations across all files
+
+**Entry point:** `check-analysis-progress = "fls_tools.standards.analysis.analysis_progress:main"`
+
+#### Phase 5: Update AGENTS.md
+
+Add "Outlier Analysis Protocol" section documenting the single-guideline workflow with checkpoints every 5 guidelines.
+
+#### Phase 6: Clear and Restart Analysis
+
+```bash
+# Backup existing analysis
+mv cache/analysis/outlier_analysis cache/analysis/outlier_analysis_backup_20260109_v2
+
+# Create fresh directory
+mkdir -p cache/analysis/outlier_analysis
+
+# Verify comparison data exists
+ls cache/analysis/comparison_data/batch{1,2,3}/ | wc -l
+```
+
+### Existing Tools to Reuse
+
+| Tool/Function | Location | Purpose |
+|---------------|----------|---------|
+| `load_fls_chapters()` | `fls_tools.shared.fls` | Load all chapter JSON files |
+| `build_fls_metadata()` | `fls_tools.shared.fls` | Build sections + paragraphs metadata |
+| `CATEGORY_NAMES` | `fls_tools.shared.constants` | Rubric category names |
+| `load_comparison_data()` | `analysis/shared.py` | Load comparison data for a guideline |
+| `get_active_flags()` | `analysis/shared.py` | Get list of active flag names |
+
+### Tool Execution Order
+
+1. `prepare-outlier-analysis` - Displays context for ONE guideline
+2. LLM reads output and formulates analysis
+3. `record-outlier-analysis` - Records the analysis with validation
+4. `check-analysis-progress` - Shows progress and next guideline (every 5)
+5. Repeat until batch complete

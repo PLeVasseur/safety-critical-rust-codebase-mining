@@ -3,16 +3,17 @@
 validate_decisions.py - Validate decision files in a decisions directory.
 
 This tool validates individual guideline verification decision files used in the
-parallel verification workflow. Supports both v1 and v2 decision file formats.
+parallel verification workflow. Supports v1.x, v2.x, v3.x, and v4.0 decision file formats.
 
 Validation checks:
-1. Schema validation against decision_file.schema.json (v1 or v2)
+1. Schema validation against decision_file.schema.json
 2. Filename-to-guideline_id consistency (Dir_1.1.json should contain "Dir 1.1")
 3. No duplicate guideline_ids across files
 4. FLS ID format validity
 5. Non-empty reason fields on matches
 6. If --batch-report provided: verify guideline_ids exist in batch
-7. v2-specific: per-context progress reporting
+7. v2+ specific: per-context progress reporting
+8. v3.2/v4.0: paragraph coverage validation
 
 Usage:
     uv run validate-decisions \\
@@ -31,7 +32,12 @@ from pathlib import Path
 
 import jsonschema
 
-from fls_tools.shared import get_project_root, get_coding_standards_dir
+from fls_tools.shared import (
+    get_project_root, 
+    get_coding_standards_dir,
+    count_matches_by_category,
+    validate_paragraph_coverage_context,
+)
 
 
 def load_json(path: Path) -> dict | None:
@@ -108,7 +114,11 @@ def validate_decision_file(
     # Detect schema version
     schema_version = data.get("schema_version", "1.0")
     
-    # Validate FLS IDs format - handle v1 and v2 structures
+    # Per-context versions
+    per_context_versions = ("2.0", "2.1", "2.2", "3.0", "3.1", "3.2", "4.0")
+    paragraph_versions = ("3.2", "4.0")  # Versions with enforced paragraph coverage
+    
+    # Validate FLS IDs format - handle v1 and v2+ structures
     fls_id_pattern = re.compile(r"^fls_[a-zA-Z0-9]+$")
     
     def validate_matches(matches: list, prefix: str) -> None:
@@ -122,12 +132,30 @@ def validate_decision_file(
             if not reason or not reason.strip():
                 errors.append(f"{prefix}[{i}]: Empty reason field")
     
-    if schema_version in ("2.0", "2.1", "3.0"):
-        # v2.x/v3.x: validate each context
+    if schema_version in per_context_versions:
+        # v2.x/v3.x/v4.x: validate each context
         for context in ["all_rust", "safe_rust"]:
             ctx_data = data.get(context, {})
             validate_matches(ctx_data.get("accepted_matches", []), f"{context}.accepted_matches")
             validate_matches(ctx_data.get("rejected_matches", []), f"{context}.rejected_matches")
+            
+            # Validate paragraph coverage for v3.2/v4.0
+            if schema_version in paragraph_versions and ctx_data.get("decision"):
+                para_errors = validate_paragraph_coverage_context(
+                    context, ctx_data, schema_version, strict=True
+                )
+                errors.extend(para_errors)
+                
+                # Validate stored counts match actual counts
+                matches = ctx_data.get("accepted_matches", [])
+                actual_para, actual_section = count_matches_by_category(matches)
+                stored_para = ctx_data.get("paragraph_match_count")
+                stored_section = ctx_data.get("section_match_count")
+                
+                if stored_para is not None and stored_para != actual_para:
+                    errors.append(f"{context}: paragraph_match_count={stored_para} but actual={actual_para}")
+                if stored_section is not None and stored_section != actual_section:
+                    errors.append(f"{context}: section_match_count={stored_section} but actual={actual_section}")
     else:
         # v1.x: flat structure
         validate_matches(data.get("accepted_matches", []), "accepted_matches")
@@ -167,12 +195,16 @@ def validate_decisions_directory(
     all_guideline_ids = set()
     guideline_id_to_file = {}
     
-    # v2 per-context tracking
+    # Per-context versions
+    per_context_versions = ("2.0", "2.1", "2.2", "3.0", "3.1", "3.2", "4.0")
+    
+    # v2+ per-context tracking
     all_rust_decided = set()
     safe_rust_decided = set()
     both_decided = set()
     v1_count = 0
     v2_count = 0
+    version_counts = {}
     
     for path in decision_files:
         is_valid, errors, data = validate_decision_file(path, schema, batch_guideline_ids)
@@ -180,6 +212,7 @@ def validate_decisions_directory(
         if data:
             gid = data.get("guideline_id")
             schema_version = data.get("schema_version", "1.0")
+            version_counts[schema_version] = version_counts.get(schema_version, 0) + 1
             
             if gid:
                 # Check for duplicates
@@ -193,7 +226,7 @@ def validate_decisions_directory(
                     guideline_id_to_file[gid] = path.name
                 
                 # Track per-context decisions
-                if schema_version in ("2.0", "2.1", "3.0"):
+                if schema_version in per_context_versions:
                     v2_count += 1
                     ar = data.get("all_rust", {})
                     sr = data.get("safe_rust", {})
@@ -228,6 +261,7 @@ def validate_decisions_directory(
         "both_decided": both_decided,
         "v1_count": v1_count,
         "v2_count": v2_count,
+        "version_counts": version_counts,
     }
 
 
@@ -299,7 +333,14 @@ def main():
     # Print results
     print(f"Found {total_count} decision files")
     print(f"  v1.x format: {result['v1_count']}")
-    print(f"  v2.x/v3.x format: {result['v2_count']}")
+    print(f"  v2.x+ format: {result['v2_count']}")
+    
+    # Show version breakdown
+    version_counts = result.get("version_counts", {})
+    if version_counts:
+        version_parts = [f"v{v}={c}" for v, c in sorted(version_counts.items()) if c > 0]
+        if version_parts:
+            print(f"  Versions: {', '.join(version_parts)}")
     print()
     
     # Per-context progress (v2)

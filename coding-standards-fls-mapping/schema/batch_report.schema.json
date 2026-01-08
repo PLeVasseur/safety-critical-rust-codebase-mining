@@ -2,13 +2,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "batch_report.schema.json",
   "title": "Verification Batch Report",
-  "description": "Schema for batch verification reports. Supports v1.0 (flat), v2.0 (per-context), and v3.0 (per-context + ADD-6) formats.",
+  "description": "Schema for batch verification reports. Supports v1.0 (flat), v2.0 (per-context), v3.0 (per-context + ADD-6), and v4.0 (per-context + paragraph coverage) formats.",
   "type": "object",
   "required": ["schema_version", "batch_id", "session_id", "generated_date", "standard", "thresholds", "guidelines", "applicability_changes", "summary"],
   "properties": {
     "schema_version": {
       "type": "string",
-      "enum": ["1.0", "2.0", "3.0"],
+      "enum": ["1.0", "2.0", "3.0", "4.0"],
       "description": "Schema version identifier"
     },
     "batch_id": {
@@ -96,6 +96,11 @@
           "type": "integer",
           "minimum": 0,
           "description": "Number of approved applicability changes"
+        },
+        "paragraph_coverage_warnings": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of guidelines with only section-level matches (no paragraphs) - v4.0 only"
         }
       }
     }
@@ -303,6 +308,20 @@
         },
         "notes": {
           "type": ["string", "null"]
+        },
+        "paragraph_match_count": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Count of paragraph-level matches (category != 0) - v4.0 only"
+        },
+        "section_match_count": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Count of section-level matches (category = 0) - v4.0 only"
+        },
+        "paragraph_level_waiver": {
+          "type": ["string", "null"],
+          "description": "If no paragraph matches, explains why - v4.0 only"
         }
       }
     },

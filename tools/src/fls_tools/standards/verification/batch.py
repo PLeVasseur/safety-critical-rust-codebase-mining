@@ -12,14 +12,15 @@ This script extracts all relevant data for a batch of guidelines:
 Supports schema versions:
 - v1.0: Flat verification_decision structure (legacy, read-only)
 - v2.0: Per-context verification_decision (legacy, read-only)
-- v3.0: Per-context + ADD-6 data (default for new batch reports)
+- v3.0/v3.1/v3.2: Per-context + ADD-6 data (legacy)
+- v4.0: Per-context + ADD-6 + enforced paragraph coverage (default for new batch reports)
 
 Two output modes:
 - LLM mode: Full JSON optimized for LLM consumption
 - Human mode: Markdown report with JSON snippets for quick review
 
 Usage:
-    # Generate v3 batch report (default)
+    # Generate v4.0 batch report (default)
     uv run verify-batch --standard misra-c --batch 3 --session 1 --mode llm
     
     # Human-readable report
@@ -368,12 +369,15 @@ def build_current_state_from_mapping(mapping: dict) -> dict:
     """
     Build current_state from a mapping entry.
     
-    Handles v1.0, v1.1, v2.0, v2.1, v3.0 mapping formats.
+    Handles v1.x (flat) and v2.x/v3.x/v4.x (per-context) mapping formats.
     """
     version = get_guideline_schema_version(mapping)
     
-    # For v2/v2.1/v3 entries, include both flat (for backwards compat) and per-context
-    if version in ("2.0", "2.1", "3.0"):
+    # Per-context versions
+    per_context_versions = ("2.0", "2.1", "2.2", "3.0", "3.1", "3.2", "4.0")
+    
+    # For v2+ entries, include both flat (for backwards compat) and per-context
+    if version in per_context_versions:
         all_rust = mapping.get("all_rust", {})
         safe_rust = mapping.get("safe_rust", {})
         return {
@@ -393,7 +397,7 @@ def build_current_state_from_mapping(mapping: dict) -> dict:
             "misra_add6": mapping.get("misra_add6"),
         }
     else:
-        # v1.0 or v1.1 entry
+        # v1.x entries (v1.0, v1.1, v1.2)
         return {
             "schema_version": version,
             "applicability_all_rust": mapping.get("applicability_all_rust"),
@@ -403,7 +407,7 @@ def build_current_state_from_mapping(mapping: dict) -> dict:
             "accepted_matches": mapping.get("accepted_matches", []),
             "rejected_matches": mapping.get("rejected_matches", []),
             "notes": mapping.get("notes"),
-            # ADD-6 if present (v1.1)
+            # ADD-6 if present (v1.1+)
             "misra_add6": mapping.get("misra_add6"),
         }
 
@@ -413,7 +417,7 @@ def build_guideline_entry(
     guideline_id: str,
     section_threshold: float,
     paragraph_threshold: float,
-    schema_version: SchemaVersion = "3.0",
+    schema_version: SchemaVersion = "4.0",
 ) -> dict:
     """Build a complete guideline entry for the batch report."""
     mapping = get_mapping(data, guideline_id)
@@ -424,8 +428,11 @@ def build_guideline_entry(
     # Get ADD-6 data for this guideline
     add6 = data.get("add6", {}).get(guideline_id)
     
+    # Per-context versions use v2-style scaffolded decision
+    per_context_versions = ("2.0", "2.1", "2.2", "3.0", "3.1", "3.2", "4.0")
+    
     # Build verification_decision based on schema version
-    if schema_version in ("2.0", "3.0"):
+    if schema_version in per_context_versions:
         verification_decision = build_scaffolded_v2_decision()
     else:
         verification_decision = build_scaffolded_v1_decision()
@@ -445,10 +452,11 @@ def build_guideline_entry(
         "verification_decision": verification_decision,
     }
     
-    # For v3.0 batch reports, include ADD-6 data at the guideline level
-    if schema_version == "3.0" and add6:
+    # For v3.0+ batch reports, include ADD-6 data at the guideline level
+    add6_versions = ("3.0", "3.1", "3.2", "4.0")
+    if schema_version in add6_versions and add6:
         entry["misra_add6"] = build_misra_add6_block(add6)
-    elif schema_version == "3.0" and not add6:
+    elif schema_version in add6_versions and not add6:
         print(f"  WARNING: No ADD-6 data for {guideline_id}", file=sys.stderr)
     
     return entry
@@ -461,7 +469,7 @@ def build_batch_report(
     session_id: int,
     section_threshold: float,
     paragraph_threshold: float,
-    schema_version: SchemaVersion = "3.0",
+    schema_version: SchemaVersion = "4.0",
 ) -> dict:
     """Build the complete batch report."""
     guideline_ids = get_batch_guidelines(data, batch_id)
@@ -476,6 +484,9 @@ def build_batch_report(
     # Use internal standard name
     internal_standard = normalize_standard(standard)
     
+    # Per-context versions
+    per_context_versions = ("2.0", "2.1", "2.2", "3.0", "3.1", "3.2", "4.0")
+    
     # Build summary based on schema version
     summary = {
         "total_guidelines": len(guidelines),
@@ -484,8 +495,8 @@ def build_batch_report(
         "applicability_changes_approved": 0,
     }
     
-    # Add per-context counts for v2/v3
-    if schema_version in ("2.0", "3.0"):
+    # Add per-context counts for v2+
+    if schema_version in per_context_versions:
         summary["all_rust_verified_count"] = 0
         summary["safe_rust_verified_count"] = 0
     
@@ -642,9 +653,9 @@ def main():
     parser.add_argument(
         "--schema-version",
         type=str,
-        choices=["1.0", "2.0", "3.0"],
-        default="3.0",
-        help="Schema version to generate (default: 3.0)",
+        choices=["1.0", "2.0", "3.0", "4.0"],
+        default="4.0",
+        help="Schema version to generate (default: 4.0)",
     )
     
     args = parser.parse_args()
